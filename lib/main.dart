@@ -1,4 +1,3 @@
-import 'package:abc_consultant/ui/screens/home_screen.dart';
 import 'package:abc_consultant/ui/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -12,11 +11,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home:  SplashScreen(),
-    );
+    return MaterialApp(home: SplashScreen());
   }
 }
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
@@ -25,13 +23,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
-
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-    );
+    return Scaffold();
   }
 }

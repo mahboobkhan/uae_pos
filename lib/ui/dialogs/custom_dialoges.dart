@@ -46,8 +46,7 @@ Widget _buildDialogContent(BuildContext context) {
               onTap: () {},
               showEdit: true,
             ),
-            _DialogButton(label: 'New PIN', onTap: () {
-            }, showEdit: true),
+            _DialogButton(label: 'New PIN', onTap: () {}, showEdit: true),
             _DialogButton(
               label: 'Finance History',
               onTap: () {},
@@ -59,7 +58,7 @@ Widget _buildDialogContent(BuildContext context) {
       const CircleAvatar(
         radius: 50,
         backgroundColor: Colors.grey,
-        child: Icon(Icons.perm_identity_sharp, color: Colors.black,size: 40,),
+        child: Icon(Icons.perm_identity_sharp, color: Colors.black, size: 40),
       ),
     ],
   );
@@ -76,7 +75,6 @@ class _DialogButton extends StatefulWidget {
     this.showArrow = false,
     this.showEdit = false,
     this.onTap,
-    super.key,
   });
 
   @override
@@ -188,11 +186,7 @@ Widget _buildEdit(BuildContext context) {
       Container(
         width: 300,
         margin: const EdgeInsets.only(top: 50),
-        padding: const EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: 20,
-        ),
+        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -243,12 +237,8 @@ Widget _buildEdit(BuildContext context) {
                   child: const Text("Cancel"),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   child: const Text("Save"),
                 ),
               ],
