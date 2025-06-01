@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
+import 'dashboard/Dashboard.dart';
 
 class SidebarLayout extends StatefulWidget {
   const SidebarLayout({super.key});
@@ -265,7 +266,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
 
     switch (item) {
       case NavItem.dashboard:
-        return const Center(child: Text('Dashboard Screen'));
+        return Center(child: DashboardScreen());
       case NavItem.services:
         return const Center(child: Text('Services Screen'));
       case NavItem.clients:
