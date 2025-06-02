@@ -1,10 +1,13 @@
+import 'dart:developer';
+
+import 'package:abc_consultant/ui/screens/services/services_screen.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 class SidebarLayout extends StatefulWidget {
-  const SidebarLayout({super.key});
+  SidebarLayout({super.key});
 
   @override
   State<SidebarLayout> createState() => _SidebarLayoutState();
@@ -35,14 +38,15 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                 // Brand icon with name below
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.business, size: 28, color: Colors.red),
+                  children:  [
+                    SvgPicture.asset(
+                      'assets/images/home/ic_yahya_chodrary.svg',
+                      height: 35,
+                    ),
                     SizedBox(height: 2),
-                    Text('Brand', style: TextStyle(fontSize: 10)),
                   ],
                 ),
                 const SizedBox(width: 24),
-
                 // Centered Search bar with button
                 Expanded(
                   child: Row(
@@ -268,7 +272,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.dashboard:
         return Center(child: DashboardScreen());
       case NavItem.services:
-        return const Center(child: Text('Services Screen'));
+        return Center(child: ServicesScreen());
       case NavItem.clients:
         return const Center(child: Text('Clients Screen'));
       case NavItem.employees:
