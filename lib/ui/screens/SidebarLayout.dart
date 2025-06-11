@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:abc_consultant/ui/screens/services/create_orders.dart';
 import 'package:abc_consultant/ui/screens/services/services_screen.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
@@ -15,7 +16,7 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.dashboard;
+  NavItem selectedItem = NavItem.services;
 
   int _selectedSidebarIndex = -1;
   int _selectedSubmenuIndex = -1;
@@ -80,9 +81,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                     ],
                   ),
                 ),
-
                 const SizedBox(width: 24),
-
                 // User info right side
                 Row(
                   children: const [
@@ -307,7 +306,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
           case 'Projects':
             return const Center(child: Text('Services > Projects'));
           case 'Create Orders':
-            return const Center(child: Text('Services > Create Orders'));
+            return const Center(child: CreateOrders());
         }
         break;
       case NavItem.clients:

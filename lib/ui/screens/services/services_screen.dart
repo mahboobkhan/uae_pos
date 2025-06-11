@@ -1,5 +1,6 @@
 import 'package:abc_consultant/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({super.key});
@@ -135,15 +136,23 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         setState(() {
                           selectedCategory4 = newValue;
                         });
+                        if (newValue == 'Short Services') {
+                          showShortServicesPopup(context);
+                        } else if (newValue == 'Add Services') {
+                          showServicesProjectPopup(context);
+                        }
                       },
-                      itemBuilder: (BuildContext context) {
-                        return categories4.map((String value) {
-                          return PopupMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList();
-                      },
+
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'Short Services',
+                          child: Text('Short Services'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'Add Services',
+                          child: Text('Add Services'),
+                        ),
+                      ],
                       child: Container(
                         width: 35,
                         height: 35,
@@ -186,7 +195,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
                       children: [
                         _buildHeader("Date"),
-                        _buildHeader(" Beneficiary\nOrder Type"),
+                        _buildHeader("Beneficiary\nOrder Type"),
                         _buildHeader("Tags Details"),
                         _buildHeader("Status"),
                         _buildHeader("Stage"),

@@ -249,3 +249,350 @@ Widget _buildEdit(BuildContext context) {
     ],
   );
 }
+
+void showShortServicesPopup(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      String customer = '';
+      String? selectedService;
+      String charges = '';
+
+      final List<String> serviceOptions = [
+        'Cleaning',
+        'Consulting',
+        'Repairing',
+      ];
+
+      return AlertDialog(
+        backgroundColor: const Color(0xFFE0E0E0),
+        // light gray
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: Colors.red),
+        ),
+        titlePadding: const EdgeInsets.all(10),
+        contentPadding: const EdgeInsets.all(20),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "Add Services",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "SID-01100011",
+                  style: TextStyle(fontSize: 12, color: Colors.black),
+                ),
+              ],
+            ),
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Input fields
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildTextField(
+                    label: 'SERVICE NAME',
+                    onChanged: (val) => customer = val,
+                  ),
+                  _buildServiceDropdown(
+                    selectedService,
+                    serviceOptions,
+                    onChanged: (val) => selectedService = val,
+                  ),
+                  _buildTextField(
+                    label: 'COST',
+                    keyboardType: TextInputType.number,
+                    onChanged: (val) => charges = val,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child:  Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildTextField({
+  required String label,
+  required Function(String) onChanged,
+  TextInputType keyboardType = TextInputType.text,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+    child: SizedBox(
+      width: 110, // Matched with dropdown
+      child: TextField(
+        decoration: InputDecoration(
+          labelText: label,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          // Always on top
+          labelStyle: const TextStyle(fontSize: 14),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.green),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.purple),
+          ),
+        ),
+        keyboardType: keyboardType,
+        onChanged: onChanged,
+      ),
+    ),
+  );
+}
+
+Widget _buildServiceDropdown(
+  String? selectedValue,
+  List<String> options, {
+  required void Function(String?) onChanged,
+}) {
+  return SizedBox(
+    width: 160,
+    child: DropdownButtonFormField<String>(
+      value: selectedValue,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: 'SERVICE NAME',
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        // Always on top
+        labelStyle: const TextStyle(fontSize: 14),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.green),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.purple),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(Icons.add_circle, color: Colors.red),
+          onPressed: () {
+            // Add custom service action
+          },
+        ),
+      ),
+      hint: Text(
+        'Select',
+        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+      ),
+      onChanged: onChanged,
+      items:
+          options.map((String value) {
+            return DropdownMenuItem(value: value, child: Text(value));
+          }).toList(),
+    ),
+  );
+}
+
+// Services Project
+void showServicesProjectPopup(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      String customer = '';
+      String? selectedService;
+      String charges = '';
+
+      final List<String> serviceOptions = [
+        'Cleaning',
+        'Consulting',
+        'Repairing',
+      ];
+
+      return AlertDialog(
+        backgroundColor: const Color(0xFFE0E0E0),
+        // light gray
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: Colors.red),
+        ),
+        titlePadding: const EdgeInsets.all(10),
+        contentPadding: const EdgeInsets.all(20),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "Short Services",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "SID-01100011",
+                  style: TextStyle(fontSize: 12, color: Colors.black),
+                ),
+              ],
+            ),
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Input fields
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildProjectTextField(
+                    label: 'CUSTOMER',
+                    onChanged: (val) => customer = val,
+                  ),
+                  _buildProjectDropdown(
+                    selectedService,
+                    serviceOptions,
+                    onChanged: (val) => selectedService = val,
+                  ),
+                  _buildProjectTextField(
+                    label: 'CHARGES',
+                    keyboardType: TextInputType.number,
+                    onChanged: (val) => charges = val,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildProjectTextField({
+  required String label,
+  required Function(String) onChanged,
+  TextInputType keyboardType = TextInputType.text,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+    child: SizedBox(
+      width: 110, // Matched with dropdown
+      child: TextField(
+        decoration: InputDecoration(
+          labelText: label,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          // Always on top
+          labelStyle: const TextStyle(fontSize: 14),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.green),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.purple),
+          ),
+        ),
+        keyboardType: keyboardType,
+        onChanged: onChanged,
+      ),
+    ),
+  );
+}
+
+Widget _buildProjectDropdown(
+  String? selectedValue,
+  List<String> options, {
+  required void Function(String?) onChanged,
+}) {
+  return SizedBox(
+    width: 160,
+    child: DropdownButtonFormField<String>(
+      value: selectedValue,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: 'SERVICE INSTITUTE',
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        // Always on top
+        labelStyle: const TextStyle(fontSize: 14),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.green),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.purple),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(Icons.add_circle, color: Colors.red),
+          onPressed: () {
+            // Add custom service action
+          },
+        ),
+      ),
+      hint: Text(
+        'Select',
+        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+      ),
+      onChanged: onChanged,
+      items:
+          options.map((String value) {
+            return DropdownMenuItem(value: value, child: Text(value));
+          }).toList(),
+    ),
+  );
+}
