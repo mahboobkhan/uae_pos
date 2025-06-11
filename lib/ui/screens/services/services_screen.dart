@@ -129,7 +129,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       },
                       icon: const Icon(Icons.calendar_month,size: 18,),
                     ),
-                    const SizedBox(width: 190),
+                    const SizedBox(width: 280),
                     PopupMenuButton<String>(
                       onSelected: (String newValue) {
                         setState(() {
