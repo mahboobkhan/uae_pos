@@ -43,7 +43,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     _buildDropdown(selectedCategory2, "Payment Status", categories2, (newValue) => setState(() => selectedCategory2 = newValue)),
                     _buildDropdown(selectedCategory3, "Duration", categories3, (newValue) => setState(() => selectedCategory3 = newValue), icon: const Icon(Icons.calendar_month, size: 18)),
                     const SizedBox(width: 350),
-
                     PopupMenuButton<String>(
                       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                         const PopupMenuItem<String>(value: 'Short Employee', child: Text('Short Employee')),
