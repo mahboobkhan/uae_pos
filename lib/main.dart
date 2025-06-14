@@ -1,4 +1,6 @@
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
+import 'package:abc_consultant/ui/screens/services/client_screen/add_company_profile%20dialogue.dart';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,6 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     //  return MaterialApp(home: DashboardScreen());
     return MaterialApp(home: SidebarLayout());
+    //home: SidebarLayout()
   }
 }
 
