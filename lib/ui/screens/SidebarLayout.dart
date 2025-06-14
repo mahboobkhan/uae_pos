@@ -1,7 +1,10 @@
 import 'dart:developer';
 
-import 'package:abc_consultant/ui/screens/services/client_main.dart';
+import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
+import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
+import 'package:abc_consultant/ui/screens/office/office_expense_screen.dart';
 import 'package:abc_consultant/ui/screens/services/create_orders.dart';
+import 'package:abc_consultant/ui/screens/services/projects_screen.dart';
 import 'package:abc_consultant/ui/screens/services/services_screen.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
@@ -277,11 +280,11 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.clients:
         return const Center(child: ClientMain());
       case NavItem.employees:
-        return const Center(child: Text('Employees Screen'));
+        return Center(child: EmployeeScreen());
       case NavItem.banking:
-        return const Center(child: Text('Banking Screen'));
+        return const Center(child: BankingScreen());
       case NavItem.expenses:
-        return const Center(child: Text('Expenses Screen'));
+        return const Center(child: OfficeExpenseScreen());
       case NavItem.notifications:
         return const Center(child: Text('Notifications Screen'));
       case NavItem.files:
@@ -306,7 +309,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
           case 'Short Service':
             return const Center(child: Text('Services > Short Service'));
           case 'Projects':
-            return const Center(child: Text('Services > Projects'));
+            return const Center(child: ProjectsScreen());
           case 'Create Orders':
             return const Center(child: CreateOrders());
         }

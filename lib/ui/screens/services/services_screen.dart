@@ -1,6 +1,6 @@
+import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:abc_consultant/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({super.key});

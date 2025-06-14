@@ -198,7 +198,7 @@ class _CreateOrdersState extends State<CreateOrders> {
           labelText: label,
           labelStyle: TextStyle(fontSize: 12),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.green),
+            borderSide: BorderSide(color: Colors.red),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.purple),
