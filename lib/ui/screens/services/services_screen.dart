@@ -128,7 +128,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           selectedCategory3 = newValue!;
                         });
                       },
-                      icon: const Icon(Icons.calendar_month,size: 18,),
+                      icon: const Icon(Icons.calendar_month, size: 18),
                     ),
                     const SizedBox(width: 280),
                     PopupMenuButton<String>(
@@ -143,16 +143,17 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         }
                       },
 
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'Short Services',
-                          child: Text('Short Services'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'Add Services',
-                          child: Text('Add Services'),
-                        ),
-                      ],
+                      itemBuilder:
+                          (BuildContext context) => <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'Short Services',
+                              child: Text('Short Services'),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: 'Add Services',
+                              child: Text('Add Services'),
+                            ),
+                          ],
                       child: Container(
                         width: 35,
                         height: 35,
@@ -256,8 +257,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 items.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child:  Container(
-                        padding: EdgeInsets.zero, child: Text(value)),
+                    child: Container(
+                      padding: EdgeInsets.zero,
+                      child: Text(value),
+                    ),
                   );
                 }).toList(),
           ),

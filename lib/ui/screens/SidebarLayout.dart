@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:abc_consultant/ui/screens/services/client_main.dart';
 import 'package:abc_consultant/ui/screens/services/create_orders.dart';
 import 'package:abc_consultant/ui/screens/services/services_screen.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import '../Model/NavItem.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 class SidebarLayout extends StatefulWidget {
   SidebarLayout({super.key});
 
@@ -39,7 +41,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                 // Brand icon with name below
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children:  [
+                  children: [
                     SvgPicture.asset(
                       'assets/images/home/ic_yahya_chodrary.svg',
                       height: 35,
@@ -273,7 +275,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.services:
         return Center(child: ServicesScreen());
       case NavItem.clients:
-        return const Center(child: Text('Clients Screen'));
+        return const Center(child: ClientMain());
       case NavItem.employees:
         return const Center(child: Text('Employees Screen'));
       case NavItem.banking:
