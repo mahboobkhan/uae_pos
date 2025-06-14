@@ -43,7 +43,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: Padding(

@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
 import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
@@ -20,7 +19,7 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.services;
+  NavItem selectedItem = NavItem.dashboard;
 
   int _selectedSidebarIndex = -1;
   int _selectedSubmenuIndex = -1;
@@ -64,11 +63,15 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                           color: Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 3),
                         child: const TextField(
+                          textAlign: TextAlign.left, // horizontal alignment
+                          textAlignVertical: TextAlignVertical.center,
                           decoration: InputDecoration(
                             hintText: 'Search...',
                             border: InputBorder.none,
+                            isCollapsed: true,
+                            contentPadding: EdgeInsets.zero,
                           ),
                         ),
                       ),

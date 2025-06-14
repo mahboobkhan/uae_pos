@@ -27,22 +27,22 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            Container(
-              height: 45,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Container(
+                height: 45,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(2),
+                ),
                 child: Row(
                   children: [
                     _buildDropdown(selectedCategory, "Employee Type", categories, (newValue) => setState(() => selectedCategory = newValue)),
                     _buildDropdown(selectedCategory1, "Employee List", categories1, (newValue) => setState(() => selectedCategory1 = newValue)),
                     _buildDropdown(selectedCategory2, "Payment Status", categories2, (newValue) => setState(() => selectedCategory2 = newValue)),
                     _buildDropdown(selectedCategory3, "Duration", categories3, (newValue) => setState(() => selectedCategory3 = newValue), icon: const Icon(Icons.calendar_month, size: 18)),
-                    const SizedBox(width: 350),
+                    Spacer(),
                     PopupMenuButton<String>(
                       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                         const PopupMenuItem<String>(value: 'Short Employee', child: Text('Short Employee')),

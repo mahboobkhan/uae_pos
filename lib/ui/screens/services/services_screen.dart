@@ -10,6 +10,14 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
+  final List<Map<String, dynamic>> stats = [
+    {'label': 'Revenue', 'value': '25K'},
+    {'label': 'Users', 'value': '1.2K'},
+    {'label': 'Orders', 'value': '320'},
+    {'label': 'Visits', 'value': '8.5K'},
+    {'label': 'Returns', 'value': '102'},
+  ];
+
   // List of filter options
   final List<String> categories = [
     'All',
@@ -43,38 +51,50 @@ class _ServicesScreenState extends State<ServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                child: Row(
-                  children: [
-                    buildCenteredTextContainer(
-                      title: "32",
-                      subtitle: "New Projects",
+            SizedBox(
+              height: 120,
+              child: Row(
+                children:
+                stats.map((stat) {
+                  return Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            stat['value'],
+                            style: const TextStyle(
+                              fontSize: 28,
+                              color: Colors.white,
+                              fontFamily: 'Courier',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            stat['label'],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    buildCenteredTextContainer(
-                      title: "43",
-                      subtitle: "Pending Projects",
-                    ),
-                    buildCenteredTextContainer(
-                      title: "45",
-                      subtitle: "In Progress",
-                    ),
-                    buildCenteredTextContainer(
-                      title: "56",
-                      subtitle: "Completed",
-                    ),
-                    buildCenteredTextContainer(
-                      title: "80",
-                      subtitle: "Stop projects",
-                    ),
-                  ],
-                ),
+                  );
+                }).toList(),
               ),
             ),
             SizedBox(height: 20),
@@ -86,142 +106,137 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 border: Border.all(color: Colors.grey, width: 1),
                 borderRadius: BorderRadius.circular(2),
               ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    // Dropdowns
-                    _buildDropdown(selectedCategory, "Status", categories, (
-                      newValue,
-                    ) {
+              child: Row(
+                children: [
+                  // Dropdowns
+                  _buildDropdown(selectedCategory, "Status", categories, (
+                    newValue,
+                  ) {
+                    setState(() {
+                      selectedCategory = newValue!;
+                    });
+                  }),
+
+                  _buildDropdown(
+                    selectedCategory1,
+                    "Select Tags",
+                    categories1,
+                    (newValue) {
                       setState(() {
-                        selectedCategory = newValue!;
+                        selectedCategory1 = newValue!;
                       });
-                    }),
+                    },
+                  ),
+                  _buildDropdown(
+                    selectedCategory2,
+                    "Payment Status",
+                    categories2,
+                    (newValue) {
+                      setState(() {
+                        selectedCategory2 = newValue!;
+                      });
+                    },
+                  ),
+                  _buildDropdown(
+                    selectedCategory3,
+                    "Dates",
+                    categories3,
+                    (newValue) {
+                      setState(() {
+                        selectedCategory3 = newValue!;
+                      });
+                    },
+                    icon: const Icon(Icons.calendar_month, size: 18),
+                  ),
+                  Spacer(),
+                  PopupMenuButton<String>(
+                    onSelected: (String newValue) {
+                      setState(() {
+                        selectedCategory4 = newValue;
+                      });
+                      if (newValue == 'Short Services') {
+                        showShortServicesPopup(context);
+                      } else if (newValue == 'Add Services') {
+                        showServicesProjectPopup(context);
+                      }
+                    },
 
-                    _buildDropdown(
-                      selectedCategory1,
-                      "Select Tags",
-                      categories1,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory1 = newValue!;
-                        });
-                      },
-                    ),
-                    _buildDropdown(
-                      selectedCategory2,
-                      "Payment Status",
-                      categories2,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory2 = newValue!;
-                        });
-                      },
-                    ),
-                    _buildDropdown(
-                      selectedCategory3,
-                      "Dates",
-                      categories3,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory3 = newValue!;
-                        });
-                      },
-                      icon: const Icon(Icons.calendar_month, size: 18),
-                    ),
-                    const SizedBox(width: 280),
-                    PopupMenuButton<String>(
-                      onSelected: (String newValue) {
-                        setState(() {
-                          selectedCategory4 = newValue;
-                        });
-                        if (newValue == 'Short Services') {
-                          showShortServicesPopup(context);
-                        } else if (newValue == 'Add Services') {
-                          showServicesProjectPopup(context);
-                        }
-                      },
-
-                      itemBuilder:
-                          (BuildContext context) => <PopupMenuEntry<String>>[
-                            const PopupMenuItem<String>(
-                              value: 'Short Services',
-                              child: Text('Short Services'),
-                            ),
-                            const PopupMenuItem<String>(
-                              value: 'Add Services',
-                              child: Text('Add Services'),
-                            ),
-                          ],
-                      child: Container(
-                        width: 35,
-                        height: 35,
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.add, color: Colors.white, size: 20),
-                        ),
+                    itemBuilder:
+                        (BuildContext context) => <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'Short Services',
+                            child: Text('Short Services'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'Add Services',
+                            child: Text('Add Services'),
+                          ),
+                        ],
+                    child: Container(
+                      width: 35,
+                      height: 35,
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.add, color: Colors.white, size: 20),
                       ),
                     ),
-                    Icon(Icons.edit_outlined, color: Colors.green),
-                  ],
-                ),
+                  ),
+                  Icon(Icons.edit_outlined, color: Colors.green),
+                  SizedBox(width: 20,)
+                ],
               ),
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal, // Enable horizontal scrolling
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Table(
-                  border: TableBorder.all(color: Colors.white),
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: const {
-                    0: FixedColumnWidth(110),
-                    1: FixedColumnWidth(110),
-                    2: FixedColumnWidth(110),
-                    3: FixedColumnWidth(110),
-                    4: FixedColumnWidth(110),
-                    5: FixedColumnWidth(110),
-                    6: FixedColumnWidth(110),
-                    7: FixedColumnWidth(110),
-                    8: FixedColumnWidth(110),
-                  },
-                  children: [
-                    // Header Row
-                    TableRow(
-                      decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
-                      children: [
-                        _buildHeader("Date"),
-                        _buildHeader("Beneficiary\nOrder Type"),
-                        _buildHeader("Tags Details"),
-                        _buildHeader("Status"),
-                        _buildHeader("Stage"),
-                        _buildHeader("Payment\nPending"),
-                        _buildHeader("Quotation Price"),
-                        _buildHeader("Manage"),
-                        _buildHeader("Ref Id"),
-                      ],
-                    ),
-                    // Sample Data Row
-                    TableRow(
-                      children: [
-                        _buildCell("12-02-2025\n02:59 pm"),
-                        _buildCell("Sample Customer\nxxxxxxxxx245"),
-                        _buildTagsCell(["Sample Tags", "Sample", "Tages123"]),
-                        _buildCell("In progress"),
-                        _buildCell("PB-02 - 23days"),
-                        _buildPriceWithAdd("300"),
-                        _buildCell("500"),
-                        _buildCell("Mr. Imran"),
-                        _buildCell("xxxxxxxxx245"),
-                      ],
-                    ),
-                  ],
-                ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Table(
+                border: TableBorder.all(color: Colors.white),
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                columnWidths: const {
+                  0: FlexColumnWidth(1),
+                  1: FlexColumnWidth(1),
+                  2: FlexColumnWidth(1),
+                  3: FlexColumnWidth(1),
+                  4: FlexColumnWidth(1),
+                  5: FlexColumnWidth(1),
+                  6: FlexColumnWidth(1),
+                  7: FlexColumnWidth(1),
+                  8: FlexColumnWidth(1),
+                },
+                children: [
+                  // Header Row
+                  TableRow(
+                    decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
+                    children: [
+                      _buildHeader("Date"),
+                      _buildHeader("Beneficiary\nOrder Type"),
+                      _buildHeader("Tags Details"),
+                      _buildHeader("Status"),
+                      _buildHeader("Stage"),
+                      _buildHeader("Payment\nPending"),
+                      _buildHeader("Quotation Price"),
+                      _buildHeader("Manage"),
+                      _buildHeader("Ref Id"),
+                    ],
+                  ),
+                  // Sample Data Row
+                  TableRow(
+                    children: [
+                      _buildCell("12-02-2025\n02:59 pm"),
+                      _buildCell("Sample Customer\nxxxxxxxxx245"),
+                      _buildTagsCell(["Sample Tags", "Sample", "Tages123"]),
+                      _buildCell("In progress"),
+                      _buildCell("PB-02 - 23days"),
+                      _buildPriceWithAdd("300"),
+                      _buildCell("500"),
+                      _buildCell("Mr. Imran"),
+                      _buildCell("xxxxxxxxx245"),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
