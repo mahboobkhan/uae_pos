@@ -27,182 +27,184 @@ class _ClientMainState extends State<ClientMain> {
     final height = size.height;
     final width = size.width;
 
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
+    return MaterialApp(
+      home: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(height: height * 0.05),
-                Row(
-                  children: [
-                    Container(
-                      height: 45,
-                      width: MediaQuery.of(context).size.width,
-                      margin: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey, width: 1),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            // Dropdowns
-                            _buildDropdown(
-                              customerValue,
-                              "Select Customer Type",
-                              customerType,
-                              (newValue) {
-                                setState(() {
-                                  customerValue = newValue!;
-                                });
-                              },
-                            ),
+            scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(height: height * 0.05),
+                  Row(
+                    children: [
+                      Container(
+                        height: 45,
+                        width: MediaQuery.of(context).size.width,
+                        margin: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey, width: 1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              // Dropdowns
+                              _buildDropdown(
+                                customerValue,
+                                "Select Customer Type",
+                                customerType,
+                                (newValue) {
+                                  setState(() {
+                                    customerValue = newValue!;
+                                  });
+                                },
+                              ),
 
-                            _buildDropdown(tagValue, "Select Tags", tags, (
-                              newValue,
-                            ) {
-                              setState(() {
-                                tagValue = newValue!;
-                              });
-                            }),
-                            _buildDropdown(
-                              paymentValue,
-                              "Payment Status",
-                              paymentStatus,
-                              (newValue) {
+                              _buildDropdown(tagValue, "Select Tags", tags, (
+                                newValue,
+                              ) {
                                 setState(() {
-                                  paymentValue = newValue!;
+                                  tagValue = newValue!;
                                 });
-                              },
-                            ),
+                              }),
+                              _buildDropdown(
+                                paymentValue,
+                                "Payment Status",
+                                paymentStatus,
+                                (newValue) {
+                                  setState(() {
+                                    paymentValue = newValue!;
+                                  });
+                                },
+                              ),
 
-                            const SizedBox(width: 280),
-                            PopupMenuButton<String>(
-                              onSelected: (String newValue) {
-                                setState(() {
-                                  profileAddCategory = newValue;
-                                });
-                                if (newValue == 'Add Company') {
-                                  showAddCompanyProfileDialogue(
-                                    context,
-                                  ); // Call the dialog function here
-                                } else if (newValue == 'Add Individual') {
-                                  // Handle individual addition
-                                }
-                              },
-                              itemBuilder:
-                                  (BuildContext context) =>
-                                      <PopupMenuEntry<String>>[
-                                        const PopupMenuItem<String>(
-                                          value: 'Add Company',
-                                          child: Text('Add Company'),
-                                        ),
-                                        const PopupMenuItem<String>(
-                                          value: 'Add Individual',
-                                          child: Text('Add Individual'),
-                                        ),
-                                      ],
-                              child: CircleAvatar(
-                                backgroundColor: Colors.red,
-                                child: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
+                              const SizedBox(width: 280),
+                              PopupMenuButton<String>(
+                                onSelected: (String newValue) {
+                                  setState(() {
+                                    profileAddCategory = newValue;
+                                  });
+                                  if (newValue == 'Add Company') {
+                                    showAddCompanyProfileDialogue(
+                                      context,
+                                    ); // Call the dialog function here
+                                  } else if (newValue == 'Add Individual') {
+                                    // Handle individual addition
+                                  }
+                                },
+                                itemBuilder:
+                                    (BuildContext context) =>
+                                        <PopupMenuEntry<String>>[
+                                          const PopupMenuItem<String>(
+                                            value: 'Add Company',
+                                            child: Text('Add Company'),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'Add Individual',
+                                            child: Text('Add Individual'),
+                                          ),
+                                        ],
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.red,
+                                  child: const Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(width: width * 0.02),
-                            Icon(Icons.edit_outlined, color: Colors.green),
-                          ],
+                              SizedBox(width: width * 0.02),
+                              Icon(Icons.edit_outlined, color: Colors.green),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: height * 0.05),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection:
-                          Axis.horizontal, // Enable horizontal scrolling
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Table(
-                          border: TableBorder.all(color: Colors.white),
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          columnWidths: const {
-                            0: FixedColumnWidth(130),
-                            1: FixedColumnWidth(130),
-                            2: FixedColumnWidth(130),
-                            3: FixedColumnWidth(130),
-                            4: FixedColumnWidth(130),
-                            5: FixedColumnWidth(130),
-                            6: FixedColumnWidth(130),
-                            7: FixedColumnWidth(130),
-                            8: FixedColumnWidth(130),
-                          },
-                          children: [
-                            // Header Row
-                            TableRow(
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFEDEDED),
+                    ],
+                  ),
+                  SizedBox(height: height * 0.05),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection:
+                            Axis.horizontal, // Enable horizontal scrolling
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Table(
+                            border: TableBorder.all(color: Colors.white),
+                            defaultVerticalAlignment:
+                                TableCellVerticalAlignment.middle,
+                            columnWidths: const {
+                              0: FixedColumnWidth(130),
+                              1: FixedColumnWidth(130),
+                              2: FixedColumnWidth(130),
+                              3: FixedColumnWidth(130),
+                              4: FixedColumnWidth(130),
+                              5: FixedColumnWidth(130),
+                              6: FixedColumnWidth(130),
+                              7: FixedColumnWidth(130),
+                              8: FixedColumnWidth(130),
+                            },
+                            children: [
+                              // Header Row
+                              TableRow(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFEDEDED),
+                                ),
+                                children: [
+                                  _buildHeader("Client Type"),
+                                  _buildHeader("Customers\nRef I'd"),
+                                  _buildHeader("Tags Details"),
+                                  _buildHeader("Contact Number\nEmail I'd"),
+                                  _buildHeader("Project Status"),
+                                  _buildHeader("Payment\nPending"),
+                                  _buildHeader("Total Received"),
+                                  _buildHeader("Other Actions"),
+                                  // _buildHeader("Ref Id"),
+                                ],
                               ),
-                              children: [
-                                _buildHeader("Client Type"),
-                                _buildHeader("Customers\nRef I'd"),
-                                _buildHeader("Tags Details"),
-                                _buildHeader("Contact Number\nEmail I'd"),
-                                _buildHeader("Project Status"),
-                                _buildHeader("Payment\nPending"),
-                                _buildHeader("Total Received"),
-                                _buildHeader("Other Actions"),
-                                // _buildHeader("Ref Id"),
-                              ],
-                            ),
-                            // Sample Data Row
-                            TableRow(
-                              children: [
-                                _buildCell("Company", context: context),
-                                _buildCell(
-                                  "Sample Customer\nxxxxxxxxx245",
-                                  context: context,
-                                  copyable: true,
-                                ),
-                                _buildTagsCell([
-                                  "Sample Tags",
-                                  "Sample",
-                                  "Tages123",
-                                ]),
-                                _buildCell(
-                                  "+971 123 4567\nsample@abc.com",
-                                  context: context,
-                                  copyable: true,
-                                ),
-                                _buildCell("0/3-Running", context: context),
-                                _buildPriceWithAdd("300"),
-                                _buildCell("900", context: context),
-                                _buildCell(
-                                  "Edit Profile - Orders History",
-                                  color: Colors.blue,
-                                  context: context,
-                                ),
-                                // _buildCell("xxxxxxxxx245"),
-                              ],
-                            ),
-                          ],
+                              // Sample Data Row
+                              TableRow(
+                                children: [
+                                  _buildCell("Company", context: context),
+                                  _buildCell(
+                                    "Sample Customer\nxxxxxxxxx245",
+                                    context: context,
+                                    copyable: true,
+                                  ),
+                                  _buildTagsCell([
+                                    "Sample Tags",
+                                    "Sample",
+                                    "Tages123",
+                                  ]),
+                                  _buildCell(
+                                    "+971 123 4567\nsample@abc.com",
+                                    context: context,
+                                    copyable: true,
+                                  ),
+                                  _buildCell("0/3-Running", context: context),
+                                  _buildPriceWithAdd("300"),
+                                  _buildCell("900", context: context),
+                                  _buildCell(
+                                    "Edit Profile - Orders History",
+                                    color: Colors.blue,
+                                    context: context,
+                                  ),
+                                  // _buildCell("xxxxxxxxx245"),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

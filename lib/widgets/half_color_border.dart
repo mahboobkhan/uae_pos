@@ -4,12 +4,14 @@ class SmoothGradientBorderContainer extends StatelessWidget {
   final Widget child;
   final double? width;
   final double? height;
+  final Color color;
 
   const SmoothGradientBorderContainer({
     super.key,
     required this.child,
     this.width,
     this.height,
+    this.color = Colors.white,
   });
 
   @override
@@ -29,7 +31,7 @@ class SmoothGradientBorderContainer extends StatelessWidget {
           child: Container(
             height: containerHeight,
             width: containerWidth,
-            color: Colors.white, // ✅ White inside
+            color: color, // ✅ White inside
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             alignment: Alignment.center,
             child: child,

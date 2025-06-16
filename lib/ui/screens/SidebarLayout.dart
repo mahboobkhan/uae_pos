@@ -6,6 +6,7 @@ import 'package:abc_consultant/ui/screens/office/office_expense_screen.dart';
 import 'package:abc_consultant/ui/screens/services/create_orders.dart';
 import 'package:abc_consultant/ui/screens/services/projects_screen.dart';
 import 'package:abc_consultant/ui/screens/services/services_screen.dart';
+import 'package:abc_consultant/ui/screens/services/client_main.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
@@ -278,7 +279,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.services:
         return Center(child: ServicesScreen());
       case NavItem.clients:
-        return const Center(child: ClientMain());
+        return Center(child: ClientMain());
       case NavItem.employees:
         return Center(child: EmployeeScreen());
       case NavItem.banking:
