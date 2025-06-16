@@ -1,4 +1,6 @@
+import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
+import 'package:abc_consultant/ui/screens/banking/statement_screen.dart';
 
 import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
 import 'package:abc_consultant/ui/screens/office/office_expense_screen.dart';
@@ -6,6 +8,9 @@ import 'package:abc_consultant/ui/screens/services/client_main.dart';
 import 'package:abc_consultant/ui/screens/services/create_orders.dart';
 import 'package:abc_consultant/ui/screens/services/projects_screen.dart';
 import 'package:abc_consultant/ui/screens/services/services_screen.dart';
+import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
+import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
+import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
@@ -21,10 +26,10 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.services;
+  NavItem selectedItem = NavItem.settings;
 
-  int _selectedSidebarIndex = -1;
-  int _selectedSubmenuIndex = -1;
+  int _selectedSidebarIndex = 8;
+  int _selectedSubmenuIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -286,9 +291,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.employees:
         return Center(child: EmployeeScreen());
       case NavItem.banking:
-        return const Center(child: BankingScreen());
+        return  Center(child: BankingScreen());
       case NavItem.expenses:
-        return const Center(child: OfficeExpenseScreen());
+        return  Center(child: OfficeExpenseScreen());
       case NavItem.notifications:
         return const Center(child: Text('Notifications Screen'));
       case NavItem.files:
@@ -339,9 +344,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.banking:
         switch (submenu) {
           case 'Add payment method':
-            return const Center(child: Text('Banking > Add payment method'));
+            return  Center(child: BankPaymentScreen());
           case 'Statement History':
-            return const Center(child: Text('Banking > Statement History'));
+            return const Center(child: StatementScreen());
         }
         break;
       case NavItem.expenses:
@@ -379,7 +384,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.settings:
         switch (submenu) {
           case 'Preferences':
-            return const Center(child: Text('Settings > Preferences'));
+            return const Center(child: PreferencesScreen());
           case 'Account':
             return const Center(child: Text('Settings > Account'));
           case 'Security':

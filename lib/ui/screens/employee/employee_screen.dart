@@ -27,37 +27,34 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Container(
-                height: 45,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: Row(
-                  children: [
-                    _buildDropdown(selectedCategory, "Employee Type", categories, (newValue) => setState(() => selectedCategory = newValue)),
-                    _buildDropdown(selectedCategory1, "Employee List", categories1, (newValue) => setState(() => selectedCategory1 = newValue)),
-                    _buildDropdown(selectedCategory2, "Payment Status", categories2, (newValue) => setState(() => selectedCategory2 = newValue)),
-                    _buildDropdown(selectedCategory3, "Duration", categories3, (newValue) => setState(() => selectedCategory3 = newValue), icon: const Icon(Icons.calendar_month, size: 18)),
-                    Spacer(),
-                    PopupMenuButton<String>(
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(value: 'Short Employee', child: Text('Short Employee')),
-                        const PopupMenuItem<String>(value: 'Add Employee', child: Text('Add Employee')),
-                      ],
-                      child: Container(
-                        width: 35,
-                        height: 35,
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                        child: const Center(child: Icon(Icons.add, color: Colors.white, size: 20)),
-                      ),
+            Container(
+              height: 45,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: Row(
+                children: [
+                  _buildDropdown(selectedCategory, "Employee Type", categories, (newValue) => setState(() => selectedCategory = newValue)),
+                  _buildDropdown(selectedCategory1, "Employee List", categories1, (newValue) => setState(() => selectedCategory1 = newValue)),
+                  _buildDropdown(selectedCategory2, "Payment Status", categories2, (newValue) => setState(() => selectedCategory2 = newValue)),
+                  _buildDropdown(selectedCategory3, "Duration", categories3, (newValue) => setState(() => selectedCategory3 = newValue), icon: const Icon(Icons.calendar_month, size: 18)),
+                  Spacer(),
+                  PopupMenuButton<String>(
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(value: 'Short Employee', child: Text('Short Employee')),
+                      const PopupMenuItem<String>(value: 'Add Employee', child: Text('Add Employee')),
+                    ],
+                    child: Container(
+                      width: 35,
+                      height: 35,
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                      child: const Center(child: Icon(Icons.add, color: Colors.white, size: 20)),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 10),
