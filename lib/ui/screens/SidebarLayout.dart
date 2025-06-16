@@ -11,6 +11,7 @@ import 'package:abc_consultant/ui/screens/services/services_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
 import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
+import 'package:abc_consultant/ui/screens/services/client_main.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
@@ -26,10 +27,10 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.settings;
+  NavItem selectedItem = NavItem.services;
 
-  int _selectedSidebarIndex = 8;
-  int _selectedSubmenuIndex = 0;
+  int _selectedSidebarIndex = -1;
+  int _selectedSubmenuIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +288,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.services:
         return Center(child: ServicesScreen());
       case NavItem.clients:
-        return const Center(child: ClientMain());
+        return Center(child: ClientMain());
       case NavItem.employees:
         return Center(child: EmployeeScreen());
       case NavItem.banking:
