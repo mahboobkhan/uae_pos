@@ -13,7 +13,7 @@ import 'package:abc_consultant/ui/screens/projects/project_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
 import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
-'package:abc_consultant/ui/screens/projects/short_service_screen.dart';
+import 'package:abc_consultant/ui/screens/projects/short_service_screen.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
@@ -291,14 +291,16 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.dashboard:
         return Center(child: DashboardScreen());
       case NavItem.projects:
-        return Center(child: ProjectScreen(
-          onNavigateToCreateOrder: (){
-            setState(() {
-              selectedItem = NavItem.projects;
-              _selectedSubmenuIndex = 2;
-            });
-          },
-        ));
+        return Center(
+          child: ProjectScreen(
+            onNavigateToCreateOrder: () {
+              setState(() {
+                selectedItem = NavItem.projects;
+                _selectedSubmenuIndex = 2;
+              });
+            },
+          ),
+        );
       case NavItem.clients:
         return Center(child: ClientMain());
       case NavItem.employees:
@@ -334,9 +336,8 @@ class _SidebarLayoutState extends State<SidebarLayout> {
             return const Center(child: ServicesCategoriesScreen());
           case 'Create Orders':
             return const Center(child: CreateOrders());
-                 case 'Services':
+          case 'Services':
             return const Center(child: Text('Project >  Service'));
-
         }
         break;
       case NavItem.clients:
