@@ -10,43 +10,43 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-    final List<Map<String, dynamic>> stats = [
-      {'label': 'Revenue', 'value': '25K'},
-      {'label': 'Users', 'value': '1.2K'},
-      {'label': 'Orders', 'value': '320'},
-      {'label': 'Visits', 'value': '8.5K'},
-      {'label': 'Returns', 'value': '102'},
-    ];
+  final List<Map<String, dynamic>> stats = [
+    {'label': 'Revenue', 'value': '25K'},
+    {'label': 'Users', 'value': '1.2K'},
+    {'label': 'Orders', 'value': '320'},
+    {'label': 'Visits', 'value': '8.5K'},
+    {'label': 'Returns', 'value': '102'},
+  ];
 
-    // List of filter options
-    final List<String> categories = [
-      'All',
-      'New',
-      'Pending',
-      'Completed',
-      'Stop',
-    ];
-    String? selectedCategory;
-    final List<String> categories1 = [
-      'No Tags',
-      'Tag 001',
-      'Tag 002',
-      'Sample Tag',
-    ];
-    String? selectedCategory1;
-    final List<String> categories2 = ['All', 'Pending', 'Paid'];
-    String? selectedCategory2;
-    final List<String> categories3 = [
-      'All',
-      'Toady',
-      'Yesterday',
-      'Last 7 Days',
-      'Last 30 Days',
-      'Custom Range',
-    ];
-    String? selectedCategory3;
-    final List<String> categories4 = ['Services Project', 'Short Services'];
-    String selectedCategory4 = '';
+  // List of filter options
+  final List<String> categories = [
+    'All',
+    'New',
+    'Pending',
+    'Completed',
+    'Stop',
+  ];
+  String? selectedCategory;
+  final List<String> categories1 = [
+    'No Tags',
+    'Tag 001',
+    'Tag 002',
+    'Sample Tag',
+  ];
+  String? selectedCategory1;
+  final List<String> categories2 = ['All', 'Pending', 'Paid'];
+  String? selectedCategory2;
+  final List<String> categories3 = [
+    'All',
+    'Toady',
+    'Yesterday',
+    'Last 7 Days',
+    'Last 30 Days',
+    'Custom Range',
+  ];
+  String? selectedCategory3;
+  final List<String> categories4 = ['Services Project', 'Short Services'];
+  String selectedCategory4 = '';
 
   @override
   Widget build(BuildContext context) {
@@ -62,40 +62,40 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 height: 120,
                 child: Row(
                   children:
-                  stats.map((stat) {
-                    return Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 6),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              stat['value'],
-                              style: const TextStyle(
-                                fontSize: 28,
-                                color: Colors.white,
-                                fontFamily: 'Courier',
-                                fontWeight: FontWeight.bold,
-                              ),
+                      stats.map((stat) {
+                        return Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              stat['label'],
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                              ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  stat['value'],
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    color: Colors.white,
+                                    fontFamily: 'Courier',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  stat['label'],
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                          ),
+                        );
+                      }).toList(),
                 ),
               ),
               SizedBox(height: 20),
@@ -187,7 +187,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       ),
                     ),
                     Icon(Icons.edit_outlined, color: Colors.green),
-                    SizedBox(width: 20,)
+                    SizedBox(width: 20),
                   ],
                 ),
               ),

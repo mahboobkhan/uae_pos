@@ -1,5 +1,4 @@
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
-import 'package:abc_consultant/ui/screens/services/client_screen/comapny_profile_add.dart';
 
 import 'package:flutter/material.dart';
 
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    //  return MaterialApp(home: DashboardScreen());
+    //  return MaterialApp(home: DashboardScrn());
     return MaterialApp(home: SidebarLayout());
     //home: SidebarLayout()
   }

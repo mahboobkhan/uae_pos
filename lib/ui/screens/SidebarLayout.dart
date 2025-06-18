@@ -1,17 +1,16 @@
 import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/statement_screen.dart';
-
+import 'package:abc_consultant/ui/screens/client_screen/company_screen.dart';
+import 'package:abc_consultant/ui/screens/client_screen/finance_screen.dart';
+import 'package:abc_consultant/ui/screens/client_screen/individual_screen.dart';
 import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
 import 'package:abc_consultant/ui/screens/office/office_expense_screen.dart';
-import 'package:abc_consultant/ui/screens/services/client_main.dart';
+import 'package:abc_consultant/ui/screens/client_screen/client_main.dart';
 import 'package:abc_consultant/ui/screens/services/create_orders.dart';
 import 'package:abc_consultant/ui/screens/services/projects_screen.dart';
 import 'package:abc_consultant/ui/screens/services/services_screen.dart';
-import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
-import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
 import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
-import 'package:abc_consultant/ui/screens/services/client_main.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
@@ -71,7 +70,10 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                           color: Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 3,
+                        ),
                         child: const TextField(
                           textAlign: TextAlign.left, // horizontal alignment
                           textAlignVertical: TextAlignVertical.center,
@@ -292,9 +294,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.employees:
         return Center(child: EmployeeScreen());
       case NavItem.banking:
-        return  Center(child: BankingScreen());
+        return Center(child: BankingScreen());
       case NavItem.expenses:
-        return  Center(child: OfficeExpenseScreen());
+        return Center(child: OfficeExpenseScreen());
       case NavItem.notifications:
         return const Center(child: Text('Notifications Screen'));
       case NavItem.files:
@@ -327,11 +329,11 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.clients:
         switch (submenu) {
           case 'Company':
-            return const Center(child: Text('Clients > Company'));
+            return const Center(child: CompanyScreen());
           case 'Individuals':
-            return const Center(child: Text('Clients > Individuals'));
+            return const Center(child: IndividualScreen());
           case 'Finance History':
-            return const Center(child: Text('Clients > Finance History'));
+            return const Center(child: FinanceScreen());
         }
         break;
       case NavItem.employees:
@@ -345,7 +347,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.banking:
         switch (submenu) {
           case 'Add payment method':
-            return  Center(child: BankPaymentScreen());
+            return Center(child: BankPaymentScreen());
           case 'Statement History':
             return const Center(child: StatementScreen());
         }
