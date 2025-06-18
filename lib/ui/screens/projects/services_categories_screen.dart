@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class ProjectsScreen extends StatefulWidget {
-  const ProjectsScreen({super.key});
+class ServicesCategoriesScreen extends StatefulWidget {
+  const ServicesCategoriesScreen({super.key});
 
   @override
-  State<ProjectsScreen> createState() => _ProjectsScreenState();
+  State<ServicesCategoriesScreen> createState() => _ServicesCategoriesScreenState();
 }
 
-class _ProjectsScreenState extends State<ProjectsScreen> {
+class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
   DateTime selectedDateTime = DateTime.now();
 
   final _clientController = TextEditingController(text: "Sample Client");
@@ -49,7 +49,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade300,
+      backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

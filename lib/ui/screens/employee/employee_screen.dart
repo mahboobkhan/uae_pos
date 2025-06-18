@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class EmployeeScreen extends StatefulWidget {
   const EmployeeScreen({super.key});
@@ -21,72 +22,97 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Container(
-              height: 45,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: Row(
-                children: [
-                  _buildDropdown(selectedCategory, "Employee Type", categories, (newValue) => setState(() => selectedCategory = newValue)),
-                  _buildDropdown(selectedCategory1, "Employee List", categories1, (newValue) => setState(() => selectedCategory1 = newValue)),
-                  _buildDropdown(selectedCategory2, "Payment Status", categories2, (newValue) => setState(() => selectedCategory2 = newValue)),
-                  _buildDropdown(selectedCategory3, "Duration", categories3, (newValue) => setState(() => selectedCategory3 = newValue), icon: const Icon(Icons.calendar_month, size: 18)),
-                  Spacer(),
-                  PopupMenuButton<String>(
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(value: 'Short Employee', child: Text('Short Employee')),
-                      const PopupMenuItem<String>(value: 'Add Employee', child: Text('Add Employee')),
-                    ],
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                      child: const Center(child: Icon(Icons.add, color: Colors.white, size: 20)),
+      backgroundColor: Colors.grey.shade100,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Container(
+                height: 45,
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.all(16),
+
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: Row(
+                  children: [
+                    _buildDropdown(selectedCategory, "Employee Type", categories, (newValue) => setState(() => selectedCategory = newValue)),
+                    _buildDropdown(selectedCategory1, "Select Tags", categories1, (newValue) => setState(() => selectedCategory1 = newValue)),
+                    _buildDropdown(selectedCategory2, "Payment Status", categories2, (newValue) => setState(() => selectedCategory2 = newValue)),
+                    Spacer(),
+                    PopupMenuButton<String>(
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(value: 'Short Employee', child: Text('Short Employee')),
+                        const PopupMenuItem<String>(value: 'Add Employee', child: Text('Add Employee')),
+                      ],
+                      child: Container(
+                        width: 35,
+                        height: 35,
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                        child: const Center(child: Icon(Icons.add, color: Colors.white, size: 20)),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Table(
-                    border: TableBorder.all(color: Colors.white),
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                    columnWidths: const {
-                      0: FixedColumnWidth(80),
-                      1: FixedColumnWidth(120),
-                      2: FixedColumnWidth(120),
-                      3: FixedColumnWidth(120),
-                      4: FixedColumnWidth(120),
-                      5: FixedColumnWidth(120),
-                      6: FixedColumnWidth(120),
-                      7: FixedColumnWidth(120),
-                      8: FixedColumnWidth(120),
-                      9: FixedColumnWidth(120),
-                    },
-                    children: [
-                      _buildTableHeader(),
-                      _buildTableRow(),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0,right: 16),
+                child: Table(
+                  border: TableBorder.all(color: Colors.white),
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  columnWidths: const {
+                    0: FlexColumnWidth(1),
+                    1: FlexColumnWidth(1.5),
+                    2: FlexColumnWidth(1),
+                    3: FlexColumnWidth(1.5),
+                    4: FlexColumnWidth(0.5),
+                    5: FlexColumnWidth(0.5),
+                    6: FlexColumnWidth(0.5),
+                    7: FlexColumnWidth(1),
+                    8: FlexColumnWidth(1),
+                  },
+                  children: [
+                    // Header Row
+                    TableRow(
+                      decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
+                      children: [
+                        _buildHeader("Employee Type"),
+                        _buildHeader("Employee Name Ref I'd"),
+                        _buildHeader("Tags Details"),
+                        _buildHeader("Contact Number /Email"),
+                        _buildHeader("Salary"),
+                        _buildHeader("Advance"),
+                        _buildHeader("Bonuses"),
+                        _buildHeader("Other Actions"),
+                      ],
+                    ),
+                    // Sample Data Row
+                    TableRow(
+                      children: [
+                        _buildCell("12-02-2025\nHalf Time"),
+                        _buildCell(
+                          "Sample Employee\nxxxxxxxxx245",
+                          copyable: true,
+                        ),
+                        _buildCell("Sample Tags"),
+                        _buildCell("+32182666134"),
+                        _buildCell("10000"),
+                        _buildCell("300"),
+                        _buildCell("100"),
+                        _buildCell("Profile Bank Account"),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -106,23 +132,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         _buildHeader("Pending"),
         _buildHeader("Total ID"),
         _buildHeader("Other"),
-      ],
-    );
-  }
-
-  TableRow _buildTableRow() {
-    return TableRow(
-      children: [
-        _buildCell("12-06-2025"),
-        _buildCell("John Doe\n+123456789"),
-        _buildTagsCell("Manager"),
-        _buildCell("Bank Transfer/By Hand TID xxxxxxxxxx"),
-        _buildCell("10000"),
-        _buildCell("3,000"),
-        _buildCell("5,000"),
-        _buildCell("N/A"),
-        _buildCell("1400"),
-        _buildCell("N/A"),
       ],
     );
   }
@@ -152,14 +161,38 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   Widget _buildHeader(String text) {
     return Container(
       alignment: Alignment.center,
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red), textAlign: TextAlign.center),
+      child: Text(text, style: const TextStyle( color: Colors.red), textAlign: TextAlign.center),
     );
   }
 
-  Widget _buildCell(String text) {
+  Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(text, style: const TextStyle(fontSize: 10)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 14),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (copyable)
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: text));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 32),
+                child: Icon(Icons.copy, size: 16, color: Colors.grey[700]),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

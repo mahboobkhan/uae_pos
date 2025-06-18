@@ -10,8 +10,8 @@ final List<SidebarItem> sidebarItems = [
   ),
   SidebarItem(
     icon: Icons.home_repair_service_outlined,
-    title: 'Services',
-    submenus: ['Short Service', 'Projects', 'Create Orders'],
+    title: 'Projects',
+    submenus: ['Short Service', 'Service Category','Create Orders', 'Services',],
   ),
   SidebarItem(
     icon: Icons.people_alt_outlined,

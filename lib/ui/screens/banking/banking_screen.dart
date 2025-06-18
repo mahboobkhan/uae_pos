@@ -176,13 +176,13 @@ class _BankingScreenState extends State<BankingScreen> {
                   // Sample Data Row
                   TableRow(
                     children: [
-                      _buildCell("12-02-2025\n02:59 pm"),
-                      _buildCell("Sample Customer\nxxxxxxxxx245"),
+                      _buildCell("xxxxx"),
+                      _buildCell("UDC Bank"),
                       _buildCell('xxxxxx'),
-                      _buildCell("In progress"),
-                      _buildCell("PB-02 - 23days"),
-                      _buildCell("300"),
-                      _buildCell("500"),
+                      _buildCell("ACC xxxxxxxx345\nIBN xxxxxxx345"),
+                      _buildCell("0626626626"),
+                      _buildCell("xxxxxx345"),
+                      _buildCell("Edit"),
                     ],
                   ),
                 ],
@@ -237,7 +237,7 @@ class _BankingScreenState extends State<BankingScreen> {
     return Container(
       child: Text(
         text,
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+        style: const TextStyle( color: Colors.red),
         textAlign: TextAlign.center,
       ),
     );

@@ -4,14 +4,15 @@ import 'package:abc_consultant/ui/screens/banking/statement_screen.dart';
 
 import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
 import 'package:abc_consultant/ui/screens/office/office_expense_screen.dart';
-import 'package:abc_consultant/ui/screens/services/client_main.dart';
-import 'package:abc_consultant/ui/screens/services/create_orders.dart';
-import 'package:abc_consultant/ui/screens/services/projects_screen.dart';
-import 'package:abc_consultant/ui/screens/services/services_screen.dart';
+import 'package:abc_consultant/ui/screens/projects/client_main.dart';
+import 'package:abc_consultant/ui/screens/projects/create_orders.dart';
+import 'package:abc_consultant/ui/screens/projects/services_categories_screen.dart';
+import 'package:abc_consultant/ui/screens/projects/project_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
+import 'package:abc_consultant/ui/screens/projects/short_service_screen.dart';
 import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
-import 'package:abc_consultant/ui/screens/services/client_main.dart';
+import 'package:abc_consultant/ui/screens/projects/client_main.dart';
 import 'package:flutter/material.dart';
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
@@ -27,9 +28,9 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.services;
+  NavItem selectedItem = NavItem.projects;
 
-  int _selectedSidebarIndex = -1;
+  int _selectedSidebarIndex = 1;
   int _selectedSubmenuIndex = -1;
 
   @override
@@ -285,8 +286,15 @@ class _SidebarLayoutState extends State<SidebarLayout> {
     switch (item) {
       case NavItem.dashboard:
         return Center(child: DashboardScreen());
-      case NavItem.services:
-        return Center(child: ServicesScreen());
+      case NavItem.projects:
+        return Center(child: ProjectScreen(
+          onNavigateToCreateOrder: (){
+            setState(() {
+              selectedItem = NavItem.projects;
+              _selectedSubmenuIndex = 2;
+            });
+          },
+        ));
       case NavItem.clients:
         return Center(child: ClientMain());
       case NavItem.employees:
@@ -314,14 +322,17 @@ class _SidebarLayoutState extends State<SidebarLayout> {
             return const Center(child: Text('Dashboard > Stats'));
         }
         break;
-      case NavItem.services:
+      case NavItem.projects:
         switch (submenu) {
           case 'Short Service':
-            return const Center(child: Text('Services > Short Service'));
-          case 'Projects':
-            return const Center(child: ProjectsScreen());
+            return const Center(child: ShortServiceScreen());
+          case 'Service Category':
+            return const Center(child: ServicesCategoriesScreen());
           case 'Create Orders':
             return const Center(child: CreateOrders());
+                 case 'Services':
+            return const Center(child: Text('Project >  Service'));
+
         }
         break;
       case NavItem.clients:
