@@ -1,6 +1,6 @@
 enum NavItem {
   dashboard,
-  services,
+  projects,
   clients,
   employees,
   banking,

@@ -303,7 +303,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
     return Container(
       child: Text(
         text,
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+        style: const TextStyle( color: Colors.red),
         textAlign: TextAlign.center,
       ),
     );
