@@ -269,7 +269,6 @@ Widget _buildHeader(String text) {
 //     child: Text(text, style: TextStyle(fontSize: 13, color: color)),
 //   );
 // }
-
 Widget _buildCell(
   String text, {
   required BuildContext context,
