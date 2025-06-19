@@ -143,15 +143,15 @@ class _CompanyScreenState extends State<CompanyScreen> {
                       border: TableBorder.all(color: Colors.white),
                       defaultVerticalAlignment: TableCellVerticalAlignment.top,
                       columnWidths: const {
-                        0: FlexColumnWidth(1),
-                        1: FlexColumnWidth(1),
-                        2: FlexColumnWidth(1),
-                        3: FlexColumnWidth(1),
-                        4: FlexColumnWidth(1),
-                        5: FlexColumnWidth(1),
-                        6: FlexColumnWidth(1),
-                        7: FlexColumnWidth(1),
-                        8: FlexColumnWidth(1),
+                        0: IntrinsicColumnWidth(),
+                        1: IntrinsicColumnWidth(),
+                        2: IntrinsicColumnWidth(),
+                        3: IntrinsicColumnWidth(),
+                        4: IntrinsicColumnWidth(),
+                        5: IntrinsicColumnWidth(),
+                        6: IntrinsicColumnWidth(),
+                        7: IntrinsicColumnWidth(),
+                        8: IntrinsicColumnWidth(),
                       },
                       children: [
                         /// Company Header Row
@@ -161,9 +161,9 @@ class _CompanyScreenState extends State<CompanyScreen> {
                           ),
                           children: [
                             _buildHeader("Client Type"),
-                            _buildHeader("Customer Name\nRef ID"),
+                            _buildHeader("Customer Name"),
                             _buildHeader("Tags Details"),
-                            _buildHeader("Contact Number\nEmail ID"),
+                            _buildHeader("Contact Number Email I'd"),
                             _buildHeader("Project Status"),
                             _buildHeader("Payment Pending"),
                             _buildHeader("Total Received"),
@@ -254,7 +254,7 @@ Widget _buildDropdown(
 Widget _buildHeader(String text) {
   return Container(
     height: 50, // 👈 Set your desired header height here
-    alignment: Alignment.topLeft,
+    alignment: Alignment.center,
     padding: const EdgeInsets.symmetric(horizontal: 8.0),
     child: Text(
       text,
@@ -277,19 +277,15 @@ Widget _buildCell(
   return Container(
     alignment: Alignment.topLeft,
     padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
-    margin: const EdgeInsets.only(
-      right: 8.0,
-    ), // optional: for spacing between columns
+    margin: const EdgeInsets.only(right: 8.0),
     child: Row(
+      mainAxisSize: MainAxisSize.min, // <-- very important!
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(fontSize: 13, color: color),
-            maxLines: 7,
-            overflow: TextOverflow.ellipsis,
-          ),
+        Text(
+          text.replaceAll('\n', ' '), // remove newlines to force straight line
+          style: TextStyle(fontSize: 13, color: color),
+          softWrap: false,
         ),
         if (copyable)
           GestureDetector(

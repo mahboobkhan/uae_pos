@@ -1,12 +1,18 @@
 import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/statement_screen.dart';
+import 'package:abc_consultant/ui/screens/client_screen/client_main.dart';
 import 'package:abc_consultant/ui/screens/client_screen/company_screen.dart';
 import 'package:abc_consultant/ui/screens/client_screen/finance_screen.dart';
 import 'package:abc_consultant/ui/screens/client_screen/individual_screen.dart';
 import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
+import 'package:abc_consultant/ui/screens/office/dynamic_atttribute_addition.dart';
+import 'package:abc_consultant/ui/screens/office/fixed_office_expense.dart';
 import 'package:abc_consultant/ui/screens/office/office_expense_screen.dart';
-import 'package:abc_consultant/ui/screens/projects/client_main.dart';
+import 'package:abc_consultant/ui/screens/office/office_maintainance_expanse.dart';
+import 'package:abc_consultant/ui/screens/office/office_miscellaneous.dart';
+import 'package:abc_consultant/ui/screens/office/office_supplies_expanse.dart';
+
 import 'package:abc_consultant/ui/screens/projects/create_orders.dart';
 import 'package:abc_consultant/ui/screens/projects/services_categories_screen.dart';
 import 'package:abc_consultant/ui/screens/projects/project_screen.dart';
@@ -369,15 +375,15 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.expenses:
         switch (submenu) {
           case 'Fixed office expanse':
-            return const Center(child: Text('Expenses > Fixed office expanse'));
+            return const Center(child: FixedOfficeExpense());
           case 'Office maintenance':
-            return const Center(child: Text('Expenses > Office maintenance'));
+            return const Center(child: MaintainanceOfficeExpense());
           case 'Office Supplies':
-            return const Center(child: Text('Expenses > Office Supplies'));
+            return const Center(child: OfficeSuppliesExpanse());
           case 'Miscellaneous':
-            return const Center(child: Text('Expenses > Miscellaneous'));
+            return const Center(child: OfficeMiscellaneous());
           case 'Others':
-            return const Center(child: Text('Expenses > Others'));
+            return const Center(child: DynamicAttributeAddition());
         }
         break;
       case NavItem.notifications:

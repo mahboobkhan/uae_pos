@@ -178,7 +178,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                           ),
                           children: [
                             _buildHeader("Date"),
-                            _buildHeader("Clients Name\nRef I'd"),
+                            _buildHeader("Clients Name"),
                             _buildHeader("Type"),
                             _buildHeader("Payment Mode"),
                             _buildHeader("Expanses"),
@@ -194,7 +194,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                           children: [
                             _buildCell("12/02/2025\n02:59pm", context: context),
                             _buildCell(
-                              "Client Imran\nxxxxxx25",
+                              "Client Imran",
                               context: context,
                               copyable: true,
                             ),
@@ -275,7 +275,7 @@ Widget _buildDropdown(
 Widget _buildHeader(String text) {
   return Container(
     height: 50, // 👈 Set your desired header height here
-    alignment: Alignment.topLeft,
+    alignment: Alignment.center,
     padding: const EdgeInsets.symmetric(horizontal: 8.0),
     child: Text(
       text,
