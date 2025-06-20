@@ -1,6 +1,7 @@
 import 'package:abc_consultant/ui/screens/login%20screens/forgot_password_page.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/login_page.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/sign_up.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/track_order.dart';
 import 'package:abc_consultant/widgets/half_color_border.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,40 @@ class _LoginPageState extends State<LoginPage> {
     final size = MediaQuery.of(context).size;
     final Size(:height, :width) = size;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.grey,
+        elevation: 1,
+        title: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus(); // Unfocus keyboard if any
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TrackOrder()),
+            );
+          },
+          child: Center(
+            child: AbsorbPointer(
+              child: SizedBox(
+                height: height * 0.07,
+                width: width * 0.3,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Tap to search for your order',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade200,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: Row(
         children: [
           Image.asset(
@@ -97,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
-              //Email Feild
+              //Password Feild
               SizedBox(height: height * 0.02),
               Row(
                 children: [
@@ -175,7 +210,11 @@ class _LoginPageState extends State<LoginPage> {
                     child: MaterialButton(
                       minWidth: width * 0.09,
                       height: height * 0.06,
-                      onPressed: () {},
+                      onPressed: () {
+                        ///**
+                        ///
+                        ///FUnctionality  */
+                      },
                       color: Colors.red,
                       child: Text(
                         "Login",

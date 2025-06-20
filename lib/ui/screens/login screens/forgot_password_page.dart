@@ -1,6 +1,7 @@
 import 'package:abc_consultant/ui/screens/login%20screens/forgot_password_page.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/login_page.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/sign_up.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/tick_forgot_password.dart';
 import 'package:abc_consultant/widgets/half_color_border.dart';
 import 'package:flutter/material.dart';
 
@@ -162,7 +163,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     child: MaterialButton(
                       minWidth: width * 0.09,
                       height: height * 0.06,
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    TickForgotPassword(),
+                          ),
+                        );
+                      },
                       color: Colors.red,
                       child: Text(
                         "Sent Request",
