@@ -1,3 +1,8 @@
+import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_dynamic_attribute.dart';
+import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_fixed_office_expense.dart';
+import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_maintainance.dart';
+import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_miscellaneous.dart';
+import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_supplies_office.dart';
 import 'package:abc_consultant/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -188,21 +193,49 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 280),
+                    const SizedBox(width: 40),
                     GestureDetector(
-                      onTap: () {
-                        showCustomExpenseDialog(context);
-                      },
-                      child: Container(
-                        width: 35,
-                        height: 35,
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: const BoxDecoration(
+                      onTap: () => showFixedOfficeExpanseDialogue(context),
+                      child: Tooltip(
+                        message: 'Add Fixed Office Expense',
+
+                        child: Icon(Icons.attach_money, color: Colors.red),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                    GestureDetector(
+                      onTap:
+                          () => showOfficeMaintainanceExpanseDialogue(context),
+                      child: Tooltip(
+                        message: 'Add Office Maintenance',
+
+                        child: Icon(Icons.build, color: Colors.red),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                    GestureDetector(
+                      onTap: () => showOfficeSuppliesDialogue(context),
+                      child: Tooltip(
+                        message: 'Add Office Supplies',
+                        child: Icon(Icons.shopping_bag, color: Colors.red),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                    GestureDetector(
+                      onTap: () => showMiscellaneousDialogue(context),
+                      child: Tooltip(
+                        message: 'Add Miscellaneous',
+                        child: Icon(Icons.category, color: Colors.red),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                    GestureDetector(
+                      onTap: () => showDynamicAttributeDialogue(context),
+                      child: Tooltip(
+                        message: 'Add Dynamic Attribute',
+                        child: Icon(
+                          Icons.add_circle_outline,
                           color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.add, color: Colors.white, size: 20),
                         ),
                       ),
                     ),
@@ -303,7 +336,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
     return Container(
       child: Text(
         text,
-        style: const TextStyle( color: Colors.red),
+        style: const TextStyle(color: Colors.red),
         textAlign: TextAlign.center,
       ),
     );
@@ -317,32 +350,32 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
   }
 
   // Ya custom dialog
-  void showCustomExpenseDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.grey[200],
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Container(
-              width: 900,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                  5,
-                  (index) => _buildExpenseRow(context, index),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // void showCustomExpenseDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(10),
+  //         ),
+  //         backgroundColor: Colors.grey[200],
+  //         child: SingleChildScrollView(
+  //           padding: const EdgeInsets.all(16),
+  //           child: Container(
+  //             width: 900,
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: List.generate(
+  //                 5,
+  //                 (index) => _buildExpenseRow(context, index),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildExpenseRow(BuildContext context, int index) {
     return Padding(
@@ -350,7 +383,9 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: _buildLabelWithDate("1.${_getTitle(index)}",context)),
+          Expanded(
+            child: _buildLabelWithDate("1.${_getTitle(index)}", context),
+          ),
           const SizedBox(width: 6),
           _buildTextField("1.Paste TID"),
           const SizedBox(width: 6),
@@ -375,6 +410,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
       ),
     );
   }
+
   Widget _buildLabelWithDate(String title, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,7 +448,6 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
     );
   }
 
-
   Widget _buildTextField(String label) {
     return SizedBox(
       width: 120,
@@ -428,7 +463,10 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 8,
+          ),
         ),
       ),
     );

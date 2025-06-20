@@ -236,7 +236,7 @@ class _ClientMainState extends State<ClientMain> {
                               "Tages123",
                             ]),
                             _buildCell(
-                              "+971 123 4567 sample@abc.com",
+                              "+971 123 4567\nsample@abc.com",
                               context: context,
                               copyable: true,
                             ),
@@ -306,7 +306,7 @@ Widget _buildDropdown(
 Widget _buildHeader(String text) {
   return Container(
     height: 50, // 👈 Set your desired header height here
-    alignment: Alignment.topLeft,
+    alignment: Alignment.center,
     padding: const EdgeInsets.symmetric(horizontal: 8.0),
     child: Text(
       text,

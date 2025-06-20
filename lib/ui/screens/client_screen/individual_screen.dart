@@ -218,7 +218,7 @@ Widget _buildDropdown(
 Widget _buildHeader(String text) {
   return Container(
     height: 50, // 👈 Set your desired header height here
-    alignment: Alignment.topLeft,
+    alignment: Alignment.center,
     padding: const EdgeInsets.symmetric(horizontal: 8.0),
     child: Text(
       text,
