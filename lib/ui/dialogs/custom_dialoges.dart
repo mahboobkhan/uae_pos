@@ -648,4 +648,116 @@ Widget _buildTextField1({
   );
 }
 
+class CustomButton extends StatelessWidget {
+  final String text;
+  final Color backgroundColor;
+  final VoidCallback onPressed;
+  final double borderRadius;
+
+  const CustomButton({
+    super.key,
+    required this.text,
+    required this.onPressed,
+    this.backgroundColor = Colors.blue,
+    this.borderRadius = 6,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+}
+
+class CustomDropdown extends StatelessWidget {
+  final String? selectedValue;
+  final String hintText;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+  final Icon? icon;
+
+  const CustomDropdown({
+    Key? key,
+    required this.selectedValue,
+    required this.hintText,
+    required this.items,
+    required this.onChanged,
+    this.icon,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final GlobalKey _key = GlobalKey();
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 12),
+      child: GestureDetector(
+        onTap: () async {
+          final RenderBox renderBox = _key.currentContext!.findRenderObject() as RenderBox;
+          final Offset offset = renderBox.localToGlobal(Offset.zero);
+          final double width = renderBox.size.width;
+
+          final selected = await showMenu<String>(
+            context: context,
+            position: RelativeRect.fromLTRB(
+              offset.dx,
+              offset.dy + renderBox.size.height,
+              offset.dx + width,
+              offset.dy,
+            ),
+            items: items.map((item) {
+              return PopupMenuItem<String>(
+                value: item,
+                child: Text(item, style: const TextStyle(fontSize: 12)),
+              );
+            }).toList(),
+          );
+
+          if (selected != null) {
+            onChanged(selected);
+          }
+        },
+        child: Container(
+          key: _key,
+          width: 140,
+          height: 25,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.blue, width: 1),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  selectedValue ?? hintText,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: selectedValue == null ? Colors.grey : Colors.black,
+                  ),
+                ),
+              ),
+              icon ?? const Icon(Icons.arrow_drop_down, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
 

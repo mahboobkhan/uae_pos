@@ -43,6 +43,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
   String selectedCategory4 = '';
 
   final GlobalKey _plusKey = GlobalKey(); // key for plus icon dropdown
+  bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -94,237 +95,202 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
-                height: 45,
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, width: 1),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: Row(
-                  children: [
-                    _buildCustomDropdown(
-                      selectedValue: selectedCategory,
-                      hintText: "Status",
-                      items: categories,
-                      onChanged: (newValue) {
-                        setState(() => selectedCategory = newValue!);
-                      },
-                    ),
-                    _buildCustomDropdown(
-                      selectedValue: selectedCategory1,
-                      hintText: "Select Tags",
-                      items: categories1,
-                      onChanged: (newValue) {
-                        setState(() => selectedCategory1 = newValue!);
-                      },
-                    ),
-                    _buildCustomDropdown(
-                      selectedValue: selectedCategory2,
-                      hintText: "Payment Status",
-                      items: categories2,
-                      onChanged: (newValue) {
-                        setState(() => selectedCategory2 = newValue!);
-                      },
-                    ),
-                    _buildCustomDropdown(
-                      selectedValue: selectedCategory3,
-                      hintText: "Dates",
-                      items: categories3,
-                      onChanged: (newValue) {
-                        setState(() => selectedCategory3 = newValue!);
-                      },
-                      icon: const Icon(Icons.calendar_month, size: 18),
-                    ),
-                    const Spacer(),
-
-                    // Plus Icon behaving like a dropdown
-                    Builder(
-                      builder: (context) => GestureDetector(
-                        key: _plusKey,
-                        onTap: () async {
-                          final RenderBox renderBox = _plusKey.currentContext!.findRenderObject() as RenderBox;
-                          final Offset offset = renderBox.localToGlobal(Offset.zero);
-
-                          final selected = await showMenu<String>(
-                            context: context,
-                            position: RelativeRect.fromLTRB(
-                              offset.dx,
-                              offset.dy + renderBox.size.height,
-                              offset.dx + 30,
-                              offset.dy,
-                            ),
-                            items: [
-                              const PopupMenuItem<String>(
-                                value: 'Short Services',
-                                child: Text('Short Services'),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'Add Services',
-                                child: Text('Add Services'),
-                              ),
-                            ],
-                          );
-
-                          if (selected != null) {
-                            setState(() => selectedCategory4 = selected);
-                            if (selected == 'Add Services') {
-                              showShortServicesPopup(context);
-                            } else if (selected == 'Short Services') {
-                              showServicesProjectPopup(context);
-                            }
-                          }
+              MouseRegion(
+                onEnter: (_) => setState(() => _isHovering = true),
+                onExit: (_) => setState(() => _isHovering = false),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 45,
+                  width: MediaQuery.of(context).size.width,
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey, width: 1),
+                    borderRadius: BorderRadius.circular(2),
+                    boxShadow: _isHovering
+                        ? [
+                      BoxShadow(
+                        color: Colors.blue,
+                        blurRadius: 4,
+                        spreadRadius: 0.1,
+                        offset: Offset(0, 1),
+                      ),
+                    ]
+                        : [],
+                  ),
+                  child: Row(
+                    children: [
+                      CustomDropdown(
+                        selectedValue: selectedCategory,
+                        hintText: "Status",
+                        items: categories,
+                        onChanged: (newValue) {
+                          setState(() => selectedCategory = newValue!);
                         },
+                      ),
+                      CustomDropdown(
+                        selectedValue: selectedCategory1,
+                        hintText: "Select Tags",
+                        items: categories1,
+                        onChanged: (newValue) {
+                          setState(() => selectedCategory1 = newValue!);
+                        },
+                      ),
+                      CustomDropdown(
+                        selectedValue: selectedCategory2,
+                        hintText: "Payment Status",
+                        items: categories2,
+                        onChanged: (newValue) {
+                          setState(() => selectedCategory2 = newValue!);
+                        },
+                      ),
+                      CustomDropdown(
+                        selectedValue: selectedCategory3,
+                        hintText: "Dates",
+                        items: categories3,
+                        onChanged: (newValue) {
+                          setState(() => selectedCategory3 = newValue!);
+                        },
+                        icon: const Icon(Icons.calendar_month, size: 18),
+                      ),
+                      const Spacer(),
+
+                      // Plus Icon behaving like a dropdown
+                      Builder(
+                        builder: (context) => GestureDetector(
+                          key: _plusKey,
+                          onTap: () async {
+                            final RenderBox renderBox = _plusKey.currentContext!.findRenderObject() as RenderBox;
+                            final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+                            final selected = await showMenu<String>(
+                              context: context,
+                              position: RelativeRect.fromLTRB(
+                                offset.dx,
+                                offset.dy + renderBox.size.height,
+                                offset.dx + 30,
+                                offset.dy,
+                              ),
+                              items: [
+                                const PopupMenuItem<String>(
+                                  value: 'Short Services',
+                                  child: Text('Short Services'),
+                                ),
+                                const PopupMenuItem<String>(
+                                  value: 'Add Services',
+                                  child: Text('Add Services'),
+                                ),
+                              ],
+                            );
+
+                            if (selected != null) {
+                              setState(() => selectedCategory4 = selected);
+                              if (selected == 'Add Services') {
+                                showShortServicesPopup(context);
+                              } else if (selected == 'Short Services') {
+                                showServicesProjectPopup(context);
+                              }
+                            }
+                          },
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.add, color: Colors.white, size: 20),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      GestureDetector(
+                        onTap: widget.onNavigateToCreateOrder,
                         child: Container(
-                          width: 30,
                           height: 30,
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          width: 30,
                           decoration: const BoxDecoration(
                             color: Colors.blue,
                             shape: BoxShape.circle,
                           ),
                           child: const Center(
-                            child: Icon(Icons.add, color: Colors.white, size: 20),
+                            child: Icon(Icons.edit_outlined, color: Colors.white, size: 16),
                           ),
                         ),
                       ),
-                    ),
-
-                    GestureDetector(
-                      onTap: widget.onNavigateToCreateOrder,
-                      child: Container(
-                        height: 30,
-                        width: 30,
-                        decoration: const BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.edit_outlined, color: Colors.white, size: 16),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                  ],
-                ),
-              ),
-
-              // Table
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Table(
-                  border: TableBorder.all(color: Colors.white),
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: const {
-                    0: FlexColumnWidth(0.8),
-                    1: FlexColumnWidth(2),
-                    2: FlexColumnWidth(1),
-                    3: FlexColumnWidth(1),
-                    4: FlexColumnWidth(1),
-                    5: FlexColumnWidth(1.3),
-                    6: FlexColumnWidth(1),
-                    7: FlexColumnWidth(1),
-                    8: FlexColumnWidth(1),
-                  },
-                  children: [
-                    TableRow(
-                      decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
-                      children: [
-                        _buildHeader("Date"),
-                        _buildHeader("Service Beneficiary Order Type"),
-                        _buildHeader("Tags Details"),
-                        _buildHeader("Status"),
-                        _buildHeader("Stage"),
-                        _buildHeader("Payment Pending"),
-                        _buildHeader("Quotation Price"),
-                        _buildHeader("Manage"),
-                        _buildHeader("Ref Id"),
-                      ],
-                    ),
-                    TableRow(
-                      children: [
-                        _buildCell("12-02-2025\n02:59 pm"),
-                        _buildCell("Sample Customer\nxxxxxxxxx245", copyable: true),
-                        _buildTagsCell(["Sample Tags", "Sample", "Tages123"]),
-                        _buildCell("In progress"),
-                        _buildCell("PB-02 - 23days"),
-                        _buildPriceWithAdd("300"),
-                        _buildCell("500"),
-                        _buildCell("Mr. Imran"),
-                        _buildCell("xxxxxxxxx245", copyable: true),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCustomDropdown({
-    required String? selectedValue,
-    required String hintText,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
-    Icon? icon,
-  }) {
-    final GlobalKey _key = GlobalKey();
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 12),
-      child: GestureDetector(
-        onTap: () async {
-          final RenderBox renderBox = _key.currentContext!.findRenderObject() as RenderBox;
-          final Offset offset = renderBox.localToGlobal(Offset.zero);
-          final double width = renderBox.size.width;
-
-          final selected = await showMenu<String>(
-            context: _key.currentContext!,
-            position: RelativeRect.fromLTRB(
-              offset.dx,
-              offset.dy + renderBox.size.height,
-              offset.dx + width,
-              offset.dy,
-            ),
-            items: items.map((item) {
-              return PopupMenuItem<String>(
-                value: item,
-                child: Text(item, style: const TextStyle(fontSize: 12)),
-              );
-            }).toList(),
-          );
-
-          if (selected != null) {
-            onChanged(selected);
-          }
-        },
-        child: Container(
-          key: _key,
-          width: 140,
-          height: 25,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue, width: 1),
-
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  selectedValue ?? hintText,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: selectedValue == null ? Colors.grey : Colors.black,
+                      const SizedBox(width: 20),
+                    ],
                   ),
                 ),
               ),
-              icon ?? const Icon(Icons.arrow_drop_down, size: 18),
+
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Container(
+                  height: 300,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: 1150, // Force horizontal scrolling
+                      ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Table(
+                          border: TableBorder.all(color: Colors.white),
+                          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                          columnWidths: const {
+                            0: FlexColumnWidth(1),
+                            1: FlexColumnWidth(1.5),
+                            2: FlexColumnWidth(1),
+                            3: FlexColumnWidth(1),
+                            4: FlexColumnWidth(1),
+                            5: FlexColumnWidth(1.3),
+                            6: FlexColumnWidth(1),
+                            7: FlexColumnWidth(1),
+                            8: FlexColumnWidth(1),
+                          },
+                          children: [
+                            TableRow(
+                              decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
+                              children: [
+                                _buildHeader("Date"),
+                                _buildHeader("Service Beneficiary "),
+                                _buildHeader("Tags Details"),
+                                _buildHeader("Status"),
+                                _buildHeader("Stage"),
+                                _buildHeader("Payment Pending"),
+                                _buildHeader("Quotation "),
+                                _buildHeader("Manage"),
+                                _buildHeader("Ref Id"),
+                              ],
+                            ),
+                            for (int i = 0; i < 20; i++)
+                              TableRow(
+                                children: [
+                                  _buildCell("12-02-2025\n02:59 pm"),
+                                  _buildCell("xxxxxxxxx245",copyable: true),
+                                  _buildTagsCell(["Tag1", "Tag2"]),
+                                  _buildCell("In progress"),
+                                  _buildCell("PB-02"),
+                                  _buildPriceWithAdd("300"),
+                                  _buildCell("500"),
+                                  _buildCell("Mr. Imran"),
+                                  _buildCell("xxxxxxxxx245",copyable: true),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+
+
             ],
           ),
         ),
@@ -344,7 +310,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
   Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(left: 4.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -364,8 +330,8 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 );
               },
               child: Padding(
-                padding: const EdgeInsets.only(left: 32),
-                child: Icon(Icons.copy, size: 16, color: Colors.grey[700]),
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
               ),
             ),
         ],

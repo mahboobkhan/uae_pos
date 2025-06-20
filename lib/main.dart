@@ -1,6 +1,4 @@
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
-import 'package:abc_consultant/ui/screens/projects/client_screen/comapny_profile_add.dart';
-
 import 'package:flutter/material.dart';
 
 void main() {

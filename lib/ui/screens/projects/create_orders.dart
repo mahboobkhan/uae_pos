@@ -1,3 +1,4 @@
+import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -80,7 +81,15 @@ class _CreateOrdersState extends State<CreateOrders> {
                         Text("ORN. 00001–0000001"),
                       ],
                     ),
-                    Icon(Icons.close, color: Colors.red),
+                    GestureDetector(
+                      onTap: () {
+                      },
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.red,
+                      ),
+                    )
+
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -97,7 +106,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                       "Order Type *",
                       selectedOrderType,
                       ["Services Base / Project base"],
-                      (val) {
+                          (val) {
                         setState(() => selectedOrderType = val);
                       },
                     ),
@@ -105,7 +114,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                       "Service Project *",
                       selectedServiceProject,
                       ["Passport Renewal"],
-                      (val) {
+                          (val) {
                         setState(() => selectedServiceProject = val);
                       },
                     ),
@@ -113,7 +122,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                       "Assign Employee",
                       selectedEmployee,
                       ["Muhammad Imran"],
-                      (val) {
+                          (val) {
                         setState(() => selectedEmployee = val);
                       },
                     ),
@@ -130,33 +139,19 @@ class _CreateOrdersState extends State<CreateOrders> {
                 // Buttons
                 Row(
                   children: [
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade900,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero
-                        )
-                      ),
-                      child: Text(
-                        "Save Draft",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                    CustomButton(
+                      text: "Save Draft",
+                      backgroundColor: Colors.blue.shade900,
+                      onPressed:(){
+                        
+                      },
                     ),
                     const SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
+                    CustomButton(text: "Submit",
                         backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero
-                        )
-                      ),
-                      child: Text(
-                        "Submit",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                        onPressed:() {
+                    }),
+
                   ],
                 ),
               ],
@@ -208,12 +203,10 @@ class _CreateOrdersState extends State<CreateOrders> {
     );
   }
 
-  Widget _buildDropdown(
-    String label,
-    String? selectedValue,
-    List<String> options,
-    ValueChanged<String?> onChanged,
-  ) {
+  Widget _buildDropdown(String label,
+      String? selectedValue,
+      List<String> options,
+      ValueChanged<String?> onChanged,) {
     return SizedBox(
       width: 220,
       child: DropdownButtonFormField<String>(
@@ -231,9 +224,9 @@ class _CreateOrdersState extends State<CreateOrders> {
         ),
         onChanged: onChanged,
         items:
-            options.map((e) {
-              return DropdownMenuItem<String>(value: e, child: Text(e));
-            }).toList(),
+        options.map((e) {
+          return DropdownMenuItem<String>(value: e, child: Text(e));
+        }).toList(),
       ),
     );
   }
