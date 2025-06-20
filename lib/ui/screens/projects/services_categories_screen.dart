@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../dialogs/custom_dialoges.dart';
+
 class ServicesCategoriesScreen extends StatefulWidget {
   const ServicesCategoriesScreen({super.key});
 
   @override
-  State<ServicesCategoriesScreen> createState() => _ServicesCategoriesScreenState();
+  State<ServicesCategoriesScreen> createState() =>
+      _ServicesCategoriesScreenState();
 }
 
 class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
   DateTime selectedDateTime = DateTime.now();
 
   final _clientController = TextEditingController(text: "Sample Client");
-  final _beneficiaryController = TextEditingController(text: "Passport Renewal");
+  final _beneficiaryController = TextEditingController(
+    text: "Passport Renewal",
+  );
   final _quotePriceController = TextEditingController(text: "500");
   final _fundsController = TextEditingController(text: "300");
   final _paymentIdController = TextEditingController(text: "TID 00001–01");
@@ -56,9 +61,9 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Card(
+              elevation: 8,
               shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.red, width: 2),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(8),
               ),
               color: Colors.grey.shade200,
               child: Padding(
@@ -94,17 +99,39 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                       runSpacing: 10,
                       children: [
                         _buildDateTimeField(),
-                        _buildDropdown("Select Order Type", selectedOrderType, ["Services Base "], (val) {
-                          setState(() => selectedOrderType = val);
-                        }),
-                        _buildTextField("Select Service Project ", _beneficiaryController),
-                        _buildDropdown("Project Assign Employee ", selectedEmployee, ["Muhammad Imran"], (val) {
-                          setState(() => selectedEmployee = val);
-                        }),
-                        _buildTextField("Service Beneficiary ", _clientController),
-                        _buildTextField("Order Quote Price ", _quotePriceController),
+                        _buildDropdown(
+                          "Select Order Type",
+                          selectedOrderType,
+                          ["Services Base "],
+                          (val) {
+                            setState(() => selectedOrderType = val);
+                          },
+                        ),
+                        _buildTextField(
+                          "Select Service Project ",
+                          _beneficiaryController,
+                        ),
+                        _buildDropdown(
+                          "Project Assign Employee ",
+                          selectedEmployee,
+                          ["Muhammad Imran"],
+                          (val) {
+                            setState(() => selectedEmployee = val);
+                          },
+                        ),
+                        _buildTextField(
+                          "Service Beneficiary ",
+                          _clientController,
+                        ),
+                        _buildTextField(
+                          "Order Quote Price ",
+                          _quotePriceController,
+                        ),
                         _buildTextField("Received Funds", _fundsController),
-                        _buildTextField("Record Payment I’d ", _paymentIdController),
+                        _buildTextField(
+                          "Record Payment I’d ",
+                          _paymentIdController,
+                        ),
                       ],
                     ),
 
@@ -113,11 +140,23 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                     // Action Buttons
                     Row(
                       children: [
-                        _buildColoredButton("Editing", Colors.blue),
+                        CustomButton(
+                          text: "Editing",
+                          backgroundColor: Colors.blue.shade900,
+                          onPressed: () {},
+                        ),
                         const SizedBox(width: 10),
-                        _buildColoredButton("Stop", Colors.black),
+                        CustomButton(
+                          text: "Stop",
+                          backgroundColor: Colors.black,
+                          onPressed: () {},
+                        ),
                         const SizedBox(width: 10),
-                        _buildColoredButton("Submit", Colors.red),
+                        CustomButton(
+                          text: "Submit",
+                          backgroundColor: Colors.red,
+                          onPressed: () {},
+                        ),
                         const Spacer(), // Pushes the icon to the right
                         Container(
                           width: 40,
@@ -127,7 +166,11 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                             color: Colors.blue,
                           ),
                           child: IconButton(
-                            icon: Icon(Icons.print, color: Colors.white, size: 20),
+                            icon: Icon(
+                              Icons.print,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                             onPressed: () {
                               // Handle print action
                             },
@@ -141,9 +184,9 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
             ),
             const SizedBox(height: 20),
             Card(
+              elevation: 8,
               shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.red, width: 2),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(8),
               ),
               color: Colors.grey.shade200,
               child: Padding(
@@ -156,7 +199,11 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                       children: const [
                         Text(
                           "Stage – 01",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
                         ),
                         SizedBox(width: 10),
                         Text("SID–10000001"),
@@ -167,9 +214,24 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        _field("Date and Time", DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime), icon: Icons.calendar_today),
-                        _field("Reminder Date and Time", DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime), icon: Icons.calendar_today),
-                        _field("Services Department ", "FBR – Federal Board of Revenue"),
+                        _field(
+                          "Date and Time",
+                          DateFormat(
+                            "dd-MM-yyyy – hh:mm a",
+                          ).format(selectedDateTime),
+                          icon: Icons.calendar_today,
+                        ),
+                        _field(
+                          "Reminder Date and Time",
+                          DateFormat(
+                            "dd-MM-yyyy – hh:mm a",
+                          ).format(selectedDateTime),
+                          icon: Icons.calendar_today,
+                        ),
+                        _field(
+                          "Services Department ",
+                          "FBR – Federal Board of Revenue",
+                        ),
                         _field("Services Status Update ", "Pending for review"),
                         _field("Local Status ", "In Progress"),
                         _field("Tracking Status Tag", "Xyz Status"),
@@ -177,9 +239,21 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                         _field("Application I’d – 1", ""),
                         _noteText("Dynamic Application ID Sign"),
 
-                        _field("Received Funds", "XXX", fillColor: Colors.green.shade100),
-                        _field("Pending Funds", "XXX", fillColor: Colors.red.shade100),
-                        _field("Project Cost", "XXX", fillColor: Colors.blue.shade100),
+                        _field(
+                          "Received Funds",
+                          "XXX",
+                          fillColor: Colors.green.shade100,
+                        ),
+                        _field(
+                          "Pending Funds",
+                          "XXX",
+                          fillColor: Colors.red.shade100,
+                        ),
+                        _field(
+                          "Project Cost",
+                          "XXX",
+                          fillColor: Colors.blue.shade100,
+                        ),
                         _field("Record Payment I’d ", "TID 00001-01"),
                         _field("Received Funds", "300"),
                         _field("Step Cost", "500"),
@@ -190,11 +264,23 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                     // Action Buttons
                     Row(
                       children: [
-                        _actionButton("close Project", color: Colors.black, icon: Icons.lock_open_outlined),
+                        _actionButton(
+                          "close Project",
+                          color: Colors.black,
+                          icon: Icons.lock_open_outlined,
+                        ),
                         const SizedBox(width: 10),
-                        _actionButton("Next Step", color: Colors.blue),
+                        CustomButton(
+                          text: "Next Step",
+                          backgroundColor: Colors.blue,
+                          onPressed: () {},
+                        ),
                         const SizedBox(width: 10),
-                        _actionButton("Submit", color: Colors.red),
+                        CustomButton(
+                          text: "Submit",
+                          backgroundColor: Colors.red,
+                          onPressed: () {},
+                        ),
                         const Spacer(), // Pushes the icon to the right
                         Container(
                           width: 40,
@@ -204,18 +290,22 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                             color: Colors.blue,
                           ),
                           child: IconButton(
-                            icon: Icon(Icons.print, color: Colors.white, size: 20),
+                            icon: Icon(
+                              Icons.print,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                             onPressed: () {
                               // Handle print action
                             },
                           ),
                         ),
                       ],
-                    ),                  ],
+                    ),
+                  ],
                 ),
               ),
             ),
-
           ],
         ),
       ),
@@ -251,9 +341,7 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: Colors.red),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
+          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
           ),
@@ -262,7 +350,12 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
     );
   }
 
-  Widget _buildDropdown(String label, String? selectedValue, List<String> options, ValueChanged<String?> onChanged) {
+  Widget  _buildDropdown(
+    String label,
+    String? selectedValue,
+    List<String> options,
+    ValueChanged<String?> onChanged,
+  ) {
     return SizedBox(
       width: 220,
       child: DropdownButtonFormField<String>(
@@ -272,9 +365,10 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
           labelStyle: TextStyle(color: Colors.red),
           border: OutlineInputBorder(),
         ),
-        items: options.map((String value) {
-          return DropdownMenuItem(value: value, child: Text(value));
-        }).toList(),
+        items:
+            options.map((String value) {
+              return DropdownMenuItem(value: value, child: Text(value));
+            }).toList(),
         onChanged: onChanged,
       ),
     );
@@ -285,12 +379,13 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero)
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       ),
       onPressed: () {},
       child: Text(text),
     );
   }
+
   Widget buildLabeledFieldWithHint({
     required String label,
     required String hint,
@@ -307,7 +402,8 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
             labelStyle: const TextStyle(color: Colors.red),
             border: const OutlineInputBorder(),
             suffixIcon: const Icon(Icons.calendar_today, color: Colors.red),
-            helperText: hint, // This acts like a hint below the field
+            helperText: hint,
+            // This acts like a hint below the field
             helperStyle: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
           child: Text(
@@ -318,7 +414,13 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
       ),
     );
   }
-  Widget _field(String label, String value, {IconData? icon, Color? fillColor}) {
+
+  Widget _field(
+    String label,
+    String value, {
+    IconData? icon,
+    Color? fillColor,
+  }) {
     return SizedBox(
       width: 220,
       child: TextFormField(
@@ -352,15 +454,15 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero
-          ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       ),
       onPressed: () {},
-      icon: icon != null ? Icon(icon, color: Colors.white) : const SizedBox.shrink(),
+      icon:
+          icon != null
+              ? Icon(icon, color: Colors.white)
+              : const SizedBox.shrink(),
       label: Text(text, style: const TextStyle(color: Colors.white)),
     );
   }
 }
-

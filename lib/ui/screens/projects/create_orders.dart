@@ -52,11 +52,12 @@ class _CreateOrdersState extends State<CreateOrders> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Card(
+          elevation: 8,
           margin: EdgeInsets.all(20),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-            side: BorderSide(color: Colors.red),
+            borderRadius: BorderRadius.circular(8),
           ),
+
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -171,9 +172,11 @@ class _CreateOrdersState extends State<CreateOrders> {
           decoration: InputDecoration(
             labelText: "Date and Time *",
             border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.purple),
+              borderSide: BorderSide(color: Colors.red),
             ),
-            suffixIcon: Icon(Icons.calendar_today, color: Colors.red),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red),
+            ),            suffixIcon: Icon(Icons.calendar_today, color: Colors.red),
           ),
           child: Text(
             DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime),
@@ -196,7 +199,7 @@ class _CreateOrdersState extends State<CreateOrders> {
             borderSide: BorderSide(color: Colors.red),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.purple),
+            borderSide: BorderSide(color: Colors.red),
           ),
         ),
       ),

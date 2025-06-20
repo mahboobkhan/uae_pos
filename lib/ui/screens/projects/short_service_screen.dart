@@ -141,8 +141,8 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                       columnWidths: const {
                         0: FlexColumnWidth(0.8),
-                        1: FlexColumnWidth(2),
-                        2: FlexColumnWidth(1),
+                        1: FlexColumnWidth(1.5),
+                        2: FlexColumnWidth(1.5),
                         3: FlexColumnWidth(1),
                         4: FlexColumnWidth(1),
                         5: FlexColumnWidth(1.3),
@@ -169,15 +169,21 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                         // Sample Row
                         for (int i = 0; i < 20; i++)
                           TableRow(
+                            decoration: BoxDecoration(
+                              color:
+                              i.isEven
+                                  ? Colors.grey.shade300
+                                  : Colors.grey.shade50,
+                            ),
                           children: [
-                            _buildCell("12-02-2025\n02:59 pm"),
+                            _buildCell2("12-02-2025",'702:59 pm'),
                             _buildCell(
                               "xxxxxxxxx245",
                               copyable: true,
                             ),
                             _buildCell("Sample Tags"),
                             _buildCell("In progress"),
-                            _buildCell("PB-02 - 23days"),
+                            _buildCell2("PB-02 ",'- 23days'),
                             _buildCell("300"),
                             _buildCell("500"),
                             _buildCell("Mr. Imran"),
@@ -199,13 +205,20 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
 
   Widget _buildHeader(String text) {
     return Container(
+      height: 30,
+      alignment: Alignment.center,
       child: Text(
         text,
-        style: const TextStyle(color: Colors.red),
+        style: const TextStyle(
+          color: Colors.red,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
         textAlign: TextAlign.center,
       ),
     );
   }
+
 
   Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
@@ -216,7 +229,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
           Flexible(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 12),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -230,6 +243,41 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 8),
+                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+  Widget _buildCell2(String text1, String text2, {bool copyable = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(text1, style: const TextStyle(fontSize: 12)),
+                Text(
+                  text2,
+                  style: const TextStyle(fontSize: 10, color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+          if (copyable)
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 6),
                 child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
               ),
             ),
@@ -237,4 +285,5 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       ),
     );
   }
+
 }

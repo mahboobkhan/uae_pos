@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../dialogs/custom_dialoges.dart';
+
 class EmployeeScreen extends StatefulWidget {
   const EmployeeScreen({super.key});
 
@@ -18,6 +20,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   String? selectedCategory1;
   String? selectedCategory2;
   String? selectedCategory3;
+  bool _isHovering = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -30,85 +34,144 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              Container(
-                height: 45,
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.all(16),
-
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: Row(
-                  children: [
-                    _buildDropdown(selectedCategory, "Employee Type", categories, (newValue) => setState(() => selectedCategory = newValue)),
-                    _buildDropdown(selectedCategory1, "Select Tags", categories1, (newValue) => setState(() => selectedCategory1 = newValue)),
-                    _buildDropdown(selectedCategory2, "Payment Status", categories2, (newValue) => setState(() => selectedCategory2 = newValue)),
-                    Spacer(),
-                    PopupMenuButton<String>(
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(value: 'Short Employee', child: Text('Short Employee')),
-                        const PopupMenuItem<String>(value: 'Add Employee', child: Text('Add Employee')),
-                      ],
-                      child: Container(
-                        width: 35,
-                        height: 35,
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                        child: const Center(child: Icon(Icons.add, color: Colors.white, size: 20)),
+              MouseRegion(
+                onEnter: (_) => setState(() => _isHovering = true),
+                onExit: (_) => setState(() => _isHovering = false),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 45,
+                  width: MediaQuery.of(context).size.width,
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey, width: 1),
+                    borderRadius: BorderRadius.circular(2),
+                    boxShadow:
+                    _isHovering
+                        ? [
+                      BoxShadow(
+                        color: Colors.blue,
+                        blurRadius: 4,
+                        spreadRadius: 0.1,
+                        offset: Offset(0, 1),
                       ),
-                    ),
-                  ],
+                    ]
+                        : [],
+                  ),
+
+                  child: Row(
+                    children: [
+                      CustomDropdown(
+                        selectedValue: selectedCategory,
+                        hintText: "Employee Type",
+                        items: categories,
+                        onChanged: (newValue) {
+                          setState(() => selectedCategory = newValue!);
+                        },
+                      ),
+                      CustomDropdown(
+                        selectedValue: selectedCategory1,
+                        hintText: "Employee List",
+                        items: categories1,
+                        onChanged: (newValue) {
+                          setState(() => selectedCategory1 = newValue!);
+                        },
+                      ),
+                      CustomDropdown(
+                        selectedValue: selectedCategory2,
+                        hintText: "Payment Status",
+                        items: categories2,
+                        onChanged: (newValue) {
+                          setState(() => selectedCategory2 = newValue!);
+                        },
+                      ),
+                      Spacer(),
+                      PopupMenuButton<String>(
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(value: 'Short Employee', child: Text('Short Employee')),
+                          const PopupMenuItem<String>(value: 'Add Employee', child: Text('Add Employee')),
+                        ],
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                          child: const Center(child: Icon(Icons.add, color: Colors.white, size: 20)),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 16.0,right: 16),
-                child: Table(
-                  border: TableBorder.all(color: Colors.white),
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: const {
-                    0: FlexColumnWidth(1),
-                    1: FlexColumnWidth(1.5),
-                    2: FlexColumnWidth(1),
-                    3: FlexColumnWidth(1.5),
-                    4: FlexColumnWidth(0.5),
-                    5: FlexColumnWidth(0.5),
-                    6: FlexColumnWidth(0.5),
-                    7: FlexColumnWidth(1),
-                    8: FlexColumnWidth(1),
-                  },
-                  children: [
-                    // Header Row
-                    TableRow(
-                      decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
-                      children: [
-                        _buildHeader("Employee Type"),
-                        _buildHeader("Employee Name Ref I'd"),
-                        _buildHeader("Tags Details"),
-                        _buildHeader("Contact Number /Email"),
-                        _buildHeader("Salary"),
-                        _buildHeader("Advance"),
-                        _buildHeader("Bonuses"),
-                        _buildHeader("Other Actions"),
-                      ],
-                    ),
-                    // Sample Data Row
-                    TableRow(
-                      children: [
-                        _buildCell("12-02-2025\nHalf Time"),
-                        _buildCell(
-                          "Sample Employee\nxxxxxxxxx245",
-                          copyable: true,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Container(
+                  height: 300,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                          minWidth: 1200
+                      ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Table(
+                          border: TableBorder.all(color: Colors.white),
+                          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                          columnWidths: const {
+                            0: FlexColumnWidth(0.8),
+                            1: FlexColumnWidth(2),
+                            2: FlexColumnWidth(1),
+                            3: FlexColumnWidth(1),
+                            4: FlexColumnWidth(1),
+                            5: FlexColumnWidth(1.3),
+                            6: FlexColumnWidth(1),
+                            7: FlexColumnWidth(1),
+                            8: FlexColumnWidth(1),
+                            9: FlexColumnWidth(1),
+                          },
+                          children: [
+                            // Header Row
+                            TableRow(
+                              decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
+                              children: [
+                                _buildHeader("Date"),
+                                _buildHeader("Employee Name\nReference id "),
+                                _buildHeader("Job Positions"),
+                                _buildHeader("Payment Mode"),
+                                _buildHeader("Salary"),
+                                _buildHeader("Advance"),
+                                _buildHeader("Bonuses "),
+                                _buildHeader("Pending"),
+                                _buildHeader("Total "),
+                                _buildHeader("Others"),
+                              ],
+                            ),
+                            // Sample Row
+                            for (int i = 0; i < 20; i++)
+                              TableRow(
+                                children: [
+                                  _buildCell("12-02-2025\n02:59 pm"),
+                                  _buildCell(
+                                    "xxxxxxxxx245",
+                                    copyable: true,
+                                  ),
+                                  _buildCell("Manager"),
+                                  _buildCell("Bank Transfer/By Hand/n TID xxxxxxx234"
+                                      ),
+                                  _buildCell("100000"),
+                                  _buildCell("300"),
+                                  _buildCell("2000"),
+                                  _buildCell("N/A"),
+                                  _buildCell("1400"),
+                                  _buildCell("xxxxxxxxx245", copyable: true),
+                                ],
+                              ),
+                          ],
                         ),
-                        _buildCell("Sample Tags"),
-                        _buildCell("+32182666134"),
-                        _buildCell("10000"),
-                        _buildCell("300"),
-                        _buildCell("100"),
-                        _buildCell("Profile Bank Account"),
-                      ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -118,45 +181,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  TableRow _buildTableHeader() {
-    return TableRow(
-      decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
-      children: [
-        _buildHeader("Date"),
-        _buildHeader("Employee Name\nReference id"),
-        _buildHeader("Job Positions"),
-        _buildHeader("Payment Mode"),
-        _buildHeader("Salary"),
-        _buildHeader("Advance"),
-        _buildHeader("Bonuses"),
-        _buildHeader("Pending"),
-        _buildHeader("Total ID"),
-        _buildHeader("Other"),
-      ],
-    );
-  }
 
-  Widget _buildDropdown(String? selectedValue, String hint, List<String> items, ValueChanged<String?> onChanged, {Icon icon = const Icon(Icons.arrow_drop_down)}) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 12),
-      child: Container(
-        width: 140,
-        height: 25,
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: selectedValue,
-            icon: icon,
-            hint: Text(hint),
-            style: const TextStyle(fontSize: 10),
-            onChanged: onChanged,
-            items: items.map((value) => DropdownMenuItem<String>(value: value, child: Text(value))).toList(),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildHeader(String text) {
     return Container(
@@ -187,8 +212,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                 );
               },
               child: Padding(
-                padding: const EdgeInsets.only(left: 32),
-                child: Icon(Icons.copy, size: 16, color: Colors.grey[700]),
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
               ),
             ),
         ],
@@ -196,11 +221,5 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  Widget _buildTagsCell(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Text(text, style: const TextStyle(fontSize: 10)),
-    );
-  }
 
 }
