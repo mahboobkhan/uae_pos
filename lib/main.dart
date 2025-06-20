@@ -1,5 +1,9 @@
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
-import 'package:abc_consultant/ui/screens/projects/client_screen/comapny_profile_add.dart';
+import 'package:abc_consultant/ui/screens/client_screen/company_screen.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/login_page.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/new_account_verification.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/tick_forgot_password.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/track_order.dart';
 
 import 'package:flutter/material.dart';
 
@@ -14,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //  return MaterialApp(home: DashboardScrn());
-    return MaterialApp(home: SidebarLayout());
+    return MaterialApp(home: LoginPage());
     //home: SidebarLayout()
   }
 }

@@ -113,6 +113,10 @@ class _NewAccountVerificationScreenState
                           style: TextStyle(fontSize: 12),
                           cursorHeight: height * 0.02,
                           decoration: const InputDecoration(
+                            suffixIcon: CircleAvatar(
+                              backgroundColor: Colors.green,
+                              child: Icon(Icons.check, color: Colors.white),
+                            ),
                             hintText: "hello@greatsite.com",
                             hintStyle: TextStyle(
                               fontSize: 13,
@@ -195,7 +199,16 @@ class _NewAccountVerificationScreenState
                     child: MaterialButton(
                       minWidth: width * 0.09,
                       height: height * 0.06,
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    LoginPage(),
+                          ),
+                        );
+                      },
                       color: Colors.red,
                       child: Text(
                         "Submit",

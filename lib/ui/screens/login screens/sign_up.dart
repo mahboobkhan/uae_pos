@@ -1,4 +1,5 @@
 import 'package:abc_consultant/ui/screens/login%20screens/login_page.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/new_account_verification.dart';
 import 'package:abc_consultant/widgets/half_color_border.dart';
 import 'package:flutter/material.dart';
 
@@ -219,7 +220,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: MaterialButton(
                       minWidth: width * 0.09,
                       height: height * 0.06,
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    NewAccountVerificationScreen(),
+                          ),
+                        );
+                      },
                       color: Colors.red,
                       child: Text(
                         "Sign Up",
