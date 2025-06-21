@@ -238,7 +238,7 @@ Widget _buildEdit(BuildContext context) {
                 ),
                 ElevatedButton(
                   onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red,shape: RoundedRectangleBorder()),
                   child: const Text("Save"),
                 ),
               ],
@@ -267,9 +267,9 @@ void showShortServicesPopup(BuildContext context) {
 
       return AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        actionsAlignment: MainAxisAlignment.start,
+
         content: SizedBox(
           width: 340,
           child: Stack(
@@ -292,10 +292,7 @@ void showShortServicesPopup(BuildContext context) {
                     const SizedBox(height: 4),
                     const Text(
                       "Tid 000000000234",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                     const SizedBox(height: 20),
 
@@ -329,7 +326,10 @@ void showShortServicesPopup(BuildContext context) {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 10,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
                           ),
@@ -370,6 +370,7 @@ void showShortServicesPopup(BuildContext context) {
     },
   );
 }
+
 Widget _buildDropdownWithPlus({
   required String label,
   required String? value,
@@ -396,12 +397,13 @@ Widget _buildDropdownWithPlus({
           ),
           contentPadding: const EdgeInsets.fromLTRB(12, 14, 48, 14),
         ),
-        items: items.map((item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item, style: const TextStyle(fontSize: 13)),
-          );
-        }).toList(),
+        items:
+            items.map((item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(item, style: const TextStyle(fontSize: 13)),
+              );
+            }).toList(),
         onChanged: onChanged,
       ),
       Positioned(
@@ -425,7 +427,6 @@ Widget _buildDropdownWithPlus({
   );
 }
 
-
 Widget _buildTextField({
   required String label,
   required Function(String) onChanged,
@@ -448,10 +449,6 @@ Widget _buildTextField({
   );
 }
 
-
-
-
-
 // Services Project
 void showServicesProjectPopup(BuildContext context) {
   showDialog(
@@ -470,9 +467,7 @@ void showServicesProjectPopup(BuildContext context) {
 
       return AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         content: SizedBox(
           width: 340,
           child: Stack(
@@ -495,10 +490,7 @@ void showServicesProjectPopup(BuildContext context) {
                     const SizedBox(height: 4),
                     const Text(
                       "SID-01100011",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                     const SizedBox(height: 20),
 
@@ -531,7 +523,10 @@ void showServicesProjectPopup(BuildContext context) {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 10,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
                           ),
@@ -572,6 +567,7 @@ void showServicesProjectPopup(BuildContext context) {
     },
   );
 }
+
 Widget _buildDropdownWithPlus1({
   required String label,
   required String? value,
@@ -598,12 +594,13 @@ Widget _buildDropdownWithPlus1({
           ),
           contentPadding: const EdgeInsets.fromLTRB(12, 14, 48, 14),
         ),
-        items: items.map((item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item, style: const TextStyle(fontSize: 13)),
-          );
-        }).toList(),
+        items:
+            items.map((item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(item, style: const TextStyle(fontSize: 13)),
+              );
+            }).toList(),
         onChanged: onChanged,
       ),
       Positioned(
@@ -626,6 +623,7 @@ Widget _buildDropdownWithPlus1({
     ],
   );
 }
+
 Widget _buildTextField1({
   required String label,
   required Function(String) onChanged,
@@ -653,6 +651,7 @@ class CustomButton extends StatelessWidget {
   final Color backgroundColor;
   final VoidCallback onPressed;
   final double borderRadius;
+  final double? fontSize; // 👈 Custom size directly
 
   const CustomButton({
     super.key,
@@ -660,6 +659,7 @@ class CustomButton extends StatelessWidget {
     required this.onPressed,
     this.backgroundColor = Colors.blue,
     this.borderRadius = 6,
+    this.fontSize, // Optional font size
   });
 
   @override
@@ -668,13 +668,17 @@ class CustomButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
       child: Text(
         text,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize ?? 16, // 👈 default 16
+        ),
       ),
     );
   }
@@ -704,7 +708,8 @@ class CustomDropdown extends StatelessWidget {
       padding: const EdgeInsets.only(left: 12),
       child: GestureDetector(
         onTap: () async {
-          final RenderBox renderBox = _key.currentContext!.findRenderObject() as RenderBox;
+          final RenderBox renderBox =
+              _key.currentContext!.findRenderObject() as RenderBox;
           final Offset offset = renderBox.localToGlobal(Offset.zero);
           final double width = renderBox.size.width;
 
@@ -716,12 +721,13 @@ class CustomDropdown extends StatelessWidget {
               offset.dx + width,
               offset.dy,
             ),
-            items: items.map((item) {
-              return PopupMenuItem<String>(
-                value: item,
-                child: Text(item, style: const TextStyle(fontSize: 12)),
-              );
-            }).toList(),
+            items:
+                items.map((item) {
+                  return PopupMenuItem<String>(
+                    value: item,
+                    child: Text(item, style: const TextStyle(fontSize: 12)),
+                  );
+                }).toList(),
           );
 
           if (selected != null) {
@@ -758,6 +764,122 @@ class CustomDropdown extends StatelessWidget {
   }
 }
 
+Future<Map<String, dynamic>?> showAddTagDialog(BuildContext context) async {
+  final TextEditingController _tagController = TextEditingController();
+  Color? selectedColor;
+  final List<Color> colors = [
+    Colors.green.shade100,
+    Colors.yellow.shade100,
+    Colors.orange.shade100,
+    Colors.pink.shade100,
+    Colors.purple.shade100,
+    Colors.green,
+    Colors.yellow,
+    Colors.orange,
+    Colors.red,
+    Colors.purple,
+    Colors.teal,
+    Colors.blue.shade100,
+    Colors.lightGreen.shade200,
+    Colors.pink.shade200,
+    Colors.grey.shade300,
+    Colors.lightBlue,
+    Colors.cyan,
+    Colors.lime,
+    Colors.pink,
+    Colors.blueGrey,
+  ];
 
+  await showDialog(
+    context: context,
+    builder: (_) => StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        titlePadding: EdgeInsets.zero,
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+            ),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(Icons.arrow_back, color: Colors.white,size: 18,),
+                ),
+              ),
+              const Center(
+                child: Text(
+                  "New Tag",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        content: SizedBox(
+          width: 220,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _tagController,
+                decoration: const InputDecoration(
+                  labelText: "Tag Name",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: colors.map((color) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() => selectedColor = color); // update state only
+                    },
+                    child: Container(
+                      width: 41,
+                      height: 41,
+                      decoration: BoxDecoration(
+                        color: color,
+                        border: Border.all(
+                          color: selectedColor == color ? Colors.black : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              CustomButton(
+                text: 'SAVE',
+                backgroundColor: Colors.blue,
+                borderRadius: 2,
+                onPressed: (){
+                },
+                fontSize: 12,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 
-
+}

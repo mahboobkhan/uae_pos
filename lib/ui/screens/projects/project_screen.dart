@@ -5,13 +5,17 @@ import 'package:flutter/services.dart';
 class ProjectScreen extends StatefulWidget {
   final VoidCallback onNavigateToCreateOrder;
 
+
   const ProjectScreen({super.key, required this.onNavigateToCreateOrder});
 
   @override
   State<ProjectScreen> createState() => _ProjectScreenState();
+
 }
 
 class _ProjectScreenState extends State<ProjectScreen> {
+  List<String> _tags = ["Tag1", "Tag2"];
+
   final List<Map<String, dynamic>> stats = [
     {'label': 'Revenue', 'value': '25K'},
     {'label': 'Users', 'value': '1.2K'},
@@ -324,7 +328,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                     "Sample Customer \nxxxxxxxxx245",
                                     copyable: true,
                                   ),
-                                  _buildTagsCell(["Tag1", "Tag2"]),
+                                  _buildTagsCell(_tags,context),
                                   _buildCell("In progress"),
                                   _buildCell2("PB-02 - 1 ", ' 23-days'),
                                   _buildPriceWithAdd("AED-", "300"),
@@ -399,7 +403,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
     );
   }
 
-  Widget _buildTagsCell(List<String> tags) {
+  Widget _buildTagsCell(List<String> tags, BuildContext context) {
     final colors = [Colors.purple, Colors.green, Colors.blue];
 
     return Padding(
@@ -423,14 +427,24 @@ class _ProjectScreenState extends State<ProjectScreen> {
               ],
             ),
           ),
-          Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.blue),
+          GestureDetector(
+            onTap: () async {
+              final result = await showAddTagDialog(context);
+              if (result != null) {
+                setState(() {
+                  _tags.add(result['tag']); // Add new tag to list
+                });
+              }
+            },
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 14, color: Colors.blue),
             ),
-            child: const Icon(Icons.add, size: 13, color: Colors.blue),
           ),
         ],
       ),
