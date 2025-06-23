@@ -1,4 +1,6 @@
+import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BankingScreen extends StatefulWidget {
   const BankingScreen({super.key});
@@ -8,6 +10,9 @@ class BankingScreen extends StatefulWidget {
 }
 
 class _BankingScreenState extends State<BankingScreen> {
+  final GlobalKey _plusKey = GlobalKey();
+  bool _isHovering = false;
+
   final List<String> categories = [
     'All',
     'New',
@@ -41,151 +46,255 @@ class _BankingScreenState extends State<BankingScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              height: 45,
-              width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey, width: 1),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: Row(
-                children: [
-                  // Dropdowns
-                  _buildDropdown(
-                    selectedCategory,
-                    "Customer Type",
-                    categories,
-                    (newValue) {
-                      setState(() {
-                        selectedCategory = newValue!;
-                      });
-                    },
-                  ),
-
-                  _buildDropdown(
-                    selectedCategory1,
-                    "Select Tags",
-                    categories1,
-                    (newValue) {
-                      setState(() {
-                        selectedCategory1 = newValue!;
-                      });
-                    },
-                  ),
-                  _buildDropdown(
-                    selectedCategory2,
-                    "Payment Status",
-                    categories2,
-                    (newValue) {
-                      setState(() {
-                        selectedCategory2 = newValue!;
-                      });
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.11,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: Colors.red, width: 1.5),
+            MouseRegion(
+              onEnter: (_) => setState(() => _isHovering = true),
+              onExit: (_) => setState(() => _isHovering = false),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 45,
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow:
+                      _isHovering
+                          ? [
+                            BoxShadow(
+                              color: Colors.blue,
+                              blurRadius: 4,
+                              spreadRadius: 0.2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                          : [],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            CustomDropdown(
+                              hintText: "Customer Type",
+                              selectedValue: selectedCategory,
+                              items: categories,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              hintText: "Select Tags",
+                              selectedValue: selectedCategory1,
+                              items: categories1,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory1 = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              hintText: "Payment Status",
+                              selectedValue: selectedCategory2,
+                              items: categories2,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory2 = newValue!);
+                              },
+                            ),
+                            const SizedBox(width: 12),
+                            Row(
+                              children: [
+                                Card(
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  shadowColor: Colors.grey.shade700,
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width *
+                                        0.11,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: const TextField(
+                                      style: TextStyle(fontSize: 12),
+                                      textAlignVertical:
+                                          TextAlignVertical.center,
+                                      decoration: InputDecoration(
+                                        hintText: 'Search...',
+                                        hintStyle: TextStyle(fontSize: 12),
+                                        border: InputBorder.none,
+                                        isCollapsed: true,
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Card(
+                                  elevation: 4,
+                                  shape: const CircleBorder(),
+                                  // Make the card circular
+                                  shadowColor: Colors.grey.shade700,
+                                  child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle, // Circular shape
+                                    ),
+                                    child: const Icon(
+                                      Icons.search,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: const TextField(
-                          style: TextStyle(fontSize: 12),
-                          textAlignVertical: TextAlignVertical.center,
-                          decoration: InputDecoration(
-                            hintText: 'Search...',
-                            hintStyle: TextStyle(fontSize: 12),
-                            border: InputBorder.none,
-                            isCollapsed: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: const Icon(
-                          Icons.search,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      _showAddPaymentDialog(context);
-                    },
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.add, color: Colors.white, size: 20),
                       ),
                     ),
-                  ),
-                ],
+                    Card(
+                      elevation: 8,
+                      color: Colors.blue,
+                      shape: CircleBorder(),
+                      child: Builder(
+                        builder:
+                            (context) => Tooltip(
+                              message: 'Show menu',
+                              waitDuration: Duration(milliseconds: 2),
+                              child: GestureDetector(
+                                key: _plusKey,
+                                onTap: () async {
+                                  final RenderBox renderBox =
+                                      _plusKey.currentContext!
+                                              .findRenderObject()
+                                          as RenderBox;
+                                  final Offset offset = renderBox.localToGlobal(
+                                    Offset.zero,
+                                  );
+
+                                  final selected = await showMenu<String>(
+                                    context: context,
+                                    position: RelativeRect.fromLTRB(
+                                      offset.dx,
+                                      offset.dy + renderBox.size.height,
+                                      offset.dx + 30,
+                                      offset.dy,
+                                    ),
+                                    items: [
+                                      const PopupMenuItem<String>(
+                                        value: 'Short Services',
+                                        child: Text('Short Services'),
+                                      ),
+                                      const PopupMenuItem<String>(
+                                        value: 'Add Services',
+                                        child: Text('Add Services'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Table(
-                border: TableBorder.all(color: Colors.white),
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: const {
-                  0: FlexColumnWidth(1),
-                  1: FlexColumnWidth(1),
-                  2: FlexColumnWidth(1),
-                  3: FlexColumnWidth(1),
-                  4: FlexColumnWidth(1),
-                  5: FlexColumnWidth(1),
-                  6: FlexColumnWidth(1),
-                },
-                children: [
-                  // Header Row
-                  TableRow(
-                    decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
-                    children: [
-                      _buildHeader("Bank Id"),
-                      _buildHeader("Bank Name"),
-                      _buildHeader("Title Name"),
-                      _buildHeader("Account/IBN"),
-                      _buildHeader("Mobile/Email"),
-                      _buildHeader("Ref I'd"),
-                      _buildHeader("Action"),
-                    ],
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                height: 400,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: 1180, // Force horizontal scrolling
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Table(
+                        border: TableBorder.all(color: Colors.white, width: 2),
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        columnWidths: const {
+                          0: FlexColumnWidth(1),
+                          1: FlexColumnWidth(0.8),
+                          2: FlexColumnWidth(0.8),
+                          3: FlexColumnWidth(1),
+                          4: FlexColumnWidth(1),
+                          5: FlexColumnWidth(1),
+                          6: FlexColumnWidth(1),
+                        },
+                        children: [
+                          // Header Row
+                          TableRow(
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                            ),
+                            children: [
+                              _buildHeader("Bank Id"),
+                              _buildHeader("Bank Name"),
+                              _buildHeader("Title Name"),
+                              _buildHeader("Account/IBN"),
+                              _buildHeader("Mobile/Email"),
+                              _buildHeader("Ref I'd"),
+                              _buildHeader("Action"),
+                            ],
+                          ),
+                          // Sample Data Row
+                          for(int i =0;i<20; i++)
+                          TableRow(
+                            decoration: BoxDecoration(
+                              color: i.isEven
+                                ? Colors.grey.shade300
+                                :Colors.grey.shade50,
+                            ),
+                            children: [
+                              _buildCell("xxxxx"),
+                              _buildCell("UDC Bank"),
+                              _buildCell('xxxxxx'),
+                              _buildCell("ACC xxxxxxxx345\nIBN xxxxxxx345"),
+                              _buildCell("0626626626"),
+                              _buildCell("xxxxxx345"),
+                              _buildCell("Edit"),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  // Sample Data Row
-                  TableRow(
-                    children: [
-                      _buildCell("xxxxx"),
-                      _buildCell("UDC Bank"),
-                      _buildCell('xxxxxx'),
-                      _buildCell("ACC xxxxxxxx345\nIBN xxxxxxx345"),
-                      _buildCell("0626626626"),
-                      _buildCell("xxxxxx345"),
-                      _buildCell("Edit"),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ],
@@ -194,177 +303,52 @@ class _BankingScreenState extends State<BankingScreen> {
     );
   }
 
-  Widget _buildDropdown(
-    String? selectedValue,
-    String hintText,
-    List<String> items,
-    ValueChanged<String?> onChanged, {
-    Icon icon = const Icon(Icons.arrow_drop_down),
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 12),
-      child: Container(
-        width: 140,
-        height: 25,
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue, width: 1),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: selectedValue,
-            icon: icon,
-            hint: Text(hintText),
-            style: TextStyle(fontSize: 10),
-            onChanged: onChanged,
-            items:
-                items.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Container(
-                      padding: EdgeInsets.zero,
-                      child: Text(value),
-                    ),
-                  );
-                }).toList(),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildHeader(String text) {
     return Container(
+      height: 30,
+      alignment: Alignment.center,
       child: Text(
         text,
-        style: const TextStyle( color: Colors.red),
+        style: const TextStyle(
+          color: Colors.red,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
         textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget _buildCell(String text) {
+  Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(text, style: const TextStyle(fontSize: 14)),
-    );
-  }
-
-  void _showAddPaymentDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Container(
-          width: 1000,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100, // Light grey background
-            border: Border.all(color: Colors.red, width: 2), // Red border
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Column(
-                children: const [
-                  Text(
-                    "Add Payment Method",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-                  Text(
-                    "BID. 00001",
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Wrap(
-                spacing: 16,
-                runSpacing: 12,
-                children: [
-                  _buildInput("Select Platform", hint: "Bank/Violet/Other Platform"),
-                  _buildInput("Platform/Bank Name/Cash As Hand"),
-                  _buildInput("Title Name"),
-                  _buildInput("Account No"),
-                  _buildInput("IBN"),
-                  _buildInput("Email I'd"),
-                  _buildInput("Mobile Number"),
-                  _buildInput("Tag Add"),
-                  _buildInput("Bank Address Physical Address",
-                      hint: "Address, Town, City, Postal Code, Country"),
-                ],
-              ),
-              const SizedBox(height: 20),
-              // Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.shade900,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                    child: const Text("Editing", style: TextStyle(color: Colors.white)),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade900,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                    child: const Text("Submit", style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInput(String label, {String? hint}) {
-    return SizedBox(
-      width: 210,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.only(left: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: Colors.red)),
-          const SizedBox(height: 4),
-          TextField(
-            style: const TextStyle(fontSize: 12),
-            decoration: InputDecoration(
-              hintText: hint ?? '',
-              hintStyle: const TextStyle(fontSize: 12),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 4,
-                vertical: 4,
-              ),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.red),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.red),
-              ),
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (copyable)
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: text));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+              ),
+            ),
         ],
       ),
     );
   }
+
+
 }

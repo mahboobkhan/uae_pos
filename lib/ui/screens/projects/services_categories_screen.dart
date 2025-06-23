@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
@@ -158,21 +159,26 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                           onPressed: () {},
                         ),
                         const Spacer(), // Pushes the icon to the right
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.blue,
-                          ),
+
+                        Material(
+                          elevation: 8,
+                          color: Colors.blue, // Set background color here
+                          shape: const CircleBorder(),
                           child: IconButton(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.print,
                               color: Colors.white,
                               size: 20,
                             ),
                             onPressed: () {
-                              // Handle print action
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Printed"),
+                                  duration: Duration(seconds: 2),
+                                  backgroundColor: Colors.black87,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
                             },
                           ),
                         ),
@@ -264,10 +270,14 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                     // Action Buttons
                     Row(
                       children: [
-                        _actionButton(
-                          "close Project",
-                          color: Colors.black,
-                          icon: Icons.lock_open_outlined,
+                        CustomButton(
+                          text:
+                          "Close Project",
+                           backgroundColor: Colors.black,
+                           icon: Icons.lock_open_outlined,
+                          onPressed: (){
+
+                          },
                         ),
                         const SizedBox(width: 10),
                         CustomButton(
@@ -282,22 +292,34 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                           onPressed: () {},
                         ),
                         const Spacer(), // Pushes the icon to the right
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.blue,
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.print,
-                              color: Colors.white,
-                              size: 20,
+                        Material(
+                          elevation: 8,
+                          color: Colors.blue,
+                          shape: const CircleBorder(),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
                             ),
-                            onPressed: () {
-                              // Handle print action
-                            },
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.print,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Printed"),
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.black87,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                                // Handle print action
+                              },
+                            ),
                           ),
                         ),
                       ],
@@ -350,7 +372,7 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
     );
   }
 
-  Widget  _buildDropdown(
+  Widget _buildDropdown(
     String label,
     String? selectedValue,
     List<String> options,
@@ -427,7 +449,7 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
         initialValue: value,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.red, fontSize: 12),
+          labelStyle: const TextStyle(color: Colors.red, fontSize: 16),
           border: OutlineInputBorder(),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
@@ -450,19 +472,4 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
     );
   }
 
-  Widget _actionButton(String text, {required Color color, IconData? icon}) {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      ),
-      onPressed: () {},
-      icon:
-          icon != null
-              ? Icon(icon, color: Colors.white)
-              : const SizedBox.shrink(),
-      label: Text(text, style: const TextStyle(color: Colors.white)),
-    );
-  }
 }

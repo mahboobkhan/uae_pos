@@ -112,9 +112,13 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                   children: const [
                     Text('Profile', style: TextStyle(fontSize: 14)),
                     SizedBox(width: 8),
-                    CircleAvatar(
-                      backgroundColor: Colors.red,
-                      child: Icon(Icons.person, color: Colors.white),
+                    Card(
+                      elevation: 8,
+                      shape:  CircleBorder(),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.red,
+                        child: Icon(Icons.person, color: Colors.white),
+                      ),
                     ),
                   ],
                 ),

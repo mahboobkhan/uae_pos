@@ -38,6 +38,8 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     'Custom Range',
   ];
   String? selectedCategory3;
+  final GlobalKey _plusKey = GlobalKey();
+
   bool _isHovering = false;
 
   @override
@@ -55,7 +57,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
               width: MediaQuery.of(context).size.width,
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.red.shade50,
                 border: Border.all(color: Colors.grey, width: 1),
                 borderRadius: BorderRadius.circular(2),
                 boxShadow:
@@ -72,53 +74,106 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
               ),
               child: Row(
                 children: [
-                  CustomDropdown(
-                    selectedValue: selectedCategory,
-                    hintText: "Status",
-                    items: categories,
-                    onChanged: (newValue) {
-                      setState(() => selectedCategory = newValue!);
-                    },
-                  ),
-                  CustomDropdown(
-                    selectedValue: selectedCategory1,
-                    hintText: "Select Tags",
-                    items: categories1,
-                    onChanged: (newValue) {
-                      setState(() => selectedCategory1 = newValue!);
-                    },
-                  ),
-                  CustomDropdown(
-                    selectedValue: selectedCategory2,
-                    hintText: "Payment Status",
-                    items: categories2,
-                    onChanged: (newValue) {
-                      setState(() => selectedCategory2 = newValue!);
-                    },
-                  ),
-                  CustomDropdown(
-                    selectedValue: selectedCategory3,
-                    hintText: "Dates",
-                    items: categories3,
-                    onChanged: (newValue) {
-                      setState(() => selectedCategory3 = newValue!);
-                    },
-                    icon: const Icon(Icons.calendar_month, size: 18),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 30,
-                    height: 30,
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.add, color: Colors.white, size: 20),
+                  // 🔽 Scrollable Row with dropdowns
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          CustomDropdown(
+                            selectedValue: selectedCategory,
+                            hintText: "Status",
+                            items: categories,
+                            onChanged: (newValue) {
+                              setState(() => selectedCategory = newValue!);
+                            },
+                          ),
+                          CustomDropdown(
+                            selectedValue: selectedCategory1,
+                            hintText: "Select Tags",
+                            items: categories1,
+                            onChanged: (newValue) {
+                              setState(() => selectedCategory1 = newValue!);
+                            },
+                          ),
+                          CustomDropdown(
+                            selectedValue: selectedCategory2,
+                            hintText: "Payment Status",
+                            items: categories2,
+                            onChanged: (newValue) {
+                              setState(() => selectedCategory2 = newValue!);
+                            },
+                          ),
+                          CustomDropdown(
+                            selectedValue: selectedCategory3,
+                            hintText: "Dates",
+                            items: categories3,
+                            onChanged: (newValue) {
+                              setState(() => selectedCategory3 = newValue!);
+                            },
+                            icon: const Icon(Icons.calendar_month, size: 18),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 20),
+
+                  // 🔽 Fixed Right Action Buttons
+                  Row(
+                    children: [
+                      Card(
+                        elevation: 8,
+                        color: Colors.blue,
+                        shape:  CircleBorder(),
+                        child: Builder(
+                          builder: (context) => Tooltip(
+                            message: 'Show menu',
+                            waitDuration: Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              key: _plusKey,
+                              onTap: () async {
+                                final RenderBox renderBox =
+                                _plusKey.currentContext!.findRenderObject() as RenderBox;
+                                final Offset offset =
+                                renderBox.localToGlobal(Offset.zero);
+                                final selected = await showMenu<String>(
+                                  context: context,
+                                  position: RelativeRect.fromLTRB(
+                                    offset.dx,
+                                    offset.dy + renderBox.size.height,
+                                    offset.dx + 30,
+                                    offset.dy,
+                                  ),
+                                  items: [
+                                    const PopupMenuItem<String>(
+                                      value: 'Short Services',
+                                      child: Text('Short Services'),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value: 'Add Services',
+                                      child: Text('Add Services'),
+                                    ),
+                                  ],
+                                );
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: const EdgeInsets.symmetric(horizontal: 10),
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: Icon(Icons.add, color: Colors.white, size: 20),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -127,7 +182,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Container(
-              height: 300,
+              height: 400,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: ConstrainedBox(
@@ -153,7 +208,9 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                       children: [
                         // Header Row
                         TableRow(
-                          decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
+                          decoration:  BoxDecoration(
+                          color: Colors.red.shade50,
+                          ),
                           children: [
                             _buildHeader("Date"),
                             _buildHeader("Service Beneficiary "),

@@ -5,12 +5,10 @@ import 'package:flutter/services.dart';
 class ProjectScreen extends StatefulWidget {
   final VoidCallback onNavigateToCreateOrder;
 
-
   const ProjectScreen({super.key, required this.onNavigateToCreateOrder});
 
   @override
   State<ProjectScreen> createState() => _ProjectScreenState();
-
 }
 
 class _ProjectScreenState extends State<ProjectScreen> {
@@ -137,136 +135,158 @@ class _ProjectScreenState extends State<ProjectScreen> {
                   ),
                   child: Row(
                     children: [
-                      CustomDropdown(
-                        selectedValue: selectedCategory,
-                        hintText: "Status",
-                        items: categories,
-                        onChanged: (newValue) {
-                          setState(() => selectedCategory = newValue!);
-                        },
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              CustomDropdown(
+                                selectedValue: selectedCategory,
+                                hintText: "Status",
+                                items: categories,
+                                onChanged: (newValue) {
+                                  setState(() => selectedCategory = newValue!);
+                                },
+                              ),
+                              CustomDropdown(
+                                selectedValue: selectedCategory1,
+                                hintText: "Select Tags",
+                                items: categories1,
+                                onChanged: (newValue) {
+                                  setState(() => selectedCategory1 = newValue!);
+                                },
+                              ),
+                              CustomDropdown(
+                                selectedValue: selectedCategory2,
+                                hintText: "Payment Status",
+                                items: categories2,
+                                onChanged: (newValue) {
+                                  setState(() => selectedCategory2 = newValue!);
+                                },
+                              ),
+                              CustomDropdown(
+                                selectedValue: selectedCategory3,
+                                hintText: "Dates",
+                                items: categories3,
+                                onChanged: (newValue) {
+                                  setState(() => selectedCategory3 = newValue!);
+                                },
+                                icon: const Icon(
+                                  Icons.calendar_month,
+                                  size: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      CustomDropdown(
-                        selectedValue: selectedCategory1,
-                        hintText: "Select Tags",
-                        items: categories1,
-                        onChanged: (newValue) {
-                          setState(() => selectedCategory1 = newValue!);
-                        },
-                      ),
-                      CustomDropdown(
-                        selectedValue: selectedCategory2,
-                        hintText: "Payment Status",
-                        items: categories2,
-                        onChanged: (newValue) {
-                          setState(() => selectedCategory2 = newValue!);
-                        },
-                      ),
-                      CustomDropdown(
-                        selectedValue: selectedCategory3,
-                        hintText: "Dates",
-                        items: categories3,
-                        onChanged: (newValue) {
-                          setState(() => selectedCategory3 = newValue!);
-                        },
-                        icon: const Icon(Icons.calendar_month, size: 18),
-                      ),
-                      const Spacer(),
+                      Row(
+                        children: [
+                          Card(
+                            elevation: 8,
+                            color: Colors.blue,
+                            shape:  CircleBorder(),
+                            child: Builder(
+                              builder:
+                                  (context) => Tooltip(
+                                    message: 'Show menu',
+                                    waitDuration: Duration(milliseconds: 2),
+                                    child: GestureDetector(
+                                      key: _plusKey,
+                                      onTap: () async {
+                                        final RenderBox renderBox =
+                                            _plusKey.currentContext!
+                                                    .findRenderObject()
+                                                as RenderBox;
+                                        final Offset offset = renderBox
+                                            .localToGlobal(Offset.zero);
 
-                      // Plus Icon behaving like a dropdown
-                      Builder(
-                        builder:
-                            (context) => Tooltip(
-                              message: 'Show menu',
+                                        final selected = await showMenu<String>(
+                                          context: context,
+                                          position: RelativeRect.fromLTRB(
+                                            offset.dx,
+                                            offset.dy + renderBox.size.height,
+                                            offset.dx + 30,
+                                            offset.dy,
+                                          ),
+                                          items: [
+                                            const PopupMenuItem<String>(
+                                              value: 'Short Services',
+                                              child: Text('Short Services'),
+                                            ),
+                                            const PopupMenuItem<String>(
+                                              value: 'Add Services',
+                                              child: Text('Add Services'),
+                                            ),
+                                          ],
+                                        );
+
+                                        if (selected != null) {
+                                          setState(
+                                            () => selectedCategory4 = selected,
+                                          );
+                                          if (selected == 'Add Services') {
+                                            showShortServicesPopup(context);
+                                          } else if (selected ==
+                                              'Short Services') {
+                                            showServicesProjectPopup(context);
+                                          }
+                                        }
+                                      },
+                                      child: Container(
+                                        width: 30,
+                                        height: 30,
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                        ),
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.add,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            ),
+                          ),
+                          Material(
+                            elevation: 8,
+                            shadowColor: Colors.grey.shade900,
+                            shape:  CircleBorder(),
+                            color: Colors.blue,
+                            child: Tooltip(
+                              message: 'Create orders',
                               waitDuration: Duration(milliseconds: 2),
                               child: GestureDetector(
-                                key: _plusKey,
-                                onTap: () async {
-                                  final RenderBox renderBox =
-                                      _plusKey.currentContext!.findRenderObject()
-                                          as RenderBox;
-                                  final Offset offset = renderBox.localToGlobal(
-                                    Offset.zero,
-                                  );
-                              
-                                  final selected = await showMenu<String>(
-                                    context: context,
-                                    position: RelativeRect.fromLTRB(
-                                      offset.dx,
-                                      offset.dy + renderBox.size.height,
-                                      offset.dx + 30,
-                                      offset.dy,
-                                    ),
-                                    items: [
-                                      const PopupMenuItem<String>(
-                                        value: 'Short Services',
-                                        child: Text('Short Services'),
-                                      ),
-                                      const PopupMenuItem<String>(
-                                        value: 'Add Services',
-                                        child: Text('Add Services'),
-                                      ),
-                                    ],
-                                  );
-                              
-                                  if (selected != null) {
-                                    setState(() => selectedCategory4 = selected);
-                                    if (selected == 'Add Services') {
-                                      showShortServicesPopup(context);
-                                    } else if (selected == 'Short Services') {
-                                      showServicesProjectPopup(context);
-                                    }
-                                  }
-                                },
-                                child: Container(
-                                  width: 30,
+                                onTap: widget.onNavigateToCreateOrder,
+                                child: SizedBox(
                                   height: 30,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blue,
-                                    shape: BoxShape.circle,
-                                  ),
+                                  width: 30,
                                   child: const Center(
                                     child: Icon(
-                                      Icons.add,
+                                      Icons.edit_outlined,
                                       color: Colors.white,
-                                      size: 20,
+                                      size: 16,
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                      ),
-                      Tooltip(
-                        message: 'Create orders',
-                        waitDuration: Duration(milliseconds: 2),
-                        child: GestureDetector(
-                          onTap: widget.onNavigateToCreateOrder,
-                          child: Container(
-                            height: 30,
-                            width: 30,
-                            decoration: const BoxDecoration(
-                              color: Colors.blue,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.edit_outlined,
-                                color: Colors.white,
-                                size: 16,
-                              ),
-                            ),
                           ),
-                        ),
+                          SizedBox(width: 10),
+                        ],
                       ),
-                      const SizedBox(width: 20),
                     ],
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(5),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(
                   height: 300,
                   child: SingleChildScrollView(
@@ -328,7 +348,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                     "Sample Customer \nxxxxxxxxx245",
                                     copyable: true,
                                   ),
-                                  _buildTagsCell(_tags,context),
+                                  _buildTagsCell(_tags, context),
                                   _buildCell("In progress"),
                                   _buildCell2("PB-02 - 1 ", ' 23-days'),
                                   _buildPriceWithAdd("AED-", "300"),
@@ -530,7 +550,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
           onPressed: onDelete ?? () {},
         ),
         IconButton(
-          icon: const Icon(Icons.drafts, size: 18, color: Colors.orange),
+          icon: const Icon(Icons.drafts_outlined, size: 18, color: Colors.orange),
           tooltip: 'Draft',
           onPressed: onDraft ?? () {},
         ),

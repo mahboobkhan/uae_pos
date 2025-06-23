@@ -651,7 +651,8 @@ class CustomButton extends StatelessWidget {
   final Color backgroundColor;
   final VoidCallback onPressed;
   final double borderRadius;
-  final double? fontSize; // 👈 Custom size directly
+  final double? fontSize;
+  final IconData? icon;
 
   const CustomButton({
     super.key,
@@ -659,7 +660,8 @@ class CustomButton extends StatelessWidget {
     required this.onPressed,
     this.backgroundColor = Colors.blue,
     this.borderRadius = 6,
-    this.fontSize, // Optional font size
+    this.fontSize,
+    this.icon, // 👈 Accept icon
   });
 
   @override
@@ -667,18 +669,34 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
+        elevation: 8,
         backgroundColor: backgroundColor,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
-      child: Text(
+      child: icon == null
+          ? Text(
         text,
         style: TextStyle(
           color: Colors.white,
-          fontSize: fontSize ?? 16, // 👈 default 16
+          fontSize: fontSize ?? 16,
         ),
+      )
+          : Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: fontSize ?? 16),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: fontSize ?? 16,
+            ),
+          ),
+        ],
       ),
     );
   }
