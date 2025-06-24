@@ -34,10 +34,10 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.projects;
+  NavItem selectedItem = NavItem.clients;
 
-  int _selectedSidebarIndex = 1;
-  int _selectedSubmenuIndex = -1;
+  int _selectedSidebarIndex = 2;
+  int _selectedSubmenuIndex = 1;
 
   @override
   Widget build(BuildContext context) {

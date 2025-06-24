@@ -1,8 +1,7 @@
-import 'package:abc_consultant/ui/screens/client_screen/add_individual_profile.dart';
-import 'package:abc_consultant/ui/screens/client_screen/add_comapny_profile.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../../dialogs/custom_dialoges.dart';
 
 class ClientMain extends StatefulWidget {
   const ClientMain({super.key});
@@ -12,16 +11,44 @@ class ClientMain extends StatefulWidget {
 }
 
 class _ClientMainState extends State<ClientMain> {
+  List<String> _tags = ["Tag1", "Tag2"];
+
+  final GlobalKey _plusKey = GlobalKey();
+  bool _isHovering = false;
   String? customerValue;
   String? tagValue;
   String? paymentValue;
   String? dateValue;
   String? profileAddCategory;
 
-  final List<String> customerType = ["Company", "Individual"];
-  final List<String> tags = ["Tag 001", "Tag 002", "Sample Tag"];
-  final List<String> paymentStatus = ["Pending", "Paid"];
-  final List<String> dates = ["Today", "This Week", "This Month"];
+  final List<String> categories = [
+    'Company',
+    'Individual',
+  ];
+  String? selectedCategory;
+  final List<String> categories1 = [
+    'No Tags',
+    'Tag 001',
+    'Tag 002',
+    'Sample Tag',
+  ];
+  String? selectedCategory1;
+
+  final List<String> categories2 = ['All', 'Pending', 'Paid'];
+  String? selectedCategory2;
+  final List<String> categories4 = ['Individual', 'Company'];
+  String selectedCategory4 = '';
+
+
+  final List<String> categories3 = [
+    'All',
+    'Toady',
+    'Yesterday',
+    'Last 7 Days',
+    'Last 30 Days',
+    'Custom Range',
+  ];
+  String? selectedCategory3;
 
   final List<Map<String, dynamic>> stats = [
     {'label': 'Clients', 'value': '220'},
@@ -35,8 +62,7 @@ class _ClientMainState extends State<ClientMain> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return MaterialApp(
-      home: Scaffold(
+    return  Scaffold(
         backgroundColor: Colors.grey.shade100,
         body: SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -90,167 +116,245 @@ class _ClientMainState extends State<ClientMain> {
                 const SizedBox(height: 20),
 
                 /// ---- Filters Row ----
-                Container(
-                  height: 45,
-                  width: size.width,
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey, width: 1),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: Row(
-                    children: [
-                      _buildDropdown(
-                        customerValue,
-                        "Customer Type",
-                        customerType,
-                        (newValue) {
-                          setState(() {
-                            customerValue = newValue!;
-                          });
-                        },
-                      ),
-                      _buildDropdown(tagValue, "Select Tags", tags, (newValue) {
-                        setState(() {
-                          tagValue = newValue!;
-                        });
-                      }),
-                      _buildDropdown(
-                        paymentValue,
-                        "Payment Status",
-                        paymentStatus,
-                        (newValue) {
-                          setState(() {
-                            paymentValue = newValue!;
-                          });
-                        },
-                      ),
-                      _buildDropdown(
-                        dateValue,
-                        "Dates",
-                        dates,
-                        (newValue) {
-                          setState(() {
-                            dateValue = newValue!;
-                          });
-                        },
-                        icon: const Icon(Icons.calendar_month, size: 18),
-                      ),
-                      const Spacer(),
-
-                      /// ---- Profile Add Menu ----
-                      PopupMenuButton<String>(
-                        onSelected: (String newValue) {
-                          setState(() {
-                            profileAddCategory = newValue;
-                          });
-                          if (newValue == 'Company') {
-                            showAddCompanyProfileDialogue(context);
-                          } else {
-                            showAddIndividualProfileDialogue(context);
-                          }
-                        },
-                        itemBuilder:
-                            (BuildContext context) => <PopupMenuEntry<String>>[
-                              const PopupMenuItem<String>(
-                                value: 'Company',
-                                child: Text('Add Company Profile'),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'Individual',
-                                child: Text('Add Individual'),
-                              ),
-                            ],
-                        child: Container(
-                          width: 35,
-                          height: 35,
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 20,
+                MouseRegion(
+                  onEnter: (_) => setState(() => _isHovering = true),
+                  onExit: (_) => setState(() => _isHovering = false),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 45,
+                    width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      border: Border.all(color: Colors.grey, width: 1),
+                      borderRadius: BorderRadius.circular(2),
+                      boxShadow:
+                      _isHovering
+                          ? [
+                        BoxShadow(
+                          color: Colors.blue,
+                          blurRadius: 4,
+                          spreadRadius: 0.1,
+                          offset: Offset(0, 1),
+                        ),
+                      ]
+                          : [],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                CustomDropdown(
+                                  selectedValue: selectedCategory,
+                                  hintText: "Client Type",
+                                  items: categories,
+                                  onChanged: (newValue) {
+                                    setState(() => selectedCategory = newValue!);
+                                  },
+                                ),
+                                CustomDropdown(
+                                  selectedValue: selectedCategory1,
+                                  hintText: "Select Tags",
+                                  items: categories1,
+                                  onChanged: (newValue) {
+                                    setState(() => selectedCategory1 = newValue!);
+                                  },
+                                ),
+                                CustomDropdown(
+                                  selectedValue: selectedCategory2,
+                                  hintText: "Payment Status",
+                                  items: categories2,
+                                  onChanged: (newValue) {
+                                    setState(() => selectedCategory2 = newValue!);
+                                  },
+                                ),
+                                CustomDropdown(
+                                  selectedValue: selectedCategory3,
+                                  hintText: "Dates",
+                                  items: categories3,
+                                  onChanged: (newValue) {
+                                    setState(() => selectedCategory3 = newValue!);
+                                  },
+                                  icon: const Icon(
+                                    Icons.calendar_month,
+                                    size: 18,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                      const Icon(Icons.edit_outlined, color: Colors.green),
-                      const SizedBox(width: 20),
-                    ],
+                        Row(
+                          children: [
+                            Card(
+                              elevation: 8,
+                              color: Colors.blue,
+                              shape:  CircleBorder(),
+                              child: Builder(
+                                builder:
+                                    (context) => Tooltip(
+                                  message: 'Show menu',
+                                  waitDuration: Duration(milliseconds: 2),
+                                  child: GestureDetector(
+                                    key: _plusKey,
+                                    onTap: () async {
+                                      final RenderBox renderBox =
+                                      _plusKey.currentContext!
+                                          .findRenderObject()
+                                      as RenderBox;
+                                      final Offset offset = renderBox
+                                          .localToGlobal(Offset.zero);
+
+                                      final selected = await showMenu<String>(
+                                        context: context,
+                                        position: RelativeRect.fromLTRB(
+                                          offset.dx,
+                                          offset.dy + renderBox.size.height,
+                                          offset.dx + 30,
+                                          offset.dy,
+                                        ),
+                                        items: [
+                                          const PopupMenuItem<String>(
+                                            value: 'Company',
+                                            child: Text('Company'),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'Individual',
+                                            child: Text('Individual'),
+                                          ),
+                                        ],
+                                      );
+
+                                      if (selected != null) {
+                                        setState(() => selectedCategory4 = selected);
+
+                                        if (selected == 'Company') {
+                                          showCompanyDialog(context);
+                                        } else if (selected == 'Individual') {
+                                          showIndividualProfileDialog(context);
+                                        }
+                                      }
+
+                                    },
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.add,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Material(
+                              elevation: 8,
+                              shadowColor: Colors.grey.shade900,
+                              shape:  CircleBorder(),
+                              color: Colors.blue,
+                              child: Tooltip(
+                                message: 'Create orders',
+                                waitDuration: Duration(milliseconds: 2),
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.edit_outlined,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
                 /// ---- Table Data ----
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Table(
-                      border: TableBorder.all(color: Colors.white),
-                      defaultVerticalAlignment: TableCellVerticalAlignment.top,
-                      columnWidths: const {
-                        0: IntrinsicColumnWidth(),
-                        1: IntrinsicColumnWidth(),
-                        2: IntrinsicColumnWidth(),
-                        3: IntrinsicColumnWidth(),
-                        4: IntrinsicColumnWidth(),
-                        5: IntrinsicColumnWidth(),
-                        6: IntrinsicColumnWidth(),
-                        7: IntrinsicColumnWidth(),
-                        // 8: FlexColumnWidth(1),
-                      },
-                      children: [
-                        /// Client Header Row
-                        TableRow(
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFEDEDED),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Container(
+                    height: 400,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: 1180, // Force horizontal scrolling
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Table(
+                            border: TableBorder.all(color: Colors.white, width: 2),
+                            defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                            columnWidths: const {
+                              0: FlexColumnWidth(1),
+                              1: FlexColumnWidth(0.8),
+                              2: FlexColumnWidth(0.8),
+                              3: FlexColumnWidth(1),
+                              4: FlexColumnWidth(1),
+                              5: FlexColumnWidth(1),
+                              6: FlexColumnWidth(1),
+                            },
+                            children: [
+                              // Header Row
+                              TableRow(
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                ),
+                                children: [
+                                  _buildHeader("Client Type"),
+                                  _buildHeader("Customer Ref I'd"),
+                                  _buildHeader("Tag Details"),
+                                  _buildHeader("Number/Email"),
+                                  _buildHeader("Project Status"),
+                                  _buildHeader("Payment Pending"),
+                                  _buildHeader("Total Revived"),
+                                  _buildHeader("Other Actions"),
+                                ],
+                              ),
+                              // Sample Data Row
+                              for(int i =0;i<20; i++)
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: i.isEven
+                                        ? Colors.grey.shade300
+                                        :Colors.grey.shade50,
+                                  ),
+                                  children: [
+                                    _buildCell("Company"),
+                                    _buildCell("Sample Customer \nxxxxxx345",copyable: true),
+                                    _buildTagsCell(_tags, context),
+                                    _buildCell("+9727364676723"),
+                                    _buildCell("0/3 Running"),
+                                    _buildCell("300"),
+                                    _buildCell("900"),
+                                    _buildCell("Edit Profile - order Type"),
+                                  ],
+                                ),
+                            ],
                           ),
-                          children: [
-                            _buildHeader("Client Type"),
-                            _buildHeader("Customers Ref I'd"),
-                            _buildHeader("Tags Details"),
-                            _buildHeader("Contact Number Email Id"),
-                            _buildHeader("Project Status"),
-                            _buildHeader("Payment Pending"),
-                            _buildHeader("Total Received"),
-                            _buildHeader("Other Actions"),
-                          ],
                         ),
-
-                        /// Sample Client Data Row
-                        TableRow(
-                          children: [
-                            _buildCell("Company", context: context),
-                            _buildCell(
-                              "Sample Customer\nxxxxxxxxx245",
-                              context: context,
-                              copyable: true,
-                            ),
-                            _buildTagsCell([
-                              "Sample Tags",
-                              "Sample",
-                              "Tages123",
-                            ]),
-                            _buildCell(
-                              "+971 123 4567\nsample@abc.com",
-                              context: context,
-                              copyable: true,
-                            ),
-                            _buildCell("0/3 - Running", context: context),
-                            _buildPriceWithAdd("300"),
-                            _buildCell("900", context: context),
-                            _buildCell(
-                              "Edit Profile - Orders History",
-                              context: context,
-                              color: Colors.blue,
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -258,49 +362,88 @@ class _ClientMainState extends State<ClientMain> {
             ),
           ),
         ),
+      );
+
+  }
+  Widget _buildTagsCell(List<String> tags, BuildContext context) {
+    final colors = [Colors.purple, Colors.green, Colors.blue];
+
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                for (int i = 0; i < tags.length; i++)
+                  Text(
+                    tags[i],
+                    style: TextStyle(
+                      color: colors[i % colors.length],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () async {
+              final result = await showAddTagDialog(context);
+              if (result != null) {
+                setState(() {
+                  _tags.add(result['tag']); // Add new tag to list
+                });
+              }
+            },
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 14, color: Colors.blue),
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-Widget _buildDropdown(
-  String? selectedValue,
-  String hintText,
-  List<String> items,
-  ValueChanged<String?> onChanged, {
-  Icon icon = const Icon(Icons.arrow_drop_down),
-}) {
-  return Padding(
-    padding: const EdgeInsets.only(left: 12),
-    child: Container(
-      width: 140,
-      height: 25,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue, width: 1),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedValue,
-          icon: icon,
-          hint: Text(hintText, style: TextStyle(color: Colors.black)),
-
-          style: TextStyle(fontSize: 10),
-          onChanged: onChanged,
-          items:
-              items.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Container(
-                    padding: EdgeInsets.zero,
-                    child: Text(value, style: TextStyle(color: Colors.red)),
-                  ),
+  Widget _buildCell(String text, {bool copyable = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (copyable)
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: text));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
                 );
-              }).toList(),
-        ),
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+              ),
+            ),
+        ],
       ),
-    ),
-  );
+    );
+  }
+
+
 }
 
 Widget _buildHeader(String text) {
@@ -320,68 +463,6 @@ Widget _buildHeader(String text) {
   );
 }
 
-Widget _buildCell(
-  String text, {
-  Color color = Colors.black,
-  bool copyable = false,
-  required BuildContext context,
-}) {
-  return Container(
-    alignment: Alignment.topLeft,
-    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
-    margin: const EdgeInsets.only(right: 8.0),
-    child: Row(
-      mainAxisSize: MainAxisSize.min, // <-- very important!
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          text.replaceAll('\n', ' '), // remove newlines to force straight line
-          style: TextStyle(fontSize: 13, color: color),
-          softWrap: false,
-        ),
-        if (copyable)
-          GestureDetector(
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: text));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Copied to clipboard')),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Icon(
-                Icons.copy,
-                size: 16,
-                color: const Color.fromARGB(255, 46, 43, 43),
-              ),
-            ),
-          ),
-      ],
-    ),
-  );
-}
-
-Widget _buildTagsCell(List<String> tags) {
-  final colors = [Colors.purple, Colors.green, Colors.blue];
-
-  return Container(
-    alignment: Alignment.topLeft,
-    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
-    margin: const EdgeInsets.only(right: 8.0), // for column spacing
-    child: Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: [
-        for (int i = 0; i < tags.length; i++)
-          Text(
-            tags[i],
-            style: TextStyle(color: colors[i % colors.length], fontSize: 13),
-          ),
-        const Icon(Icons.add, size: 16, color: Colors.red),
-      ],
-    ),
-  );
-}
 
 Widget _buildPriceWithAdd(String price) {
   return Container(
@@ -399,3 +480,4 @@ Widget _buildPriceWithAdd(String price) {
     ),
   );
 }
+

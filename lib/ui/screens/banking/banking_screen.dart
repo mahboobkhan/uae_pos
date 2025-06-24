@@ -13,14 +13,14 @@ class _BankingScreenState extends State<BankingScreen> {
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
 
-  final List<String> categories = [
-    'All',
-    'New',
-    'Pending',
-    'Completed',
-    'Stop',
-  ];
-  String? selectedCategory;
+    final List<String> categories = [
+      'All',
+      'New',
+      'Pending',
+      'Completed',
+      'Stop',
+    ];
+    String? selectedCategory;
   final List<String> categories1 = [
     'No Tags',
     'Tag 001',
@@ -38,7 +38,6 @@ class _BankingScreenState extends State<BankingScreen> {
     'Last 30 Days',
     'Custom Range',
   ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
