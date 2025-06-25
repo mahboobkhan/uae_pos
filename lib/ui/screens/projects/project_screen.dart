@@ -74,34 +74,42 @@ class _ProjectScreenState extends State<ProjectScreen> {
                   children:
                       stats.map((stat) {
                         return Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 6),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Material(
+                              elevation: 12,
                               borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  stat['value'],
-                                  style: const TextStyle(
-                                    fontSize: 28,
-                                    color: Colors.white,
-                                    fontFamily: 'Courier',
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              color: Colors.white70,
+                              shadowColor: Colors.black,
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  stat['label'],
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      stat['value'],
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontFamily: 'Courier',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      stat['label'],
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         );

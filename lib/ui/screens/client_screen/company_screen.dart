@@ -45,9 +45,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
-    return
-       Scaffold(
+    return Scaffold(
         backgroundColor: Colors.grey.shade100,
         body: SingleChildScrollView(
           child: Padding(
@@ -55,6 +53,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 /// ---- Stats Boxes ----
                 const SizedBox(height: 20),
 

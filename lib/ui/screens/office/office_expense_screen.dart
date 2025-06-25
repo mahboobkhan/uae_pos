@@ -3,9 +3,11 @@ import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_fixed_office
 import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_maintainance.dart';
 import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_miscellaneous.dart';
 import 'package:abc_consultant/ui/screens/office/dialogues/dialogue_supplies_office.dart';
-import 'package:abc_consultant/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+
+import '../../dialogs/custom_dialoges.dart';
 
 class OfficeExpenseScreen extends StatefulWidget {
   const OfficeExpenseScreen({super.key});
@@ -15,7 +17,19 @@ class OfficeExpenseScreen extends StatefulWidget {
 }
 
 class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
+  final GlobalKey _plusKey = GlobalKey();
+  bool _isHovering = false;
+
+  final List<Map<String, dynamic>> stats = [
+    {'label': 'Revenue', 'value': '25K'},
+    {'label': 'Users', 'value': '1.2K'},
+    {'label': 'Orders', 'value': '320'},
+    {'label': 'Visits', 'value': '8.5K'},
+    {'label': 'Returns', 'value': '102'},
+  ];
+
   DateTime selectedDateTime = DateTime.now();
+
   Future<void> _pickDateTime(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -78,128 +92,182 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                child: Row(
-                  children: [
-                    buildCenteredTextContainer(
-                      title: "32",
-                      subtitle: "Fixed Expenses",
-                    ),
-                    buildCenteredTextContainer(
-                      title: "32",
-                      subtitle: "Maintanence",
-                    ),
-                    buildCenteredTextContainer(
-                      title: "32",
-                      subtitle: "Supplies",
-                    ),
-                    buildCenteredTextContainer(
-                      title: "32",
-                      subtitle: "Miscellaneous",
-                    ),
-                    buildCenteredTextContainer(
-                      title: "32",
-                      subtitle: "Other Expenses",
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Container(
-              height: 45,
-              width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey, width: 1),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    // Dropdowns
-                    _buildDropdown(
-                      selectedCategory,
-                      "Customer Type",
-                      categories,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory = newValue!;
-                        });
-                      },
-                    ),
-
-                    _buildDropdown(
-                      selectedCategory1,
-                      "Select Tags",
-                      categories1,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory1 = newValue!;
-                        });
-                      },
-                    ),
-                    _buildDropdown(
-                      selectedCategory2,
-                      "Payment Status",
-                      categories2,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory2 = newValue!;
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.11,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: Colors.red, width: 1.5),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: const TextField(
-                            style: TextStyle(fontSize: 12),
-                            textAlignVertical: TextAlignVertical.center,
-                            decoration: InputDecoration(
-                              hintText: 'Search...',
-                              hintStyle: TextStyle(fontSize: 12),
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          height: 30,
-                          width: 30,
+            SizedBox(
+              height: 120,
+              child: Row(
+                children:
+                stats.map((stat) {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Material(
+                        elevation: 12,
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white70,
+                        shadowColor: Colors.black,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.red,
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(
-                            Icons.search,
-                            color: Colors.white,
-                            size: 16,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                stat['value'],
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  color: Colors.white,
+                                  fontFamily: 'Courier',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                stat['label'],
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+
+            SizedBox(height: 20),
+            MouseRegion(
+              onEnter: (_) => setState(() => _isHovering = true),
+              onExit: (_) => setState(() => _isHovering = false),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 45,
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow:
+                      _isHovering
+                          ? [
+                            BoxShadow(
+                              color: Colors.blue,
+                              blurRadius: 4,
+                              spreadRadius: 0.2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                          : [],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            CustomDropdown(
+                              hintText: "Customer Type",
+                              selectedValue: selectedCategory,
+                              items: categories,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              hintText: "Select Tags",
+                              selectedValue: selectedCategory1,
+                              items: categories1,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory1 = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              hintText: "Payment Status",
+                              selectedValue: selectedCategory2,
+                              items: categories2,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory2 = newValue!);
+                              },
+                            ),
+                            const SizedBox(width: 12),
+                            Row(
+                              children: [
+                                Card(
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  shadowColor: Colors.grey.shade700,
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width *
+                                        0.11,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: const TextField(
+                                      style: TextStyle(fontSize: 12),
+                                      textAlignVertical:
+                                          TextAlignVertical.center,
+                                      decoration: InputDecoration(
+                                        hintText: 'Search...',
+                                        hintStyle: TextStyle(fontSize: 12),
+                                        border: InputBorder.none,
+                                        isCollapsed: true,
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Card(
+                                  elevation: 4,
+                                  shape: const CircleBorder(),
+                                  // Make the card circular
+                                  shadowColor: Colors.grey.shade700,
+                                  child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle, // Circular shape
+                                    ),
+                                    child: const Icon(
+                                      Icons.search,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 40),
                     GestureDetector(
                       onTap: () => showFixedOfficeExpanseDialogue(context),
-                      child: Tooltip(
-                        message: 'Add Fixed Office Expense',
-
-                        child: Icon(Icons.attach_money, color: Colors.red),
+                        child: Tooltip(
+                          message: 'Add Fixed Office Expense',
+                          child: Icon(Icons.attach_money, color: Colors.red),
                       ),
                     ),
                     const SizedBox(width: 40),
@@ -239,115 +307,173 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 10),
+
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Table(
-                border: TableBorder.all(color: Colors.white),
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: const {
-                  0: FixedColumnWidth(90),
-                  1: FixedColumnWidth(130),
-                  2: FixedColumnWidth(130),
-                  3: FixedColumnWidth(130),
-                  4: FixedColumnWidth(130),
-                  5: FixedColumnWidth(130),
-                  6: FixedColumnWidth(130),
-                  7: FixedColumnWidth(130),
-                },
-                children: [
-                  TableRow(
-                    decoration: const BoxDecoration(color: Color(0xFFEDEDED)),
-                    children: [
-                      _buildHeader("Date"),
-                      _buildHeader("Expanse Type"),
-                      _buildHeader("Expense Limit"),
-                      _buildHeader("Expenses"),
-                      _buildHeader("Note"),
-                      _buildHeader("Tags"),
-                      _buildHeader("Manage"),
-                      _buildHeader("Action"),
-                    ],
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                height: 225,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: 1180, // Force horizontal scrolling
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Table(
+                        border: TableBorder.all(color: Colors.white, width: 2),
+                        defaultVerticalAlignment:
+                        TableCellVerticalAlignment.middle,
+                        columnWidths: const {
+                          0: FlexColumnWidth(0.8),
+                          1: FlexColumnWidth(1.5),
+                          2: FlexColumnWidth(1.5),
+                          3: FlexColumnWidth(1.4),
+                          4: FlexColumnWidth(1),
+                          5: FlexColumnWidth(1),
+                          6: FlexColumnWidth(1),
+                          7: FlexColumnWidth(1.5),
+                        },
+                        children: [
+                          // Header Row
+                          TableRow(
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                            ),
+                            children: [
+                              _buildHeader("Date"),
+                              _buildHeader("Expance Type "),
+                              _buildHeader("Expense Limit"),
+                              _buildHeader("Expences"),
+                              _buildHeader("Note"),
+                              _buildHeader("Tags"),
+                              _buildHeader("Manage"),
+                              _buildHeader("Action"),
+                            ],
+                          ),
+                          // Sample Data Row
+                          for(int i =0;i<20; i++)
+                            TableRow(
+                              decoration: BoxDecoration(
+                                color: i.isEven
+                                    ? Colors.grey.shade300
+                                    :Colors.grey.shade50,
+                              ),
+                              children: [
+                                _buildCell2("12-02-2025", "02:59 pm"),
+                                _buildCell("Electric Bill"),
+                                _buildCell("xxxxxxx567"),
+                                _buildCell("xxxxxxx"),
+                                _buildCell("Sample Note"),
+                                _buildCell("etc"),
+                                _buildCell("Imran"),
+                                _buildCell("Edit "),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                  TableRow(
-                    children: [
-                      _buildCell("12-02-2025\n02:59 pm"),
-                      _buildCell("Electric Bill"),
-                      _buildCell("xxxxxx"),
-                      _buildCell("xxxxxxxx"),
-                      _buildCell("Sample Note"),
-                      _buildCell("etc"),
-                      _buildCell("Mr.Imran"),
-                      _buildCell("Edit"),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ],
         ),
       ),
     );
-  }
 
-  Widget _buildDropdown(
-    String? selectedValue,
-    String hintText,
-    List<String> items,
-    ValueChanged<String?> onChanged, {
-    Icon icon = const Icon(Icons.arrow_drop_down),
-  }) {
+  }
+  Widget _buildCell2(String text1, String text2, {bool copyable = false}) {
     return Padding(
-      padding: const EdgeInsets.only(left: 12),
-      child: Container(
-        width: 140,
-        height: 25,
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue, width: 1),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: selectedValue,
-            icon: icon,
-            hint: Text(hintText),
-            style: TextStyle(fontSize: 10),
-            onChanged: onChanged,
-            items:
-                items.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Container(
-                      padding: EdgeInsets.zero,
-                      child: Text(value),
-                    ),
-                  );
-                }).toList(),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(text1, style: const TextStyle(fontSize: 12)),
+                Text(
+                  text2,
+                  style: const TextStyle(fontSize: 10, color: Colors.black54),
+                ),
+              ],
+            ),
           ),
-        ),
+          if (copyable)
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
+              ),
+            ),
+        ],
       ),
     );
   }
 
+
+
   Widget _buildHeader(String text) {
     return Container(
+      height: 30,
+      alignment: Alignment.center,
       child: Text(
         text,
-        style: const TextStyle(color: Colors.red),
+        style: const TextStyle(
+          color: Colors.red,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
         textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget _buildCell(String text) {
+
+  Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(text, style: const TextStyle(fontSize: 14)),
+      padding: const EdgeInsets.only(left: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (copyable)
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: text));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+              ),
+            ),
+        ],
+      ),
     );
   }
+
 
   // Ya custom dialog
   // void showCustomExpenseDialog(BuildContext context) {

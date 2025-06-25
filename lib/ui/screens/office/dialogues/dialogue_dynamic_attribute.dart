@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../dialogs/custom_dialoges.dart';
+
 class DialogueDynamicAddition extends StatefulWidget {
   const DialogueDynamicAddition({super.key});
 
@@ -116,19 +118,28 @@ class _DialogueDynamicAdditionState extends State<DialogueDynamicAddition> {
                 // Action Buttons
                 Row(
                   children: [
-                    _buildColoredButton("Editing", Colors.blue, context),
+                    CustomButton(
+                      text: "Editing",
+                      backgroundColor: Colors.blue,
+                      onPressed: () {},
+                    ),
                     const SizedBox(width: 10),
-                    _buildColoredButton("Stop", Colors.black, context),
+                    CustomButton(
+                      text: "Stop",
+                      backgroundColor: Colors.black,
+                      onPressed: () {},
+                    ),
                     const SizedBox(width: 10),
-                    _buildColoredButton("Submit", Colors.red, context),
+                    CustomButton(
+                      text: "Submit",
+                      backgroundColor: Colors.red,
+                      onPressed: () {},
+                    ),
                     const Spacer(),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.blue,
-                      ),
+                    Material(
+                      elevation: 8,
+                      color: Colors.blue, // Set background color here
+                      shape: const CircleBorder(),
                       child: IconButton(
                         icon: const Icon(
                           Icons.print,
@@ -136,7 +147,14 @@ class _DialogueDynamicAdditionState extends State<DialogueDynamicAddition> {
                           size: 20,
                         ),
                         onPressed: () {
-                          // Handle print action
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Printed"),
+                              duration: Duration(seconds: 2),
+                              backgroundColor: Colors.black87,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
                         },
                       ),
                     ),

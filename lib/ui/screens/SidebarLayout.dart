@@ -12,18 +12,17 @@ import 'package:abc_consultant/ui/screens/office/office_expense_screen.dart';
 import 'package:abc_consultant/ui/screens/office/office_maintainance_expanse.dart';
 import 'package:abc_consultant/ui/screens/office/office_miscellaneous.dart';
 import 'package:abc_consultant/ui/screens/office/office_supplies_expanse.dart';
-
 import 'package:abc_consultant/ui/screens/projects/create_orders.dart';
-import 'package:abc_consultant/ui/screens/client_screen/client_main.dart';
-import 'package:abc_consultant/ui/screens/projects/services_categories_screen.dart';
 import 'package:abc_consultant/ui/screens/projects/project_screen.dart';
-import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
+import 'package:abc_consultant/ui/screens/projects/services_categories_screen.dart';
 import 'package:abc_consultant/ui/screens/projects/short_service_screen.dart';
+import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 import '../Model/NavItem.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class SidebarLayout extends StatefulWidget {
   SidebarLayout({super.key});
@@ -34,10 +33,10 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.clients;
+  NavItem selectedItem = NavItem.projects;
 
-  int _selectedSidebarIndex = 2;
-  int _selectedSubmenuIndex = 1;
+  int _selectedSidebarIndex = 0;
+  int _selectedSubmenuIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -71,57 +70,50 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.3,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 3,
-                        ),
-                        child: const TextField(
-                          textAlign: TextAlign.left, // horizontal alignment
-                          textAlignVertical: TextAlignVertical.center,
-                          decoration: InputDecoration(
-                            hintText: 'Search...',
-                            border: InputBorder.none,
-                            isCollapsed: true,
-                            contentPadding: EdgeInsets.zero,
+                      Material(
+                        elevation: 8,
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 3,
+                          ),
+                          child: const TextField(
+                            textAlign: TextAlign.left, // horizontal alignment
+                            textAlignVertical: TextAlignVertical.center,
+                            decoration: InputDecoration(
+                              hintText: 'Search...',
+                              border: InputBorder.none,
+                              isCollapsed: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        height: 38,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(30),
+                      Material(
+                        elevation: 8,
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          height: 38,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: const Icon(Icons.search, color: Colors.white),
                         ),
-                        child: const Icon(Icons.search, color: Colors.white),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 24),
                 // User info right side
-                Row(
-                  children: const [
-                    Text('Profile', style: TextStyle(fontSize: 14)),
-                    SizedBox(width: 8),
-                    Card(
-                      elevation: 8,
-                      shape:  CircleBorder(),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.red,
-                        child: Icon(Icons.person, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -276,13 +268,30 @@ class _SidebarLayoutState extends State<SidebarLayout> {
 
           // Bottom Footer
           Container(
-            height: 40,
-            width: double.infinity,
             color: Colors.white,
-            alignment: Alignment.center,
-            child: const Text(
-              '© 2025 Your Company Name',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+            width: double.infinity,
+            child:Row(
+              children: [
+                // Expanded center with text
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      '© 2025 Your Company Name',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ),
+                ),
+                // Icon on the far right
+                Card(
+                  elevation: 8,
+                  shape: const CircleBorder(),
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.red,
+                    child: Icon(Icons.person, color: Colors.white),
+                  ),
+                ),
+                SizedBox(width: 12,)
+              ],
             ),
           ),
         ],

@@ -182,7 +182,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Container(
-              height: 400,
+              height: 398,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: ConstrainedBox(

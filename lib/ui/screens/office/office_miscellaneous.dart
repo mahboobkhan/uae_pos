@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../../dialogs/custom_dialoges.dart';
+
 class OfficeMiscellaneous extends StatefulWidget {
   const OfficeMiscellaneous({super.key});
 
@@ -14,6 +16,8 @@ class OfficeMiscellaneous extends StatefulWidget {
 }
 
 class _OfficeMiscellaneousState extends State<OfficeMiscellaneous> {
+  final GlobalKey _plusKey = GlobalKey();
+  bool _isHovering = false;
   DateTime selectedDateTime = DateTime.now();
   Future<void> _pickDateTime(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -77,110 +81,164 @@ class _OfficeMiscellaneousState extends State<OfficeMiscellaneous> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20),
-            Container(
-              height: 45,
-              width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey, width: 1),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+            MouseRegion(
+              onEnter: (_) => setState(() => _isHovering = true),
+              onExit: (_) => setState(() => _isHovering = false),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 45,
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow:
+                  _isHovering
+                      ? [
+                    BoxShadow(
+                      color: Colors.blue,
+                      blurRadius: 4,
+                      spreadRadius: 0.2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                      : [],
+                ),
                 child: Row(
                   children: [
-                    // Dropdowns
-                    _buildDropdown(
-                      selectedCategory,
-                      "Customer Type",
-                      categories,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory = newValue!;
-                        });
-                      },
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            CustomDropdown(
+                              hintText: "Customer Type",
+                              selectedValue: selectedCategory,
+                              items: categories,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              hintText: "Select Tags",
+                              selectedValue: selectedCategory1,
+                              items: categories1,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory1 = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              hintText: "Payment Status",
+                              selectedValue: selectedCategory2,
+                              items: categories2,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory2 = newValue!);
+                              },
+                            ),
+                            const SizedBox(width: 12),
+                            Row(
+                              children: [
+                                Card(
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  shadowColor: Colors.grey.shade700,
+                                  child: Container(
+                                    width:
+                                    MediaQuery.of(context).size.width *
+                                        0.11,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: const TextField(
+                                      style: TextStyle(fontSize: 12),
+                                      textAlignVertical:
+                                      TextAlignVertical.center,
+                                      decoration: InputDecoration(
+                                        hintText: 'Search...',
+                                        hintStyle: TextStyle(fontSize: 12),
+                                        border: InputBorder.none,
+                                        isCollapsed: true,
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Card(
+                                  elevation: 4,
+                                  shape: const CircleBorder(),
+                                  // Make the card circular
+                                  shadowColor: Colors.grey.shade700,
+                                  child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle, // Circular shape
+                                    ),
+                                    child: const Icon(
+                                      Icons.search,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-
-                    _buildDropdown(
-                      selectedCategory1,
-                      "Select Tags",
-                      categories1,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory1 = newValue!;
-                        });
-                      },
-                    ),
-                    _buildDropdown(
-                      selectedCategory2,
-                      "Payment Status",
-                      categories2,
-                      (newValue) {
-                        setState(() {
-                          selectedCategory2 = newValue!;
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.11,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: Colors.red, width: 1.5),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: const TextField(
-                            style: TextStyle(fontSize: 12),
-                            textAlignVertical: TextAlignVertical.center,
-                            decoration: InputDecoration(
-                              hintText: 'Search...',
-                              hintStyle: TextStyle(fontSize: 12),
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                              contentPadding: EdgeInsets.zero,
+                    Card(
+                      elevation: 8,
+                      color: Colors.blue,
+                      shape: CircleBorder(),
+                      child: Builder(
+                        builder:
+                            (context) => Tooltip(
+                          message: 'Show menu',
+                          waitDuration: Duration(milliseconds: 2),
+                          child: GestureDetector(
+                            key: _plusKey,
+                            onTap: () async {
+                              final RenderBox renderBox =
+                              _plusKey.currentContext!
+                                  .findRenderObject()
+                              as RenderBox;
+                              final Offset offset = renderBox.localToGlobal(
+                                Offset.zero,
+                              );
+                            },
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: const Icon(
-                            Icons.search,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 280),
-                    GestureDetector(
-                      onTap: () {
-                        //**
-                        //Addition of Data from here using Dialogue
-                        //
-                        //                        // */
-                        showMiscellaneousDialogue(context);
-                      },
-                      child: Container(
-                        width: 35,
-                        height: 35,
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.add, color: Colors.white, size: 20),
                         ),
                       ),
                     ),

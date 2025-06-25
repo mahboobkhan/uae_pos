@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -7,6 +7,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+
   final List<Map<String, dynamic>> stats = [
     {'label': 'Revenue', 'value': '25K'},
     {'label': 'Users', 'value': '1.2K'},
@@ -125,7 +126,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                   ),
-
                   const SizedBox(width: 12),
                   // Separator
                   Container(width: 1, height: 240, color: Colors.grey.shade300),
@@ -151,24 +151,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 24),
               Divider(color: Colors.grey.shade300),
               const SizedBox(height: 24),
-
-              // Pie Chart
-              _buildGraphHeader("Pie Chart"),
-              SizedBox(
-                height: 200,
-                child: PieChart(
-                  PieChartData(
-                    sections: pieSections,
-                    sectionsSpace: 4,
-                    centerSpaceRadius: 40,
-                  ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // First Pie Chart with header
+                    SizedBox(
+                      width: width * 0.36,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _buildGraphHeader("Pie Chart 1"),
+                          SizedBox(
+                            height: 200,
+                            child: PieChart(
+                              PieChartData(
+                                sections: pieSections,
+                                sectionsSpace: 4,
+                                centerSpaceRadius: 40,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 12,),
+                    Container(width: 1, height: 240, color: Colors.grey.shade300),
+                    SizedBox(width: 12,),
+                    SizedBox(
+                      width: width * 0.36, // 45% of screen width
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _buildGraphHeader("Pie Chart 2"),
+                          SizedBox(
+                            height: 200,
+                            child: PieChart(
+                              PieChartData(
+                                sections: pieSections,
+                                sectionsSpace: 4,
+                                centerSpaceRadius: 40,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 16),
+
+              // Pie Chart
             ],
           ),
         ),

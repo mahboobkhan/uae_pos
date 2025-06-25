@@ -51,10 +51,16 @@ class _StatementScreenState extends State<StatementScreen> {
               height: 120,
               child: Row(
                 children:
-                    stats.map((stat) {
-                      return Expanded(
+                stats.map((stat) {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Material(
+                        elevation: 12,
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white70,
+                        shadowColor: Colors.black,
                         child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 6),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.red,
@@ -83,8 +89,10 @@ class _StatementScreenState extends State<StatementScreen> {
                             ],
                           ),
                         ),
-                      );
-                    }).toList(),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
             SizedBox(height: 20),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../dialogs/custom_dialoges.dart';
+
 class DialogueFixedOfficeExpense extends StatefulWidget {
   const DialogueFixedOfficeExpense({super.key});
 
@@ -117,19 +119,28 @@ class _DialogueFixedOfficeExpenseState
                 // Action Buttons
                 Row(
                   children: [
-                    _buildColoredButton("Editing", Colors.blue, context),
+                    CustomButton(
+                      text: "Editing",
+                      backgroundColor: Colors.blue,
+                      onPressed: () {},
+                    ),
                     const SizedBox(width: 10),
-                    _buildColoredButton("Stop", Colors.black, context),
+                    CustomButton(
+                      text: "Stop",
+                      backgroundColor: Colors.black,
+                      onPressed: () {},
+                    ),
                     const SizedBox(width: 10),
-                    _buildColoredButton("Submit", Colors.red, context),
+                    CustomButton(
+                      text: "Submit",
+                      backgroundColor: Colors.red,
+                      onPressed: () {},
+                    ),
                     const Spacer(),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.blue,
-                      ),
+                    Material(
+                      elevation: 8,
+                      color: Colors.blue, // Set background color here
+                      shape: const CircleBorder(),
                       child: IconButton(
                         icon: const Icon(
                           Icons.print,
@@ -137,7 +148,14 @@ class _DialogueFixedOfficeExpenseState
                           size: 20,
                         ),
                         onPressed: () {
-                          // Handle print action
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Printed"),
+                              duration: Duration(seconds: 2),
+                              backgroundColor: Colors.black87,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -191,20 +209,6 @@ Widget _buildTextField(
         ),
       ),
     ),
-  );
-}
-
-Widget _buildColoredButton(String text, Color color, BuildContext context) {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: color,
-      foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-    ),
-    onPressed: () {
-      Navigator.pop(context);
-    },
-    child: Text(text),
   );
 }
 
