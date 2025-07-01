@@ -1,4 +1,5 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
+import 'package:abc_consultant/ui/screens/projects/create_order_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -15,11 +16,11 @@ class _ProjectScreenState extends State<ProjectScreen> {
   List<String> _tags = ["Tag1", "Tag2"];
 
   final List<Map<String, dynamic>> stats = [
-    {'label': 'Revenue', 'value': '25K'},
-    {'label': 'Users', 'value': '1.2K'},
-    {'label': 'Orders', 'value': '320'},
-    {'label': 'Visits', 'value': '8.5K'},
-    {'label': 'Returns', 'value': '102'},
+    {'label': 'Short Services', 'value': '32'},
+    {'label': 'New Projects', 'value': '32'},
+    {'label': 'In Progress', 'value': '32'},
+    {'label': 'Completed', 'value': '32'},
+    {'label': 'Stop Project', 'value': '32'},
   ];
 
   final List<String> categories = [
@@ -265,13 +266,18 @@ class _ProjectScreenState extends State<ProjectScreen> {
                           Material(
                             elevation: 8,
                             shadowColor: Colors.grey.shade900,
-                            shape:  CircleBorder(),
+                            shape: CircleBorder(),
                             color: Colors.blue,
                             child: Tooltip(
                               message: 'Create orders',
                               waitDuration: Duration(milliseconds: 2),
                               child: GestureDetector(
-                                onTap: widget.onNavigateToCreateOrder,
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => CreateOrderDialog(),
+                                  );
+                                },
                                 child: SizedBox(
                                   height: 30,
                                   width: 30,
@@ -308,7 +314,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                         child: Table(
                           border: TableBorder.all(
                             color: Colors.white,
-                            width: 2,
+                            width: 1,
                           ),
                           defaultVerticalAlignment:
                               TableCellVerticalAlignment.middle,
@@ -335,7 +341,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                 _buildHeader("Tags Details"),
                                 _buildHeader("Status"),
                                 _buildHeader("Stage"),
-                                _buildHeader("Payment Pending"),
+                                _buildHeader(" Pending"),
                                 _buildHeader("Quotation "),
                                 _buildHeader("Manage"),
                                 _buildHeader("Ref Id"),
@@ -347,20 +353,20 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                 decoration: BoxDecoration(
                                   color:
                                       i.isEven
-                                          ? Colors.grey.shade300
-                                          : Colors.grey.shade50,
+                                          ? Colors.grey.shade200
+                                          : Colors.grey.shade100,
                                 ),
                                 children: [
-                                  _buildCell2("12-02-2025", "02:59 pm"),
-                                  _buildCell(
-                                    "Sample Customer \nxxxxxxxxx245",
+                                  _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
+                                  _buildCell3(
+                                    "Sample Customer ","xxxxxxxxx245",
                                     copyable: true,
                                   ),
                                   _buildTagsCell(_tags, context),
                                   _buildCell("In progress"),
                                   _buildCell2("PB-02 - 1 ", ' 23-days'),
                                   _buildPriceWithAdd("AED-", "300"),
-                                  _buildCell("500"),
+                                  _buildPriceWithAdd("AED-","500"),
                                   _buildCell("Mr. Imran"),
                                   _buildCell("xxxxxxxxx245", copyable: true),
                                   _buildActionCell(
@@ -386,14 +392,14 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
   Widget _buildHeader(String text) {
     return Container(
-      height: 30,
+      height: 40,
       alignment: Alignment.center,
       child: Text(
         text,
         style: const TextStyle(
           color: Colors.red,
           fontWeight: FontWeight.bold,
-          fontSize: 14,
+          fontSize: 12,
         ),
         textAlign: TextAlign.center,
       ),
@@ -432,7 +438,28 @@ class _ProjectScreenState extends State<ProjectScreen> {
   }
 
   Widget _buildTagsCell(List<String> tags, BuildContext context) {
-    final colors = [Colors.purple, Colors.green, Colors.blue];
+    final backgroundColors = [
+      Colors.green.shade100,
+      Colors.yellow.shade100,
+      Colors.orange.shade100,
+      Colors.pink.shade100,
+      Colors.purple.shade100,
+      Colors.green,
+      Colors.yellow,
+      Colors.orange,
+      Colors.red,
+      Colors.purple,
+      Colors.teal,
+      Colors.blue.shade100,
+      Colors.lightGreen.shade200,
+      Colors.pink.shade200,
+      Colors.grey.shade300,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.lime,
+      Colors.pink,
+      Colors.blueGrey,
+    ];
 
     return Padding(
       padding: const EdgeInsets.all(4.0),
@@ -445,11 +472,19 @@ class _ProjectScreenState extends State<ProjectScreen> {
               runSpacing: 4,
               children: [
                 for (int i = 0; i < tags.length; i++)
-                  Text(
-                    tags[i],
-                    style: TextStyle(
-                      color: colors[i % colors.length],
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: backgroundColors[i % backgroundColors.length],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      tags[i],
+                      style: TextStyle(
+                        color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
               ],
@@ -458,27 +493,23 @@ class _ProjectScreenState extends State<ProjectScreen> {
           GestureDetector(
             onTap: () async {
               final result = await showAddTagDialog(context);
-              if (result != null) {
+              if (result != null && result['tag'].toString().trim().isNotEmpty) {
                 setState(() {
-                  _tags.add(result['tag']); // Add new tag to list
+                  _tags.add(result['tag']);
                 });
               }
             },
-            child: Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
-              child: const Icon(Icons.add, size: 14, color: Colors.blue),
+            child: Image.asset(
+              width: 18,
+              height: 18,
+              color: Colors.blue,
+              'assets/icons/img_1.png', // Your image path
             ),
           ),
         ],
       ),
     );
   }
-
   Widget _buildPriceWithAdd(String curr, String price) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -504,41 +535,107 @@ class _ProjectScreenState extends State<ProjectScreen> {
     );
   }
 
-  Widget _buildCell2(String text1, String text2, {bool copyable = false}) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Text(
+            text1,
+            style: const TextStyle(fontSize: 12),
+          ),
+          centerText2
+              ? Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(text1, style: const TextStyle(fontSize: 12)),
                 Text(
                   text2,
                   style: const TextStyle(fontSize: 10, color: Colors.black54),
                 ),
+                if (copyable)
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Copied to clipboard')),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                    ),
+                  ),
               ],
             ),
-          ),
-          if (copyable)
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
+          )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  text2,
+                  style: const TextStyle(fontSize: 10, color: Colors.black54),
+                ),
               ),
-            ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
+  Widget _buildCell3(String text1, String text2, {bool copyable = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text1,
+            style: const TextStyle(fontSize: 12),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                text2,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildActionCell({
     VoidCallback? onEdit,
@@ -548,20 +645,26 @@ class _ProjectScreenState extends State<ProjectScreen> {
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.edit, size: 18, color: Colors.blue),
+          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
         ),
         IconButton(
-          icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
         ),
         IconButton(
-          icon: const Icon(Icons.drafts_outlined, size: 18, color: Colors.orange),
+          icon: Image.asset(
+            'assets/icons/img.png',
+            width: 20,
+            height: 20,
+            color: Colors.red,
+          ),
           tooltip: 'Draft',
           onPressed: onDraft ?? () {},
-        ),
+        )
+
       ],
     );
   }

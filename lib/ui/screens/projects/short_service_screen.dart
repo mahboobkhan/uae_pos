@@ -229,11 +229,11 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                             decoration: BoxDecoration(
                               color:
                               i.isEven
-                                  ? Colors.grey.shade300
+                                  ? Colors.grey.shade100
                                   : Colors.grey.shade50,
                             ),
                           children: [
-                            _buildCell2("12-02-2025",'702:59 pm'),
+                            _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
                             _buildCell(
                               "xxxxxxxxx245",
                               copyable: true,
@@ -259,17 +259,16 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     );
   }
 
-
   Widget _buildHeader(String text) {
     return Container(
-      height: 30,
+      height: 40,
       alignment: Alignment.center,
       child: Text(
         text,
         style: const TextStyle(
           color: Colors.red,
           fontWeight: FontWeight.bold,
-          fontSize: 14,
+          fontSize: 12,
         ),
         textAlign: TextAlign.center,
       ),
@@ -307,40 +306,69 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       ),
     );
   }
-  Widget _buildCell2(String text1, String text2, {bool copyable = false}) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Text(
+            text1,
+            style: const TextStyle(fontSize: 12),
+          ),
+          centerText2
+              ? Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(text1, style: const TextStyle(fontSize: 12)),
                 Text(
                   text2,
                   style: const TextStyle(fontSize: 10, color: Colors.black54),
                 ),
+                if (copyable)
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Copied to clipboard')),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                    ),
+                  ),
               ],
             ),
-          ),
-          if (copyable)
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
+          )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  text2,
+                  style: const TextStyle(fontSize: 10, color: Colors.black54),
+                ),
               ),
-            ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
+
 
 }
