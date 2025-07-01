@@ -1,27 +1,32 @@
-import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
-class CreateOrders extends StatefulWidget {
-  const CreateOrders({super.key});
+import '../../dialogs/custom_dialoges.dart';
+
+class ServicesCategoriesScreen extends StatefulWidget {
+  const ServicesCategoriesScreen({super.key});
 
   @override
-  State<CreateOrders> createState() => _CreateOrdersState();
+  State<ServicesCategoriesScreen> createState() =>
+      _ServicesCategoriesScreenState();
 }
 
-class _CreateOrdersState extends State<CreateOrders> {
-  String? selectedOrderType;
-  String? selectedServiceProject;
-  String? selectedEmployee;
+class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
   DateTime selectedDateTime = DateTime.now();
 
   final _clientController = TextEditingController(text: "Sample Client");
-  final _beneficiaryController = TextEditingController();
+  final _beneficiaryController = TextEditingController(
+    text: "Passport Renewal",
+  );
   final _quotePriceController = TextEditingController(text: "500");
-  final _fundsController = TextEditingController(text: "500");
-  final _paymentIdController = TextEditingController(text: "TID 00001-01");
+  final _fundsController = TextEditingController(text: "300");
+  final _paymentIdController = TextEditingController(text: "TID 00001–01");
 
-  Future<void> _selectDateTime() async {
+  String? selectedOrderType = "Services Base ";
+  String? selectedEmployee = "Muhammad Imran";
+
+  Future<void> _selectedDateTime() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDateTime,
@@ -50,114 +55,280 @@ class _CreateOrdersState extends State<CreateOrders> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
-        child: Card(
-          elevation: 8,
-          margin: EdgeInsets.all(20),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              color: Colors.grey.shade200,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    // Top Title
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "Project Details",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                              ),
+                            ),
+                            Text("ORN. 00001–0000001"),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Input Fields Wrap
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        _buildDateTimeField(),
+                        _buildDropdown(
+                          "Select Order Type",
+                          selectedOrderType,
+                          ["Services Base "],
+                              (val) {
+                            setState(() => selectedOrderType = val);
+                          },
+                        ),
+                        _buildTextField(
+                          "Select Service Project ",
+                          _beneficiaryController,
+                        ),
+                        _buildDropdown(
+                          "Project Assign Employee ",
+                          selectedEmployee,
+                          ["Muhammad Imran"],
+                              (val) {
+                            setState(() => selectedEmployee = val);
+                          },
+                        ),
+                        _buildTextField(
+                          "Service Beneficiary ",
+                          _clientController,
+                        ),
+                        _buildTextField(
+                          "Order Quote Price ",
+                          _quotePriceController,
+                        ),
+                        _buildTextField("Received Funds", _fundsController),
+                        _buildTextField(
+                          "Record Payment I’d ",
+                          _paymentIdController,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Action Buttons
+                    Row(
+                      children: [
+                        CustomButton(
+                          text: "Editing",
+                          backgroundColor: Colors.blue.shade900,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Stop",
+                          backgroundColor: Colors.black,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Submit",
+                          backgroundColor: Colors.red,
+                          onPressed: () {},
+                        ),
+                        const Spacer(), // Pushes the icon to the right
+
+                        Material(
+                          elevation: 8,
+                          color: Colors.blue, // Set background color here
+                          shape: const CircleBorder(),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.print,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Printed"),
+                                  duration: Duration(seconds: 2),
+                                  backgroundColor: Colors.black87,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              color: Colors.grey.shade200,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top Title
+                    Row(
                       children: const [
                         Text(
-                          "Create New Order",
+                          "Stage – 01",
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.red,
                           ),
                         ),
-                        Text("ORN. 00001–0000001"),
+                        SizedBox(width: 10),
+                        Text("SID–10000001"),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                      },
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.red,
-                      ),
-                    )
+                    const SizedBox(height: 20),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        _field(
+                          "Date and Time",
+                          DateFormat(
+                            "dd-MM-yyyy – hh:mm a",
+                          ).format(selectedDateTime),
+                          icon: Icons.calendar_today,
+                        ),
+                        _field(
+                          "Reminder Date and Time",
+                          DateFormat(
+                            "dd-MM-yyyy – hh:mm a",
+                          ).format(selectedDateTime),
+                          icon: Icons.calendar_today,
+                        ),
+                        _field(
+                          "Services Department ",
+                          "FBR – Federal Board of Revenue",
+                        ),
+                        _field("Services Status Update ", "Pending for review"),
+                        _field("Local Status ", "In Progress"),
+                        _field("Tracking Status Tag", "Xyz Status"),
+                        _noteText("Dynamic Attribute Sign"),
+                        _field("Application I’d – 1", ""),
+                        _noteText("Dynamic Application ID Sign"),
 
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _buildDateTimeField(),
-                    _buildTextField(
-                      "Client (Search/Type) *",
-                      _clientController,
+                        _field(
+                          "Received Funds",
+                          "XXX",
+                          fillColor: Colors.green.shade100,
+                        ),
+                        _field(
+                          "Pending Funds",
+                          "XXX",
+                          fillColor: Colors.red.shade100,
+                        ),
+                        _field(
+                          "Project Cost",
+                          "XXX",
+                          fillColor: Colors.blue.shade100,
+                        ),
+                        _field("Record Payment I’d ", "TID 00001-01"),
+                        _field("Received Funds", "300"),
+                        _field("Step Cost", "500"),
+                        _field("Additional Profit", "50"),
+                      ],
                     ),
-                    _buildDropdown(
-                      "Order Type *",
-                      selectedOrderType,
-                      ["Services Base / Project base"],
-                          (val) {
-                        setState(() => selectedOrderType = val);
-                      },
-                    ),
-                    _buildDropdown(
-                      "Service Project *",
-                      selectedServiceProject,
-                      ["Passport Renewal"],
-                          (val) {
-                        setState(() => selectedServiceProject = val);
-                      },
-                    ),
-                    _buildDropdown(
-                      "Assign Employee",
-                      selectedEmployee,
-                      ["Muhammad Imran"],
-                          (val) {
-                        setState(() => selectedEmployee = val);
-                      },
-                    ),
-                    _buildTextField(
-                      "Service Beneficiary",
-                      _beneficiaryController,
-                    ),
-                    _buildTextField("Quote Price *", _quotePriceController),
-                    _buildTextField("Received Funds", _fundsController),
-                    _buildTextField("Payment ID", _paymentIdController),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                // Buttons
-                Row(
-                  children: [
-                    CustomButton(
-                      text: "Save Draft",
-                      backgroundColor: Colors.blue.shade900,
-                      onPressed:(){
-                        
-                      },
-                    ),
-                    const SizedBox(width: 20),
-                    CustomButton(text: "Submit",
-                        backgroundColor: Colors.red,
-                        onPressed:() {
-                    }),
+                    const SizedBox(height: 20),
+                    // Action Buttons
+                    Row(
+                      children: [
+                        CustomButton(
+                          text:
+                          "Close Project",
+                          backgroundColor: Colors.black,
+                          icon: Icons.lock_open_outlined,
+                          onPressed: (){
 
+                          },
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Next Step",
+                          backgroundColor: Colors.blue,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Submit",
+                          backgroundColor: Colors.red,
+                          onPressed: () {},
+                        ),
+                        const Spacer(), // Pushes the icon to the right
+                        Material(
+                          elevation: 8,
+                          color: Colors.blue,
+                          shape: const CircleBorder(),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.print,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Printed"),
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.black87,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                                // Handle print action
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -167,19 +338,16 @@ class _CreateOrdersState extends State<CreateOrders> {
     return SizedBox(
       width: 220,
       child: GestureDetector(
-        onTap: _selectDateTime,
+        onTap: _selectedDateTime,
         child: InputDecorator(
           decoration: InputDecoration(
-            labelText: "Date and Time *",
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red),
-            ),            suffixIcon: Icon(Icons.calendar_today, color: Colors.red),
+            labelText: "Date and Time",
+            labelStyle: TextStyle(color: Colors.red),
+            border: OutlineInputBorder(),
+            suffixIcon: Icon(Icons.calendar_today, color: Colors.red),
           ),
           child: Text(
-            DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime),
+            DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime),
             style: TextStyle(fontSize: 14),
           ),
         ),
@@ -194,10 +362,8 @@ class _CreateOrdersState extends State<CreateOrders> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(fontSize: 12),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
+          labelStyle: TextStyle(color: Colors.red),
+          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
           ),
@@ -206,31 +372,104 @@ class _CreateOrdersState extends State<CreateOrders> {
     );
   }
 
-  Widget _buildDropdown(String label,
+  Widget _buildDropdown(
+      String label,
       String? selectedValue,
       List<String> options,
-      ValueChanged<String?> onChanged,) {
+      ValueChanged<String?> onChanged,
+      ) {
     return SizedBox(
       width: 220,
       child: DropdownButtonFormField<String>(
         value: selectedValue,
-        isExpanded: true,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(fontSize: 12),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
+          labelStyle: TextStyle(color: Colors.red),
+          border: OutlineInputBorder(),
         ),
-        onChanged: onChanged,
         items:
-        options.map((e) {
-          return DropdownMenuItem<String>(value: e, child: Text(e));
+        options.map((String value) {
+          return DropdownMenuItem(value: value, child: Text(value));
         }).toList(),
+        onChanged: onChanged,
       ),
     );
   }
+
+  Widget _buildColoredButton(String text, Color color) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      ),
+      onPressed: () {},
+      child: Text(text),
+    );
+  }
+
+  Widget buildLabeledFieldWithHint({
+    required String label,
+    required String hint,
+    required DateTime selectedDateTime,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: 220,
+      child: GestureDetector(
+        onTap: onTap,
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(color: Colors.red),
+            border: const OutlineInputBorder(),
+            suffixIcon: const Icon(Icons.calendar_today, color: Colors.red),
+            helperText: hint,
+            // This acts like a hint below the field
+            helperStyle: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+          child: Text(
+            DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime),
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _field(
+      String label,
+      String value, {
+        IconData? icon,
+        Color? fillColor,
+      }) {
+    return SizedBox(
+      width: 220,
+      child: TextFormField(
+        initialValue: value,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.red, fontSize: 16),
+          border: OutlineInputBorder(),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+          ),
+          suffixIcon: icon != null ? Icon(icon, color: Colors.red) : null,
+          filled: fillColor != null,
+          fillColor: fillColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _noteText(String text) {
+    return SizedBox(
+      width: 220,
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
 }

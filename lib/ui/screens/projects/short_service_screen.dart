@@ -11,6 +11,8 @@ class ShortServiceScreen extends StatefulWidget {
 }
 
 class _ShortServiceScreenState extends State<ShortServiceScreen> {
+  List<String> _tags = ["Tag1", "Tag2"];
+
   // List of filter options
   final List<String> categories = [
     'All',
@@ -182,7 +184,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Container(
-              height: 398,
+              height: 365,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: ConstrainedBox(
@@ -195,15 +197,12 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                       border: TableBorder.all(color: Colors.white),
                       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                       columnWidths: const {
-                        0: FlexColumnWidth(0.8),
-                        1: FlexColumnWidth(1.5),
-                        2: FlexColumnWidth(1.5),
-                        3: FlexColumnWidth(1),
-                        4: FlexColumnWidth(1),
-                        5: FlexColumnWidth(1.3),
-                        6: FlexColumnWidth(1),
-                        7: FlexColumnWidth(1),
-                        8: FlexColumnWidth(1),
+                        0: FlexColumnWidth(0.3),
+                        1: FlexColumnWidth(1),
+                        2: FlexColumnWidth(0.8),
+                        3: FlexColumnWidth(0.8),
+                        4: FlexColumnWidth(0.8),
+                        5: FlexColumnWidth(0.8),
                       },
                       children: [
                         // Header Row
@@ -215,10 +214,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                             _buildHeader("Date"),
                             _buildHeader("Service Beneficiary "),
                             _buildHeader("Tags Details"),
-                            _buildHeader("Status"),
-                            _buildHeader("Stage"),
-                            _buildHeader("Payment Pending"),
-                            _buildHeader("Quotation "),
+                            _buildHeader("Pending"),
                             _buildHeader("Manage"),
                             _buildHeader("Ref Id"),
                           ],
@@ -229,20 +225,17 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                             decoration: BoxDecoration(
                               color:
                               i.isEven
-                                  ? Colors.grey.shade300
+                                  ? Colors.grey.shade100
                                   : Colors.grey.shade50,
                             ),
                           children: [
-                            _buildCell2("12-02-2025",'702:59 pm'),
-                            _buildCell(
-                              "xxxxxxxxx245",
+                            _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
+                            _buildCell3(
+                              "Sample Customer ","xxxxxxxxx245",
                               copyable: true,
                             ),
-                            _buildCell("Sample Tags"),
-                            _buildCell("In progress"),
-                            _buildCell2("PB-02 ",'- 23days'),
-                            _buildCell("300"),
-                            _buildCell("500"),
+                            _buildTagsCell(_tags, context),
+                            _buildPriceWithAdd("AED-","300"),
                             _buildCell("Mr. Imran"),
                             _buildCell("xxxxxxxxx245", copyable: true),
                           ],
@@ -259,17 +252,16 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     );
   }
 
-
   Widget _buildHeader(String text) {
     return Container(
-      height: 30,
+      height: 40,
       alignment: Alignment.center,
       child: Text(
         text,
         style: const TextStyle(
           color: Colors.red,
           fontWeight: FontWeight.bold,
-          fontSize: 14,
+          fontSize: 12,
         ),
         textAlign: TextAlign.center,
       ),
@@ -307,40 +299,204 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       ),
     );
   }
-  Widget _buildCell2(String text1, String text2, {bool copyable = false}) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Text(
+            text1,
+            style: const TextStyle(fontSize: 12),
+          ),
+          centerText2
+              ? Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(text1, style: const TextStyle(fontSize: 12)),
                 Text(
                   text2,
                   style: const TextStyle(fontSize: 10, color: Colors.black54),
                 ),
+                if (copyable)
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Copied to clipboard')),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                    ),
+                  ),
               ],
             ),
-          ),
-          if (copyable)
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
+          )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  text2,
+                  style: const TextStyle(fontSize: 10, color: Colors.black54),
+                ),
               ),
-            ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
+
+  Widget _buildCell3(String text1, String text2, {bool copyable = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text1,
+            style: const TextStyle(fontSize: 12),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                text2,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildTagsCell(List<String> tags, BuildContext context) {
+    final backgroundColors = [
+      Colors.green.shade100,
+      Colors.yellow.shade100,
+      Colors.orange.shade100,
+      Colors.pink.shade100,
+      Colors.purple.shade100,
+      Colors.green,
+      Colors.yellow,
+      Colors.orange,
+      Colors.red,
+      Colors.purple,
+      Colors.teal,
+      Colors.blue.shade100,
+      Colors.lightGreen.shade200,
+      Colors.pink.shade200,
+      Colors.grey.shade300,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.lime,
+      Colors.pink,
+      Colors.blueGrey,
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                for (int i = 0; i < tags.length; i++)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: backgroundColors[i % backgroundColors.length],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      tags[i],
+                      style: TextStyle(
+                        color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () async {
+              final result = await showAddTagDialog(context);
+              if (result != null && result['tag'].toString().trim().isNotEmpty) {
+                setState(() {
+                  _tags.add(result['tag']);
+                });
+              }
+            },
+            child: Image.asset(
+              width: 18,
+              height: 18,
+              color: Colors.blue,
+              'assets/icons/img_1.png', // Your image path
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildPriceWithAdd(String curr, String price) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(price),
+          const Spacer(),
+          Container(
+            width: 15,
+            height: 15,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.blue),
+            ),
+            child: const Icon(Icons.add, size: 13, color: Colors.blue),
+          ),
+        ],
+      ),
+    );
+  }
+
 
 }

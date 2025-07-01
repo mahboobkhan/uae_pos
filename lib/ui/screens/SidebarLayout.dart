@@ -14,13 +14,14 @@ import 'package:abc_consultant/ui/screens/office/office_miscellaneous.dart';
 import 'package:abc_consultant/ui/screens/office/office_supplies_expanse.dart';
 import 'package:abc_consultant/ui/screens/projects/create_orders.dart';
 import 'package:abc_consultant/ui/screens/projects/project_screen.dart';
-import 'package:abc_consultant/ui/screens/projects/services_categories_screen.dart';
+import 'package:abc_consultant/ui/screens/projects/create_order_dialog.dart';
 import 'package:abc_consultant/ui/screens/projects/short_service_screen.dart';
 import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../Model/NavItem.dart';
+import '../dialogs/custom_dialoges.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
 
@@ -35,7 +36,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
   NavItem selectedItem = NavItem.projects;
 
-  int _selectedSidebarIndex = 0;
+  int _selectedSidebarIndex = 1;
   int _selectedSubmenuIndex = -1;
 
   @override
@@ -282,12 +283,17 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                   ),
                 ),
                 // Icon on the far right
-                Card(
-                  elevation: 8,
-                  shape: const CircleBorder(),
-                  child: const CircleAvatar(
-                    backgroundColor: Colors.red,
-                    child: Icon(Icons.person, color: Colors.white),
+                GestureDetector(
+                  onTap: (){
+                    showProfileDialog(context); // This is correct
+                  },
+                  child: Card(
+                    elevation: 8,
+                    shape: const CircleBorder(),
+                    child: const CircleAvatar(
+                      backgroundColor: Colors.red,
+                      child: Icon(Icons.person, color: Colors.white),
+                    ),
                   ),
                 ),
                 SizedBox(width: 12,)
@@ -350,10 +356,10 @@ class _SidebarLayoutState extends State<SidebarLayout> {
         switch (submenu) {
           case 'Short Service':
             return const Center(child: ShortServiceScreen());
-          case 'Service Category':
-            return const Center(child: ServicesCategoriesScreen());
           case 'Create Orders':
-            return const Center(child: CreateOrders());
+            return const Center(child: ServicesCategoriesScreen());
+          case 'Service Category':
+            return const Center(child:Text('Project > Service Catageroy'));
           case 'Services':
             return const Center(child: Text('Project >  Service'));
         }

@@ -44,7 +44,7 @@ Widget _buildDialogContent(BuildContext context) {
             _DialogButton(
               label: 'Change Password',
               onTap: () {},
-              showEdit: true,
+              showEdit: false,
             ),
             _DialogButton(label: 'New PIN', onTap: () {}, showEdit: true),
             _DialogButton(
@@ -57,8 +57,8 @@ Widget _buildDialogContent(BuildContext context) {
       ),
       const CircleAvatar(
         radius: 50,
-        backgroundColor: Colors.grey,
-        child: Icon(Icons.perm_identity_sharp, color: Colors.black, size: 40),
+        backgroundColor: Colors.blueGrey,
+        child: Icon(Icons.perm_identity_sharp, color: Colors.white, size: 40),
       ),
     ],
   );
@@ -102,9 +102,9 @@ class _DialogButtonState extends State<_DialogButton> {
                       IconButton(
                         icon: Icon(
                           _obscure
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: Colors.orange,
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: Colors.red,
                           size: 18,
                         ),
                         onPressed: () {
@@ -116,7 +116,7 @@ class _DialogButtonState extends State<_DialogButton> {
                       IconButton(
                         icon: Icon(
                           Icons.edit_outlined,
-                          color: Colors.green,
+                          color: Colors.red,
                           size: 18,
                         ),
                         onPressed: () {
@@ -172,7 +172,7 @@ void showEditDialog(BuildContext context) {
       return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 8,
-        backgroundColor: Colors.grey,
+        backgroundColor: Colors.white,
         child: _buildEdit(context),
       );
     },
@@ -180,76 +180,127 @@ void showEditDialog(BuildContext context) {
 }
 
 Widget _buildEdit(BuildContext context) {
-  return Stack(
-    alignment: Alignment.topCenter,
-    children: [
-      Container(
-        width: 300,
-        margin: const EdgeInsets.only(top: 50),
-        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Create New PIN',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 20),
+  bool obscureNewPIN = true;
+  bool obscureConfirmPIN = true;
 
-            // New PIN TextField
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("New PIN", style: TextStyle(fontSize: 12)),
+  return StatefulBuilder(
+    builder: (context, setState) {
+      return Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          Container(
+            width: 300,
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(height: 6),
-            const TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Confirm PIN TextField
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Confirm PIN", style: TextStyle(fontSize: 12)),
-            ),
-            const SizedBox(height: 6),
-            const TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            // Buttons Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Cancel"),
+                const SizedBox(height: 10),
+                const Text(
+                  'Create New PIN',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(),
+                const SizedBox(height: 24),
+
+                // New PIN TextField
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("New PIN", style: TextStyle(fontSize: 14)),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  obscureText: obscureNewPIN,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureNewPIN ? Icons.visibility_off : Icons.visibility,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          obscureNewPIN = !obscureNewPIN;
+                        });
+                      },
+                    ),
                   ),
-                  child: const Text("Save"),
+                ),
+                const SizedBox(height: 16),
+
+                // Confirm PIN TextField
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Confirm PIN", style: TextStyle(fontSize: 14)),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  obscureText: obscureConfirmPIN,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureConfirmPIN
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          obscureConfirmPIN = !obscureConfirmPIN;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Buttons Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        "CANCEL",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add save logic here
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        "SAVE",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    ],
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -306,6 +357,7 @@ void showShortServicesPopup(BuildContext context) {
                     const SizedBox(height: 12),
 
                     _buildDropdownWithPlus(
+                      context: context,
                       label: 'SELECT INSTITUTE',
                       value: selectedInstitute,
                       items: instituteOptions,
@@ -375,6 +427,7 @@ void showShortServicesPopup(BuildContext context) {
 }
 
 Widget _buildDropdownWithPlus({
+  required BuildContext context,
   required String label,
   required String? value,
   required List<String> items,
@@ -413,8 +466,10 @@ Widget _buildDropdownWithPlus({
         right: 4,
         top: 6,
         bottom: 6,
-        child: InkWell(
-          onTap: onAddPressed,
+        child: GestureDetector(
+          onTap: (){
+            showInstituteManagementDialog(context);
+          },
           child: Container(
             width: 36,
             height: 36,
@@ -504,6 +559,7 @@ void showServicesProjectPopup(BuildContext context) {
                     const SizedBox(height: 12),
 
                     _buildDropdownWithPlus1(
+                      context: context,
                       label: 'SERVICE INSTITUTE',
                       value: selectedService,
                       items: serviceOptions,
@@ -572,6 +628,7 @@ void showServicesProjectPopup(BuildContext context) {
 }
 
 Widget _buildDropdownWithPlus1({
+  required BuildContext context,
   required String label,
   required String? value,
   required List<String> items,
@@ -610,8 +667,10 @@ Widget _buildDropdownWithPlus1({
         right: 4,
         top: 6,
         bottom: 6,
-        child: InkWell(
-          onTap: onAddPressed,
+        child: GestureDetector(
+          onTap: (){
+            showInstituteManagementDialog(context);
+          },
           child: Container(
             width: 36,
             height: 36,
@@ -627,6 +686,213 @@ Widget _buildDropdownWithPlus1({
   );
 }
 
+void showInstituteManagementDialog(BuildContext context) {
+  final List<String> institutes = [];
+  final TextEditingController addController = TextEditingController();
+  final TextEditingController editController = TextEditingController();
+  int? editingIndex;
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12), // Slightly smaller radius
+            ),
+            contentPadding: const EdgeInsets.all(12), // Reduced padding
+            insetPadding: const EdgeInsets.all(20), // Space around dialog
+            content: SizedBox(
+              width: 300, // Fixed width
+              height: 400, // Fixed height
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Compact header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Institutes',
+                        style: TextStyle(
+                          fontSize: 16, // Smaller font
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20), // Smaller icon
+                        padding: EdgeInsets.zero, // Remove default padding
+                        constraints: const BoxConstraints(), // Remove minimum size
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Compact input field
+                  SizedBox(
+                    height: 40,
+                    child: TextField(
+                      controller: addController,
+                      decoration: InputDecoration(
+                        hintText: "Add institute...",
+                        isDense: true, // Makes the field more compact
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        border: const OutlineInputBorder(
+                          borderSide: BorderSide(width: 1),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.add, size: 20),
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            if (addController.text.trim().isNotEmpty) {
+                              setState(() {
+                                institutes.add(addController.text.trim());
+                                addController.clear();
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Compact list
+                  Expanded(
+                    child: institutes.isEmpty
+                        ? const Center(
+                      child: Text(
+                        'No institutes',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    )
+                        : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: institutes.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: ListTile(
+                            dense: true, // Makes tiles more compact
+                            visualDensity: VisualDensity.compact, // Even more compact
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                            ),
+                            title: Text(
+                              institutes[index],
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            trailing: SizedBox(
+                              width: 80, // Constrained width for buttons
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, size: 18),
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () => _showEditDialog(
+                                      context,
+                                      setState,
+                                      institutes,
+                                      index,
+                                      editController,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      size: 18,
+                                      color: Colors.red,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      setState(() {
+                                        institutes.removeAt(index);
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+void _showEditDialog(
+    BuildContext context,
+    StateSetter setState,
+    List<String> institutes,
+    int index,
+    TextEditingController editController,
+    ) {
+  editController.text = institutes[index];
+  showDialog(
+    context: context,
+    builder: (editContext) {
+      return AlertDialog(
+        contentPadding: const EdgeInsets.all(16),
+        content: SizedBox(
+          width: 250, // Smaller width
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: editController,
+                decoration: const InputDecoration(
+                  labelText: 'Edit institute',
+                  isDense: true,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(editContext),
+                    child: const Text('Cancel',style: TextStyle(color: Colors.blue),),
+                  ),
+                  const SizedBox(width: 8),
+                  CustomButton(
+                    backgroundColor: Colors.blue,
+                    onPressed: () {
+                      if (editController.text.trim().isNotEmpty) {
+                        setState(() {
+                          institutes[index] = editController.text.trim();
+                        });
+                        Navigator.pop(editContext);
+                      }
+                    }, text: 'Save'
+
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
 Widget _buildTextField1({
   required String label,
   required Function(String) onChanged,
@@ -648,6 +914,8 @@ Widget _buildTextField1({
     onChanged: onChanged,
   );
 }
+
+// short sevices 2nd dialog
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -809,7 +1077,7 @@ Future<Map<String, dynamic>?> showAddTagDialog(BuildContext context) async {
     Colors.blueGrey,
   ];
 
-  await showDialog(
+  return await showDialog<Map<String, dynamic>>(
     context: context,
     builder:
         (_) => StatefulBuilder(
@@ -870,6 +1138,7 @@ Future<Map<String, dynamic>?> showAddTagDialog(BuildContext context) async {
                           labelText: "Tag Name",
                           border: OutlineInputBorder(),
                         ),
+                        autofocus: true,
                       ),
                       const SizedBox(height: 16),
                       Wrap(
@@ -879,9 +1148,7 @@ Future<Map<String, dynamic>?> showAddTagDialog(BuildContext context) async {
                             colors.map((color) {
                               return GestureDetector(
                                 onTap: () {
-                                  setState(
-                                    () => selectedColor = color,
-                                  ); // update state only
+                                  setState(() => selectedColor = color);
                                 },
                                 child: Container(
                                   width: 41,
@@ -905,7 +1172,15 @@ Future<Map<String, dynamic>?> showAddTagDialog(BuildContext context) async {
                         text: 'SAVE',
                         backgroundColor: Colors.blue,
                         borderRadius: 2,
-                        onPressed: () {},
+                        onPressed: () {
+                          if (_tagController.text.trim().isNotEmpty) {
+                            Navigator.of(context).pop({
+                              'tag': _tagController.text.trim(),
+                              'color': selectedColor ?? colors[0],
+                              // Default to first color if none selected
+                            });
+                          }
+                        },
                         fontSize: 12,
                       ),
                     ],
