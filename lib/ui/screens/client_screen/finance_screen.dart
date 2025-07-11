@@ -46,8 +46,8 @@ class _FinanceScreenState extends State<FinanceScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return MaterialApp(
-      home: Scaffold(
+    return
+       Scaffold(
         backgroundColor: Colors.grey.shade100,
         body: SingleChildScrollView(
           child: Padding(
@@ -247,7 +247,6 @@ class _FinanceScreenState extends State<FinanceScreen> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,
                           child: Table(
-                            border: TableBorder.all(color: Colors.white, width: 2),
                             defaultVerticalAlignment:
                             TableCellVerticalAlignment.middle,
                             columnWidths: const {
@@ -283,19 +282,20 @@ class _FinanceScreenState extends State<FinanceScreen> {
                               for(int i =0;i<20; i++)
                                 TableRow(
                                   decoration: BoxDecoration(
-                                    color: i.isEven
-                                        ? Colors.grey.shade300
-                                        :Colors.grey.shade50,
+                                    color:
+                                    i.isEven
+                                        ? Colors.grey.shade200
+                                        : Colors.grey.shade100,
                                   ),
                                   children: [
-                                    _buildCell2("12-02-2025", "02:59 pm"),
+                                    _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
                                     _buildCell("Clients Name"),
                                     _buildCell("Type"),
                                     _buildCell("Multiple"),
-                                    _buildCell("10000"),
-                                    _buildCell("300"),
+                                    _buildPriceWithAdd("AED-","10000"),
+                                    _buildPriceWithAdd("AED-","300"),
                                     _buildCell("N/A"),
-                                    _buildCell("1400"),
+                                    _buildPriceWithAdd("AED-","1400"),
                                     _buildCell("N/A-Projects List"),
                                   ],
                                 ),
@@ -310,42 +310,6 @@ class _FinanceScreenState extends State<FinanceScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-  Widget _buildCell2(String text1, String text2, {bool copyable = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(text1, style: const TextStyle(fontSize: 12)),
-                Text(
-                  text2,
-                  style: const TextStyle(fontSize: 10, color: Colors.black54),
-                ),
-              ],
-            ),
-          ),
-          if (copyable)
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
-              ),
-            ),
-        ],
-      ),
     );
   }
   Widget _buildCell(String text, {bool copyable = false}) {
@@ -379,141 +343,131 @@ class _FinanceScreenState extends State<FinanceScreen> {
     );
   }
 
-
-}
-
-Widget _buildDropdown(
-  String? selectedValue,
-  String hintText,
-  List<String> items,
-  ValueChanged<String?> onChanged, {
-  Icon icon = const Icon(Icons.arrow_drop_down),
-}) {
-  return Padding(
-    padding: const EdgeInsets.only(left: 12),
-    child: Container(
-      width: 140,
-      height: 25,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue, width: 1),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedValue,
-          icon: icon,
-          hint: Text(hintText, style: TextStyle(color: Colors.black)),
-
-          style: TextStyle(fontSize: 10),
-          onChanged: onChanged,
-          items:
-              items.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Container(
-                    padding: EdgeInsets.zero,
-                    child: Text(value, style: TextStyle(color: Colors.red)),
+  Widget _buildCell2(String text1,
+      String text2, {
+        bool copyable = false,
+        bool centerText2 = false,
+      }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(text1, style: const TextStyle(fontSize: 12)),
+          centerText2
+              ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
+                    ),
                   ),
-                );
-              }).toList(),
-        ),
+                  if (copyable)
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Copied to clipboard'),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.copy,
+                          size: 14,
+                          color: Colors.blue[700],
+                        ),
+                      ),
+                    ),
+                ],
+              )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  text2,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(
+                      ClipboardData(text: "$text1\n$text2"),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(
+                      Icons.copy,
+                      size: 8,
+                      color: Colors.blue[700],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
-    ),
-  );
-}
+    );
+  }
 
+}
 Widget _buildHeader(String text) {
   return Container(
-    height: 50, // 👈 Set your desired header height here
-    alignment: Alignment.center,
-    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    child: Text(
-      text,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        color: Colors.red,
-        fontSize: 12,
+    height: 40,
+    alignment: Alignment.centerLeft,
+    child: Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.red,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+        textAlign: TextAlign.center,
       ),
-      textAlign: TextAlign.start,
     ),
   );
 }
-
-Widget _buildCell(
-  String text, {
-  Color color = Colors.black,
-  bool copyable = false,
-  required BuildContext context,
-}) {
-  return Container(
-    alignment: Alignment.topLeft,
-    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
-    margin: const EdgeInsets.only(right: 8.0),
+Widget _buildPriceWithAdd(String curr, String price) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8.0),
     child: Row(
-      mainAxisSize: MainAxisSize.min, // <-- very important!
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          text.replaceAll('\n', ' '), // remove newlines to force straight line
-          style: TextStyle(fontSize: 13, color: color),
-          softWrap: false,
+          curr,
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
-        if (copyable)
-          GestureDetector(
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: text));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Copied to clipboard')),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Icon(
-                Icons.copy,
-                size: 16,
-                color: const Color.fromARGB(255, 46, 43, 43),
-              ),
-            ),
+        Text(price),
+        const Spacer(),
+        Container(
+          width: 15,
+          height: 15,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.blue),
           ),
-      ],
-    ),
-  );
-}
-
-Widget _buildTagsCell(List<String> tags) {
-  final colors = [Colors.purple, Colors.green, Colors.blue];
-
-  return Container(
-    alignment: Alignment.topLeft,
-    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
-    margin: const EdgeInsets.only(right: 8.0), // for column spacing
-    child: Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: [
-        for (int i = 0; i < tags.length; i++)
-          Text(
-            tags[i],
-            style: TextStyle(color: colors[i % colors.length], fontSize: 13),
-          ),
-        const Icon(Icons.add, size: 16, color: Colors.red),
-      ],
-    ),
-  );
-}
-
-Widget _buildPriceWithAdd(String price) {
-  return Container(
-    alignment: Alignment.topLeft,
-    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
-    margin: const EdgeInsets.only(right: 8.0), // match column spacing
-    child: Row(
-      mainAxisAlignment:
-          MainAxisAlignment.spaceBetween, // space between text and icon
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(price, style: const TextStyle(fontSize: 13, color: Colors.black)),
-        const Icon(Icons.add, size: 16, color: Colors.red),
+          child: const Icon(Icons.add, size: 13, color: Colors.blue),
+        ),
       ],
     ),
   );

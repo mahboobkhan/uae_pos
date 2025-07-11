@@ -15,6 +15,7 @@ import 'package:abc_consultant/ui/screens/office/office_supplies_expanse.dart';
 import 'package:abc_consultant/ui/screens/projects/create_orders.dart';
 import 'package:abc_consultant/ui/screens/projects/project_screen.dart';
 import 'package:abc_consultant/ui/screens/projects/create_order_dialog.dart';
+import 'package:abc_consultant/ui/screens/projects/service_categories.dart';
 import 'package:abc_consultant/ui/screens/projects/short_service_screen.dart';
 import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
   NavItem selectedItem = NavItem.projects;
 
-  int _selectedSidebarIndex = 1;
+  int _selectedSidebarIndex = -1;
   int _selectedSubmenuIndex = -1;
 
   @override
@@ -357,11 +358,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
           case 'Short Service':
             return const Center(child: ShortServiceScreen());
           case 'Create Orders':
-            return const Center(child: ServicesCategoriesScreen());
+            return const Center(child: CreateOrderScreen());
           case 'Service Category':
-            return const Center(child:Text('Project > Service Catageroy'));
-          case 'Services':
-            return const Center(child: Text('Project >  Service'));
+            return const Center(child:ServiceCategories());
         }
         break;
       case NavItem.clients:

@@ -4,18 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-  /// The argument value will return the changed date as [DateTime] when the
-  /// widget [SfDateRangeSelectionMode] set as single.
-  ///
-  /// The argument value will return the changed dates as [List<DateTime>]
-  /// when the widget [SfDateRangeSelectionMode] set as multiple.
-  ///
-  /// The argument value will return the changed range as [PickerDateRange]
-  /// when the widget [SfDateRangeSelectionMode] set as range.
-  ///
-  /// The argument value will return the changed ranges as
-  /// [List<PickerDateRange] when the widget [SfDateRangeSelectionMode] set as
-  /// multi range.
 }
 
 Future<PickerDateRange?> showDateRangePickerDialog(BuildContext context) async {
@@ -47,59 +35,42 @@ Future<PickerDateRange?> showDateRangePickerDialog(BuildContext context) async {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close, size: 20),
-                        color: Colors.grey,
-                        onPressed: () => Navigator.pop(context),
-                      ),
+                      Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey, // Border color
+                            width: 1.5,         // Border width
+                          ),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          color: Colors.grey,
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      )
                     ],
                   ),
-
                   const SizedBox(height: 12),
-
-                  /*SfDateRangePicker(
-                    selectionMode: DateRangePickerSelectionMode.range,
-                    showNavigationArrow: true,
-                    allowViewNavigation: true,
-                    initialSelectedRange: PickerDateRange(
-                      DateTime.now().subtract(const Duration(days: 4)),
-                      DateTime.now().add(const Duration(days: 3)),
-                    ),
-                    view: DateRangePickerView.month,
-                    navigationMode: DateRangePickerNavigationMode.snap,
-                    headerStyle: const DateRangePickerHeaderStyle(
-                      textStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: ColorScheme.light(
+                        primary: Colors.red,
                       ),
                     ),
-                    selectionColor: Colors.deepPurple,
-                    startRangeSelectionColor: Colors.deepPurple,
-                    endRangeSelectionColor: Colors.deepPurple,
-                    rangeSelectionColor: Colors.deepPurple.withOpacity(0.2),
-                    todayHighlightColor: Colors.orange,
-                    monthCellStyle: DateRangePickerMonthCellStyle(
-                      textStyle: TextStyle(color: Colors.black),
-                      todayTextStyle: TextStyle(color: Colors.orange),
-                      disabledDatesTextStyle: TextStyle(color: Colors.grey),
+                    child: SfDateRangePicker(
+                      onSelectionChanged: _onSelectionChanged,
+                      selectionMode: DateRangePickerSelectionMode.range,
+                      initialSelectedRange: PickerDateRange(
+                        DateTime.now().subtract(const Duration(days: 4)),
+                        DateTime.now().add(const Duration(days: 3)),
+                      ),
+                      startRangeSelectionColor: Colors.red,
+                      endRangeSelectionColor: Colors.red,
+                      rangeSelectionColor: Colors.red.shade100,
                     ),
-                    onSelectionChanged: (args) {
-                      if (args.value is PickerDateRange) {
-                        // handle selected range
-                      }
-                    },
-                  ),*/
-                  SfDateRangePicker(
-                    onSelectionChanged: _onSelectionChanged,
-                    selectionMode: DateRangePickerSelectionMode.range,
-                    initialSelectedRange: PickerDateRange(
-                      DateTime.now().subtract(const Duration(days: 4)),
-                      DateTime.now().add(const Duration(days: 3)),
-                    ),
-                    startRangeSelectionColor: Colors.blue,
-                    endRangeSelectionColor: Colors.blue,
-                    rangeSelectionColor: Colors.grey,
                   ),
                   const SizedBox(height: 16),
                   // Show selected range
@@ -124,7 +95,6 @@ Future<PickerDateRange?> showDateRangePickerDialog(BuildContext context) async {
                   ],
 
                   const SizedBox(height: 16),
-
                   // Buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,

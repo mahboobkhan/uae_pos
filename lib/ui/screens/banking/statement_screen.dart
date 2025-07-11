@@ -1,5 +1,6 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class StatementScreen extends StatefulWidget {
   const StatementScreen({super.key});
@@ -51,48 +52,48 @@ class _StatementScreenState extends State<StatementScreen> {
               height: 120,
               child: Row(
                 children:
-                stats.map((stat) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Material(
-                        elevation: 12,
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.white70,
-                        shadowColor: Colors.black,
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
+                    stats.map((stat) {
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Material(
+                            elevation: 12,
                             borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                stat['value'],
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  color: Colors.white,
-                                  fontFamily: 'Courier',
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            color: Colors.white70,
+                            shadowColor: Colors.black,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                stat['label'],
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    stat['value'],
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      color: Colors.white,
+                                      fontFamily: 'Courier',
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    stat['label'],
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                      );
+                    }).toList(),
               ),
             ),
             SizedBox(height: 20),
@@ -108,16 +109,17 @@ class _StatementScreenState extends State<StatementScreen> {
                   color: Colors.red.shade50,
                   border: Border.all(color: Colors.grey, width: 1),
                   borderRadius: BorderRadius.circular(2),
-                  boxShadow: _isHovering
-                      ? [
-                    BoxShadow(
-                      color: Colors.blue,
-                      blurRadius: 4,
-                      spreadRadius: 0.1,
-                      offset: const Offset(0, 1),
-                    ),
-                  ]
-                      : [],
+                  boxShadow:
+                      _isHovering
+                          ? [
+                            BoxShadow(
+                              color: Colors.blue,
+                              blurRadius: 4,
+                              spreadRadius: 0.1,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                          : [],
                 ),
                 child: Row(
                   children: [
@@ -129,25 +131,32 @@ class _StatementScreenState extends State<StatementScreen> {
                             CustomDropdown(
                               hintText: "Status",
                               selectedValue: selectedCategory,
-                              onChanged: (newValue) =>
-                                  setState(() => selectedCategory = newValue!),
+                              onChanged:
+                                  (newValue) => setState(
+                                    () => selectedCategory = newValue!,
+                                  ),
                               items: categories,
                             ),
                             CustomDropdown(
                               hintText: "Select Tags",
                               selectedValue: selectedCategory1,
-                              onChanged: (newValue) =>
-                                  setState(() => selectedCategory1 = newValue!),
+                              onChanged:
+                                  (newValue) => setState(
+                                    () => selectedCategory1 = newValue!,
+                                  ),
                               items: categories,
                             ),
                             CustomDropdown(
                               hintText: "Payment Status",
                               selectedValue: selectedCategory2,
-                              onChanged: (newValue) =>
-                                  setState(() => selectedCategory2 = newValue!),
+                              onChanged:
+                                  (newValue) => setState(
+                                    () => selectedCategory2 = newValue!,
+                                  ),
                               items: categories,
                             ),
                             const SizedBox(width: 12),
+
                             /// Search Box
                             Card(
                               elevation: 4,
@@ -156,9 +165,7 @@ class _StatementScreenState extends State<StatementScreen> {
                               ),
                               shadowColor: Colors.grey.shade700,
                               child: Container(
-                                width:
-                                MediaQuery.of(context).size.width *
-                                    0.11,
+                                width: MediaQuery.of(context).size.width * 0.11,
                                 height: 30,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -173,8 +180,7 @@ class _StatementScreenState extends State<StatementScreen> {
                                 ),
                                 child: const TextField(
                                   style: TextStyle(fontSize: 12),
-                                  textAlignVertical:
-                                  TextAlignVertical.center,
+                                  textAlignVertical: TextAlignVertical.center,
                                   decoration: InputDecoration(
                                     hintText: 'Search...',
                                     hintStyle: TextStyle(fontSize: 12),
@@ -193,7 +199,11 @@ class _StatementScreenState extends State<StatementScreen> {
                               child: const SizedBox(
                                 height: 30,
                                 width: 30,
-                                child: Icon(Icons.search, color: Colors.white, size: 16),
+                                child: Icon(
+                                  Icons.search,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
                               ),
                             ),
                           ],
@@ -209,47 +219,53 @@ class _StatementScreenState extends State<StatementScreen> {
                           color: Colors.blue,
                           shape: const CircleBorder(),
                           child: Builder(
-                            builder: (context) => Tooltip(
-                              message: 'Show menu',
-                              waitDuration: const Duration(milliseconds: 2),
-                              child: GestureDetector(
-                                key: _plusKey,
-                                onTap: () async {
-                                  final RenderBox renderBox =
-                                  _plusKey.currentContext!.findRenderObject()
-                                  as RenderBox;
-                                  final Offset offset =
-                                  renderBox.localToGlobal(Offset.zero);
+                            builder:
+                                (context) => Tooltip(
+                                  message: 'Show menu',
+                                  waitDuration: const Duration(milliseconds: 2),
+                                  child: GestureDetector(
+                                    key: _plusKey,
+                                    onTap: () async {
+                                      final RenderBox renderBox =
+                                          _plusKey.currentContext!
+                                                  .findRenderObject()
+                                              as RenderBox;
+                                      final Offset offset = renderBox
+                                          .localToGlobal(Offset.zero);
 
-                                  final selected = await showMenu<String>(
-                                    context: context,
-                                    position: RelativeRect.fromLTRB(
-                                      offset.dx,
-                                      offset.dy + renderBox.size.height,
-                                      offset.dx + 30,
-                                      offset.dy,
+                                      final selected = await showMenu<String>(
+                                        context: context,
+                                        position: RelativeRect.fromLTRB(
+                                          offset.dx,
+                                          offset.dy + renderBox.size.height,
+                                          offset.dx + 30,
+                                          offset.dy,
+                                        ),
+                                        items: const [
+                                          PopupMenuItem<String>(
+                                            value: 'Short Services',
+                                            child: Text('Short Services'),
+                                          ),
+                                          PopupMenuItem<String>(
+                                            value: 'Add Services',
+                                            child: Text('Add Services'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                    child: const SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.add,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
                                     ),
-                                    items: const [
-                                      PopupMenuItem<String>(
-                                        value: 'Short Services',
-                                        child: Text('Short Services'),
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: 'Add Services',
-                                        child: Text('Add Services'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                                child: const SizedBox(
-                                  width: 30,
-                                  height: 30,
-                                  child: Center(
-                                    child: Icon(Icons.add, color: Colors.white, size: 20),
                                   ),
                                 ),
-                              ),
-                            ),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -274,12 +290,10 @@ class _StatementScreenState extends State<StatementScreen> {
                       scrollDirection: Axis.vertical,
 
                       child: Table(
-                        border: TableBorder.all(
-                          color: Colors.white,
-                          width: 2,
-                        ),                        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
                         columnWidths: const {
-                          0: FlexColumnWidth(1.4),
+                          0: FlexColumnWidth(1.5),
                           1: FlexColumnWidth(1.5),
                           2: FlexColumnWidth(1.2),
                           3: FlexColumnWidth(1),
@@ -289,12 +303,14 @@ class _StatementScreenState extends State<StatementScreen> {
                           7: FlexColumnWidth(1.3),
                           8: FlexColumnWidth(1.7),
                           9: FlexColumnWidth(1.5),
-                          10: FlexColumnWidth(1.2),
+                          10: FlexColumnWidth(1.4),
                         },
                         children: [
                           // Header Row
                           TableRow(
-                            decoration:  BoxDecoration(color: Colors.red.shade50),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                            ),
                             children: [
                               _buildHeader("Bank Id"),
                               _buildHeader("Banificery Name"),
@@ -315,23 +331,23 @@ class _StatementScreenState extends State<StatementScreen> {
                               decoration: BoxDecoration(
                                 color:
                                 i.isEven
-                                    ? Colors.grey.shade300
-                                    : Colors.grey.shade50,
+                                    ? Colors.grey.shade200
+                                    : Colors.grey.shade100,
                               ),
-                            children: [
-                              _buildCell("xxxxxxxxxxxx325"),
-                              _buildCell("Imran"),
-                              _buildCell("UDC BAnk"),
-                              _buildCell("XYZ"),
-                              _buildCell("ACC XXXXXXXX345"),
-                              _buildCell("xxxxxxx245"),
-                              _buildCell("NIL"),
-                              _buildCell("xxxxxxx245 "),
-                              _buildCell("xxxxx"),
-                              _buildCell("N/A"),
-                              _buildCell("4000"),
-                            ],
-                          ),
+                              children: [
+                                _buildCell("xxxxxxxxx325",copyable: true),
+                                _buildCell("Mr.Imran"),
+                                _buildCell("UDC BAnk"),
+                                _buildCell("XYZ"),
+                                _buildCell("ACC XXXXXXXX345"),
+                                _buildCell("xxxxxxx245"),
+                                _buildCell3("0000000000","@gmail.com"),
+                                _buildCell3("xxxxxxx245 ","TID xxxxxxx"),
+                                _buildCell("xxxxx"),
+                                _buildCell("N/A"),
+                                _buildPriceWithAdd("AED-","4000"),
+                              ],
+                            ),
                         ],
                       ),
                     ),
@@ -344,26 +360,114 @@ class _StatementScreenState extends State<StatementScreen> {
       ),
     );
   }
-  Widget _buildCell(String text) {
+
+  Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(text, style: const TextStyle(fontSize: 14)),
+      padding: const EdgeInsets.only(left: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (copyable)
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: text));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
   Widget _buildHeader(String text) {
     return Container(
-      height: 30,
-      alignment: Alignment.center,
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.red,
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
+      height: 40,
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 4.0),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
         ),
-        textAlign: TextAlign.center,
       ),
     );
   }
+
+  Widget _buildPriceWithAdd(String curr, String price) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(price),
+          const Spacer(),
+          Container(
+            width: 15,
+            height: 15,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.blue),
+            ),
+            child: const Icon(Icons.add, size: 13, color: Colors.blue),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildCell3(String text1, String text2, {bool copyable = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(text1, style: const TextStyle(fontSize: 12)),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                text2,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 }

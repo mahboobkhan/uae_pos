@@ -467,7 +467,7 @@ Widget _buildDropdownWithPlus({
         top: 6,
         bottom: 6,
         child: GestureDetector(
-          onTap: (){
+          onTap: () {
             showInstituteManagementDialog(context);
           },
           child: Container(
@@ -668,7 +668,7 @@ Widget _buildDropdownWithPlus1({
         top: 6,
         bottom: 6,
         child: GestureDetector(
-          onTap: (){
+          onTap: () {
             showInstituteManagementDialog(context);
           },
           child: Container(
@@ -699,7 +699,9 @@ void showInstituteManagementDialog(BuildContext context) {
         builder: (context, setState) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12), // Slightly smaller radius
+              borderRadius: BorderRadius.circular(
+                12,
+              ), // Slightly smaller radius
             ),
             contentPadding: const EdgeInsets.all(12), // Reduced padding
             insetPadding: const EdgeInsets.all(20), // Space around dialog
@@ -721,9 +723,12 @@ void showInstituteManagementDialog(BuildContext context) {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 20), // Smaller icon
-                        padding: EdgeInsets.zero, // Remove default padding
-                        constraints: const BoxConstraints(), // Remove minimum size
+                        icon: const Icon(Icons.close, size: 20),
+                        // Smaller icon
+                        padding: EdgeInsets.zero,
+                        // Remove default padding
+                        constraints: const BoxConstraints(),
+                        // Remove minimum size
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -734,16 +739,25 @@ void showInstituteManagementDialog(BuildContext context) {
                   SizedBox(
                     height: 40,
                     child: TextField(
+                      cursorColor: Colors.blue,
                       controller: addController,
                       decoration: InputDecoration(
                         hintText: "Add institute...",
-                        isDense: true, // Makes the field more compact
+                        isDense: true,
+                        // Makes the field more compact
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 8,
                         ),
-                        border: const OutlineInputBorder(
-                          borderSide: BorderSide(width: 1),
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(width: 1, color: Colors.blue),
+                        ),
+                        // Border when focused
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            width: 1.5,
+                            color: Colors.blue,
+                          ),
                         ),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.add, size: 20),
@@ -764,68 +778,78 @@ void showInstituteManagementDialog(BuildContext context) {
 
                   // Compact list
                   Expanded(
-                    child: institutes.isEmpty
-                        ? const Center(
-                      child: Text(
-                        'No institutes',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    )
-                        : ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: institutes.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: ListTile(
-                            dense: true, // Makes tiles more compact
-                            visualDensity: VisualDensity.compact, // Even more compact
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                            ),
-                            title: Text(
-                              institutes[index],
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            trailing: SizedBox(
-                              width: 80, // Constrained width for buttons
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit, size: 18),
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () => _showEditDialog(
-                                      context,
-                                      setState,
-                                      institutes,
-                                      index,
-                                      editController,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      size: 18,
-                                      color: Colors.red,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      setState(() {
-                                        institutes.removeAt(index);
-                                      });
-                                    },
-                                  ),
-                                ],
+                    child:
+                        institutes.isEmpty
+                            ? const Center(
+                              child: Text(
+                                'No institutes',
+                                style: TextStyle(fontSize: 14),
                               ),
+                            )
+                            : ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: institutes.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.grey[300]!,
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: ListTile(
+                                    dense: true,
+                                    // Makes tiles more compact
+                                    visualDensity: VisualDensity.compact,
+                                    // Even more compact
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    title: Text(
+                                      institutes[index],
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    trailing: SizedBox(
+                                      width:
+                                          80, // Constrained width for buttons
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              size: 18,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            onPressed:
+                                                () => _showEditDialog(
+                                                  context,
+                                                  setState,
+                                                  institutes,
+                                                  index,
+                                                  editController,
+                                                ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              size: 18,
+                                              color: Colors.red,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            onPressed: () {
+                                              setState(() {
+                                                institutes.removeAt(index);
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          ),
-                        );
-                      },
-                    ),
                   ),
                 ],
               ),
@@ -838,17 +862,18 @@ void showInstituteManagementDialog(BuildContext context) {
 }
 
 void _showEditDialog(
-    BuildContext context,
-    StateSetter setState,
-    List<String> institutes,
-    int index,
-    TextEditingController editController,
-    ) {
+  BuildContext context,
+  StateSetter setState,
+  List<String> institutes,
+  int index,
+  TextEditingController editController,
+) {
   editController.text = institutes[index];
   showDialog(
     context: context,
     builder: (editContext) {
       return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.all(16),
         content: SizedBox(
           width: 250, // Smaller width
@@ -856,9 +881,15 @@ void _showEditDialog(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
+                cursorColor: Colors.blue,
                 controller: editController,
                 decoration: const InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(width: 1.5, color: Colors.blue),
+                  ),
                   labelText: 'Edit institute',
+                  labelStyle: TextStyle(
+                    color: Colors.blue, ),
                   isDense: true,
                   border: OutlineInputBorder(),
                 ),
@@ -869,7 +900,10 @@ void _showEditDialog(
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(editContext),
-                    child: const Text('Cancel',style: TextStyle(color: Colors.blue),),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.blue),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   CustomButton(
@@ -881,8 +915,8 @@ void _showEditDialog(
                         });
                         Navigator.pop(editContext);
                       }
-                    }, text: 'Save'
-
+                    },
+                    text: 'Save',
                   ),
                 ],
               ),
@@ -893,6 +927,7 @@ void _showEditDialog(
     },
   );
 }
+
 Widget _buildTextField1({
   required String label,
   required Function(String) onChanged,

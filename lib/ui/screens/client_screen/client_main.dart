@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/date_picker.dart';
 
 class ClientMain extends StatefulWidget {
   const ClientMain({super.key});
@@ -11,8 +13,10 @@ class ClientMain extends StatefulWidget {
 }
 
 class _ClientMainState extends State<ClientMain> {
-  List<String> _tags = ["Tag1", "Tag2"];
-
+  List<Map<String, dynamic>> currentTags = [
+    {'tag': 'Tag1', 'color': Colors.green.shade100},
+    {'tag': 'Tag2', 'color': Colors.orange.shade100},
+  ];
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
   String? customerValue;
@@ -183,14 +187,37 @@ class _ClientMainState extends State<ClientMain> {
                                   selectedValue: selectedCategory3,
                                   hintText: "Dates",
                                   items: categories3,
-                                  onChanged: (newValue) {
-                                    setState(() => selectedCategory3 = newValue!);
+                                  onChanged: (newValue) async {
+                                    if (newValue == 'Custom Range') {
+                                      final selectedRange = await showDateRangePickerDialog(
+                                          context);
+
+                                      if (selectedRange != null) {
+                                        final start = selectedRange.startDate ??
+                                            DateTime.now();
+                                        final end = selectedRange.endDate ??
+                                            start;
+
+                                        final formattedRange = '${DateFormat(
+                                            'dd/MM/yyyy').format(
+                                            start)} - ${DateFormat('dd/MM/yyyy')
+                                            .format(end)}';
+
+                                        setState(() {
+                                          selectedCategory3 = formattedRange;
+                                        });
+                                      }
+                                    } else {
+                                      setState(() =>
+                                      selectedCategory3 = newValue!);
+                                    }
                                   },
                                   icon: const Icon(
                                     Icons.calendar_month,
                                     size: 18,
                                   ),
                                 ),
+
                               ],
                             ),
                           ),
@@ -311,17 +338,16 @@ class _ClientMainState extends State<ClientMain> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,
                           child: Table(
-                            border: TableBorder.all(color: Colors.white, width: 2),
                             defaultVerticalAlignment:
                             TableCellVerticalAlignment.middle,
                             columnWidths: const {
-                              0: FlexColumnWidth(1),
+                              0: FlexColumnWidth(0.8),
                               1: FlexColumnWidth(0.8),
-                              2: FlexColumnWidth(0.8),
+                              2: FlexColumnWidth(1),
                               3: FlexColumnWidth(1),
                               4: FlexColumnWidth(1),
                               5: FlexColumnWidth(1),
-                              6: FlexColumnWidth(1),
+                              6: FlexColumnWidth(0.7),
                             },
                             children: [
                               // Header Row
@@ -344,19 +370,23 @@ class _ClientMainState extends State<ClientMain> {
                               for(int i =0;i<20; i++)
                                 TableRow(
                                   decoration: BoxDecoration(
-                                    color: i.isEven
-                                        ? Colors.grey.shade300
-                                        :Colors.grey.shade50,
+                                    color:
+                                    i.isEven
+                                        ? Colors.grey.shade200
+                                        : Colors.grey.shade100,
                                   ),
                                   children: [
                                     _buildCell("Company"),
-                                    _buildCell("Sample Customer \nxxxxxx345",copyable: true),
-                                    _buildTagsCell(_tags, context),
+                                    _buildCell3("Sample Customer" ,"nxxxxxx345",copyable: true),
+                                    _buildTagsCell(currentTags, context),
                                     _buildCell("+9727364676723"),
                                     _buildCell("0/3 Running"),
-                                    _buildCell("300"),
-                                    _buildCell("900"),
-                                    _buildCell("Edit Profile - order Type"),
+                                    _buildPriceWithAdd("AED-","300"),
+                                    _buildPriceWithAdd("AED-","900"),
+                                    _buildActionCell(   onEdit: () {},
+                                      onDelete: () {},
+                                     // onDraft: () {}
+                                      ),
                                   ],
                                 ),
                             ],
@@ -373,9 +403,7 @@ class _ClientMainState extends State<ClientMain> {
       );
 
   }
-  Widget _buildTagsCell(List<String> tags, BuildContext context) {
-    final colors = [Colors.purple, Colors.green, Colors.blue];
-
+  Widget _buildTagsCell(List<Map<String, dynamic>> tags, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Row(
@@ -387,33 +415,41 @@ class _ClientMainState extends State<ClientMain> {
               runSpacing: 4,
               children: [
                 for (int i = 0; i < tags.length; i++)
-                  Text(
-                    tags[i],
-                    style: TextStyle(
-                      color: colors[i % colors.length],
-                      fontWeight: FontWeight.w600,
-                    ),
+                  _HoverableTag(
+                    tag: tags[i]['tag'],
+                    color: tags[i]['color'] ?? Colors.grey.shade200,
+                    onDelete: () {
+                      // You must call setState from the parent
+                      (context as Element)
+                          .markNeedsBuild(); // temporary refresh
+                      tags.removeAt(i);
+                    },
                   ),
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () async {
-              final result = await showAddTagDialog(context);
-              if (result != null) {
-                setState(() {
-                  _tags.add(result['tag']); // Add new tag to list
-                });
-              }
-            },
-            child: Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
+          Tooltip(
+            message: 'Add Tag',
+            child: GestureDetector(
+              onTap: () async {
+                final result = await showAddTagDialog(context);
+                if (result != null && result['tag']
+                    .toString()
+                    .trim()
+                    .isNotEmpty) {
+                  (context as Element).markNeedsBuild();
+                  tags.add({
+                    'tag': result['tag'],
+                    'color': result['color'],
+                  });
+                }
+              },
+              child: Image.asset(
+                width: 14,
+                height: 14,
+                color: Colors.blue,
+                'assets/icons/img_1.png',
               ),
-              child: const Icon(Icons.add, size: 14, color: Colors.blue),
             ),
           ),
         ],
@@ -450,42 +486,179 @@ class _ClientMainState extends State<ClientMain> {
       ),
     );
   }
-
-
-}
-
-Widget _buildHeader(String text) {
-  return Container(
-    height: 50, // 👈 Set your desired header height here
-    alignment: Alignment.center,
-    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    child: Text(
-      text,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        color: Colors.red,
-        fontSize: 12,
+  Widget _buildCell3(String text1, String text2, {bool copyable = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(text1, style: const TextStyle(fontSize: 12)),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                text2,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
-      textAlign: TextAlign.start,
-    ),
-  );
-}
+    );
+  }
 
 
-Widget _buildPriceWithAdd(String price) {
-  return Container(
-    alignment: Alignment.topLeft,
-    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
-    margin: const EdgeInsets.only(right: 8.0), // match column spacing
-    child: Row(
-      mainAxisAlignment:
-          MainAxisAlignment.spaceBetween, // space between text and icon
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHeader(String text) {
+    return Container(
+      height: 40,
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+  Widget _buildPriceWithAdd(String curr, String price) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(price),
+          const Spacer(),
+          Container(
+            width: 15,
+            height: 15,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.blue),
+            ),
+            child: const Icon(Icons.add, size: 13, color: Colors.blue),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildActionCell({
+    VoidCallback? onEdit,
+    VoidCallback? onDelete,
+  }) {
+    return Row(
       children: [
-        Text(price, style: const TextStyle(fontSize: 13, color: Colors.black)),
-        const Icon(Icons.add, size: 16, color: Colors.red),
+        IconButton(
+          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
+          tooltip: 'Edit',
+          onPressed: onEdit ?? () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+          tooltip: 'Delete',
+          onPressed: onDelete ?? () {},
+        ),
+        /*IconButton(
+          icon: Image.asset(
+            'assets/icons/img_3.png',
+            width: 20,
+            height: 20,
+            color: Colors.red,
+          ),
+          tooltip: 'Draft',
+          onPressed: onDraft ?? () {},
+        ),*/
       ],
-    ),
-  );
+    );
+  }
+
 }
+class _HoverableTag extends StatefulWidget {
+  final String tag;
+  final Color color;
+  final VoidCallback onDelete;
+
+  const _HoverableTag({
+    Key? key,
+    required this.tag,
+    required this.color,
+    required this.onDelete,
+  }) : super(key: key);
+
+  @override
+  State<_HoverableTag> createState() => _HoverableTagState();
+}
+
+class _HoverableTagState extends State<_HoverableTag> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            margin: const EdgeInsets.only(top: 6, right: 2),
+            decoration: BoxDecoration(
+              color: widget.color,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              widget.tag,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          if (_hovering)
+            Positioned(
+              top: 5,
+              right: 5,
+              child: GestureDetector(
+                onTap: widget.onDelete,
+                child: Container(
+                  child: const Icon(
+                    Icons.close,
+                    size: 12,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
 

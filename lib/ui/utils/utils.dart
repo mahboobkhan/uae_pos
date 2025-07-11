@@ -11,7 +11,7 @@ final List<SidebarItem> sidebarItems = [
   SidebarItem(
     icon: Icons.home_repair_service_outlined,
     title: 'Projects',
-    submenus: ['Short Service', 'Service Category','Create Orders', 'Services',],
+    submenus: ['Short Service', 'Service Category','Create Orders',],
   ),
   SidebarItem(
     icon: Icons.people_alt_outlined,

@@ -44,7 +44,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -189,10 +189,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: Table(
-                          border: TableBorder.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
                           defaultVerticalAlignment:
                               TableCellVerticalAlignment.middle,
                           columnWidths: const {
@@ -200,9 +196,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                             1: FlexColumnWidth(2),
                             2: FlexColumnWidth(1),
                             3: FlexColumnWidth(1.5),
-                            4: FlexColumnWidth(1),
+                            4: FlexColumnWidth(1.3),
                             5: FlexColumnWidth(1.3),
-                            6: FlexColumnWidth(1),
+                            6: FlexColumnWidth(1.3),
                             7: FlexColumnWidth(1),
                             8: FlexColumnWidth(1),
                             9: FlexColumnWidth(1.5),
@@ -231,23 +227,23 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                               TableRow(
                                 decoration: BoxDecoration(
                                   color:
-                                      i.isEven
-                                          ? Colors.grey.shade300
-                                          : Colors.grey.shade50,
+                                  i.isEven
+                                      ? Colors.grey.shade200
+                                      : Colors.grey.shade100,
                                 ),
                                 children: [
-                                  _buildCell2("12-02-2025", "02:59 pm"),
-                                  _buildCell(
-                                    "Sample Customer \nxxxxxxxxx245",
+                                  _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
+                                  _buildCell3(
+                                    "Sample Customer ","xxxxxxxxx245",
                                     copyable: true,
                                   ),
                                   _buildCell("Manager"),
-                                  _buildCell(
-                                    "Bank Transfer\nTID xxxxxxx234",
+                                  _buildCell3(
+                                    "Bank Transfer","TID xxxxxxx234",copyable: true,
                                   ),
-                                  _buildCell("100000"),
-                                  _buildCell("300"),
-                                  _buildCell("2000"),
+                                  _buildPriceWithAdd("AED-","100000",),
+                                  _buildPriceWithAdd("AED-","300",showPlus: true),
+                                  _buildPriceWithAdd("AED-","2000",showPlus: true),
                                   _buildCell("N/A"),
                                   _buildCell("1400"),
                                   _buildCell("xxxxxxxxx245", copyable: true),
@@ -269,14 +265,143 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   Widget _buildHeader(String text) {
     return Container(
-      alignment: Alignment.center,
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.red),
-        textAlign: TextAlign.center,
+      height: 40,
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
+
+
+  Widget _buildCell3(String text1, String text2, {bool copyable = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(text1, style: const TextStyle(fontSize: 12)),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                text2,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildCell2(String text1,
+      String text2, {
+        bool copyable = false,
+        bool centerText2 = false,
+      }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(text1, style: const TextStyle(fontSize: 12)),
+          centerText2
+              ? Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  text2,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
+                ),
+                if (copyable)
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(
+                        ClipboardData(text: "$text1\n$text2"),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Copied to clipboard'),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Icon(
+                        Icons.copy,
+                        size: 14,
+                        color: Colors.blue[700],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  text2,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(
+                      ClipboardData(text: "$text1\n$text2"),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(
+                      Icons.copy,
+                      size: 8,
+                      color: Colors.blue[700],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
@@ -287,7 +412,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           Flexible(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 12),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -301,47 +426,37 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 8),
-                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
+                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
               ),
+            ),
+        ],
+      ),
+    );
+  }
+  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Text(
+            curr,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+          ),
+          Text(price,style: TextStyle(fontSize: 12),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildCell2(String text1, String text2, {bool copyable = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(text1, style: const TextStyle(fontSize: 12)),
-                Text(
-                  text2,
-                  style: const TextStyle(fontSize: 10, color: Colors.black54),
-                ),
-              ],
-            ),
-          ),
-          if (copyable)
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Icon(Icons.copy, size: 16, color: Colors.blue[700]),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
 }

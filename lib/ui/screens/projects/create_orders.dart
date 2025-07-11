@@ -1,18 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
 
-class ServicesCategoriesScreen extends StatefulWidget {
-  const ServicesCategoriesScreen({super.key});
+class DropdownItem {
+  final String id;
+  final String label;
+
+  DropdownItem(this.id, this.label);
 
   @override
-  State<ServicesCategoriesScreen> createState() =>
-      _ServicesCategoriesScreenState();
+  String toString() => label;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DropdownItem &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          label == other.label;
+
+  @override
+  int get hashCode => id.hashCode ^ label.hashCode;
 }
 
-class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
+class CreateOrderScreen extends StatefulWidget {
+  const CreateOrderScreen({super.key});
+
+  @override
+  State<CreateOrderScreen> createState() => _CreateOrderScreenState();
+}
+
+class _CreateOrderScreenState extends State<CreateOrderScreen> {
+  List<DropdownItem> orderTypes = [
+    DropdownItem("001", "Services Base"),
+    DropdownItem("002", "Project Base"),
+  ];
+  DropdownItem? selectedOrderType;
+
   DateTime selectedDateTime = DateTime.now();
 
   final _clientController = TextEditingController(text: "Sample Client");
@@ -23,8 +48,13 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
   final _fundsController = TextEditingController(text: "300");
   final _paymentIdController = TextEditingController(text: "TID 00001–01");
 
-  String? selectedOrderType = "Services Base ";
   String? selectedEmployee = "Muhammad Imran";
+
+  @override
+  void initState() {
+    super.initState();
+    selectedOrderType = orderTypes[0];
+  }
 
   Future<void> _selectedDateTime() async {
     final DateTime? picked = await showDatePicker(
@@ -100,14 +130,15 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                       runSpacing: 10,
                       children: [
                         _buildDateTimeField(),
-                        _buildDropdown(
+                        _buildOrderTypeDropdown(
                           "Select Order Type",
                           selectedOrderType,
-                          ["Services Base "],
-                              (val) {
+                          orderTypes,
+                          (val) {
                             setState(() => selectedOrderType = val);
                           },
                         ),
+
                         _buildTextField(
                           "Select Service Project ",
                           _beneficiaryController,
@@ -116,7 +147,7 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                           "Project Assign Employee ",
                           selectedEmployee,
                           ["Muhammad Imran"],
-                              (val) {
+                          (val) {
                             setState(() => selectedEmployee = val);
                           },
                         ),
@@ -225,14 +256,14 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                           DateFormat(
                             "dd-MM-yyyy – hh:mm a",
                           ).format(selectedDateTime),
-                          icon: Icons.calendar_today,
+                          icon: Icons.calendar_month,
                         ),
                         _field(
                           "Reminder Date and Time",
                           DateFormat(
                             "dd-MM-yyyy – hh:mm a",
                           ).format(selectedDateTime),
-                          icon: Icons.calendar_today,
+                          icon: Icons.calendar_month,
                         ),
                         _field(
                           "Services Department ",
@@ -271,13 +302,10 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                     Row(
                       children: [
                         CustomButton(
-                          text:
-                          "Close Project",
+                          text: "Close Project",
                           backgroundColor: Colors.black,
                           icon: Icons.lock_open_outlined,
-                          onPressed: (){
-
-                          },
+                          onPressed: () {},
                         ),
                         const SizedBox(width: 10),
                         CustomButton(
@@ -299,9 +327,7 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
                           child: Container(
                             width: 40,
                             height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                            ),
+                            decoration: BoxDecoration(shape: BoxShape.circle),
                             child: IconButton(
                               icon: Icon(
                                 Icons.print,
@@ -344,7 +370,7 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
             labelText: "Date and Time",
             labelStyle: TextStyle(color: Colors.red),
             border: OutlineInputBorder(),
-            suffixIcon: Icon(Icons.calendar_today, color: Colors.red),
+            suffixIcon: Icon(Icons.calendar_month, color: Colors.red),
           ),
           child: Text(
             DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime),
@@ -360,6 +386,7 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
       width: 220,
       child: TextField(
         controller: controller,
+        cursorColor: Colors.blue,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: Colors.red),
@@ -373,11 +400,11 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
   }
 
   Widget _buildDropdown(
-      String label,
-      String? selectedValue,
-      List<String> options,
-      ValueChanged<String?> onChanged,
-      ) {
+    String label,
+    String? selectedValue,
+    List<String> options,
+    ValueChanged<String?> onChanged,
+  ) {
     return SizedBox(
       width: 220,
       child: DropdownButtonFormField<String>(
@@ -388,23 +415,11 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
           border: OutlineInputBorder(),
         ),
         items:
-        options.map((String value) {
-          return DropdownMenuItem(value: value, child: Text(value));
-        }).toList(),
+            options.map((String value) {
+              return DropdownMenuItem(value: value, child: Text(value));
+            }).toList(),
         onChanged: onChanged,
       ),
-    );
-  }
-
-  Widget _buildColoredButton(String text, Color color) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      ),
-      onPressed: () {},
-      child: Text(text),
     );
   }
 
@@ -438,14 +453,15 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
   }
 
   Widget _field(
-      String label,
-      String value, {
-        IconData? icon,
-        Color? fillColor,
-      }) {
+    String label,
+    String value, {
+    IconData? icon,
+    Color? fillColor,
+  }) {
     return SizedBox(
       width: 220,
       child: TextFormField(
+        cursorColor: Colors.blue,
         initialValue: value,
         decoration: InputDecoration(
           labelText: label,
@@ -472,4 +488,34 @@ class _ServicesCategoriesScreenState extends State<ServicesCategoriesScreen> {
     );
   }
 
+  Widget _buildOrderTypeDropdown(
+    String label,
+    DropdownItem? selectedValue,
+    List<DropdownItem> options,
+    ValueChanged<DropdownItem?> onChanged,
+  ) {
+    return SizedBox(
+      width: 220,
+      child: DropdownButtonFormField<DropdownItem>(
+        value: selectedValue,
+        decoration: InputDecoration(
+          labelText: label,
+
+          labelStyle: const TextStyle(color: Colors.red,),
+          border: const OutlineInputBorder(),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 1),
+          ),
+        ),
+        items:
+            options.map((DropdownItem item) {
+              return DropdownMenuItem<DropdownItem>(
+                value: item,
+                child: Text(item.label),
+              );
+            }).toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
 }

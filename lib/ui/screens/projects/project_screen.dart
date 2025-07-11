@@ -82,48 +82,48 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 height: 120,
                 child: Row(
                   children:
-                      stats.map((stat) {
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Material(
-                              elevation: 12,
+                  stats.map((stat) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Material(
+                          elevation: 12,
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.white70,
+                          shadowColor: Colors.black,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
                               borderRadius: BorderRadius.circular(12),
-                              color: Colors.white70,
-                              shadowColor: Colors.black,
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  stat['value'],
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    color: Colors.white,
+                                    fontFamily: 'Courier',
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      stat['value'],
-                                      style: const TextStyle(
-                                        fontSize: 28,
-                                        color: Colors.white,
-                                        fontFamily: 'Courier',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      stat['label'],
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: 8),
+                                Text(
+                                  stat['label'],
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
-                        );
-                      }).toList(),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
               const SizedBox(height: 10),
@@ -133,23 +133,26 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   height: 45,
-                  width: MediaQuery.of(context).size.width,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
                   margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.red.shade50,
                     border: Border.all(color: Colors.grey, width: 1),
                     borderRadius: BorderRadius.circular(2),
                     boxShadow:
-                        _isHovering
-                            ? [
-                              BoxShadow(
-                                color: Colors.blue,
-                                blurRadius: 4,
-                                spreadRadius: 0.1,
-                                offset: Offset(0, 1),
-                              ),
-                            ]
-                            : [],
+                    _isHovering
+                        ? [
+                      BoxShadow(
+                        color: Colors.blue,
+                        blurRadius: 4,
+                        spreadRadius: 0.1,
+                        offset: Offset(0, 1),
+                      ),
+                    ]
+                        : [],
                   ),
                   child: Row(
                     children: [
@@ -188,20 +191,27 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                 items: categories3,
                                 onChanged: (newValue) async {
                                   if (newValue == 'Custom Range') {
-                                    final selectedRange = await showDateRangePickerDialog(context);
+                                    final selectedRange = await showDateRangePickerDialog(
+                                        context);
 
                                     if (selectedRange != null) {
-                                      final start = selectedRange.startDate ?? DateTime.now();
-                                      final end = selectedRange.endDate ?? start;
+                                      final start = selectedRange.startDate ??
+                                          DateTime.now();
+                                      final end = selectedRange.endDate ??
+                                          start;
 
-                                      final formattedRange = '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
+                                      final formattedRange = '${DateFormat(
+                                          'dd/MM/yyyy').format(
+                                          start)} - ${DateFormat('dd/MM/yyyy')
+                                          .format(end)}';
 
                                       setState(() {
                                         selectedCategory3 = formattedRange;
                                       });
                                     }
                                   } else {
-                                    setState(() => selectedCategory3 = newValue!);
+                                    setState(() =>
+                                    selectedCategory3 = newValue!);
                                   }
                                 },
                                 icon: const Icon(
@@ -221,16 +231,17 @@ class _ProjectScreenState extends State<ProjectScreen> {
                             shape: CircleBorder(),
                             child: Builder(
                               builder:
-                                  (context) => Tooltip(
+                                  (context) =>
+                                  Tooltip(
                                     message: 'Show menu',
                                     waitDuration: Duration(milliseconds: 2),
                                     child: GestureDetector(
                                       key: _plusKey,
                                       onTap: () async {
                                         final RenderBox renderBox =
-                                            _plusKey.currentContext!
-                                                    .findRenderObject()
-                                                as RenderBox;
+                                        _plusKey.currentContext!
+                                            .findRenderObject()
+                                        as RenderBox;
                                         final Offset offset = renderBox
                                             .localToGlobal(Offset.zero);
 
@@ -256,7 +267,8 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
                                         if (selected != null) {
                                           setState(
-                                            () => selectedCategory4 = selected,
+                                                () =>
+                                            selectedCategory4 = selected,
                                           );
                                           if (selected == 'Add Services') {
                                             showShortServicesPopup(context);
@@ -336,12 +348,12 @@ class _ProjectScreenState extends State<ProjectScreen> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: Table(
-                          border: TableBorder.all(
+                          /*  border: TableBorder.all(
                             color: Colors.white,
                             width: 1,
-                          ),
+                          ),*/
                           defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
+                          TableCellVerticalAlignment.middle,
                           columnWidths: const {
                             0: FlexColumnWidth(0.8),
                             1: FlexColumnWidth(1.5),
@@ -352,7 +364,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                             6: FlexColumnWidth(1),
                             7: FlexColumnWidth(1),
                             8: FlexColumnWidth(1),
-                            9: FlexColumnWidth(1.2),
+                            9: FlexColumnWidth(1.4),
                           },
                           children: [
                             TableRow(
@@ -365,7 +377,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                 _buildHeader("Tags Details"),
                                 _buildHeader("Status"),
                                 _buildHeader("Stage"),
-                                _buildHeader(" Pending"),
+                                _buildHeader("Pending"),
                                 _buildHeader("Quotation "),
                                 _buildHeader("Manage"),
                                 _buildHeader("Ref Id"),
@@ -376,9 +388,9 @@ class _ProjectScreenState extends State<ProjectScreen> {
                               TableRow(
                                 decoration: BoxDecoration(
                                   color:
-                                      i.isEven
-                                          ? Colors.grey.shade200
-                                          : Colors.grey.shade100,
+                                  i.isEven
+                                      ? Colors.grey.shade200
+                                      : Colors.grey.shade100,
                                 ),
                                 children: [
                                   _buildCell2(
@@ -422,15 +434,18 @@ class _ProjectScreenState extends State<ProjectScreen> {
   Widget _buildHeader(String text) {
     return Container(
       height: 40,
-      alignment: Alignment.center,
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.red,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
         ),
-        textAlign: TextAlign.center,
       ),
     );
   }
@@ -458,7 +473,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
-                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+                child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
               ),
             ),
         ],
@@ -484,29 +499,36 @@ class _ProjectScreenState extends State<ProjectScreen> {
                     color: tags[i]['color'] ?? Colors.grey.shade200,
                     onDelete: () {
                       // You must call setState from the parent
-                      (context as Element).markNeedsBuild(); // temporary refresh
+                      (context as Element)
+                          .markNeedsBuild(); // temporary refresh
                       tags.removeAt(i);
                     },
                   ),
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () async {
-              final result = await showAddTagDialog(context);
-              if (result != null && result['tag'].toString().trim().isNotEmpty) {
-                (context as Element).markNeedsBuild();
-                tags.add({
-                  'tag': result['tag'],
-                  'color': result['color'],
-                });
-              }
-            },
-            child: Image.asset(
-              width: 18,
-              height: 18,
-              color: Colors.blue,
-              'assets/icons/img_1.png',
+          Tooltip(
+            message: 'Add Tag',
+            child: GestureDetector(
+              onTap: () async {
+                final result = await showAddTagDialog(context);
+                if (result != null && result['tag']
+                    .toString()
+                    .trim()
+                    .isNotEmpty) {
+                  (context as Element).markNeedsBuild();
+                  tags.add({
+                    'tag': result['tag'],
+                    'color': result['color'],
+                  });
+                }
+              },
+              child: Image.asset(
+                width: 14,
+                height: 14,
+                color: Colors.blue,
+                'assets/icons/img_1.png',
+              ),
             ),
           ),
         ],
@@ -539,12 +561,11 @@ class _ProjectScreenState extends State<ProjectScreen> {
     );
   }
 
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) {
+  Widget _buildCell2(String text1,
+      String text2, {
+        bool copyable = false,
+        bool centerText2 = false,
+      }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -553,73 +574,73 @@ class _ProjectScreenState extends State<ProjectScreen> {
           Text(text1, style: const TextStyle(fontSize: 12)),
           centerText2
               ? Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    if (copyable)
-                      GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(
-                            ClipboardData(text: "$text1\n$text2"),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Copied to clipboard'),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.copy,
-                            size: 14,
-                            color: Colors.blue[700],
-                          ),
-                        ),
-                      ),
-                  ],
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  text2,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
                 ),
-              )
-              : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
+                if (copyable)
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(
+                        ClipboardData(text: "$text1\n$text2"),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Copied to clipboard'),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Icon(
+                        Icons.copy,
+                        size: 14,
+                        color: Colors.blue[700],
                       ),
                     ),
                   ),
-                  if (copyable)
-                    GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 14,
-                          color: Colors.blue[700],
-                        ),
-                      ),
-                    ),
-                ],
+              ],
+            ),
+          )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  text2,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
+                ),
               ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(
+                      ClipboardData(text: "$text1\n$text2"),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(
+                      Icons.copy,
+                      size: 8,
+                      color: Colors.blue[700],
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     );
@@ -650,7 +671,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
-                    child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                    child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
                   ),
                 ),
             ],
@@ -679,7 +700,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
         ),
         IconButton(
           icon: Image.asset(
-            'assets/icons/img.png',
+            'assets/icons/img_3.png',
             width: 20,
             height: 20,
             color: Colors.red,
@@ -719,8 +740,8 @@ class _HoverableTagState extends State<_HoverableTag> {
         alignment: Alignment.topRight,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            margin: const EdgeInsets.only(top: 6, right: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            margin: const EdgeInsets.only(top: 6, right: 2),
             decoration: BoxDecoration(
               color: widget.color,
               borderRadius: BorderRadius.circular(12),
@@ -753,7 +774,5 @@ class _HoverableTagState extends State<_HoverableTag> {
       ),
     );
   }
-
-
 }
 
