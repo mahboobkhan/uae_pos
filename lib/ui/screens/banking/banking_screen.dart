@@ -2,6 +2,11 @@ import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../office/dialogues/dialogue_fixed_office_expense.dart';
+import 'banking_dialoges/client_transaction.dart';
+import 'banking_dialoges/employe_type_dialog.dart';
+import 'banking_dialoges/office_expance_dialog.dart';
+
 class BankingScreen extends StatefulWidget {
   const BankingScreen({super.key});
 
@@ -10,8 +15,24 @@ class BankingScreen extends StatefulWidget {
 }
 
 class _BankingScreenState extends State<BankingScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
+  final List<Map<String, dynamic>> stats = [
+    {'label': 'BANK TRX', 'value': '32'},
+    {'label': 'CASH IN', 'value': '32'},
+    {'label': 'CASH OUT', 'value': '32'},
+    {'label': 'CASH VIA BANK', 'value': '32'},
+    {'label': 'OTHERS RESOURCE', 'value': '32'},
+  ];
 
   final List<String> categories = ['Full Type', 'Half Type'];
   String? selectedCategory;
@@ -41,7 +62,57 @@ class _BankingScreenState extends State<BankingScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(
+                height: 120,
+                child: Row(
+                  children:
+                  stats.map((stat) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Material(
+                          elevation: 12,
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.white70,
+                          shadowColor: Colors.black,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  stat['value'],
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    color: Colors.white,
+                                    fontFamily: 'Courier',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  stat['label'],
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              SizedBox(height: 10),
               MouseRegion(
                 onEnter: (_) => setState(() => _isHovering = true),
                 onExit: (_) => setState(() => _isHovering = false),
@@ -97,132 +168,79 @@ class _BankingScreenState extends State<BankingScreen> {
                                   setState(() => selectedCategory2 = newValue!);
                                 },
                               ),
-                              const SizedBox(width: 12),
-                              Row(
-                                children: [
-                                  Card(
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    shadowColor: Colors.grey.shade700,
-                                    child: Container(
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.11,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(18),
-                                        border: Border.all(
-                                          color: Colors.red,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                      ),
-                                      child: const TextField(
-                                        style: TextStyle(fontSize: 12),
-                                        textAlignVertical:
-                                            TextAlignVertical.center,
-                                        decoration: InputDecoration(
-                                          hintText: 'Search...',
-                                          hintStyle: TextStyle(fontSize: 12),
-                                          border: InputBorder.none,
-                                          isCollapsed: true,
-                                          contentPadding: EdgeInsets.zero,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Card(
-                                    elevation: 4,
-                                    shape: const CircleBorder(),
-                                    // Make the card circular
-                                    shadowColor: Colors.grey.shade700,
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle, // Circular shape
-                                      ),
-                                      child: const Icon(
-                                        Icons.search,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                         ),
                       ),
-                      Card(
-                        elevation: 8,
-                        color: Colors.blue,
-                        shape: CircleBorder(),
-                        child: Builder(
-                          builder:
-                              (context) => Tooltip(
-                                message: 'Show menu',
-                                waitDuration: Duration(milliseconds: 2),
-                                child: GestureDetector(
-                                  key: _plusKey,
-                                  onTap: () async {
-                                    final RenderBox renderBox =
-                                        _plusKey.currentContext!
-                                                .findRenderObject()
-                                            as RenderBox;
-                                    final Offset offset = renderBox.localToGlobal(
-                                      Offset.zero,
-                                    );
-
-                                    final selected = await showMenu<String>(
-                                      context: context,
-                                      position: RelativeRect.fromLTRB(
-                                        offset.dx,
-                                        offset.dy + renderBox.size.height,
-                                        offset.dx + 30,
-                                        offset.dy,
-                                      ),
-                                      items: [
-                                        const PopupMenuItem<String>(
-                                          value: 'Short Services',
-                                          child: Text('Short Services'),
-                                        ),
-                                        const PopupMenuItem<String>(
-                                          value: 'Add Services',
-                                          child: Text('Add Services'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 30,
-                                    height: 30,
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () => showBankTransactionDialog(context),
+                        child: Tooltip(
+                          message: 'Client transaction',
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.blue,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.move_to_inbox_outlined,
+                                color: Colors.white,
+                                size: 20, // optional
                               ),
+                            ),
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () => showOfficeExpanceDialog(context),
+                        child: Tooltip(
+                          message: 'Office expanse',
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.blue,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.auto_graph_sharp,
+                                color: Colors.white,
+                                size: 20, // optional
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () => showEmployeeTypeDialog(context),
+                        child: Tooltip(
+                          message: 'Employee type',
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.blue,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.person_pin_outlined,
+                                color: Colors.white,
+                                size: 20, // optional
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+
+
                     ],
                   ),
                 ),
@@ -231,75 +249,87 @@ class _BankingScreenState extends State<BankingScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
                   height: 400,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: 1180, // Force horizontal scrolling
-                      ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Table(
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          columnWidths: const {
-                            0: FlexColumnWidth(1),
-                            1: FlexColumnWidth(0.8),
-                            2: FlexColumnWidth(0.8),
-                            3: FlexColumnWidth(1),
-                            4: FlexColumnWidth(1),
-                            5: FlexColumnWidth(1),
-                            6: FlexColumnWidth(0.6),
-                          },
-                          children: [
-                            // Header Row
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                              ),
-                              children: [
-                                _buildHeader("Bank Id"),
-                                _buildHeader("Bank Name"),
-                                _buildHeader("Title Name"),
-                                _buildHeader("Account/IBN"),
-                                _buildHeader("Mobile/Email"),
-                                _buildHeader("Ref I'd"),
-                                _buildHeader("Action"),
-                              ],
-                            ),
-                            // Sample Data Row
-                            for (int i = 0; i < 20; i++)
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color:
-                                  i.isEven
-                                      ? Colors.grey.shade200
-                                      : Colors.grey.shade100,
-                                ),
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbVisibility: MaterialStateProperty.all(true),
+                      thumbColor: MaterialStateProperty.all(Colors.grey),
+                      thickness: MaterialStateProperty.all(8),
+                      radius: const Radius.circular(4),
+                    ),
+                    child: Scrollbar(
+                      controller: _verticalController,
+                      thumbVisibility: true,
+                      child: Scrollbar(
+                        controller: _horizontalController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _horizontalController,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            controller: _verticalController,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 1180),
+                              child: Table(
+                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                columnWidths: const {
+                                  0: FlexColumnWidth(1),
+                                  1: FlexColumnWidth(0.8),
+                                  2: FlexColumnWidth(0.8),
+                                  3: FlexColumnWidth(1),
+                                  4: FlexColumnWidth(1),
+                                  5: FlexColumnWidth(1),
+                                  6: FlexColumnWidth(0.6),
+                                },
                                 children: [
-                                  _buildCell("xxxxx3667", copyable: true),
-                                  _buildCell("UDC Bank"),
-                                  _buildCell('xxxxxx'),
-                                  _buildCell2(
-                                    "ACC xxxxxxxx345",
-                                    "IBN xxxxxxx345",
-                                    copyable: true,
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                    ),
+                                    children: [
+                                      _buildHeader("Bank Id"),
+                                      _buildHeader("Bank Name"),
+                                      _buildHeader("Title Name"),
+                                      _buildHeader("Account/IBN"),
+                                      _buildHeader("Mobile/Email"),
+                                      _buildHeader("Ref I'd"),
+                                      _buildHeader("Action"),
+                                    ],
                                   ),
-                                  _buildCell2("0626626626", "@gmail.com"),
-                                  _buildCell("xxxxxx345", copyable: true),
-                                  _buildActionCell(
-                                    onEdit: () {},
-                                    onDelete: () {},
-                                  ),
+                                  for (int i = 0; i < 20; i++)
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: i.isEven
+                                            ? Colors.grey.shade200
+                                            : Colors.grey.shade100,
+                                      ),
+                                      children: [
+                                        _buildCell("xxxxx3667", copyable: true),
+                                        _buildCell("UDC Bank"),
+                                        _buildCell('xxxxxx'),
+                                        _buildCell2(
+                                          "ACC xxxxxxxx345",
+                                          "IBN xxxxxxx345",
+                                          copyable: true,
+                                        ),
+                                        _buildCell2("0626626626", "@gmail.com"),
+                                        _buildCell("xxxxxx345", copyable: true),
+                                        _buildActionCell(
+                                          onEdit: () {},
+                                          onDelete: () {},
+                                        ),
+                                      ],
+                                    ),
                                 ],
                               ),
-                          ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),

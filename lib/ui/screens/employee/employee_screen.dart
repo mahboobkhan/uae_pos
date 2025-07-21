@@ -11,6 +11,15 @@ class EmployeeScreen extends StatefulWidget {
 }
 
 class _EmployeeScreenState extends State<EmployeeScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
   final GlobalKey _plusKey = GlobalKey();
   final List<String> categories = [
     'All',
@@ -182,80 +191,91 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(
                   height: 400,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: 1200),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Table(
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          columnWidths: const {
-                            0: FlexColumnWidth(0.8),
-                            1: FlexColumnWidth(2),
-                            2: FlexColumnWidth(1),
-                            3: FlexColumnWidth(1.5),
-                            4: FlexColumnWidth(1.3),
-                            5: FlexColumnWidth(1.3),
-                            6: FlexColumnWidth(1.3),
-                            7: FlexColumnWidth(1),
-                            8: FlexColumnWidth(1),
-                            9: FlexColumnWidth(1.5),
-                          },
-                          children: [
-                            // Header Row
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                              ),
-                              children: [
-                                _buildHeader("Date"),
-                                _buildHeader("Employee Name\nReference id "),
-                                _buildHeader("Job Positions"),
-                                _buildHeader("Payment Mode"),
-                                _buildHeader("Salary"),
-                                _buildHeader("Advance"),
-                                _buildHeader("Bonuses "),
-                                _buildHeader("Pending"),
-                                _buildHeader("Total "),
-                                _buildHeader("Others"),
-                              ],
-                            ),
-                            // Sample Row
-                            for (int i = 0; i < 20; i++)
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color:
-                                  i.isEven
-                                      ? Colors.grey.shade200
-                                      : Colors.grey.shade100,
-                                ),
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbVisibility: MaterialStateProperty.all(true),
+                      thumbColor: MaterialStateProperty.all(Colors.grey),
+                      thickness: MaterialStateProperty.all(8),
+                      radius: const Radius.circular(4),
+                    ),
+                    child: Scrollbar(
+                      controller: _verticalController,
+                      thumbVisibility: true,
+                      child: Scrollbar(
+                        controller: _horizontalController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _horizontalController,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            controller: _verticalController,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 1200),
+                              child: Table(
+                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                columnWidths: const {
+                                  0: FlexColumnWidth(0.8),
+                                  1: FlexColumnWidth(2),
+                                  2: FlexColumnWidth(1),
+                                  3: FlexColumnWidth(1.5),
+                                  4: FlexColumnWidth(1.3),
+                                  5: FlexColumnWidth(1.3),
+                                  6: FlexColumnWidth(1.3),
+                                  7: FlexColumnWidth(1),
+                                  8: FlexColumnWidth(1),
+                                  9: FlexColumnWidth(1.5),
+                                },
                                 children: [
-                                  _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
-                                  _buildCell3(
-                                    "Sample Customer ","xxxxxxxxx245",
-                                    copyable: true,
+                                  // Header Row
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                    ),
+                                    children: [
+                                      _buildHeader("Date"),
+                                      _buildHeader("Employee Name\nReference id "),
+                                      _buildHeader("Job Positions"),
+                                      _buildHeader("Payment Mode"),
+                                      _buildHeader("Salary"),
+                                      _buildHeader("Advance"),
+                                      _buildHeader("Bonuses "),
+                                      _buildHeader("Pending"),
+                                      _buildHeader("Total "),
+                                      _buildHeader("Others"),
+                                    ],
                                   ),
-                                  _buildCell("Manager"),
-                                  _buildCell3(
-                                    "Bank Transfer","TID xxxxxxx234",copyable: true,
-                                  ),
-                                  _buildPriceWithAdd("AED-","100000",),
-                                  _buildPriceWithAdd("AED-","300",showPlus: true),
-                                  _buildPriceWithAdd("AED-","2000",showPlus: true),
-                                  _buildCell("N/A"),
-                                  _buildCell("1400"),
-                                  _buildCell("xxxxxxxxx245", copyable: true),
+                                  // Sample Row
+                                  for (int i = 0; i < 20; i++)
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: i.isEven
+                                            ? Colors.grey.shade200
+                                            : Colors.grey.shade100,
+                                      ),
+                                      children: [
+                                        _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
+                                        _buildCell3("Sample Customer ", "xxxxxxxxx245", copyable: true),
+                                        _buildCell("Manager"),
+                                        _buildCell3("Bank Transfer", "TID xxxxxxx234", copyable: true),
+                                        _buildPriceWithAdd("AED-", "100000"),
+                                        _buildPriceWithAdd("AED-", "300", showPlus: true),
+                                        _buildPriceWithAdd("AED-", "2000", showPlus: true),
+                                        _buildCell("N/A"),
+                                        _buildCell("1400"),
+                                        _buildCell("xxxxxxxxx245", copyable: true),
+                                      ],
+                                    ),
                                 ],
                               ),
-                          ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),

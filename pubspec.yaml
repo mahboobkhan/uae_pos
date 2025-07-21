@@ -40,6 +40,7 @@ dependencies:
   flutter_resizable_container: ^3.0.4
   flutter_svg: ^2.2.0
   syncfusion_flutter_datepicker: ^30.1.38
+  provider: ^6.1.5
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +55,8 @@ dev_dependencies:
   collection: ^1.18.0
   fl_chart: ^1.0.0
   fluttertoast: ^8.2.11
+  http: ^1.4.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

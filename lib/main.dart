@@ -1,10 +1,16 @@
+import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
-import 'package:abc_consultant/ui/screens/login%20screens/login_page.dart';
-
+import 'package:abc_consultant/ui/screens/login%20screens/sign_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => SignupProvider())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,7 +27,9 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
+
   final String title;
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/tags_class.dart';
 
 class CompanyScreen extends StatefulWidget {
   const CompanyScreen({super.key});
@@ -11,6 +12,15 @@ class CompanyScreen extends StatefulWidget {
 }
 
 class _CompanyScreenState extends State<CompanyScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
@@ -231,81 +241,91 @@ class _CompanyScreenState extends State<CompanyScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
                   height: 400,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: 1180, // Force horizontal scrolling
-                      ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Table(
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          columnWidths: const {
-                            0: FlexColumnWidth(0.8),
-                            1: FlexColumnWidth(1.5),
-                            2: FlexColumnWidth(1.5),
-                            3: FlexColumnWidth(1.4),
-                            4: FlexColumnWidth(1),
-                            5: FlexColumnWidth(1),
-                            6: FlexColumnWidth(1),
-                            7: FlexColumnWidth(1),
-                            8: FlexColumnWidth(1),
-                          },
-                          children: [
-                            // Header Row
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                              ),
-                              children: [
-                                _buildHeader("Client Type"),
-                                _buildHeader("Customer Name"),
-                                _buildHeader("Tag Details"),
-                                _buildHeader("Number/Email"),
-                                _buildHeader("Project Status"),
-                                _buildHeader("Payment Pending"),
-                                _buildHeader("Total Revived"),
-                                _buildHeader("Ref I'd"),
-                                _buildHeader("Other Actions"),
-                              ],
-                            ),
-                            // Sample Data Row
-                            for (int i = 0; i < 20; i++)
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color:
-                                      i.isEven
-                                          ? Colors.grey.shade200
-                                          : Colors.grey.shade100,
-                                ),
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbVisibility: MaterialStateProperty.all(true),
+                      thumbColor: MaterialStateProperty.all(Colors.grey),
+                      thickness: MaterialStateProperty.all(8),
+                      radius: const Radius.circular(4),
+                    ),
+                    child: Scrollbar(
+                      controller: _verticalController,
+                      thumbVisibility: true,
+                      child: Scrollbar(
+                        controller: _horizontalController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _horizontalController,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            controller: _verticalController,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 1180),
+                              child: Table(
+                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                columnWidths: const {
+                                  0: FlexColumnWidth(0.8),
+                                  1: FlexColumnWidth(1.5),
+                                  2: FlexColumnWidth(1.5),
+                                  3: FlexColumnWidth(1.4),
+                                  4: FlexColumnWidth(1),
+                                  5: FlexColumnWidth(1),
+                                  6: FlexColumnWidth(1),
+                                  7: FlexColumnWidth(1),
+                                  8: FlexColumnWidth(1),
+                                },
                                 children: [
-                                  _buildCell("Company"),
-                                  _buildCell3(
-                                    "Sample Customer ",
-                                    "xxxxxx345",
-                                    copyable: true,
+                                  // Header Row
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                    ),
+                                    children: [
+                                      _buildHeader("Client Type"),
+                                      _buildHeader("Customer Name"),
+                                      _buildHeader("Tag Details"),
+                                      _buildHeader("Number/Email"),
+                                      _buildHeader("Project Status"),
+                                      _buildHeader("Payment Pending"),
+                                      _buildHeader("Total Revived"),
+                                      _buildHeader("Ref I'd"),
+                                      _buildHeader("Other Actions"),
+                                    ],
                                   ),
-                                  _buildTagsCell(currentTags, context),
-                                  _buildCell("+9727364676723", copyable: true),
-                                  _buildCell("0/3 Running"),
-                                  _buildPriceWithAdd("AED-", "300"),
-                                  _buildPriceWithAdd("AED-", "7000"),
-                                  _buildCell("xxxxx456",copyable: true),
-                                  _buildActionCell(
-                                    onEdit: () {},
-                                    onDraft: () {},
-                                  ),
+                                  // Sample Data Row
+                                  for (int i = 0; i < 20; i++)
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: i.isEven
+                                            ? Colors.grey.shade200
+                                            : Colors.grey.shade100,
+                                      ),
+                                      children: [
+                                        _buildCell("Company"),
+                                        _buildCell3("Sample Customer ", "xxxxxx345", copyable: true),
+                                        TagsCellWidget(initialTags: currentTags),
+                                        _buildCell("+9727364676723", copyable: true),
+                                        _buildCell("0/3 Running"),
+                                        _buildPriceWithAdd("AED-", "300"),
+                                        _buildPriceWithAdd("AED-", "7000"),
+                                        _buildCell("xxxxx456", copyable: true),
+                                        _buildActionCell(
+                                          onEdit: () {},
+                                          onDraft: () {},
+                                        ),
+                                      ],
+                                    ),
                                 ],
                               ),
-                          ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),
@@ -453,12 +473,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-          Text(price),
-          const Spacer(),
           Container(
             width: 15,
             height: 15,
@@ -468,6 +482,12 @@ class _CompanyScreenState extends State<CompanyScreen> {
             ),
             child: const Icon(Icons.add, size: 13, color: Colors.blue),
           ),
+          SizedBox(width: 6),
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(price),
         ],
       ),
     );

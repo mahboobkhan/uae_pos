@@ -1,4 +1,5 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
+import 'package:abc_consultant/ui/dialogs/tags_class.dart';
 import 'package:abc_consultant/ui/screens/projects/create_order_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import '../../dialogs/date_picker.dart';
 
 class ProjectScreen extends StatefulWidget {
 
+
   final VoidCallback onNavigateToCreateOrder;
 
   const ProjectScreen({super.key, required this.onNavigateToCreateOrder});
@@ -18,6 +20,16 @@ class ProjectScreen extends StatefulWidget {
 }
 
 class _ProjectScreenState extends State<ProjectScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
+
 
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
@@ -100,21 +112,28 @@ class _ProjectScreenState extends State<ProjectScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  stat['value'],
-                                  style: const TextStyle(
-                                    fontSize: 28,
-                                    color: Colors.white,
-                                    fontFamily: 'Courier',
-                                    fontWeight: FontWeight.bold,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    stat['value'],
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      color: Colors.white,
+                                      fontFamily: 'Courier',
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  stat['label'],
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+
+                                  child: Text(
+                                    stat['label'],
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -339,91 +358,93 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(
                   height: 300,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: 1150, // Force horizontal scrolling
-                      ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Table(
-                          /*  border: TableBorder.all(
-                            color: Colors.white,
-                            width: 1,
-                          ),*/
-                          defaultVerticalAlignment:
-                          TableCellVerticalAlignment.middle,
-                          columnWidths: const {
-                            0: FlexColumnWidth(0.8),
-                            1: FlexColumnWidth(1.5),
-                            2: FlexColumnWidth(1.5),
-                            3: FlexColumnWidth(1),
-                            4: FlexColumnWidth(1),
-                            5: FlexColumnWidth(1.3),
-                            6: FlexColumnWidth(1),
-                            7: FlexColumnWidth(1),
-                            8: FlexColumnWidth(1),
-                            9: FlexColumnWidth(1.4),
-                          },
-                          children: [
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                              ),
-                              children: [
-                                _buildHeader("Date"),
-                                _buildHeader("Service Beneficiary "),
-                                _buildHeader("Tags Details"),
-                                _buildHeader("Status"),
-                                _buildHeader("Stage"),
-                                _buildHeader("Pending"),
-                                _buildHeader("Quotation "),
-                                _buildHeader("Manage"),
-                                _buildHeader("Ref Id"),
-                                _buildHeader("More Actions"),
-                              ],
-                            ),
-                            for (int i = 0; i < 20; i++)
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color:
-                                  i.isEven
-                                      ? Colors.grey.shade200
-                                      : Colors.grey.shade100,
-                                ),
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbVisibility: MaterialStateProperty.all(true),
+                      thumbColor: MaterialStateProperty.all(Colors.grey),
+                      thickness: MaterialStateProperty.all(8),
+                      radius: const Radius.circular(4),
+                    ),
+                    child: Scrollbar(
+                      controller: _verticalController,
+                      thumbVisibility: true,
+                      child: Scrollbar(
+                        controller: _horizontalController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _horizontalController,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            controller: _verticalController,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 1150),
+                              child: Table(
+                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                columnWidths: const {
+                                  0: FlexColumnWidth(0.8),
+                                  1: FlexColumnWidth(1.5),
+                                  2: FlexColumnWidth(1.5),
+                                  3: FlexColumnWidth(1),
+                                  4: FlexColumnWidth(1),
+                                  5: FlexColumnWidth(1.3),
+                                  6: FlexColumnWidth(1),
+                                  7: FlexColumnWidth(1),
+                                  8: FlexColumnWidth(1),
+                                  9: FlexColumnWidth(1.4),
+                                },
                                 children: [
-                                  _buildCell2(
-                                    "12-02-2025",
-                                    "02:59 pm",
-                                    centerText2: true,
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                    ),
+                                    children: [
+                                      _buildHeader("Date"),
+                                      _buildHeader("Service Beneficiary"),
+                                      _buildHeader("Tags Details"),
+                                      _buildHeader("Status"),
+                                      _buildHeader("Stage"),
+                                      _buildHeader("Pending"),
+                                      _buildHeader("Quotation"),
+                                      _buildHeader("Manage"),
+                                      _buildHeader("Ref Id"),
+                                      _buildHeader("More Actions"),
+                                    ],
                                   ),
-                                  _buildCell3(
-                                    "Sample Customer ",
-                                    "xxxxxxxxx245",
-                                    copyable: true,
-                                  ),
-                                  _buildTagsCell(currentTags, context),
-                                  _buildCell("In progress"),
-                                  _buildCell2("PB-02 - 1 ", ' 23-days'),
-                                  _buildPriceWithAdd("AED-", "300"),
-                                  _buildPriceWithAdd("AED-", "500"),
-                                  _buildCell("Mr. Imran"),
-                                  _buildCell("xxxxxxxxx245", copyable: true),
-                                  _buildActionCell(
-                                    onEdit: () {},
-                                    onDelete: () {},
-                                    onDraft: () {},
-                                  ),
+                                  for (int i = 0; i < 20; i++)
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: i.isEven
+                                            ? Colors.grey.shade200
+                                            : Colors.grey.shade100,
+                                      ),
+                                      children: [
+                                        _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
+                                        _buildCell3("Sample Customer", "xxxxxxxxx245", copyable: true),
+                                        TagsCellWidget(initialTags: currentTags),
+                                        _buildCell("In progress"),
+                                        _buildCell2("PB-02 - 1", "23-days"),
+                                        _buildPriceWithAdd("AED-", "300"),
+                                        _buildPriceWithAdd("AED-", "500"),
+                                        _buildCell("Mr. Imran"),
+                                        _buildCell("xxxxxxxxx245", copyable: true),
+                                        _buildActionCell(
+                                          onEdit: () {},
+                                          onDelete: () {},
+                                          onDraft: () {},
+                                        ),
+                                      ],
+                                    ),
                                 ],
                               ),
-                          ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),
@@ -482,71 +503,12 @@ class _ProjectScreenState extends State<ProjectScreen> {
   }
 
 
-  Widget _buildTagsCell(List<Map<String, dynamic>> tags, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: [
-                for (int i = 0; i < tags.length; i++)
-                  _HoverableTag(
-                    tag: tags[i]['tag'],
-                    color: tags[i]['color'] ?? Colors.grey.shade200,
-                    onDelete: () {
-                      // You must call setState from the parent
-                      (context as Element)
-                          .markNeedsBuild(); // temporary refresh
-                      tags.removeAt(i);
-                    },
-                  ),
-              ],
-            ),
-          ),
-          Tooltip(
-            message: 'Add Tag',
-            child: GestureDetector(
-              onTap: () async {
-                final result = await showAddTagDialog(context);
-                if (result != null && result['tag']
-                    .toString()
-                    .trim()
-                    .isNotEmpty) {
-                  (context as Element).markNeedsBuild();
-                  tags.add({
-                    'tag': result['tag'],
-                    'color': result['color'],
-                  });
-                }
-              },
-              child: Image.asset(
-                width: 14,
-                height: 14,
-                color: Colors.blue,
-                'assets/icons/img_1.png',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPriceWithAdd(String curr, String price) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-          Text(price),
-          const Spacer(),
           Container(
             width: 15,
             height: 15,
@@ -556,10 +518,17 @@ class _ProjectScreenState extends State<ProjectScreen> {
             ),
             child: const Icon(Icons.add, size: 13, color: Colors.blue),
           ),
+          SizedBox(width: 6),
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(price),
         ],
       ),
     );
   }
+
 
   Widget _buildCell2(String text1,
       String text2, {
@@ -709,69 +678,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
           onPressed: onDraft ?? () {},
         ),
       ],
-    );
-  }
-}
-class _HoverableTag extends StatefulWidget {
-  final String tag;
-  final Color color;
-  final VoidCallback onDelete;
-
-  const _HoverableTag({
-    Key? key,
-    required this.tag,
-    required this.color,
-    required this.onDelete,
-  }) : super(key: key);
-
-  @override
-  State<_HoverableTag> createState() => _HoverableTagState();
-}
-
-class _HoverableTagState extends State<_HoverableTag> {
-  bool _hovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: Stack(
-        alignment: Alignment.topRight,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            margin: const EdgeInsets.only(top: 6, right: 2),
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              widget.tag,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
-            ),
-          ),
-          if (_hovering)
-            Positioned(
-              top: 5,
-              right: 5,
-              child: GestureDetector(
-                onTap: widget.onDelete,
-                child: Container(
-                  child: const Icon(
-                    Icons.close,
-                    size: 12,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

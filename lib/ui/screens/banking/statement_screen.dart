@@ -10,15 +10,17 @@ class StatementScreen extends StatefulWidget {
 }
 
 class _StatementScreenState extends State<StatementScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
-  final List<Map<String, dynamic>> stats = [
-    {'label': 'BANK TRX', 'value': '32'},
-    {'label': 'CASH IN', 'value': '32'},
-    {'label': 'CASH OUT', 'value': '32'},
-    {'label': 'CASH VIA BANK', 'value': '32'},
-    {'label': 'OTHERS RESOURCE', 'value': '32'},
-  ];
 
   // List of filter options
   final List<String> categories = [
@@ -48,55 +50,6 @@ class _StatementScreenState extends State<StatementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 120,
-              child: Row(
-                children:
-                    stats.map((stat) {
-                      return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Material(
-                            elevation: 12,
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.white70,
-                            shadowColor: Colors.black,
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    stat['value'],
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      color: Colors.white,
-                                      fontFamily: 'Courier',
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    stat['label'],
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-              ),
-            ),
-            SizedBox(height: 20),
             MouseRegion(
               onEnter: (_) => setState(() => _isHovering = true),
               onExit: (_) => setState(() => _isHovering = false),
@@ -144,7 +97,7 @@ class _StatementScreenState extends State<StatementScreen> {
                                   (newValue) => setState(
                                     () => selectedCategory1 = newValue!,
                                   ),
-                              items: categories,
+                              items: categories1,
                             ),
                             CustomDropdown(
                               hintText: "Payment Status",
@@ -153,7 +106,7 @@ class _StatementScreenState extends State<StatementScreen> {
                                   (newValue) => setState(
                                     () => selectedCategory2 = newValue!,
                                   ),
-                              items: categories,
+                              items: categories2,
                             ),
                             const SizedBox(width: 12),
 
@@ -279,82 +232,95 @@ class _StatementScreenState extends State<StatementScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: Container(
-                height: 300,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: 1150, // Force horizontal scrolling
-                    ),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-
-                      child: Table(
-                        defaultVerticalAlignment:
-                            TableCellVerticalAlignment.middle,
-                        columnWidths: const {
-                          0: FlexColumnWidth(1.5),
-                          1: FlexColumnWidth(1.5),
-                          2: FlexColumnWidth(1.2),
-                          3: FlexColumnWidth(1),
-                          4: FlexColumnWidth(1.5),
-                          5: FlexColumnWidth(1.3),
-                          6: FlexColumnWidth(1.5),
-                          7: FlexColumnWidth(1.3),
-                          8: FlexColumnWidth(1.7),
-                          9: FlexColumnWidth(1.5),
-                          10: FlexColumnWidth(1.4),
-                        },
-                        children: [
-                          // Header Row
-                          TableRow(
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                            ),
-                            children: [
-                              _buildHeader("Bank Id"),
-                              _buildHeader("Banificery Name"),
-                              _buildHeader("Bank Name"),
-                              _buildHeader("Title Name"),
-                              _buildHeader("Account Name"),
-                              _buildHeader("Account IBN"),
-                              _buildHeader("Mobile/Email"),
-                              _buildHeader("Ref I,d/TID"),
-                              _buildHeader("Transaction Type "),
-                              _buildHeader("Note"),
-                              _buildHeader("Cash Value"),
-                            ],
-                          ),
-                          // Sample Data Row
-                          for (int i = 0; i < 20; i++)
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color:
-                                i.isEven
-                                    ? Colors.grey.shade200
-                                    : Colors.grey.shade100,
-                              ),
+                height: 400,
+                child: ScrollbarTheme(
+                  data: ScrollbarThemeData(
+                    thumbVisibility: MaterialStateProperty.all(true),
+                    thumbColor: MaterialStateProperty.all(Colors.grey),
+                    thickness: MaterialStateProperty.all(8),
+                    radius: const Radius.circular(4),
+                  ),
+                  child: Scrollbar(
+                    controller: _verticalController,
+                    thumbVisibility: true,
+                    child: Scrollbar(
+                      controller: _horizontalController,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        controller: _horizontalController,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          controller: _verticalController,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minWidth: 1150),
+                            child: Table(
+                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                              columnWidths: const {
+                                0: FlexColumnWidth(1.5),
+                                1: FlexColumnWidth(1.5),
+                                2: FlexColumnWidth(1.2),
+                                3: FlexColumnWidth(1),
+                                4: FlexColumnWidth(1.5),
+                                5: FlexColumnWidth(1.3),
+                                6: FlexColumnWidth(1.5),
+                                7: FlexColumnWidth(1.3),
+                                8: FlexColumnWidth(1.7),
+                                9: FlexColumnWidth(1.5),
+                                10: FlexColumnWidth(1.4),
+                              },
                               children: [
-                                _buildCell("xxxxxxxxx325",copyable: true),
-                                _buildCell("Mr.Imran"),
-                                _buildCell("UDC BAnk"),
-                                _buildCell("XYZ"),
-                                _buildCell("ACC XXXXXXXX345"),
-                                _buildCell("xxxxxxx245"),
-                                _buildCell3("0000000000","@gmail.com"),
-                                _buildCell3("xxxxxxx245 ","TID xxxxxxx"),
-                                _buildCell("xxxxx"),
-                                _buildCell("N/A"),
-                                _buildPriceWithAdd("AED-","4000"),
+                                // Header Row
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                  ),
+                                  children: [
+                                    _buildHeader("Bank Id"),
+                                    _buildHeader("Banificery Name"),
+                                    _buildHeader("Bank Name"),
+                                    _buildHeader("Title Name"),
+                                    _buildHeader("Account Name"),
+                                    _buildHeader("Account IBN"),
+                                    _buildHeader("Mobile/Email"),
+                                    _buildHeader("Ref I,d/TID"),
+                                    _buildHeader("Transaction Type "),
+                                    _buildHeader("Note"),
+                                    _buildHeader("Cash Value"),
+                                  ],
+                                ),
+                                // Sample Data Row
+                                for (int i = 0; i < 20; i++)
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: i.isEven
+                                          ? Colors.grey.shade200
+                                          : Colors.grey.shade100,
+                                    ),
+                                    children: [
+                                      _buildCell("xxxxxxxxx325", copyable: true),
+                                      _buildCell("Mr.Imran"),
+                                      _buildCell("UDC BAnk"),
+                                      _buildCell("XYZ"),
+                                      _buildCell("ACC XXXXXXXX345"),
+                                      _buildCell("xxxxxxx245"),
+                                      _buildCell3("0000000000", "@gmail.com"),
+                                      _buildCell3("xxxxxxx245 ", "TID xxxxxxx"),
+                                      _buildCell("xxxxx"),
+                                      _buildCell("N/A"),
+                                      _buildPriceWithAdd("AED-", "4000"),
+                                    ],
+                                  ),
                               ],
                             ),
-                        ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),

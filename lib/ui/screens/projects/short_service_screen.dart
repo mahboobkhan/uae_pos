@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/tags_class.dart';
 
 class ShortServiceScreen extends StatefulWidget {
   const ShortServiceScreen({super.key});
@@ -11,10 +12,21 @@ class ShortServiceScreen extends StatefulWidget {
 }
 
 class _ShortServiceScreenState extends State<ShortServiceScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
+
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
   ];
+
   // List of filter options
   final List<String> categories = [
     'All',
@@ -202,68 +214,95 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(
                   height: 365,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: 1200),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Table(
-                          /*
-                          border: TableBorder.all(color: Colors.white),
-*/
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          columnWidths: const {
-                            0: FlexColumnWidth(0.3),
-                            1: FlexColumnWidth(1),
-                            2: FlexColumnWidth(0.8),
-                            3: FlexColumnWidth(0.8),
-                            4: FlexColumnWidth(0.6),
-                            5: FlexColumnWidth(0.6),
-                          },
-                          children: [
-                            // Header Row
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                              ),
-                              children: [
-                                _buildHeader("Date"),
-                                _buildHeader("Service Beneficiary "),
-                                _buildHeader("Tags Details"),
-                                _buildHeader("Pending"),
-                                _buildHeader("Manage"),
-                                _buildHeader("Ref Id"),
-                              ],
-                            ),
-                            // Sample Row
-                            for (int i = 0; i < 20; i++)
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color:
-                                      i.isEven
-                                          ? Colors.grey.shade100
-                                          : Colors.grey.shade50,
-                                ),
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbVisibility: MaterialStateProperty.all(true),
+                      thumbColor: MaterialStateProperty.all(Colors.grey),
+                      thickness: MaterialStateProperty.all(8),
+                      radius: const Radius.circular(4),
+                    ),
+                    child: Scrollbar(
+                      controller: _verticalController,
+                      thumbVisibility: true,
+                      child: Scrollbar(
+                        controller: _horizontalController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _horizontalController,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            controller: _verticalController,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 1150),
+                              child: Table(
+                                defaultVerticalAlignment:
+                                    TableCellVerticalAlignment.middle,
+                                columnWidths: const {
+                                  0: FlexColumnWidth(0.2),
+                                  1: FlexColumnWidth(0.3),
+                                  2: FlexColumnWidth(0.3),
+                                  3: FlexColumnWidth(0.3),
+                                  4: FlexColumnWidth(0.3),
+                                  5: FlexColumnWidth(0.2),
+                                  6: FlexColumnWidth(0.3),
+                                  7: FlexColumnWidth(0.4),
+                                },
                                 children: [
-                                  _buildCell2(
-                                    "12-02-2025",
-                                    "02:59 pm",
-                                    centerText2: true,
+                                  // Header Row
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                    ),
+                                    children: [
+                                      _buildHeader("Date"),
+                                      _buildHeader("Service Beneficiary "),
+                                      _buildHeader("Tags Details"),
+                                      _buildHeader("Service"),
+                                      _buildHeader("Pending"),
+                                      _buildHeader("Manage"),
+                                      _buildHeader("Ref Id"),
+                                      _buildHeader("More Actions"),
+                                    ],
                                   ),
-                                  _buildCell3(
-                                    "Sample Customer ",
-                                    "xxxxxxxxx245",
-                                    copyable: true,
-                                  ),
-                                  _buildTagsCell(currentTags, context),
-                                  _buildPriceWithAdd("AED-", "300"),
-                                  _buildCell("Mr. Imran"),
-                                  _buildCell("xxxxxxxxx245", copyable: true),
+                                  // Sample Row
+                                  for (int i = 0; i < 20; i++)
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            i.isEven
+                                                ? Colors.grey.shade100
+                                                : Colors.grey.shade50,
+                                      ),
+                                      children: [
+                                        _buildCell2(
+                                          "12-02-2025",
+                                          "02:59 pm",
+                                          centerText2: true,
+                                        ),
+                                        _buildCell3(
+                                          "Sample Customer ",
+                                          "xxxxxxxxx245",
+                                          copyable: true,
+                                        ),
+                                        TagsCellWidget(initialTags: currentTags),
+                                        _buildCell("Repairing"),
+                                        _buildPriceWithAdd("AED-", "300"),
+                                        _buildCell("Mr. Imran"),
+                                        _buildCell(
+                                          "xxxxxxxxx245",
+                                          copyable: true,
+                                        ),
+                                        _buildActionCell(
+                                          onEdit: () {},
+                                          onDelete: () {},
+                                        ),
+                                      ],
+                                    ),
                                 ],
                               ),
-                          ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -340,40 +379,39 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
         children: [
           Text(text1, style: const TextStyle(fontSize: 12)),
           centerText2
-              ? Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
+              ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
                       text2,
                       style: const TextStyle(
                         fontSize: 10,
                         color: Colors.black54,
                       ),
                     ),
-                    if (copyable)
-                      GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(
-                            ClipboardData(text: "$text1\n$text2"),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Copied to clipboard'),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.copy,
-                            size: 14,
-                            color: Colors.blue[700],
-                          ),
+                  ),
+                  if (copyable)
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied to clipboard')),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.copy,
+                          size: 14,
+                          color: Colors.blue[700],
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               )
               : Row(
                 mainAxisSize: MainAxisSize.min,
@@ -448,71 +486,12 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     );
   }
 
-  Widget _buildTagsCell(List<Map<String, dynamic>> tags, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: [
-                for (int i = 0; i < tags.length; i++)
-                  _HoverableTag(
-                    tag: tags[i]['tag'],
-                    color: tags[i]['color'] ?? Colors.grey.shade200,
-                    onDelete: () {
-                      // You must call setState from the parent
-                      (context as Element)
-                          .markNeedsBuild(); // temporary refresh
-                      tags.removeAt(i);
-                    },
-                  ),
-              ],
-            ),
-          ),
-          Tooltip(
-            message: 'Add Tag',
-            child: GestureDetector(
-              onTap: () async {
-                final result = await showAddTagDialog(context);
-                if (result != null && result['tag']
-                    .toString()
-                    .trim()
-                    .isNotEmpty) {
-                  (context as Element).markNeedsBuild();
-                  tags.add({
-                    'tag': result['tag'],
-                    'color': result['color'],
-                  });
-                }
-              },
-              child: Image.asset(
-                width: 14,
-                height: 14,
-                color: Colors.blue,
-                'assets/icons/img_1.png',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPriceWithAdd(String curr, String price) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-          Text(price),
-          const Spacer(),
           Container(
             width: 15,
             height: 15,
@@ -522,74 +501,33 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
             ),
             child: const Icon(Icons.add, size: 13, color: Colors.blue),
           ),
-        ],
-      ),
-    );
-  }
-
-}
-class _HoverableTag extends StatefulWidget {
-  final String tag;
-  final Color color;
-  final VoidCallback onDelete;
-
-  const _HoverableTag({
-    Key? key,
-    required this.tag,
-    required this.color,
-    required this.onDelete,
-  }) : super(key: key);
-
-  @override
-  State<_HoverableTag> createState() => _HoverableTagState();
-}
-
-class _HoverableTagState extends State<_HoverableTag> {
-  bool _hovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: Stack(
-        alignment: Alignment.topRight,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            margin: const EdgeInsets.only(top: 6, right: 2),
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              widget.tag,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
-            ),
+          SizedBox(width: 6),
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
-          if (_hovering)
-            Positioned(
-              top: 5,
-              right: 5,
-              child: GestureDetector(
-                onTap: widget.onDelete,
-                child: Container(
-                  child: const Icon(
-                    Icons.close,
-                    size: 12,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
+          Text(price),
         ],
       ),
     );
   }
+  Widget _buildActionCell({
+    VoidCallback? onEdit,
+    VoidCallback? onDelete,
+  }) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
+          tooltip: 'Edit',
+          onPressed: onEdit ?? () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+          tooltip: 'Delete',
+          onPressed: onDelete ?? () {},
+        ),
+      ],
+    );
+  }
 }
-
-

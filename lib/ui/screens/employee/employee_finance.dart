@@ -2,40 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
-import 'banking_dialoges/add_payment_method.dart';
+import '../../dialogs/employe_profile.dart';
+import '../../dialogs/tags_class.dart';
 
-class BankPaymentScreen extends StatefulWidget {
-  const BankPaymentScreen({super.key});
+class EmployeeFinance extends StatefulWidget {
+  const EmployeeFinance({super.key});
 
   @override
-  State<BankPaymentScreen> createState() => _BankPaymentScreenState();
+  State<EmployeeFinance> createState() => _EmployeeFinanceState();
 }
 
-class _BankPaymentScreenState extends State<BankPaymentScreen> {
+class _EmployeeFinanceState extends State<EmployeeFinance> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
 
-  bool _isHovering = false;
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
+  List<Map<String, dynamic>> currentTags = [
+    {'tag': 'Tag1', 'color': Colors.green.shade100},
+    {'tag': 'Tag2', 'color': Colors.orange.shade100},
+  ];
   final GlobalKey _plusKey = GlobalKey();
-
-
   final List<String> categories = [
     'All',
-    'New',
-    'Pending',
-    'Completed',
-    'Stop',
+    'Full time job',
+    'half time job',
+    'Old employee',
   ];
-  String? selectedCategory;
   final List<String> categories1 = [
-    'No Tags',
-    'Tag 001',
-    'Tag 002',
-    'Sample Tag',
+    'All',
+    'Name 1 - Manager',
+    'Name 1 - Manager',
+    'Name 1 - Manager',
   ];
+  final List<String> categories2 = ['All', 'paid', 'Pending'];
+  final List<String> categories3 = [
+    'All',
+    'This Month',
+    'Last Month',
+    'Select on Calender',
+  ];
+
+  String? selectedCategory;
   String? selectedCategory1;
-  final List<String> categories2 = ['All', 'Pending', 'Paid'];
   String? selectedCategory2;
+  String? selectedCategory3;
+  bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +81,7 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                       color: Colors.blue,
                       blurRadius: 4,
                       spreadRadius: 0.1,
-                      offset: const Offset(0, 1),
+                      offset: Offset(0, 1),
                     ),
                   ]
                       : [],
@@ -78,41 +94,35 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                         child: Row(
                           children: [
                             CustomDropdown(
-                              hintText: "Status",
                               selectedValue: selectedCategory,
-                              onChanged:
-                                  (newValue) => setState(
-                                    () => selectedCategory = newValue!,
-                              ),
+                              hintText: "Employee Type",
                               items: categories,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory = newValue!);
+                              },
                             ),
                             CustomDropdown(
-                              hintText: "Select Tags",
                               selectedValue: selectedCategory1,
-                              onChanged:
-                                  (newValue) => setState(
-                                    () => selectedCategory1 = newValue!,
-                              ),
+                              hintText: "Employee List",
                               items: categories1,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory1 = newValue!);
+                              },
                             ),
                             CustomDropdown(
-                              hintText: "Payment Status",
                               selectedValue: selectedCategory2,
-                              onChanged:
-                                  (newValue) => setState(
-                                    () => selectedCategory2 = newValue!,
-                              ),
+                              hintText: "Payment Status",
                               items: categories2,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory2 = newValue!);
+                              },
                             ),
-
                           ],
                         ),
                       ),
                     ),
-
                     Row(
                       children: [
-                        /// Plus Button with Menu
                         Card(
                           elevation: 8,
                           color: Colors.blue,
@@ -121,16 +131,25 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                             builder:
                                 (context) => Tooltip(
                               message: 'Show menu',
-                              waitDuration: const Duration(milliseconds: 2),
+                              waitDuration: const Duration(
+                                milliseconds: 2,
+                              ),
                               child: GestureDetector(
                                 key: _plusKey,
-                                onTap: () {
-                                  showAddPaymentMethodDialog(context);
+                                onTap: ()  {
+                                  EmployeeProfileDialog(context);
+
                                 },
-                                child: const SizedBox(
+                                child: Container(
                                   width: 30,
                                   height: 30,
-                                  child: Center(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
                                     child: Icon(
                                       Icons.add,
                                       color: Colors.white,
@@ -142,16 +161,15 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+
                       ],
                     ),
                   ],
                 ),
               ),
             ),
-            Padding
-              (
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Container(
                 height: 400,
                 child: ScrollbarTheme(
@@ -174,32 +192,39 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                           scrollDirection: Axis.vertical,
                           controller: _verticalController,
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 1180),
+                            constraints: const BoxConstraints(minWidth: 1200),
                             child: Table(
                               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                               columnWidths: const {
-                                0: FlexColumnWidth(1),
-                                1: FlexColumnWidth(0.8),
-                                2: FlexColumnWidth(0.8),
-                                3: FlexColumnWidth(1),
-                                4: FlexColumnWidth(1),
-                                5: FlexColumnWidth(1),
+                                0: FlexColumnWidth(0.8),
+                                1: FlexColumnWidth(1),
+                                2: FlexColumnWidth(1),
+                                3: FlexColumnWidth(1.2),
+                                4: FlexColumnWidth(1.3),
+                                5: FlexColumnWidth(1.3),
+                                6: FlexColumnWidth(1.3),
+                                7: FlexColumnWidth(1),
+
                               },
                               children: [
+                                // Header Row
                                 TableRow(
                                   decoration: BoxDecoration(
                                     color: Colors.red.shade50,
                                   ),
                                   children: [
-                                    _buildHeader("Date"),
-                                    _buildHeader("Bank Name"),
-                                    _buildHeader("Title Name"),
-                                    _buildHeader("Account No/IBN"),
-                                    _buildHeader("Mobile/Email"),
+                                    _buildHeader("Employee Type"),
+                                    _buildHeader("Employee Name\nReference id "),
+                                    _buildHeader("Tags Details"),
+                                    _buildHeader("Contact Number\nEmail id"),
+                                    _buildHeader("Salary"),
+                                    _buildHeader("Advance"),
+                                    _buildHeader("Bonuses "),
                                     _buildHeader("Other Actions"),
 
                                   ],
                                 ),
+                                // Sample Row
                                 for (int i = 0; i < 20; i++)
                                   TableRow(
                                     decoration: BoxDecoration(
@@ -208,19 +233,15 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                                           : Colors.grey.shade100,
                                     ),
                                     children: [
-                                      _buildCell("xxxxx3667", copyable: true),
-                                      _buildCell("UDC Bank"),
-                                      _buildCell('xxxxxx'),
-                                      _buildCell2(
-                                        "ACC xxxxxxxx345",
-                                        "IBN xxxxxxx345",
-                                        copyable: true,
-                                      ),
-                                      _buildCell2("0626626626", "@gmail.com"),
-                                      _buildActionCell(
-                                        onEdit: () {},
-                                        onDelete: () {},
-                                      ),
+                                      _buildCell("Half Time", ),
+                                      _buildCell3("Sample Customer ", "xxxxxxxxx245", copyable: true),
+                                      TagsCellWidget(initialTags: currentTags),
+                                      _buildCell3("0310662662", "TID xxxxxxx234", copyable: true),
+                                      _buildPriceWithAdd("AED-", "100000"),
+                                      _buildPriceWithAdd("AED-", "300", ),
+                                      _buildPriceWithAdd("AED-", "2000",),
+                                      _buildCell("N/A"),
+
                                     ],
                                   ),
                               ],
@@ -257,9 +278,35 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
       ),
     );
   }
+
+
+  Widget _buildPriceWithAdd(String curr, String price) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Container(
+            width: 15,
+            height: 15,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.blue),
+            ),
+            child: const Icon(Icons.add, size: 13, color: Colors.blue),
+          ),
+          SizedBox(width: 6),
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(price),
+        ],
+      ),
+    );
+  }
   Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4.0),
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -279,91 +326,41 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                 );
               },
               child: Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
               ),
             ),
         ],
       ),
     );
+
   }
-  Widget _buildCell2(
-      String text1,
-      String text2, {
-        bool copyable = false,
-        bool centerText2 = false,
-      }) {
+  Widget _buildCell3(String text1, String text2, {bool copyable = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(text1, style: const TextStyle(fontSize: 12)),
-          centerText2
-              ? Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-                if (copyable)
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(text: "$text1\n$text2"),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied to clipboard'),
-                        ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(
-                        Icons.copy,
-                        size: 14,
-                        color: Colors.blue[700],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          )
-              : Row(
+          const SizedBox(height: 4),
+          Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(
-                child: Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
+              Text(
+                text2,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
               ),
               if (copyable)
                 GestureDetector(
                   onTap: () {
-                    Clipboard.setData(
-                      ClipboardData(text: "$text1\n$text2"),
-                    );
+                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Copied to clipboard')),
                     );
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
-                    child: Icon(
-                      Icons.copy,
-                      size: 8,
-                      color: Colors.blue[700],
-                    ),
+                    child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
                   ),
                 ),
             ],
@@ -372,36 +369,70 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
       ),
     );
   }
-  Widget _buildActionCell({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-    VoidCallback? onDraft,
-  }) {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
-          tooltip: 'Edit',
-          onPressed: onEdit ?? () {},
-        ),
-        IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-          tooltip: 'Delete',
-          onPressed: onDelete ?? () {},
-        ),
-        /*IconButton(
-          icon: Image.asset(
-            'assets/icons/img_3.png',
-            width: 20,
-            height: 20,
-            color: Colors.red,
-          ),
-          tooltip: 'Draft',
-          onPressed: onDraft ?? () {},
-        ),*/
-      ],
-    );
-  }
-
 
 }
+class _HoverableTag extends StatefulWidget {
+  final String tag;
+  final Color color;
+  final VoidCallback onDelete;
+
+  const _HoverableTag({
+    Key? key,
+    required this.tag,
+    required this.color,
+    required this.onDelete,
+  }) : super(key: key);
+
+  @override
+  State<_HoverableTag> createState() => _HoverableTagState();
+}
+
+class _HoverableTagState extends State<_HoverableTag> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            margin: const EdgeInsets.only(top: 6, right: 2),
+            decoration: BoxDecoration(
+              color: widget.color,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              widget.tag,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          if (_hovering)
+            Positioned(
+              top: 5,
+              right: 5,
+              child: GestureDetector(
+                onTap: widget.onDelete,
+                child: Container(
+                  child: const Icon(
+                    Icons.close,
+                    size: 12,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+

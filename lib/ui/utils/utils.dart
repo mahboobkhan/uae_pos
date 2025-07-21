@@ -6,7 +6,6 @@ final List<SidebarItem> sidebarItems = [
   SidebarItem(
     icon: Icons.dashboard_outlined,
     title: 'Dashboard',
-    submenus: ['Overview', 'Stats'],
   ),
   SidebarItem(
     icon: Icons.home_repair_service_outlined,

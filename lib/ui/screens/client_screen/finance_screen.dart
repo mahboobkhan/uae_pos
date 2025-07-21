@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../../dialogs/custom_dialoges.dart';
 
 class FinanceScreen extends StatefulWidget {
+
   const FinanceScreen({super.key});
 
   @override
@@ -14,6 +15,15 @@ class FinanceScreen extends StatefulWidget {
 }
 
 class _FinanceScreenState extends State<FinanceScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
 
@@ -238,74 +248,86 @@ class _FinanceScreenState extends State<FinanceScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Container(
                     height: 400,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: 1180, // Force horizontal scrolling
-                        ),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Table(
-                            defaultVerticalAlignment:
-                            TableCellVerticalAlignment.middle,
-                            columnWidths: const {
-                              0: FlexColumnWidth(1),
-                              1: FlexColumnWidth(1.2),
-                              2: FlexColumnWidth(1),
-                              3: FlexColumnWidth(1.4),
-                              4: FlexColumnWidth(1),
-                              5: FlexColumnWidth(1),
-                              6: FlexColumnWidth(1),
-                              7: FlexColumnWidth(1),
-                              8: FlexColumnWidth(1.2),
-                            },
-                            children: [
-                              // Header Row
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                ),
-                                children: [
-                                  _buildHeader("Date"),
-                                  _buildHeader("Client Name"),
-                                  _buildHeader("Type"),
-                                  _buildHeader("Payment Mode"),
-                                  _buildHeader("Expanses"),
-                                  _buildHeader("Advance"),
-                                  _buildHeader("Pending"),
-                                  _buildHeader("Total"),
-                                  _buildHeader("Other Actions/Tag"),
-                                ],
-                              ),
-                              // Sample Data Row
-                              for(int i =0;i<20; i++)
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    color:
-                                    i.isEven
-                                        ? Colors.grey.shade200
-                                        : Colors.grey.shade100,
-                                  ),
+                    child: ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbVisibility: MaterialStateProperty.all(true),
+                        thumbColor: MaterialStateProperty.all(Colors.grey),
+                        thickness: MaterialStateProperty.all(8),
+                        radius: const Radius.circular(4),
+                      ),
+                      child: Scrollbar(
+                        controller: _verticalController,
+                        thumbVisibility: true,
+                        child: Scrollbar(
+                          controller: _horizontalController,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            controller: _horizontalController,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: _verticalController,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: 1180),
+                                child: Table(
+                                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(1),
+                                    1: FlexColumnWidth(1.2),
+                                    2: FlexColumnWidth(1),
+                                    3: FlexColumnWidth(1.4),
+                                    4: FlexColumnWidth(1),
+                                    5: FlexColumnWidth(1),
+                                    6: FlexColumnWidth(1),
+                                    7: FlexColumnWidth(1),
+                                    8: FlexColumnWidth(1.2),
+                                  },
                                   children: [
-                                    _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
-                                    _buildCell("Clients Name"),
-                                    _buildCell("Type"),
-                                    _buildCell("Multiple"),
-                                    _buildPriceWithAdd("AED-","10000"),
-                                    _buildPriceWithAdd("AED-","300"),
-                                    _buildCell("N/A"),
-                                    _buildPriceWithAdd("AED-","1400"),
-                                    _buildCell("N/A-Projects List"),
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                      ),
+                                      children: [
+                                        _buildHeader("Date"),
+                                        _buildHeader("Client Name"),
+                                        _buildHeader("Type"),
+                                        _buildHeader("Payment Mode"),
+                                        _buildHeader("Expanses"),
+                                        _buildHeader("Advance"),
+                                        _buildHeader("Pending"),
+                                        _buildHeader("Total"),
+                                        _buildHeader("Other Actions/Tag"),
+                                      ],
+                                    ),
+                                    for (int i = 0; i < 20; i++)
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color: i.isEven
+                                              ? Colors.grey.shade200
+                                              : Colors.grey.shade100,
+                                        ),
+                                        children: [
+                                          _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
+                                          _buildCell("Clients Name"),
+                                          _buildCell("Type"),
+                                          _buildCell("Multiple"),
+                                          _buildPriceWithAdd("AED-", "10000"),
+                                          _buildPriceWithAdd("AED-", "300"),
+                                          _buildCell("N/A"),
+                                          _buildPriceWithAdd("AED-", "1400"),
+                                          _buildCell("N/A-Projects List"),
+                                        ],
+                                      ),
                                   ],
                                 ),
-                            ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
@@ -428,47 +450,49 @@ class _FinanceScreenState extends State<FinanceScreen> {
       ),
     );
   }
-
-}
-Widget _buildHeader(String text) {
-  return Container(
-    height: 40,
-    alignment: Alignment.centerLeft,
-    child: Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.red,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    ),
-  );
-}
-Widget _buildPriceWithAdd(String curr, String price) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    child: Row(
-      children: [
-        Text(
-          curr,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-        Text(price),
-        const Spacer(),
-        Container(
-          width: 15,
-          height: 15,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.blue),
+  Widget _buildPriceWithAdd(String curr, String price) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Container(
+            width: 15,
+            height: 15,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.blue),
+            ),
+            child: const Icon(Icons.add, size: 13, color: Colors.blue),
           ),
-          child: const Icon(Icons.add, size: 13, color: Colors.blue),
+          SizedBox(width: 6),
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(price),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(String text) {
+    return Container(
+      height: 40,
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
         ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
+
+
 }

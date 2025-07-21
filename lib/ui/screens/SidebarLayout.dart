@@ -5,6 +5,8 @@ import 'package:abc_consultant/ui/screens/client_screen/client_main.dart';
 import 'package:abc_consultant/ui/screens/client_screen/company_screen.dart';
 import 'package:abc_consultant/ui/screens/client_screen/finance_screen.dart';
 import 'package:abc_consultant/ui/screens/client_screen/individual_screen.dart';
+import 'package:abc_consultant/ui/screens/employee/bank_detail_screen.dart';
+import 'package:abc_consultant/ui/screens/employee/employee_finance.dart';
 import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
 import 'package:abc_consultant/ui/screens/office/dynamic_atttribute_addition.dart';
 import 'package:abc_consultant/ui/screens/office/fixed_office_expense.dart';
@@ -35,9 +37,9 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.projects;
+  NavItem selectedItem = NavItem.clients;
 
-  int _selectedSidebarIndex = -1;
+  int _selectedSidebarIndex = 2;
   int _selectedSubmenuIndex = -1;
 
   @override
@@ -126,7 +128,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
               children: [
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: isExpanded ? 230 : 70,
+                  width: isExpanded ? 230 : 86,
                   color: Colors.white,
                   child: Column(
                     children: [
@@ -346,12 +348,6 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   Widget _buildSubmenuScreen(NavItem parent, String submenu) {
     switch (parent) {
       case NavItem.dashboard:
-        switch (submenu) {
-          case 'Overview':
-            return const Center(child: Text('Dashboard > Overview'));
-          case 'Stats':
-            return const Center(child: Text('Dashboard > Stats'));
-        }
         break;
       case NavItem.projects:
         switch (submenu) {
@@ -376,9 +372,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.employees:
         switch (submenu) {
           case 'Finance':
-            return const Center(child: Text('Employees > Finance'));
+            return const Center(child: EmployeeFinance());
           case 'Bank Detail':
-            return const Center(child: Text('Employees > Bank Detail'));
+            return const Center(child: BankDetailScreen());
         }
         break;
       case NavItem.banking:

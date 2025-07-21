@@ -11,6 +11,15 @@ class OfficeSuppliesExpanse extends StatefulWidget {
 }
 
 class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
   DateTime selectedDateTime = DateTime.now();
@@ -248,55 +257,76 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Container(
                   height: 370,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: 1150, // Force horizontal scrolling
-                      ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Table(
-                          defaultVerticalAlignment:
-                          TableCellVerticalAlignment.middle,
-                          columnWidths: const {
-                            0: FlexColumnWidth(1),
-                            1: FlexColumnWidth(1),
-                            2: FlexColumnWidth(1),
-                            3: FlexColumnWidth(1),
-                            4: FlexColumnWidth(1),
-                          },
-                          children: [
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                              ),
-                              children: [
-                                _buildHeader("TID"),
-                                _buildHeader("Expanses Value"),
-                                _buildHeader("Drop Down Tag"),
-                                _buildHeader("Allocate/Remaining Balance"),
-                                _buildHeader("Note"),
-                              ],
-                            ),
-                            for (int i = 0; i < 20; i++)
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color:
-                                  i.isEven
-                                      ? Colors.grey.shade200
-                                      : Colors.grey.shade100,
-                                ),
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbVisibility: MaterialStateProperty.all(true),
+                      thumbColor: MaterialStateProperty.all(Colors.grey),
+                      thickness: MaterialStateProperty.all(8),
+                      radius: const Radius.circular(4),
+                    ),
+                    child: Scrollbar(
+                      controller: _verticalController,
+                      thumbVisibility: true,
+                      child: Scrollbar(
+                        controller: _horizontalController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          controller: _horizontalController,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minWidth: 1150),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: _verticalController,
+                              child: Table(
+                                defaultVerticalAlignment:
+                                TableCellVerticalAlignment.middle,
+                                columnWidths: const {
+                                  0: FlexColumnWidth(1),
+                                  1: FlexColumnWidth(1),
+                                  2: FlexColumnWidth(1),
+                                  3: FlexColumnWidth(1),
+                                  4: FlexColumnWidth(1),
+                                },
                                 children: [
-                                  _buildCell2("Sample Customer","xxxxxxx345", copyable: true),
-                                  _buildCell("50000"),
-                                  _buildCell("Sample"),
-
-                                  _buildCell("100000"),
-                                  _buildCell("Sample Note"),
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                    ),
+                                    children: [
+                                      _buildHeader("TID"),
+                                      _buildHeader("Expenses Value"),
+                                      _buildHeader("Drop Down Tag"),
+                                      _buildHeader(
+                                        "Allocate/Remaining Balance",
+                                      ),
+                                      _buildHeader("Note"),
+                                    ],
+                                  ),
+                                  for (int i = 0; i < 20; i++)
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color:
+                                        i.isEven
+                                            ? Colors.grey.shade200
+                                            : Colors.grey.shade100,
+                                      ),
+                                      children: [
+                                        _buildCell2(
+                                          "Sample Customer",
+                                          "xxxxxxx345",
+                                          copyable: true,
+                                        ),
+                                        _buildCell("50000"),
+                                        _buildCell("Sample"),
+                                        _buildCell("100000"),
+                                        _buildCell("Sample Note"),
+                                      ],
+                                    ),
                                 ],
                               ),
-                          ],
+                            ),
+                          ),
                         ),
                       ),
                     ),

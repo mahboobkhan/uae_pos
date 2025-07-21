@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/tags_class.dart';
 
 class OfficeExpenseScreen extends StatefulWidget {
   const OfficeExpenseScreen({super.key});
@@ -17,6 +18,15 @@ class OfficeExpenseScreen extends StatefulWidget {
 }
 
 class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
 
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
@@ -147,7 +157,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                 ),
               ),
         
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               MouseRegion(
                 onEnter: (_) => setState(() => _isHovering = true),
                 onExit: (_) => setState(() => _isHovering = false),
@@ -358,79 +368,94 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  height: 300,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minWidth: MediaQuery.of(context).size.width,
-                      ),
-        
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Table(
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          columnWidths: const {
-                            0: FlexColumnWidth(0.8),
-                            1: FlexColumnWidth(1.5),
-                            2: FlexColumnWidth(1.5),
-                            3: FlexColumnWidth(1.4),
-                            4: FlexColumnWidth(1),
-                            5: FlexColumnWidth(1),
-                            6: FlexColumnWidth(1),
-                            7: FlexColumnWidth(1),
-                          },
-                          children: [
-                            // Header Row
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                              ),
-                              children: [
-                                _buildHeader("Date"),
-                                _buildHeader("Expance Type "),
-                                _buildHeader("Expense Limit",),
-                                _buildHeader("Expences"),
-                                _buildHeader("Note"),
-                                _buildHeader("Tags"),
-                                _buildHeader("Manage"),
-                                _buildHeader("Action"),
-                              ],
-                            ),
-                            // Sample Data Row
-                            for (int i = 0; i < 20; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              height: 300,
+              child: ScrollbarTheme(
+                data: ScrollbarThemeData(
+                  thumbVisibility: MaterialStateProperty.all(true),
+                  thumbColor: MaterialStateProperty.all(Colors.grey),
+                  thickness: MaterialStateProperty.all(8),
+                  radius: const Radius.circular(4),
+                ),
+                child: Scrollbar(
+                  controller: _verticalController,
+                  thumbVisibility: true,
+                  child: Scrollbar(
+                    controller: _horizontalController,
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      controller: _horizontalController,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: MediaQuery.of(context).size.width, // dynamic width
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          controller: _verticalController,
+                          child: Table(
+                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                            columnWidths: const {
+                              0: FlexColumnWidth(0.8),
+                              1: FlexColumnWidth(1.5),
+                              2: FlexColumnWidth(1.5),
+                              3: FlexColumnWidth(1.4),
+                              4: FlexColumnWidth(1),
+                              5: FlexColumnWidth(1),
+                              6: FlexColumnWidth(1),
+                              7: FlexColumnWidth(1),
+                            },
+                            children: [
+                              // Header Row
                               TableRow(
                                 decoration: BoxDecoration(
-                                  color:
-                                  i.isEven
-                                      ? Colors.grey.shade200
-                                      : Colors.grey.shade100,
+                                  color: Colors.red.shade50,
                                 ),
                                 children: [
-                                  _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
-                                  _buildCell("Electric Bill"),
-                                  _buildCell("xxxxxxx567",copyable: true),
-                                  _buildCell("xxxxxxx",copyable: true),
-                                  _buildCell("Sample Note"),
-                                  _buildTagsCell(currentTags, context),
-                                  _buildCell("Imran"),
-                                  _buildActionCell(
-                                      onEdit: () {},
-                                      onDelete: () {},
-                                  ),
+                                  _buildHeader("Date"),
+                                  _buildHeader("Expance Type"),
+                                  _buildHeader("Expense Limit"),
+                                  _buildHeader("Expenses"),
+                                  _buildHeader("Note"),
+                                  _buildHeader("Tags"),
+                                  _buildHeader("Manage"),
+                                  _buildHeader("Action"),
                                 ],
                               ),
-                          ],
+                              // Sample Data Rows
+                              for (int i = 0; i < 20; i++)
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: i.isEven
+                                        ? Colors.grey.shade200
+                                        : Colors.grey.shade100,
+                                  ),
+                                  children: [
+                                    _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
+                                    _buildCell("Electric Bill"),
+                                    _buildCell("xxxxxxx567", copyable: true),
+                                    _buildCell("xxxxxxx", copyable: true),
+                                    _buildCell("Sample Note"),
+                                    TagsCellWidget(initialTags: currentTags),
+                                    _buildCell("Imran"),
+                                    _buildActionCell(
+                                      onEdit: () {},
+                                      onDelete: () {},
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
+            ),
+          )
             ],
           ),
         ),

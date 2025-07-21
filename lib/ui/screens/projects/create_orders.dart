@@ -175,6 +175,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         CustomButton(
                           text: "Editing",
                           backgroundColor: Colors.blue.shade900,
+                          icon: Icons.lock_open,
                           onPressed: () {},
                         ),
                         const SizedBox(width: 10),
@@ -233,7 +234,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                   children: [
                     // Top Title
                     Row(
-                      children: const [
+                      children: [
                         Text(
                           "Stage – 01",
                           style: TextStyle(
@@ -244,6 +245,31 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         SizedBox(width: 10),
                         Text("SID–10000001"),
+                        Spacer(),
+                        Material(
+                          elevation: 3,
+                          shadowColor: Colors.grey.shade900,
+                          shape: CircleBorder(),
+                          color: Colors.blue,
+                          child: Tooltip(
+                            message: 'Create orders',
+                            waitDuration: Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.edit_outlined,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -501,7 +527,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         decoration: InputDecoration(
           labelText: label,
 
-          labelStyle: const TextStyle(color: Colors.red,),
+          labelStyle: const TextStyle(color: Colors.red),
           border: const OutlineInputBorder(),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 1),

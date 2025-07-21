@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../../dialogs/company_profile.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
+import '../../dialogs/individual_profile.dart';
+import '../../dialogs/tags_class.dart';
 
 class ClientMain extends StatefulWidget {
   const ClientMain({super.key});
@@ -13,6 +16,15 @@ class ClientMain extends StatefulWidget {
 }
 
 class _ClientMainState extends State<ClientMain> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
@@ -98,21 +110,27 @@ class _ClientMainState extends State<ClientMain> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    stat['value'],
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      color: Colors.white,
-                                      fontFamily: 'Courier',
-                                      fontWeight: FontWeight.bold,
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      stat['value'],
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontFamily: 'Courier',
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    stat['label'],
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      stat['label'],
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -125,7 +143,7 @@ class _ClientMainState extends State<ClientMain> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
 
                 /// ---- Filters Row ----
                 MouseRegion(
@@ -267,7 +285,9 @@ class _ClientMainState extends State<ClientMain> {
                                         setState(() => selectedCategory4 = selected);
 
                                         if (selected == 'Company') {
-                                          showCompanyDialog(context);
+
+                                          showCompanyProfileDialog(context);
+
                                         } else if (selected == 'Individual') {
                                           showIndividualProfileDialog(context);
                                         }
@@ -329,67 +349,85 @@ class _ClientMainState extends State<ClientMain> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Container(
                     height: 400,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: 1180, // Force horizontal scrolling
-                        ),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Table(
-                            defaultVerticalAlignment:
-                            TableCellVerticalAlignment.middle,
-                            columnWidths: const {
-                              0: FlexColumnWidth(0.8),
-                              1: FlexColumnWidth(0.8),
-                              2: FlexColumnWidth(1),
-                              3: FlexColumnWidth(1),
-                              4: FlexColumnWidth(1),
-                              5: FlexColumnWidth(1),
-                              6: FlexColumnWidth(0.7),
-                            },
-                            children: [
-                              // Header Row
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                ),
-                                children: [
-                                  _buildHeader("Client Type"),
-                                  _buildHeader("Customer Ref I'd"),
-                                  _buildHeader("Tag Details"),
-                                  _buildHeader("Number/Email"),
-                                  _buildHeader("Project Status"),
-                                  _buildHeader("Payment Pending"),
-                                  _buildHeader("Total Revived"),
-                                  _buildHeader("Other Actions"),
-                                ],
-                              ),
-                              // Sample Data Row
-                              for(int i =0;i<20; i++)
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    color:
-                                    i.isEven
-                                        ? Colors.grey.shade200
-                                        : Colors.grey.shade100,
-                                  ),
+                    child: ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbVisibility: MaterialStateProperty.all(true),
+                        thumbColor: MaterialStateProperty.all(Colors.grey),
+                        thickness: MaterialStateProperty.all(8),
+                        radius: const Radius.circular(4),
+                      ),
+
+                      child: Scrollbar(
+                        controller: _verticalController,
+                        thumbVisibility: true,
+                        child: Scrollbar(
+                          controller: _horizontalController,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            controller: _horizontalController,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: _verticalController,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: 1150),
+
+                                child: Table(
+                                  defaultVerticalAlignment:
+                                  TableCellVerticalAlignment.middle,
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(0.8),
+                                    1: FlexColumnWidth(0.8),
+                                    2: FlexColumnWidth(1),
+                                    3: FlexColumnWidth(1),
+                                    4: FlexColumnWidth(1),
+                                    5: FlexColumnWidth(1),
+                                    6: FlexColumnWidth(0.7),
+                                  },
                                   children: [
-                                    _buildCell("Company"),
-                                    _buildCell3("Sample Customer" ,"nxxxxxx345",copyable: true),
-                                    _buildTagsCell(currentTags, context),
-                                    _buildCell("+9727364676723"),
-                                    _buildCell("0/3 Running"),
-                                    _buildPriceWithAdd("AED-","300"),
-                                    _buildPriceWithAdd("AED-","900"),
-                                    _buildActionCell(   onEdit: () {},
-                                      onDelete: () {},
-                                     // onDraft: () {}
+                                    // Header Row
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                      ),
+                                      children: [
+                                        _buildHeader("Client Type"),
+                                        _buildHeader("Customer Ref I'd"),
+                                        _buildHeader("Tag Details"),
+                                        _buildHeader("Number/Email"),
+                                        _buildHeader("Project Status"),
+                                        _buildHeader("Payment Pending"),
+                                        _buildHeader("Total Revived"),
+                                        _buildHeader("Other Actions"),
+                                      ],
+                                    ),
+                                    // Sample Data Row
+                                    for(int i =0;i<20; i++)
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color:
+                                          i.isEven
+                                              ? Colors.grey.shade200
+                                              : Colors.grey.shade100,
+                                        ),
+                                        children: [
+                                          _buildCell("Company"),
+                                          _buildCell3("Sample Customer" ,"nxxxxxx345",copyable: true),
+                                          TagsCellWidget(initialTags: currentTags),
+                                          _buildCell("+9727364676723"),
+                                          _buildCell("0/3 Running"),
+                                          _buildPriceWithAdd("AED-","300"),
+                                          _buildPriceWithAdd("AED-","900"),
+                                          _buildActionCell(   onEdit: () {},
+                                            onDelete: () {},
+                                           // onDraft: () {}
+                                            ),
+                                        ],
                                       ),
                                   ],
                                 ),
-                            ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -545,12 +583,6 @@ class _ClientMainState extends State<ClientMain> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-          Text(price),
-          const Spacer(),
           Container(
             width: 15,
             height: 15,
@@ -560,6 +592,12 @@ class _ClientMainState extends State<ClientMain> {
             ),
             child: const Icon(Icons.add, size: 13, color: Colors.blue),
           ),
+          SizedBox(width: 6),
+          Text(
+            curr,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(price),
         ],
       ),
     );

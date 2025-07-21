@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
+import '../../dialogs/tags_class.dart';
 
 class IndividualScreen extends StatefulWidget {
   const IndividualScreen({super.key});
@@ -16,6 +17,15 @@ class IndividualScreen extends StatefulWidget {
 }
 
 class _IndividualScreenState extends State<IndividualScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
 
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
@@ -199,74 +209,83 @@ class _IndividualScreenState extends State<IndividualScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Container(
                     height: 400,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: 1150, // Force horizontal scrolling
-                        ),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Table(
-                            defaultVerticalAlignment:
-                            TableCellVerticalAlignment.middle,
-                            columnWidths: const {
-                              0: FlexColumnWidth(0.8),
-                              1: FlexColumnWidth(1.5),
-                              2: FlexColumnWidth(1.5),
-                              3: FlexColumnWidth(1),
-                              4: FlexColumnWidth(1),
-                              5: FlexColumnWidth(1.3),
-                              6: FlexColumnWidth(1),
-                              7: FlexColumnWidth(1),
-
-                            },
-                            children: [
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                ),
-                                children: [
-                                  _buildHeader("Date"),
-                                  _buildHeader("Service Beneficiary "),
-                                  _buildHeader("Tags Details"),
-                                  _buildHeader("Status"),
-                                  _buildHeader("Stage"),
-                                  _buildHeader("Payment Pending"),
-                                  _buildHeader("Manage "),
-                                  _buildHeader("Ref Id"),
-                                ],
-                              ),
-                              for (int i = 0; i < 20; i++)
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    color:
-                                    i.isEven
-                                        ? Colors.grey.shade200
-                                        : Colors.grey.shade100,
-                                  ),
+                    child: ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbVisibility: MaterialStateProperty.all(true),
+                        thumbColor: MaterialStateProperty.all(Colors.grey),
+                        thickness: MaterialStateProperty.all(8),
+                        radius: const Radius.circular(4),
+                      ),
+                      child: Scrollbar(
+                        controller: _verticalController,
+                        thumbVisibility: true,
+                        child: Scrollbar(
+                          controller: _horizontalController,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            controller: _horizontalController,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: _verticalController,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: 1150),
+                                child: Table(
+                                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(0.8),
+                                    1: FlexColumnWidth(1.5),
+                                    2: FlexColumnWidth(1.5),
+                                    3: FlexColumnWidth(1),
+                                    4: FlexColumnWidth(1),
+                                    5: FlexColumnWidth(1.3),
+                                    6: FlexColumnWidth(1),
+                                    7: FlexColumnWidth(1),
+                                  },
                                   children: [
-                                    _buildCell2("12-02-2025", "02:59 pm",centerText2: true),
-                                    _buildCell3(
-                                      "Sample Customer ","xxxxxxxxx245",
-                                      copyable: true,
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                      ),
+                                      children: [
+                                        _buildHeader("Date"),
+                                        _buildHeader("Service Beneficiary "),
+                                        _buildHeader("Tags Details"),
+                                        _buildHeader("Status"),
+                                        _buildHeader("Stage"),
+                                        _buildHeader("Payment Pending"),
+                                        _buildHeader("Manage "),
+                                        _buildHeader("Ref Id"),
+                                      ],
                                     ),
-                                    _buildTagsCell(currentTags, context),
-                                    _buildCell("In progress"),
-                                    _buildCell2("PB-02 - 1 ", ' 23-days'),
-                                    _buildCell("Pending"),
-                                    _buildCell("M.Imran"),
-                                    _buildCell("xxxxxx566 ",copyable: true),
-
+                                    for (int i = 0; i < 20; i++)
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color: i.isEven
+                                              ? Colors.grey.shade200
+                                              : Colors.grey.shade100,
+                                        ),
+                                        children: [
+                                          _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
+                                          _buildCell3("Sample Customer ", "xxxxxxxxx245", copyable: true),
+                                          TagsCellWidget(initialTags: currentTags),
+                                          _buildCell("In progress"),
+                                          _buildCell2("PB-02 - 1 ", ' 23-days'),
+                                          _buildCell("Pending"),
+                                          _buildCell("M.Imran"),
+                                          _buildCell("xxxxxx566 ", copyable: true),
+                                        ],
+                                      ),
                                   ],
                                 ),
-                            ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),

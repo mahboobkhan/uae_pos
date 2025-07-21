@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
+import '../../dialogs/tags_class.dart';
 
 class PreferencesScreen extends StatefulWidget {
 
@@ -14,6 +15,15 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
@@ -337,84 +347,86 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Container(
                 height: 300,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: 1150, // Force horizontal scrolling
-                    ),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Table(
-                        /*  border: TableBorder.all(
-                            color: Colors.white,
-                            width: 1,
-                          ),*/
-                        defaultVerticalAlignment:
-                        TableCellVerticalAlignment.middle,
-                        columnWidths: const {
-                          0: FlexColumnWidth(0.8),
-                          1: FlexColumnWidth(1.5),
-                          2: FlexColumnWidth(1.5),
-                          3: FlexColumnWidth(1),
-                          4: FlexColumnWidth(1),
-                          5: FlexColumnWidth(1.3),
-                          6: FlexColumnWidth(1),
-                          7: FlexColumnWidth(1),
-
-                        },
-                        children: [
-                          TableRow(
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                            ),
-                            children: [
-                              _buildHeader("File Id"),
-                              _buildHeader("File Name "),
-                              _buildHeader("Tag Details"),
-                              _buildHeader("Issue Date"),
-                              _buildHeader("Expiry Date"),
-                              _buildHeader("Source Form"),
-                              _buildHeader("Download Price "),
-                              _buildHeader("Action"),
-
-                            ],
-                          ),
-                          for (int i = 0; i < 20; i++)
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color:
-                                i.isEven
-                                    ? Colors.grey.shade200
-                                    : Colors.grey.shade100,
-                              ),
+                child: ScrollbarTheme(
+                  data: ScrollbarThemeData(
+                    thumbVisibility: MaterialStateProperty.all(true),
+                    thumbColor: MaterialStateProperty.all(Colors.grey),
+                    thickness: MaterialStateProperty.all(8),
+                    radius: const Radius.circular(4),
+                  ),
+                  child: Scrollbar(
+                    controller: _verticalController,
+                    thumbVisibility: true,
+                    child: Scrollbar(
+                      controller: _horizontalController,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        controller: _horizontalController,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minWidth: 1150),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            controller: _verticalController,
+                            child: Table(
+                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                              columnWidths: const {
+                                0: FlexColumnWidth(0.8),
+                                1: FlexColumnWidth(1.5),
+                                2: FlexColumnWidth(1.5),
+                                3: FlexColumnWidth(1),
+                                4: FlexColumnWidth(1),
+                                5: FlexColumnWidth(1.3),
+                                6: FlexColumnWidth(1),
+                                7: FlexColumnWidth(1),
+                              },
                               children: [
-                                _buildCell(
-                                  "xxxxxxxx",copyable: true,
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                  ),
+                                  children: [
+                                    _buildHeader("File Id"),
+                                    _buildHeader("File Name"),
+                                    _buildHeader("Tag Details"),
+                                    _buildHeader("Issue Date"),
+                                    _buildHeader("Expiry Date"),
+                                    _buildHeader("Source Form"),
+                                    _buildHeader("Download Price"),
+                                    _buildHeader("Action"),
+                                  ],
                                 ),
-                                _buildCell(
-                                  "xxxxxxxxxx",
-                                  copyable: true,
-                                ),
-                                _buildTagsCell(currentTags, context),
-                                _buildCell("12-2-2025"),
-                                _buildCell("12-2-2025"),
-                                _buildCell("N/A"),
-                                _buildCell("Click Download "),
-                                _buildActionCell(
-                                  onEdit: () {},
-                                  onDelete: () {},
-
-                                ),
+                                for (int i = 0; i < 20; i++)
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: i.isEven
+                                          ? Colors.grey.shade200
+                                          : Colors.grey.shade100,
+                                    ),
+                                    children: [
+                                      _buildCell("xxxxxxxx", copyable: true),
+                                      _buildCell("xxxxxxxxxx", copyable: true),
+                                      TagsCellWidget(initialTags: currentTags),
+                                      _buildCell("12-2-2025"),
+                                      _buildCell("12-2-2025"),
+                                      _buildCell("N/A"),
+                                      _buildCell("Click Download"),
+                                      _buildActionCell(
+                                        onEdit: () {},
+                                        onDelete: () {},
+                                      ),
+                                    ],
+                                  ),
                               ],
                             ),
-                        ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            )
 
           ],
         ),
