@@ -69,21 +69,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  stat['value'],
-                                  style: const TextStyle(
-                                    fontSize: 28,
-                                    color: Colors.white,
-                                    fontFamily: 'Courier',
-                                    fontWeight: FontWeight.bold,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    stat['value'],
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      color: Colors.white,
+                                      fontFamily: 'Courier',
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  stat['label'],
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+
+                                  child: Text(
+                                    stat['label'],
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ],

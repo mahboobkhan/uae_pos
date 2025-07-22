@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/loading_dialog.dart';
+import 'log_screen.dart';
 
 class SignScreen extends StatefulWidget {
   @override
@@ -10,6 +11,8 @@ class SignScreen extends StatefulWidget {
 }
 
 class _SignScreenState extends State<SignScreen> {
+  List<String> missingFields = [];
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -124,7 +127,6 @@ class _SignScreenState extends State<SignScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(200, 48),
-
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -136,14 +138,39 @@ class _SignScreenState extends State<SignScreen> {
                       final password = _passwordController.text.trim();
                       final confirmPassword =
                           _confirmPasswordController.text.trim();
+                      if (name.isEmpty) missingFields.add("Name");
+                      if (email.isEmpty) missingFields.add("Email");
+                      if (password.isEmpty) missingFields.add("Password");
+                      if (confirmPassword.isEmpty)
+                        missingFields.add("Confirm Password");
 
-                      if (name.isEmpty ||
+                      if (missingFields.isNotEmpty) {
+                        showDialog(
+                          context: context,
+                          builder:
+                              (_) => AlertDialog(
+                                title: const Text("Missing Fields"),
+                                content: Text(
+                                  "Please fill in the following:\n\n• ${missingFields.join("\n• ")}",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("OK"),
+                                  ),
+                                ],
+                              ),
+                        );
+                        return;
+                      }
+
+                      /* if (name.isEmpty ||
                           email.isEmpty ||
                           password.isEmpty ||
                           confirmPassword.isEmpty) {
                         showError(context, "All fields are required");
                         return;
-                      }
+                      }*/
 
                       if (!gmailRegex.hasMatch(email)) {
                         showError(
@@ -167,7 +194,16 @@ class _SignScreenState extends State<SignScreen> {
                       hideLoadingDialog(context);
 
                       if (error == null) {
-                        Navigator.pushNamed(context, '/login');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => LogScreen(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                ),
+                          ),
+                        );
                       } else {
                         showError(context, error);
                       }
@@ -182,6 +218,21 @@ class _SignScreenState extends State<SignScreen> {
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LogScreen()),
+                      );
+                    },
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Back to Login ",
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ),
                   ),

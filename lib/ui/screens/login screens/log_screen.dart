@@ -1,10 +1,14 @@
-import 'dart:convert';
-
+import 'package:abc_consultant/ui/screens/login%20screens/sign_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
+import '../../../providers/signup_provider.dart';
 
 class LogScreen extends StatefulWidget {
-  const LogScreen({super.key});
+  final String? email;
+  final String? password;
+
+  const LogScreen({super.key, this.email, this.password});
 
   @override
   State<LogScreen> createState() => _LogScreenState();
@@ -14,6 +18,13 @@ class _LogScreenState extends State<LogScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = widget.email ?? 'default@gmail.com';
+    _passwordController.text = widget.password ?? 'yahya';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,26 +160,47 @@ class _LogScreenState extends State<LogScreen> {
                         SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
-                            String email = _emailController.text.trim();
-                            String password = _passwordController.text.trim();
-                            loginUser(email, password);
+                            final provider = Provider.of<SignupProvider>(
+                              context,
+                              listen: false,
+                            );
+                            provider.handleLogin(
+                              context,
+                              _emailController,
+                              _passwordController,
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(200, 48),
-
+                            backgroundColor: Colors.red,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            backgroundColor: Colors.red,
                           ),
+                          child: Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignScreen(),
+                              ),
+                            );
+                          },
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              "Login",
+                              "Create New Account",
                               style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
                                 fontSize: 12,
+                                color: Colors.grey,
                               ),
                             ),
                           ),
@@ -182,84 +214,6 @@ class _LogScreenState extends State<LogScreen> {
           ),
         ],
       ),
-
-      /*appBar: AppBar(
-        backgroundColor: Colors.grey,
-        elevation: 1,
-        title: GestureDetector(
-          onTap: () {
-            */
-      /* FocusScope.of(context).unfocus(); // Unfocus keyboard if any
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => TrackOrder()),
-        );*/
-      /*
-          },
-          child: Center(
-            child: AbsorbPointer(
-              child: SizedBox(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Tap to search for your order',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade200,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),*/
     );
-  }
-
-  Future<void> loginUser(String email, String password) async {
-    var headers = {'Content-Type': 'application/json'};
-    var request = http.Request(
-      'POST',
-      Uri.parse('https://abcwebservices.com/login/login.php'),
-    );
-    request.body = json.encode({"email": email, "password": password});
-    request.headers.addAll(headers);
-    try {
-      http.StreamedResponse response = await request.send();
-      String responseBody = await response.stream.bytesToString();
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Login Successful!"),
-            backgroundColor: Colors.green,
-          ),
-        );
-        print(responseBody); // optional: for debugging
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Login Failed: $responseBody"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
-      );
-    }
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
-    } else {
-      print(response.reasonPhrase);
-    }
   }
 }
