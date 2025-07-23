@@ -1,8 +1,10 @@
+import 'package:abc_consultant/ui/screens/login%20screens/verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/loading_dialog.dart';
+import '../../dialogs/custom_fields.dart';
 import 'log_screen.dart';
 
 class SignScreen extends StatefulWidget {
@@ -21,8 +23,6 @@ class _SignScreenState extends State<SignScreen> {
 
   final gmailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@gmail\.com$');
 
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +40,11 @@ class _SignScreenState extends State<SignScreen> {
               child: Image.asset("assets/login_logo.png", fit: BoxFit.cover),
             ),
           ),
-
           // Right Side - Form
           Expanded(
             flex: 2,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 80.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -61,79 +60,50 @@ class _SignScreenState extends State<SignScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-
                   // Name
-                  TextField(
+                  CustomTextField(
                     controller: _nameController,
-                    decoration: buildInputDecoration("Name", "Enter your name"),
+                    label: 'Full Name',
+                    hintText: 'Enter your full name',
                   ),
                   const SizedBox(height: 20),
-
                   // Email
-                  TextField(
+                  CustomTextField(
                     controller: _emailController,
-                    decoration: buildInputDecoration("Email", "@gmail.com"),
+                    label: 'Email Address',
+                    hintText: 'abc@email.com',
                   ),
                   const SizedBox(height: 20),
-
-                  // Password
-                  TextField(
+                  CustomTextField(
+                    label: 'Password',
+                    hintText: "Password",
                     controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: buildInputDecoration("Password", "").copyWith(
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          color: Colors.grey.shade600,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                    ),
+                    isPassword: true,
                   ),
                   const SizedBox(height: 20),
-
-                  // Confirm Password
-                  TextField(
+                  CustomTextField(
+                    label: 'Confirm Password',
+                    hintText: "Confirm Password",
                     controller: _confirmPasswordController,
-                    obscureText: _obscureConfirmPassword,
-                    decoration: buildInputDecoration(
-                      "Confirm Password",
-                      "",
-                    ).copyWith(
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          color: Colors.grey.shade600,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                          });
-                        },
-                      ),
-                    ),
+                    isPassword: true,
                   ),
                   const SizedBox(height: 30),
 
                   // Sign Up Button
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size(200, 48),
+                      minimumSize: Size(150, 48),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
                       backgroundColor: Colors.red,
                     ),
                     onPressed: () async {
-                      final name = _nameController.text.trim();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => VerificationScreen()),
+                      );
+                      /*final name = _nameController.text.trim();
                       final email = _emailController.text.trim();
                       final password = _passwordController.text.trim();
                       final confirmPassword =
@@ -164,13 +134,13 @@ class _SignScreenState extends State<SignScreen> {
                         return;
                       }
 
-                      /* if (name.isEmpty ||
+                      *//* if (name.isEmpty ||
                           email.isEmpty ||
                           password.isEmpty ||
                           confirmPassword.isEmpty) {
                         showError(context, "All fields are required");
                         return;
-                      }*/
+                      }*//*
 
                       if (!gmailRegex.hasMatch(email)) {
                         showError(
@@ -206,11 +176,10 @@ class _SignScreenState extends State<SignScreen> {
                         );
                       } else {
                         showError(context, error);
-                      }
+                      }*/
                     },
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-
                       child: const Text(
                         "Sign Up",
                         style: TextStyle(
@@ -221,18 +190,37 @@ class _SignScreenState extends State<SignScreen> {
                       ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LogScreen()),
-                      );
-                    },
+                  SizedBox(height: 64,),
+                  Expanded(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text(
-                        "Back to Login ",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LogScreen()),
+                          );
+                        },
+                        child: RichText(
+                          text: TextSpan(
+                            text: 'Already Registered? ',
+                            style: TextStyle(
+                              color: Colors.grey, // Gray color for this part
+                              fontSize: 14,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Login',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  decoration:
+                                      TextDecoration
+                                          .underline, // Underline only "Login"
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),

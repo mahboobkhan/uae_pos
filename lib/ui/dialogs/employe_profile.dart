@@ -308,6 +308,10 @@ class _EmployeProfileState extends State<EmployeProfile> {
                   borderColor: Colors.red,
                   hintText: "@gmail.com",
                 ),
+                CustomTextField(
+                  label: "Swift Code",
+                  borderColor: Colors.red,
+                ),
                 SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -346,30 +350,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
                   ],
                 ),
-                SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    CustomCompactTextField(
-                      label: 'Salary Paid UID ',
-                      hintText: 'xxxxxxxxx',
-                      borderColor: Colors.red,
-                    ),
-                    CustomCompactTextField(
-                      label: 'Close Paid TID ',
-                      hintText: 'xxxxxxxx',
-                    ),
-                    CustomCompactTextField(
-                      label: 'Doc Name ',
-                    ),
-                    CustomCompactTextField(
-                      label: 'Swift Code ',
-                      hintText: 'xxx',
-                      borderColor: Colors.red,
-                    ),
-                  ],
-                )
               ],
             ),
             SizedBox(height: 10),
@@ -377,17 +357,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                CustomTextField(
-                  label: "Last Salary Date",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
-                  ),
+                CustomCompactTextField(
+                  label: 'Doc Name ',
                 ),
                 CustomTextField(
                   label: "Issue Date Notifications",

@@ -1,8 +1,10 @@
+import 'package:abc_consultant/ui/screens/login%20screens/forgot_screen.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/sign_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/signup_provider.dart';
+import '../../dialogs/custom_fields.dart';
 
 class LogScreen extends StatefulWidget {
   final String? email;
@@ -17,7 +19,6 @@ class LogScreen extends StatefulWidget {
 class _LogScreenState extends State<LogScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -42,174 +43,120 @@ class _LogScreenState extends State<LogScreen> {
           ),
           Expanded(
             flex: 2,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        'Login',
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        'Sign in to continue',
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w300,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(
-                      top: 30,
-                      right: 45,
-                      left: 45,
-                      bottom: 20, // Added bottom padding
-                    ),
+            child: Column(
+              children: [
+                SizedBox(height: 60,),
+                Expanded(
+                  child: SingleChildScrollView(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        TextField(
-                          controller: _emailController,
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 1.0,
-                              ),
-                            ),
-                            fillColor: Colors.grey.shade100,
-                            filled: true,
-                            labelText: "Email",
-                            labelStyle: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            hintText: "@gmail.com",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
+                        const SizedBox(height: 30),
+                        Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25,
                           ),
                         ),
-                        SizedBox(height: 20),
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 1.0,
-                              ),
-                            ),
-                            fillColor: Colors.grey.shade100,
-                            filled: true,
-                            labelText: "Password",
-                            labelStyle: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            hintText: "Enter your Password",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: Colors.grey.shade600,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                            ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Sign in to continue',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 16,
                           ),
                         ),
-                        SizedBox(height: 10),
-                        TextButton(
-                          onPressed: () {},
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              "Forgot/Update Password",
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: Colors.blue,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 20),
+                          child: Column(
+                            children: [
+                              CustomTextField(
+                                controller: _emailController,
+                                label: 'Name',
+                                hintText: "",
                               ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            final provider = Provider.of<SignupProvider>(
-                              context,
-                              listen: false,
-                            );
-                            provider.handleLogin(
-                              context,
-                              _emailController,
-                              _passwordController,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: Size(200, 48),
-                            backgroundColor: Colors.red,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          child: Text(
-                            "Login",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SignScreen(),
+                              SizedBox(height: 20),
+                              CustomTextField(
+                                controller: _passwordController,
+                                label: 'Password',
+                                hintText: "",
+                                isPassword: true,
                               ),
-                            );
-                          },
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              "Create New Account",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
+                              SizedBox(height: 10),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => ForgotScreen()),
+                                  );
+                                },
+                                child: Text(
+                                  "Forgot/Update Password",
+                                  style: TextStyle(color: Colors.blue),
+                                ),
                               ),
-                            ),
+                              SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () {
+                                  final provider = Provider.of<SignupProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+                                  provider.handleLogin(
+                                    context,
+                                    _emailController,
+                                    _passwordController,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(150, 48),
+                                  backgroundColor: Colors.red,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignScreen()),
+                    );
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Create New Account? ',
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                      children: [
+                        TextSpan(
+                          text: 'Signup',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
