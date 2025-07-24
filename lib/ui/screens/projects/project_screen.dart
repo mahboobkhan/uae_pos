@@ -1,16 +1,14 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:abc_consultant/ui/dialogs/tags_class.dart';
 import 'package:abc_consultant/ui/screens/projects/create_order_dialog.dart';
+import 'package:abc_consultant/ui/screens/projects/create_order_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../../dialogs/date_picker.dart';
 
 class ProjectScreen extends StatefulWidget {
-
-
   final VoidCallback onNavigateToCreateOrder;
 
   const ProjectScreen({super.key, required this.onNavigateToCreateOrder});
@@ -30,7 +28,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
     super.dispose();
   }
 
-
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
@@ -47,7 +44,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
   final List<String> categories = [
     'All',
     'New',
-    'Pending',
+    'In Progress',
     'Completed',
     'Stop',
   ];
@@ -78,7 +75,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
   String selectedCategory4 = '';
 
   final GlobalKey _plusKey = GlobalKey();
-  bool _isHovering = false;
+    bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -94,55 +91,55 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 height: 120,
                 child: Row(
                   children:
-                  stats.map((stat) {
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Material(
-                          elevation: 12,
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.white70,
-                          shadowColor: Colors.black,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
+                      stats.map((stat) {
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Material(
+                              elevation: 12,
                               borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    stat['value'],
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      color: Colors.white,
-                                      fontFamily: 'Courier',
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                              color: Colors.white70,
+                              shadowColor: Colors.black,
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                const SizedBox(height: 8),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        stat['value'],
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          color: Colors.white,
+                                          fontFamily: 'Courier',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
 
-                                  child: Text(
-                                    stat['label'],
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
+                                      child: Text(
+                                        stat['label'],
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
                 ),
               ),
               const SizedBox(height: 10),
@@ -152,26 +149,23 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   height: 45,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
+                  width: MediaQuery.of(context).size.width,
                   margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.red.shade50,
                     border: Border.all(color: Colors.grey, width: 1),
                     borderRadius: BorderRadius.circular(2),
                     boxShadow:
-                    _isHovering
-                        ? [
-                      BoxShadow(
-                        color: Colors.blue,
-                        blurRadius: 4,
-                        spreadRadius: 0.1,
-                        offset: Offset(0, 1),
-                      ),
-                    ]
-                        : [],
+                        _isHovering
+                            ? [
+                              BoxShadow(
+                                color: Colors.blue,
+                                blurRadius: 3,
+                                spreadRadius: 0.1,
+                                offset: Offset(0, 1),
+                              ),
+                            ]
+                            : [],
                   ),
                   child: Row(
                     children: [
@@ -210,27 +204,29 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                 items: categories3,
                                 onChanged: (newValue) async {
                                   if (newValue == 'Custom Range') {
-                                    final selectedRange = await showDateRangePickerDialog(
-                                        context);
+                                    final selectedRange =
+                                        await showDateRangePickerDialog(
+                                          context,
+                                        );
 
                                     if (selectedRange != null) {
-                                      final start = selectedRange.startDate ??
+                                      final start =
+                                          selectedRange.startDate ??
                                           DateTime.now();
-                                      final end = selectedRange.endDate ??
-                                          start;
+                                      final end =
+                                          selectedRange.endDate ?? start;
 
-                                      final formattedRange = '${DateFormat(
-                                          'dd/MM/yyyy').format(
-                                          start)} - ${DateFormat('dd/MM/yyyy')
-                                          .format(end)}';
+                                      final formattedRange =
+                                          '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
 
                                       setState(() {
                                         selectedCategory3 = formattedRange;
                                       });
                                     }
                                   } else {
-                                    setState(() =>
-                                    selectedCategory3 = newValue!);
+                                    setState(
+                                      () => selectedCategory3 = newValue!,
+                                    );
                                   }
                                 },
                                 icon: const Icon(
@@ -250,26 +246,25 @@ class _ProjectScreenState extends State<ProjectScreen> {
                             shape: CircleBorder(),
                             child: Builder(
                               builder:
-                                  (context) =>
-                                  Tooltip(
+                                  (context) => Tooltip(
                                     message: 'Show menu',
                                     waitDuration: Duration(milliseconds: 2),
                                     child: GestureDetector(
                                       key: _plusKey,
                                       onTap: () async {
                                         final RenderBox renderBox =
-                                        _plusKey.currentContext!
-                                            .findRenderObject()
-                                        as RenderBox;
+                                            _plusKey.currentContext!
+                                                    .findRenderObject()
+                                                as RenderBox;
                                         final Offset offset = renderBox
                                             .localToGlobal(Offset.zero);
 
                                         final selected = await showMenu<String>(
                                           context: context,
                                           position: RelativeRect.fromLTRB(
-                                            offset.dx,
+                                            offset.dx-120,
                                             offset.dy + renderBox.size.height,
-                                            offset.dx + 30,
+                                            offset.dx ,
                                             offset.dy,
                                           ),
                                           items: [
@@ -286,8 +281,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
                                         if (selected != null) {
                                           setState(
-                                                () =>
-                                            selectedCategory4 = selected,
+                                            () => selectedCategory4 = selected,
                                           );
                                           if (selected == 'Add Services') {
                                             showShortServicesPopup(context);
@@ -380,7 +374,8 @@ class _ProjectScreenState extends State<ProjectScreen> {
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(minWidth: 1150),
                               child: Table(
-                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                defaultVerticalAlignment:
+                                    TableCellVerticalAlignment.middle,
                                 columnWidths: const {
                                   0: FlexColumnWidth(0.8),
                                   1: FlexColumnWidth(1.5),
@@ -414,22 +409,39 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                   for (int i = 0; i < 20; i++)
                                     TableRow(
                                       decoration: BoxDecoration(
-                                        color: i.isEven
-                                            ? Colors.grey.shade200
-                                            : Colors.grey.shade100,
+                                        color:
+                                            i.isEven
+                                                ? Colors.grey.shade200
+                                                : Colors.grey.shade100,
                                       ),
                                       children: [
-                                        _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
-                                        _buildCell3("Sample Customer", "xxxxxxxxx245", copyable: true),
-                                        TagsCellWidget(initialTags: currentTags),
+                                        _buildCell2(
+                                          "12-02-2025",
+                                          "02:59 pm",
+                                          centerText2: true,
+                                        ),
+                                        _buildCell3(
+                                          "Sample Customer",
+                                          "xxxxxxxxx245",
+                                          copyable: true,
+                                        ),
+                                        TagsCellWidget(
+                                          initialTags: currentTags,
+                                        ),
                                         _buildCell("In progress"),
                                         _buildCell2("PB-02 - 1", "23-days"),
                                         _buildPriceWithAdd("AED-", "300"),
                                         _buildPriceWithAdd("AED-", "500"),
                                         _buildCell("Mr. Imran"),
-                                        _buildCell("xxxxxxxxx245", copyable: true),
+                                        _buildCell(
+                                          "xxxxxxxxx245",
+                                          copyable: true,
+                                        ),
                                         _buildActionCell(
-                                          onEdit: () {},
+                                          onEdit: () {Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => CreateOrderScreen()),
+                                          );},
                                           onDelete: () {},
                                           onDraft: () {},
                                         ),
@@ -444,7 +456,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -452,24 +464,24 @@ class _ProjectScreenState extends State<ProjectScreen> {
     );
   }
 
-  Widget _buildHeader(String text) {
-    return Container(
-      height: 40,
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 8.0),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
+    Widget _buildHeader(String text) {
+      return Container(
+        height: 40,
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
         ),
-      ),
-    );
-  }
+      );
+    }
 
   Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
@@ -502,8 +514,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
     );
   }
 
-
-
   Widget _buildPriceWithAdd(String curr, String price) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -529,12 +539,12 @@ class _ProjectScreenState extends State<ProjectScreen> {
     );
   }
 
-
-  Widget _buildCell2(String text1,
-      String text2, {
-        bool copyable = false,
-        bool centerText2 = false,
-      }) {
+  Widget _buildCell2(
+    String text1,
+    String text2, {
+    bool copyable = false,
+    bool centerText2 = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -543,73 +553,73 @@ class _ProjectScreenState extends State<ProjectScreen> {
           Text(text1, style: const TextStyle(fontSize: 12)),
           centerText2
               ? Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-                if (copyable)
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(text: "$text1\n$text2"),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied to clipboard'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    if (copyable)
+                      GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(
+                            ClipboardData(text: "$text1\n$text2"),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Copied to clipboard'),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.copy,
+                            size: 14,
+                            color: Colors.blue[700],
+                          ),
                         ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(
-                        Icons.copy,
-                        size: 14,
-                        color: Colors.blue[700],
+                      ),
+                  ],
+                ),
+              )
+              : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
                       ),
                     ),
                   ),
-              ],
-            ),
-          )
-              : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-              ),
-              if (copyable)
-                GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(
-                      ClipboardData(text: "$text1\n$text2"),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: Icon(
-                      Icons.copy,
-                      size: 8,
-                      color: Colors.blue[700],
+                  if (copyable)
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied to clipboard')),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.copy,
+                          size: 8,
+                          color: Colors.blue[700],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-            ],
-          ),
+                ],
+              ),
         ],
       ),
     );
@@ -681,4 +691,3 @@ class _ProjectScreenState extends State<ProjectScreen> {
     );
   }
 }
-

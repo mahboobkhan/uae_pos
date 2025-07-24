@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //  return MaterialApp(home: DashboardScrn());
-    return MaterialApp(home: SignScreen());
+    return MaterialApp(home: SidebarLayout());
     //home: SidebarLayout()
   }
 }

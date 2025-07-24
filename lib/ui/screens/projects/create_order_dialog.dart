@@ -2,6 +2,8 @@ import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../dialogs/custom_fields.dart';
+
 class CreateOrderDialog extends StatefulWidget {
   const CreateOrderDialog({super.key});
 
@@ -11,15 +13,13 @@ class CreateOrderDialog extends StatefulWidget {
 
 class _CreateOrderDialogState extends State<CreateOrderDialog> {
   String? selectedOrderType;
+  String? searchClient;
   String? selectedServiceProject;
   String? selectedEmployee;
   DateTime selectedDateTime = DateTime.now();
 
-  final _clientController = TextEditingController(text: "");
   final _beneficiaryController = TextEditingController();
-  final _quotePriceController = TextEditingController(text: "");
   final _fundsController = TextEditingController(text: "");
-  final _paymentIdController = TextEditingController(text: "");
 
   /*Future<void> _selectDateTime() async {
     final DateTime? picked = await showDatePicker(
@@ -256,11 +256,19 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
               runSpacing: 10,
               children: [
                 _buildDateTimeField(),
-                _buildTextField("Client (Search/Type) ", _clientController),
+                _buildDropdown(
+                  "Search Client ",
+
+                  searchClient,
+                  ["Show Search Result" ,""],
+                      (val) {
+                    setState(() => searchClient = val);
+                  },
+                ),
                 _buildDropdown(
                   "Order Type ",
                   selectedOrderType,
-                  ["Services Base / Project base"],
+                  ["Services Base" ," Project base"],
                   (val) {
                     setState(() => selectedOrderType = val);
                   },
@@ -268,24 +276,26 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 _buildDropdown(
                   "Service Project ",
                   selectedServiceProject,
-                  ["Passport Renewal"],
+                  ["Passport Renewal","Development","Id Card"],
                   (val) {
                     setState(() => selectedServiceProject = val);
                   },
                 ),
-                _buildDropdown(
-                  "Assign Employee",
-                  selectedEmployee,
-                  ["Muhammad Imran"],
-                  (val) {
-                    setState(() => selectedEmployee = val);
-                  },
+                CustomTextField(label: "Service Beneficiary", controller: _beneficiaryController,hintText: "xyz",),
+                CustomTextField(label: "Order Quote Price",controller:  _fundsController,hintText: '500',),
+
+                InfoBox(
+                  label: 'Muhammad Imran',
+                  value: 'Assign Employee',
                 ),
-                _buildTextField("Service Beneficiary", _beneficiaryController),
-                _buildTextField("Quote Price ", _quotePriceController),
-                _buildTextField("Received Funds", _fundsController),
-                _buildTextField("Payment ID", _paymentIdController),
-              ],
+                InfoBox(
+                  label: '500',
+                  value: 'Received Funds',
+                ),
+                InfoBox(
+                  label: 'xxxxxxxx',
+                  value: 'Transaction Id',
+                ),              ],
             ),
             const SizedBox(height: 30),
             Padding(
@@ -320,7 +330,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
         child: InputDecorator(
           decoration: const InputDecoration(
             labelText: "Date and Time ",
-            labelStyle: const TextStyle(fontSize: 12,color: Colors.grey),
+            labelStyle: const TextStyle(fontSize: 16,color: Colors.grey),
             border: OutlineInputBorder(),
             suffixIcon: Icon(Icons.calendar_month_outlined, color: Colors.red,size: 22,),
           ),
@@ -333,29 +343,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return SizedBox(
-      width: 220,
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 16,color: Colors.grey),
-          border: const OutlineInputBorder(), // matches _buildDateTimeField
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey), // same as default InputDecorator
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 1), // highlight on focus
-          ),
-        ),
-        style: const TextStyle(fontSize: 18),
-      ),
-    );
-  }
 
   Widget _buildDropdown(
-      String label,
+      String? label,
       String? selectedValue,
       List<String> options,
       ValueChanged<String?> onChanged,
@@ -365,24 +355,26 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
       child: DropdownButtonFormField<String>(
         value: selectedValue,
         isExpanded: true,
-        decoration: const InputDecoration(
-          labelText: "Select Option",
-          labelStyle: TextStyle(fontSize: 16,color: Colors.grey),
-          border: OutlineInputBorder(), // default border
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey), // default border like date field
+        decoration: InputDecoration(
+          labelText: label?.isNotEmpty == true ? label : null, // ✅ optional label
+          labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          border: const OutlineInputBorder(),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 1), // red on focus
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 1),
           ),
         ),
         onChanged: onChanged,
-        items: options.map(
+        items: options
+            .map(
               (e) => DropdownMenuItem(
             value: e,
-            child: Text(e, style: const TextStyle(fontSize: 12)),
+            child: Text(e, style: const TextStyle(fontSize: 16)),
           ),
-        ).toList(),
+        )
+            .toList(),
       ),
     );
   }

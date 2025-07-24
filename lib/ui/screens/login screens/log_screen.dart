@@ -75,7 +75,7 @@ class _LogScreenState extends State<LogScreen> {
                             children: [
                               CustomTextField(
                                 controller: _emailController,
-                                label: 'Name',
+                                label: 'Email',
                                 hintText: "",
                               ),
                               SizedBox(height: 20),

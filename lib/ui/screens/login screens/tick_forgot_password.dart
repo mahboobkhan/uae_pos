@@ -1,4 +1,3 @@
-import 'package:abc_consultant/ui/screens/login%20screens/sign_up.dart';
 import 'package:flutter/material.dart';
 
 class TickForgotPassword extends StatefulWidget {
@@ -119,12 +118,6 @@ class _TickForgotPasswordState extends State<TickForgotPassword> {
                       SizedBox(width: width * 0.06),
                       InkWell(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SignUpScreen(),
-                            ),
-                          );
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),

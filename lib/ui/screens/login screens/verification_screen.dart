@@ -80,11 +80,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           padding: const EdgeInsets.only(left: 62.0),
                           child: const Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(
-                              'abc@email.com',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.blue,
+                            child: FittedBox(
+                              child: Text(
+                                'abc@email.com',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blue,
+                                ),
                               ),
                             ),
                           ),
@@ -112,11 +114,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           padding: const EdgeInsets.only(left: 62.0),
                           child: const Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(
-                              'admin@email.com',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.blue,
+                            child: FittedBox(
+                              child: Text(
+                                'admin@email.com',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blue,
+                                ),
                               ),
                             ),
                           ),

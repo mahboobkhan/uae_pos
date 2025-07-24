@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'custom_fields.dart';
+
 void showProfileDialog(BuildContext context) {
   showDialog(
     context: context,
@@ -334,7 +336,6 @@ void showShortServicesPopup(BuildContext context) {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 24),
                     const Text(
                       "ADD SERVICES",
                       style: TextStyle(
@@ -343,33 +344,31 @@ void showShortServicesPopup(BuildContext context) {
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 4),
                     const Text(
                       "Tid 000000000234",
                       style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                     const SizedBox(height: 20),
 
-                    _buildTextField(
+                    CustomTextField1(
                       label: 'SERVICE NAME',
                       onChanged: (val) => serviceName = val,
                     ),
                     const SizedBox(height: 12),
 
-                    _buildDropdownWithPlus(
-                      context: context,
+                    CustomDropdownWithAddButton(
                       label: 'SELECT INSTITUTE',
                       value: selectedInstitute,
                       items: instituteOptions,
                       onChanged: (val) => selectedInstitute = val,
                       onAddPressed: () {
-                        // Action for adding a new institute
+                        showInstituteManagementDialog(context);
                       },
                     ),
 
                     const SizedBox(height: 12),
 
-                    _buildTextField(
+                    CustomTextField1(
                       label: 'COST ',
                       keyboardType: TextInputType.number,
                       onChanged: (val) => cost = val,
@@ -406,16 +405,9 @@ void showShortServicesPopup(BuildContext context) {
               Positioned(
                 right: 0,
                 top: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey),
-                    color: Colors.white,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.close, size: 18, color: Colors.red),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                child: IconButton(
+                  icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
             ],
@@ -426,86 +418,6 @@ void showShortServicesPopup(BuildContext context) {
   );
 }
 
-Widget _buildDropdownWithPlus({
-  required BuildContext context,
-  required String label,
-  required String? value,
-  required List<String> items,
-  required Function(String?) onChanged,
-  required VoidCallback onAddPressed,
-}) {
-  return Stack(
-    children: [
-      DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 13),
-          filled: true,
-          fillColor: Colors.grey.shade100,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: Colors.grey),
-          ),
-          contentPadding: const EdgeInsets.fromLTRB(12, 14, 48, 14),
-        ),
-        items:
-            items.map((item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(item, style: const TextStyle(fontSize: 13)),
-              );
-            }).toList(),
-        onChanged: onChanged,
-      ),
-      Positioned(
-        right: 4,
-        top: 6,
-        bottom: 6,
-        child: GestureDetector(
-          onTap: () {
-            showInstituteManagementDialog(context);
-          },
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.red,
-            ),
-            child: const Icon(Icons.add, size: 20, color: Colors.white),
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _buildTextField({
-  required String label,
-  required Function(String) onChanged,
-  TextInputType keyboardType = TextInputType.text,
-}) {
-  return TextField(
-    decoration: InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(fontSize: 13),
-      filled: true,
-      fillColor: Colors.grey.shade200,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: const BorderSide(color: Colors.grey),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-    ),
-    keyboardType: keyboardType,
-    onChanged: onChanged,
-  );
-}
 
 // Services Project
 void showServicesProjectPopup(BuildContext context) {
@@ -536,7 +448,6 @@ void showServicesProjectPopup(BuildContext context) {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 24),
                     const Text(
                       "SHORT SERVICES",
                       style: TextStyle(
@@ -545,32 +456,29 @@ void showServicesProjectPopup(BuildContext context) {
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 4),
                     const Text(
                       "SID-01100011",
                       style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                     const SizedBox(height: 20),
-
-                    _buildTextField1(
+                    CustomTextField1(
                       label: 'CUSTOMER',
                       onChanged: (val) => customer = val,
                     ),
                     const SizedBox(height: 12),
 
-                    _buildDropdownWithPlus1(
-                      context: context,
+                    CustomDropdownWithAddButton(
                       label: 'SERVICE INSTITUTE',
                       value: selectedService,
                       items: serviceOptions,
                       onChanged: (val) => selectedService = val,
                       onAddPressed: () {
-                        // Add custom service action
+                        showInstituteManagementDialog(context);
                       },
                     ),
                     const SizedBox(height: 12),
 
-                    _buildTextField1(
+                    CustomTextField1(
                       label: 'CHARGES',
                       keyboardType: TextInputType.number,
                       onChanged: (val) => charges = val,
@@ -602,21 +510,13 @@ void showServicesProjectPopup(BuildContext context) {
                   ],
                 ),
               ),
-
               // Close Icon
               Positioned(
                 right: 0,
                 top: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey),
-                    color: Colors.white,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.close, size: 18, color: Colors.red),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                child: IconButton(
+                  icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
             ],
@@ -624,65 +524,6 @@ void showServicesProjectPopup(BuildContext context) {
         ),
       );
     },
-  );
-}
-
-Widget _buildDropdownWithPlus1({
-  required BuildContext context,
-  required String label,
-  required String? value,
-  required List<String> items,
-  required Function(String?) onChanged,
-  required VoidCallback onAddPressed,
-}) {
-  return Stack(
-    children: [
-      DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 13),
-          filled: true,
-          fillColor: Colors.grey.shade100,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: Colors.grey),
-          ),
-          contentPadding: const EdgeInsets.fromLTRB(12, 14, 48, 14),
-        ),
-        items:
-            items.map((item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(item, style: const TextStyle(fontSize: 13)),
-              );
-            }).toList(),
-        onChanged: onChanged,
-      ),
-      Positioned(
-        right: 4,
-        top: 6,
-        bottom: 6,
-        child: GestureDetector(
-          onTap: () {
-            showInstituteManagementDialog(context);
-          },
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.red,
-            ),
-            child: const Icon(Icons.add, size: 20, color: Colors.white),
-          ),
-        ),
-      ),
-    ],
   );
 }
 
@@ -706,8 +547,8 @@ void showInstituteManagementDialog(BuildContext context) {
             contentPadding: const EdgeInsets.all(12), // Reduced padding
             insetPadding: const EdgeInsets.all(20), // Space around dialog
             content: SizedBox(
-              width: 300, // Fixed width
-              height: 400, // Fixed height
+              width: 363,
+              height: 305,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -723,7 +564,7 @@ void showInstituteManagementDialog(BuildContext context) {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 20),
+                        icon: const Icon(Icons.close, size: 25,color: Colors.red,),
                         // Smaller icon
                         padding: EdgeInsets.zero,
                         // Remove default padding
@@ -736,32 +577,46 @@ void showInstituteManagementDialog(BuildContext context) {
                   const SizedBox(height: 12),
 
                   // Compact input field
-                  SizedBox(
-                    height: 40,
-                    child: TextField(
-                      cursorColor: Colors.blue,
-                      controller: addController,
-                      decoration: InputDecoration(
-                        hintText: "Add institute...",
-                        isDense: true,
-                        // Makes the field more compact
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(width: 1, color: Colors.blue),
-                        ),
-                        // Border when focused
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            width: 1.5,
-                            color: Colors.blue,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start, // align top
+                    children: [
+                      // TextField
+                      Expanded(
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          alignment: Alignment.centerLeft,
+                          child: TextField(
+                            controller: addController,
+                            cursorColor: Colors.blue,
+                            style: const TextStyle(fontSize: 14),
+                            decoration: const InputDecoration(
+                              hintText: "Add institute...",
+                              border: InputBorder.none, // remove double border
+                              isDense: true,
+                            ),
                           ),
                         ),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.add, size: 20),
-                          padding: EdgeInsets.zero,
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Add Button
+                      SizedBox(
+                        height: 40,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+
+                          ),
                           onPressed: () {
                             if (addController.text.trim().isNotEmpty) {
                               setState(() {
@@ -770,9 +625,10 @@ void showInstituteManagementDialog(BuildContext context) {
                               });
                             }
                           },
+                          child: const Text("Add", style: TextStyle(fontSize: 14,color: Colors.white),),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                   const SizedBox(height: 12),
 
@@ -794,7 +650,7 @@ void showInstituteManagementDialog(BuildContext context) {
                                   margin: const EdgeInsets.only(bottom: 4),
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: Colors.grey[300]!,
+                                      color: Colors.grey,
                                     ),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
@@ -819,6 +675,7 @@ void showInstituteManagementDialog(BuildContext context) {
                                             icon: const Icon(
                                               Icons.edit,
                                               size: 18,
+                                              color: Colors.green,
                                             ),
                                             padding: EdgeInsets.zero,
                                             onPressed:
@@ -885,7 +742,7 @@ void _showEditDialog(
                 controller: editController,
                 decoration: const InputDecoration(
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 1.5, color: Colors.blue),
+                    borderSide: BorderSide(width: 1.5, color: Colors.grey),
                   ),
                   labelText: 'Edit institute',
                   labelStyle: TextStyle(
@@ -902,7 +759,7 @@ void _showEditDialog(
                     onPressed: () => Navigator.pop(editContext),
                     child: const Text(
                       'Cancel',
-                      style: TextStyle(color: Colors.blue),
+                      style: TextStyle(color: Colors.grey),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -928,27 +785,7 @@ void _showEditDialog(
   );
 }
 
-Widget _buildTextField1({
-  required String label,
-  required Function(String) onChanged,
-  TextInputType keyboardType = TextInputType.text,
-}) {
-  return TextField(
-    decoration: InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(fontSize: 13),
-      filled: true,
-      fillColor: Colors.grey.shade200,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: const BorderSide(color: Colors.grey),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-    ),
-    keyboardType: keyboardType,
-    onChanged: onChanged,
-  );
-}
+
 
 // short sevices 2nd dialog
 

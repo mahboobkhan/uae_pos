@@ -2,29 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../../Model/SidebarItem.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
+import '../../utils/utils.dart';
 
-class ServiceCategories extends StatefulWidget {
-  const ServiceCategories({super.key});
+class EmployeesRoleScreen extends StatefulWidget {
+  const EmployeesRoleScreen({super.key});
 
   @override
-  State<ServiceCategories> createState() => _ServiceCategoriesState();
+  State<EmployeesRoleScreen> createState() => _EmployeesRoleScreenState();
 }
 
-class _ServiceCategoriesState extends State<ServiceCategories> {
+class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
+  bool _isHovering = false;
 
-  @override
-  void dispose() {
-    _verticalController.dispose();
-    _horizontalController.dispose();
-    super.dispose();
-  }
+  final List<String> categories = [
+    'All',
+    'New',
+    'In Progress',
+    'Completed',
+    'Stop',
+  ];
+  String? selectedCategory;
+
+  final List<String> categories1 = [
+    'No Tags',
+    'Tag 001',
+    'Tag 002',
+    'Sample Tag',
+  ];
+  String? selectedCategory1;
 
   final List<String> categories2 = ['All', 'Pending', 'Paid'];
   String? selectedCategory2;
+
   final List<String> categories3 = [
     'All',
     'Toady',
@@ -34,11 +48,6 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
     'Custom Range',
   ];
   String? selectedCategory3;
-
-  final List<String> categories4 = ['Services Project', 'Short Services'];
-  String selectedCategory4 = '';
-  final GlobalKey _plusKey = GlobalKey();
-  bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +59,6 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10),
               MouseRegion(
                 onEnter: (_) => setState(() => _isHovering = true),
                 onExit: (_) => setState(() => _isHovering = false),
@@ -68,7 +76,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                             ? [
                               BoxShadow(
                                 color: Colors.blue,
-                                blurRadius: 4,
+                                blurRadius: 3,
                                 spreadRadius: 0.1,
                                 offset: Offset(0, 1),
                               ),
@@ -82,6 +90,22 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
+                              CustomDropdown(
+                                selectedValue: selectedCategory,
+                                hintText: "Status",
+                                items: categories,
+                                onChanged: (newValue) {
+                                  setState(() => selectedCategory = newValue!);
+                                },
+                              ),
+                              CustomDropdown(
+                                selectedValue: selectedCategory1,
+                                hintText: "Select Tags",
+                                items: categories1,
+                                onChanged: (newValue) {
+                                  setState(() => selectedCategory1 = newValue!);
+                                },
+                              ),
                               CustomDropdown(
                                 selectedValue: selectedCategory2,
                                 hintText: "Payment Status",
@@ -130,44 +154,6 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                           ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          Card(
-                            elevation: 4,
-                            color: Colors.blue,
-                            shape: CircleBorder(),
-                            child: Builder(
-                              builder:
-                                  (context) => Tooltip(
-                                    message: 'Show menu',
-                                    waitDuration: Duration(milliseconds: 2),
-                                    child: GestureDetector(
-                                      onTap: (){
-                                        showShortServicesPopup(context);
-                                      },
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -201,12 +187,10 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                 defaultVerticalAlignment:
                                     TableCellVerticalAlignment.middle,
                                 columnWidths: const {
-                                  0: FlexColumnWidth(1),
-                                  1: FlexColumnWidth(1),
-                                  2: FlexColumnWidth(1),
-                                  3: FlexColumnWidth(1),
-                                  4: FlexColumnWidth(1),
-                                  5: FlexColumnWidth(1),
+                                  0: FlexColumnWidth(2),
+                                  1: FlexColumnWidth(2),
+                                  2: FlexColumnWidth(2),
+                                  3: FlexColumnWidth(2),
                                 },
                                 children: [
                                   TableRow(
@@ -214,12 +198,10 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                       color: Colors.red.shade50,
                                     ),
                                     children: [
-                                      _buildHeader("Date"),
-                                      _buildHeader("Service Beneficiary "),
-                                      _buildHeader("Service "),
-                                      _buildHeader("Quotation "),
-                                      _buildHeader("Ref Id"),
-                                      _buildHeader("More Actions"),
+                                      _buildHeader("Name"),
+                                      _buildHeader("Desigination"),
+                                      _buildHeader("Role"),
+                                      _buildHeader("Access"),
                                     ],
                                   ),
                                   for (int i = 0; i < 20; i++)
@@ -231,27 +213,16 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                                 : Colors.grey.shade100,
                                       ),
                                       children: [
-                                        _buildCell2(
-                                          "12-02-2025",
-                                          "02:59 pm",
-                                          centerText2: true,
-                                        ),
                                         _buildCell3(
-                                          "Sample Customer ",
-                                          "xxxxxxxxx245",
+                                          "Muhammad Imran",
+                                          "xxxxxxxxxx",
                                           copyable: true,
                                         ),
-                                        _buildCell("Reparing"),
-
-                                        _buildPriceWithAdd("AED-", "300"),
-                                        _buildCell(
-                                          "xxxxxxxxx245",
-                                          copyable: true,
-                                        ),
+                                        _buildCell1("PB-02 - 1"),
+                                        _buildCell("Role"),
                                         _buildActionCell(
                                           onEdit: () {},
                                           onDelete: () {},
-                                          onDraft: () {},
                                         ),
                                       ],
                                     ),
@@ -291,111 +262,28 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
     );
   }
 
-  Widget _buildPriceWithAdd(String curr, String price) {
+  Widget _buildCell(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.only(left: 4.0),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.blue),
-            ),
-            child: const Icon(Icons.add, size: 13, color: Colors.blue),
-          ),
-          SizedBox(width: 6),
-          Text(
-            curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-          Text(price),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(text1, style: const TextStyle(fontSize: 12)),
-          centerText2
-              ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
-                  if (copyable)
-                    GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Icon(
-                          Icons.copy,
-                          size: 14,
-                          color: Colors.blue[700],
-                        ),
-                      ),
-                    ),
-                ],
-              )
-              : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
-                  if (copyable)
-                    GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 8,
-                          color: Colors.blue[700],
-                        ),
-                      ),
-                    ),
-                ],
+          Flexible(
+            child: GestureDetector(
+              onTap: () {
+                _showLockUnlockDialog(context);
+              },
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.blue, // clickable style
+                  decoration: TextDecoration.underline,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
+            ),
+          ),
         ],
       ),
     );
@@ -435,6 +323,211 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
       ),
     );
   }
+  /*void showMenuLockDialog(BuildContext context, List<SidebarItem> sidebarItems) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Manage Access'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: sidebarItems.length,
+            itemBuilder: (context, index) {
+              final item = sidebarItems[index];
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Main Menu Title
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Switch(
+                        value: item.isLocked ?? false,
+                        onChanged: (value) {
+                          item.isLocked = value;
+                          (context as Element).markNeedsBuild(); // Refresh dialog
+                        },
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // Submenus
+                  ...List.generate(item.submenus.length, (i) {
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 16.0, bottom: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(item.submenus[i]),
+                          Switch(
+                            value: item.submenuLocks?[i] ?? false,
+                            onChanged: (value) {
+                              item.submenuLocks?[i] = value;
+                              (context as Element).markNeedsBuild();
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  const Divider(),
+                ],
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Save logic here
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Access updated')),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }*/
+
+  void _showLockUnlockDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Grant Access',style: TextStyle(fontWeight: FontWeight.bold),),
+          content: SizedBox(
+            width: 400,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: sidebarItems.length,
+              itemBuilder: (context, index) {
+                final item = sidebarItems[index];
+
+                item.isLocked ??= true; // Default value
+                return ExpansionTile(
+                  title: Row(
+                    children: [
+                      Icon(item.icon, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      Transform.scale(
+                        scale: 0.5,
+                        child: Switch(
+                          value: !(item.isLocked ?? true),
+                          onChanged: (val) {
+                            item.isLocked = !val;
+                            (context as Element).markNeedsBuild();
+                          },
+                          activeColor: Colors.white,
+                          activeTrackColor: Colors.green,
+                          inactiveThumbColor: Colors.white,
+                          inactiveTrackColor: Colors.red,
+                        ),
+                      ),
+
+                    ],
+                  ),
+                  children: List.generate(item.submenus.length, (subIndex) {
+                    item.submenuLockStates ??= List.generate(item.submenus.length, (_) => true);
+
+                    return ListTile(
+                      dense: true,
+                      contentPadding: const EdgeInsets.only(left: 32, right: 8),
+                      title: Text(item.submenus[subIndex], style: const TextStyle(fontSize: 13)),
+                      trailing: Transform.scale(
+                        scale: 0.5,
+                        child: Switch(
+                          value: !item.submenuLockStates![subIndex],
+                          onChanged: (val) {
+                            item.submenuLockStates![subIndex] = !val;
+                            (context as Element).markNeedsBuild();
+                          },
+                          activeColor: Colors.white,
+                          activeTrackColor: Colors.green,
+                          inactiveThumbColor: Colors.white,
+                          inactiveTrackColor: Colors.red,
+                        ),
+                      ),
+
+                    );
+                  }),
+                );
+              },
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0, bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end, // Aligns buttons to the right
+                children: [
+                  TextButton(
+                    child: const Text(
+                      'Close',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(width: 8),
+                  CustomButton(
+                    text: 'Submit',
+                    backgroundColor: Colors.green,
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+/*
+  actions: [
+  Padding(
+  padding: const EdgeInsets.only(right: 12.0, bottom: 8),
+  child: Row(
+  mainAxisAlignment: MainAxisAlignment.end, // Aligns buttons to the right
+  children: [
+  TextButton(
+  child: const Text(
+  'Close',
+  style: TextStyle(color: Colors.grey),
+  ),
+  onPressed: () => Navigator.of(context).pop(),
+  ),
+  const SizedBox(width: 8),
+  CustomButton(
+  text: 'Submit',
+  backgroundColor: Colors.green,
+  onPressed: () {},
+  ),
+  ],
+  ),
+  ),
+  ],
+*/
+
 
   Widget _buildActionCell({
     VoidCallback? onEdit,
@@ -444,30 +537,17 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
-          tooltip: 'Edit',
+          icon: const Icon(Icons.block, size: 20, color: Colors.red),
           onPressed: onEdit ?? () {},
         ),
         IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-          tooltip: 'Delete',
+          icon: const Icon(Icons.check_circle, size: 20, color: Colors.green),
           onPressed: onDelete ?? () {},
-        ),
-        IconButton(
-          icon: Image.asset(
-            'assets/icons/img_3.png',
-            width: 20,
-            height: 20,
-            color: Colors.red,
-          ),
-          tooltip: 'Draft',
-          onPressed: onDraft ?? () {},
         ),
       ],
     );
   }
-
-  Widget _buildCell(String text, {bool copyable = false}) {
+  Widget _buildCell1(String text, {bool copyable = false}) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
       child: Row(
@@ -490,11 +570,12 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
-                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+                child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
               ),
             ),
         ],
       ),
     );
   }
+
 }

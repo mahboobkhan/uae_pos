@@ -155,31 +155,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                     child: GestureDetector(
                                       key: _plusKey,
                                       onTap: () async {
-                                        final RenderBox renderBox =
-                                            _plusKey.currentContext!
-                                                    .findRenderObject()
-                                                as RenderBox;
-                                        final Offset offset = renderBox
-                                            .localToGlobal(Offset.zero);
-                                        final selected = await showMenu<String>(
-                                          context: context,
-                                          position: RelativeRect.fromLTRB(
-                                            offset.dx,
-                                            offset.dy + renderBox.size.height,
-                                            offset.dx + 30,
-                                            offset.dy,
-                                          ),
-                                          items: [
-                                            const PopupMenuItem<String>(
-                                              value: 'Short Services',
-                                              child: Text('Short Services'),
-                                            ),
-                                            const PopupMenuItem<String>(
-                                              value: 'Add Services',
-                                              child: Text('Add Services'),
-                                            ),
-                                          ],
-                                        );
+                                        showServicesProjectPopup(context);
                                       },
                                       child: Container(
                                         width: 30,
@@ -192,7 +168,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                         ),
                                         child: const Center(
                                           child: Icon(
-                                            Icons.add,
+                                            Icons.edit,
                                             color: Colors.white,
                                             size: 20,
                                           ),

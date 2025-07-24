@@ -5,6 +5,8 @@ import 'package:abc_consultant/ui/screens/client_screen/client_main.dart';
 import 'package:abc_consultant/ui/screens/client_screen/company_screen.dart';
 import 'package:abc_consultant/ui/screens/client_screen/finance_screen.dart';
 import 'package:abc_consultant/ui/screens/client_screen/individual_screen.dart';
+import 'package:abc_consultant/ui/screens/dashboard/abc_screen.dart';
+import 'package:abc_consultant/ui/screens/dashboard/employees_role_screen.dart';
 import 'package:abc_consultant/ui/screens/employee/bank_detail_screen.dart';
 import 'package:abc_consultant/ui/screens/employee/employee_finance.dart';
 import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
@@ -208,6 +210,15 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                               size: 16,
                                               color: Colors.grey,
                                             ),
+                                          if (item.trailingIcon != null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 8.0),
+                                              child: Icon(
+                                                item.trailingIcon,
+                                                size: 16,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
                                         ],
                                       ],
                                     ),
@@ -216,37 +227,37 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                 if (isSelected && isExpanded)
                                   ...List.generate(item.submenus.length, (i) {
                                     final submenu = item.submenus[i];
-                                    final submenuSelected =
-                                        _selectedSubmenuIndex == i;
+                                    final submenuSelected = _selectedSubmenuIndex == i;
+                                    final submenuIcon = (item.submenuIcons!.length > i) ? item.submenuIcons![i] : null;
+
                                     return Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 40,
-                                        top: 4,
-                                        bottom: 4,
-                                      ),
+                                      padding: const EdgeInsets.only(left: 40, top: 4, bottom: 4),
                                       child: GestureDetector(
                                         onTap: () {
-                                          setState(
-                                            () => _selectedSubmenuIndex = i,
-                                          );
+                                          setState(() => _selectedSubmenuIndex = i);
                                         },
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 6,
-                                          ),
-                                          child: Text(
-                                            submenu,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color:
-                                                  submenuSelected
-                                                      ? Colors.red
-                                                      : Colors.black,
-                                              fontWeight:
-                                                  submenuSelected
-                                                      ? FontWeight.bold
-                                                      : FontWeight.normal,
-                                            ),
+                                          padding: const EdgeInsets.symmetric(vertical: 6),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                submenu,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: submenuSelected ? Colors.red : Colors.black,
+                                                  fontWeight: submenuSelected ? FontWeight.bold : FontWeight.normal,
+                                                ),
+                                              ),
+                                              if (submenuIcon != null)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 8.0),
+                                                  child: Icon(
+                                                    submenuIcon,
+                                                    size: 16,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -348,13 +359,19 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   Widget _buildSubmenuScreen(NavItem parent, String submenu) {
     switch (parent) {
       case NavItem.dashboard:
+        switch (submenu) {
+          case 'ABC':
+            return const  Center(child: AbcScreen());
+          case 'Employees Role':
+            return const  Center(child: EmployeesRoleScreen());
+        }
         break;
       case NavItem.projects:
         switch (submenu) {
           case 'Short Service':
             return const Center(child: ShortServiceScreen());
           case 'Create Orders':
-            return const Center(child: CreateOrderScreen());
+            return const Center(child: CreateOrders());
           case 'Service Category':
             return const Center(child:ServiceCategories());
         }

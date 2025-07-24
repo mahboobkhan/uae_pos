@@ -192,34 +192,31 @@ class _SignScreenState extends State<SignScreen> {
                   ),
                   SizedBox(height: 64,),
                   Expanded(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LogScreen()),
-                          );
-                        },
-                        child: RichText(
-                          text: TextSpan(
-                            text: 'Already Registered? ',
-                            style: TextStyle(
-                              color: Colors.grey, // Gray color for this part
-                              fontSize: 14,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: 'Login',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  decoration:
-                                      TextDecoration
-                                          .underline, // Underline only "Login"
-                                ),
-                              ),
-                            ],
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LogScreen()),
+                        );
+                      },
+                      child: RichText(
+                        text: TextSpan(
+                          text: 'Already Registered? ',
+                          style: TextStyle(
+                            color: Colors.grey, // Gray color for this part
+                            fontSize: 14,
                           ),
+                          children: [
+                            TextSpan(
+                              text: 'Login',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                decoration:
+                                    TextDecoration
+                                        .underline, // Underline only "Login"
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -232,21 +229,6 @@ class _SignScreenState extends State<SignScreen> {
       ),
     );
   }
-
-  InputDecoration buildInputDecoration(String label, String hint) {
-    return InputDecoration(
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.red, width: 1.0),
-      ),
-      fillColor: Colors.grey.shade100,
-      filled: true,
-      labelText: label,
-      hintText: hint,
-      labelStyle: TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
-    );
-  }
-
   void showError(BuildContext context, String message) {
     showDialog(
       context: context,
