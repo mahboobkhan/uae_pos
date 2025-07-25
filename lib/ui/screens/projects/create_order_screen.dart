@@ -1,9 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
-import '../../dialogs/custom_fields.dart' show CustomTextField, InfoBox;
+import '../../dialogs/custom_fields.dart'
+    show
+        CustomDropdownWithAddButton,
+        CustomTextField,
+        InfoBox,
+        InfoBoxNoColor,
+        InstituteManagementDialog;
+
 class DropdownItem {
   final String id;
   final String label;
@@ -33,7 +39,14 @@ class CreateOrderScreen extends StatefulWidget {
 }
 
 class _CreateOrderScreenState extends State<CreateOrderScreen> {
+  String? selectedService;
+  final List<String> serviceOptions = ['Cleaning', 'Consulting', 'Repairing'];
   final _beneficiaryController = TextEditingController();
+  final _recordPaymentController = TextEditingController();
+  final _applicationController = TextEditingController();
+  final _servicesDepartment = TextEditingController();
+  final _stepCost = TextEditingController();
+  final _additionalProfit = TextEditingController();
   final _fundsController = TextEditingController(text: "");
   String? selectedOrderType;
   String? searchClient;
@@ -45,13 +58,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   ];
 
   DateTime selectedDateTime = DateTime.now();
-
-  final _clientController = TextEditingController(text: "Sample Client");
-
-  final _quotePriceController = TextEditingController(text: "500");
-  final _paymentIdController = TextEditingController(text: "TID 00001–01");
-
-
 
   Future<void> _selectedDateTime() async {
     final DateTime? picked = await showDatePicker(
@@ -93,7 +99,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              color: Colors.grey.shade200,
+              color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -135,42 +141,54 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           "Search Client ",
 
                           searchClient,
-                          ["Show Search Result" ,""],
-                              (val) {
+                          ["Show Search Result", ""],
+                          (val) {
                             setState(() => searchClient = val);
                           },
                         ),
                         _buildDropdown(
                           "Order Type ",
                           selectedOrderType,
-                          ["Services Base" ," Project base"],
-                              (val) {
+                          ["Services Base", " Project base"],
+                          (val) {
                             setState(() => selectedOrderType = val);
                           },
                         ),
                         _buildDropdown(
                           "Service Project ",
                           selectedServiceProject,
-                          ["Passport Renewal","Development","Id Card"],
-                              (val) {
+                          ["Passport Renewal", "Development", "Id Card"],
+                          (val) {
                             setState(() => selectedServiceProject = val);
                           },
                         ),
-                        CustomTextField(label: "Service Beneficiary", controller: _beneficiaryController,hintText: "xyz",),
-                        CustomTextField(label: "Order Quote Price",controller:  _fundsController,hintText: '500',),
+                        CustomTextField(
+                          label: "Service Beneficiary",
+                          controller: _beneficiaryController,
+                          hintText: "xyz",
+                        ),
+                        CustomTextField(
+                          label: "Order Quote Price",
+                          controller: _fundsController,
+                          hintText: '500',
+                        ),
 
                         InfoBox(
                           label: 'Muhammad Imran',
                           value: 'Assign Employee',
+                          color: Colors.blue.shade200, // light blue fill
                         ),
                         InfoBox(
                           label: '500',
                           value: 'Received Funds',
+                          color: Colors.blue.shade200, // light blue fill
                         ),
                         InfoBox(
                           label: 'xxxxxxxx',
                           value: 'Transaction Id',
-                        ),              ],
+                          color: Colors.yellow.shade100, // light blue fill
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 20),
@@ -178,13 +196,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     // Action Buttons
                     Row(
                       children: [
-                        CustomButton(
-                          text: "Editing",
-                          backgroundColor: Colors.blue.shade900,
-                          icon: Icons.lock_open,
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 10),
                         CustomButton(
                           text: "Stop",
                           backgroundColor: Colors.black,
@@ -196,6 +207,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           backgroundColor: Colors.green,
                           onPressed: () {},
                         ),
+                        const SizedBox(width: 10),
+
+                        CustomButton(
+                          text: "Editing",
+                          backgroundColor: Colors.blue.shade900,
+                          icon: Icons.lock_open,
+                          onPressed: () {},
+                        ),
+
                         const Spacer(), // Pushes the icon to the right
 
                         Material(
@@ -232,7 +252,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              color: Colors.grey.shade200,
+              color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -252,29 +272,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         SizedBox(width: 10),
                         Text("SID–10000001"),
                         Spacer(),
-                        Material(
-                          elevation: 3,
-                          shadowColor: Colors.grey.shade900,
-                          shape: CircleBorder(),
-                          color: Colors.blue,
-                          child: Tooltip(
-                            message: 'Create orders',
-                            waitDuration: Duration(milliseconds: 2),
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: SizedBox(
-                                height: 40,
-                                width: 40,
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.edit_outlined,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: const Icon(Icons.close, color: Colors.red),
                         ),
                       ],
                     ),
@@ -289,44 +289,169 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             "dd-MM-yyyy – hh:mm a",
                           ).format(selectedDateTime),
                           icon: Icons.calendar_month,
+                          style: const TextStyle(fontSize: 14),
                         ),
                         _field(
                           "Reminder Date and Time",
                           DateFormat(
                             "dd-MM-yyyy – hh:mm a",
                           ).format(selectedDateTime),
-                          icon: Icons.calendar_month,
+                          icon: Icons.alarm_on_sharp,
                         ),
-                        _field(
-                          "Services Department ",
-                          "FBR – Federal Board of Revenue",
+                        InfoBoxNoColor(
+                          label: "FBR",
+                          value: 'Services Department ',
                         ),
-                        _field("Services Status Update ", "Pending for review"),
-                        _field("Local Status ", "In Progress"),
-                        _field("Tracking Status Tag", "Xyz Status"),
-                        _noteText("Dynamic Attribute Sign"),
-                        _field("Application I’d – 1", ""),
-                        _noteText("Dynamic Application ID Sign"),
+                        SizedBox(
+                          width: 220,
+                          child: CustomDropdownWithAddButton(
+                            label: "Services Status ",
+                            value: selectedService,
+                            items: serviceOptions,
+                            onChanged: (val) => selectedService = val,
+                            onAddPressed: () {
+                              showInstituteManagementDialog2(context);
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: 220,
+                          child: CustomDropdownWithAddButton(
+                            label: "Local Status ",
+                            value: selectedService,
+                            items: serviceOptions,
+                            onChanged: (val) => selectedService = val,
+                            onAddPressed: () {
+                              showInstituteManagementDialog2(context);
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: 220,
+                          child: CustomDropdownWithAddButton(
+                            label: "Tracking Status ",
+                            value: selectedService,
+                            items: serviceOptions,
+                            onChanged: (val) => selectedService = val,
+                            onAddPressed: () {
+                              showInstituteManagementDialog2(context);
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5.0),
+                          child: TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Add more',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        SizedBox(
+                          width: 195,
+                          child: CustomTextField(
+                            label: "Application I’D-1",
+                            hintText: "",
+                            controller: _applicationController,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 195,
+                          child: CustomTextField(
+                            label: "Application I’D-2 ",
+                            hintText: "",
+                            controller: _applicationController,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 195,
+                          child: CustomTextField(
+                            label: "Application I’D-3",
+                            hintText: "",
+                            controller: _applicationController,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 195,
+                          child: CustomTextField(
+                            label: "Application I’D-4",
+                            hintText: "",
+                            controller: _applicationController,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5.0),
+                          child: TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Add more',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        InfoBoxNoColor(value: "Step Cost", label: "500"),
+                        CustomTextField(
+                          label: "Additional Profit",
+                          hintText: "50",
+                          controller: _additionalProfit,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
 
-                        _field(
-                          "Received Funds",
-                          "XXX",
-                          fillColor: Colors.green.shade100,
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        InfoBox(
+                          label: "500",
+                          value: "Total Received Funds",
+                          color: Colors.blue.shade200, // light blue fill
                         ),
-                        _field(
-                          "Pending Funds",
-                          "XXX",
-                          fillColor: Colors.red.shade100,
+                        InfoBox(
+                          label: "300",
+                          value: "Pending Funds",
+                          color: Colors.blue.shade200, // light blue fill
+                          // light blue fill
                         ),
-                        _field(
-                          "Project Cost",
-                          "XXX",
-                          fillColor: Colors.blue.shade100,
+                        InfoBox(
+                          value: "Project Cost",
+                          label: "400",
+                          color: Colors.blue.shade200, // light blue fill
                         ),
-                        _field("Record Payment I’d ", "TID 00001-01"),
-                        _field("Received Funds", "300"),
-                        _field("Step Cost", "500"),
-                        _field("Additional Profit", "50"),
+                        InfoBox(
+                          value: "Received Funds",
+                          label: "300",
+                          color: Colors.blue.shade200, // light blue fill
+                        ),
+                        InfoBox(
+                          value: "Record Payment I’D ",
+                          label: "xxxxxxxxx",
+                          color: Colors.yellow.shade100,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -341,14 +466,21 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         const SizedBox(width: 10),
                         CustomButton(
+                          text: "Submit",
+                          backgroundColor: Colors.green,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
                           text: "Next Step",
                           backgroundColor: Colors.blue,
                           onPressed: () {},
                         ),
                         const SizedBox(width: 10),
                         CustomButton(
-                          text: "Submit",
-                          backgroundColor: Colors.red,
+                          text: "Editing",
+                          backgroundColor: Colors.blue.shade900,
+                          icon: Icons.lock_open,
                           onPressed: () {},
                         ),
                         const Spacer(), // Pushes the icon to the right
@@ -413,25 +545,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return SizedBox(
-      width: 220,
-      child: TextField(
-        controller: controller,
-        cursorColor: Colors.blue,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: Colors.red),
-          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
-        ),
-      ),
-    );
-  }
-
-
   Widget buildLabeledFieldWithHint({
     required String label,
     required String hint,
@@ -449,7 +562,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             border: const OutlineInputBorder(),
             suffixIcon: const Icon(Icons.calendar_today, color: Colors.red),
             helperText: hint,
-            // This acts like a hint below the field
             helperStyle: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
           child: Text(
@@ -466,17 +578,22 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     String value, {
     IconData? icon,
     Color? fillColor,
+    TextStyle? style,
   }) {
     return SizedBox(
       width: 220,
       child: TextFormField(
         cursorColor: Colors.blue,
         initialValue: value,
+        style: style ?? const TextStyle(fontSize: 14),
+        // 👈 Use it here
+        readOnly: true,
+        // Optional: make it non-editable
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: Colors.red, fontSize: 16),
-          border: OutlineInputBorder(),
-          focusedBorder: OutlineInputBorder(
+          border: const OutlineInputBorder(),
+          focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
           ),
           suffixIcon: icon != null ? Icon(icon, color: Colors.red) : null,
@@ -487,59 +604,20 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     );
   }
 
-  Widget _noteText(String text) {
-    return SizedBox(
-      width: 220,
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Widget _buildOrderTypeDropdown(
-    String label,
-    DropdownItem? selectedValue,
-    List<DropdownItem> options,
-    ValueChanged<DropdownItem?> onChanged,
-  ) {
-    return SizedBox(
-      width: 220,
-      child: DropdownButtonFormField<DropdownItem>(
-        value: selectedValue,
-        decoration: InputDecoration(
-          labelText: label,
-
-          labelStyle: const TextStyle(color: Colors.red),
-          border: const OutlineInputBorder(),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 1),
-          ),
-        ),
-        items:
-            options.map((DropdownItem item) {
-              return DropdownMenuItem<DropdownItem>(
-                value: item,
-                child: Text(item.label),
-              );
-            }).toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
   Widget _buildDropdown(
-      String? label,
-      String? selectedValue,
-      List<String> options,
-      ValueChanged<String?> onChanged,
-      ) {
+    String? label,
+    String? selectedValue,
+    List<String> options,
+    ValueChanged<String?> onChanged,
+  ) {
     return SizedBox(
       width: 220,
       child: DropdownButtonFormField<String>(
         value: selectedValue,
         isExpanded: true,
         decoration: InputDecoration(
-          labelText: label?.isNotEmpty == true ? label : null, // ✅ optional label
+          labelText: label?.isNotEmpty == true ? label : null,
+          // ✅ optional label
           labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
           border: const OutlineInputBorder(),
           enabledBorder: const OutlineInputBorder(
@@ -550,15 +628,273 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
         ),
         onChanged: onChanged,
-        items: options
-            .map(
-              (e) => DropdownMenuItem(
-            value: e,
-            child: Text(e, style: const TextStyle(fontSize: 16)),
-          ),
-        )
-            .toList(),
+        items:
+            options
+                .map(
+                  (e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e, style: const TextStyle(fontSize: 16)),
+                  ),
+                )
+                .toList(),
       ),
+    );
+  }
+  void showInstituteManagementDialog2(BuildContext context) {
+    final List<String> institutes = [];
+    final TextEditingController addController = TextEditingController();
+    final TextEditingController editController = TextEditingController();
+    int? editingIndex;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  12,
+                ), // Slightly smaller radius
+              ),
+              contentPadding: const EdgeInsets.all(12), // Reduced padding
+              insetPadding: const EdgeInsets.all(20), // Space around dialog
+              content: SizedBox(
+                width: 363,
+                height: 305,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Compact header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Add Services',
+                          style: TextStyle(
+                            fontSize: 16, // Smaller font
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 25,color: Colors.red,),
+                          // Smaller icon
+                          padding: EdgeInsets.zero,
+                          // Remove default padding
+                          constraints: const BoxConstraints(),
+                          // Remove minimum size
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Compact input field
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start, // align top
+                      children: [
+                        // TextField
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            alignment: Alignment.centerLeft,
+                            child: TextField(
+                              controller: addController,
+                              cursorColor: Colors.blue,
+                              style: const TextStyle(fontSize: 14),
+                              decoration: const InputDecoration(
+                                hintText: "Add institute...",
+                                border: InputBorder.none, // remove double border
+                                isDense: true,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        // Add Button
+                        SizedBox(
+                          height: 40,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+
+                            ),
+                            onPressed: () {
+                              if (addController.text.trim().isNotEmpty) {
+                                setState(() {
+                                  institutes.add(addController.text.trim());
+                                  addController.clear();
+                                });
+                              }
+                            },
+                            child: const Text("Add", style: TextStyle(fontSize: 14,color: Colors.white),),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Compact list
+                    Expanded(
+                      child:
+                      institutes.isEmpty
+                          ? const Center(
+                        child: Text(
+                          'No institutes',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      )
+                          : ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: institutes.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: ListTile(
+                              dense: true,
+                              // Makes tiles more compact
+                              visualDensity: VisualDensity.compact,
+                              // Even more compact
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              title: Text(
+                                institutes[index],
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              trailing: SizedBox(
+                                width:
+                                80, // Constrained width for buttons
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        size: 18,
+                                        color: Colors.green,
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                      onPressed:
+                                          () => _showEditDialog(
+                                        context,
+                                        setState,
+                                        institutes,
+                                        index,
+                                        editController,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        size: 18,
+                                        color: Colors.red,
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () {
+                                        setState(() {
+                                          institutes.removeAt(index);
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showEditDialog(
+      BuildContext context,
+      StateSetter setState,
+      List<String> institutes,
+      int index,
+      TextEditingController editController,
+      ) {
+    editController.text = institutes[index];
+    showDialog(
+      context: context,
+      builder: (editContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          contentPadding: const EdgeInsets.all(16),
+          content: SizedBox(
+            width: 250, // Smaller width
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  cursorColor: Colors.blue,
+                  controller: editController,
+                  decoration: const InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1.5, color: Colors.grey),
+                    ),
+                    labelText: 'Edit institute',
+                    labelStyle: TextStyle(
+                      color: Colors.blue, ),
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(editContext),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CustomButton(
+                      backgroundColor: Colors.blue,
+                      onPressed: () {
+                        if (editController.text.trim().isNotEmpty) {
+                          setState(() {
+                            institutes[index] = editController.text.trim();
+                          });
+                          Navigator.pop(editContext);
+                        }
+                      },
+                      text: 'Save',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

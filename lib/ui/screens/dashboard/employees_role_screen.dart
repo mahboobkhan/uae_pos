@@ -161,7 +161,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(
-                  height: 400,
+                  height: 700,
                   child: ScrollbarTheme(
                     data: ScrollbarThemeData(
                       thumbVisibility: MaterialStateProperty.all(true),

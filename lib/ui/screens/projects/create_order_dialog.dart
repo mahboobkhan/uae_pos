@@ -229,7 +229,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children:  [
+                  children: [
                     Text(
                       "Create New Order",
                       style: TextStyle(
@@ -240,7 +240,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 2.0),
-                      child: Text("ORN. 00001–0000001", style: TextStyle(fontSize: 12)),
+                      child: Text(
+                        "ORN. 00001–0000001",
+                        style: TextStyle(fontSize: 12),
+                      ),
                     ),
                   ],
                 ),
@@ -260,15 +263,15 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   "Search Client ",
 
                   searchClient,
-                  ["Show Search Result" ,""],
-                      (val) {
+                  ["Show Search Result", ""],
+                  (val) {
                     setState(() => searchClient = val);
                   },
                 ),
                 _buildDropdown(
                   "Order Type ",
                   selectedOrderType,
-                  ["Services Base" ," Project base"],
+                  ["Services Base", " Project base"],
                   (val) {
                     setState(() => selectedOrderType = val);
                   },
@@ -276,26 +279,29 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 _buildDropdown(
                   "Service Project ",
                   selectedServiceProject,
-                  ["Passport Renewal","Development","Id Card"],
+                  ["Passport Renewal", "Development", "Id Card"],
                   (val) {
                     setState(() => selectedServiceProject = val);
                   },
                 ),
-                CustomTextField(label: "Service Beneficiary", controller: _beneficiaryController,hintText: "xyz",),
-                CustomTextField(label: "Order Quote Price",controller:  _fundsController,hintText: '500',),
-
-                InfoBox(
-                  label: 'Muhammad Imran',
-                  value: 'Assign Employee',
+                CustomTextField(
+                  label: "Service Beneficiary",
+                  controller: _beneficiaryController,
+                  hintText: "xyz",
                 ),
-                InfoBox(
-                  label: '500',
-                  value: 'Received Funds',
+                CustomTextField(
+                  label: "Order Quote Price",
+                  controller: _fundsController,
+                  hintText: '500',
                 ),
-                InfoBox(
-                  label: 'xxxxxxxx',
-                  value: 'Transaction Id',
-                ),              ],
+                InfoBox(label: 'Muhammad Imran', value: 'Assign Employee',                          color: Colors.blue.shade200,// light blue fill
+                ),
+                InfoBox(label: '500', value: 'Received Funds',                          color: Colors.blue.shade200,// light blue fill
+                ),
+                InfoBox(label: 'xxxxxxxx', value: 'Transaction Id',
+                  color: Colors.yellow.shade100,// light blue fill
+                ),
+              ],
             ),
             const SizedBox(height: 30),
             Padding(
@@ -330,9 +336,13 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
         child: InputDecorator(
           decoration: const InputDecoration(
             labelText: "Date and Time ",
-            labelStyle: const TextStyle(fontSize: 16,color: Colors.grey),
+            labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
             border: OutlineInputBorder(),
-            suffixIcon: Icon(Icons.calendar_month_outlined, color: Colors.red,size: 22,),
+            suffixIcon: Icon(
+              Icons.calendar_month_outlined,
+              color: Colors.red,
+              size: 22,
+            ),
           ),
           child: Text(
             DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime),
@@ -343,20 +353,19 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     );
   }
 
-
   Widget _buildDropdown(
-      String? label,
-      String? selectedValue,
-      List<String> options,
-      ValueChanged<String?> onChanged,
-      ) {
+    String? label,
+    String? selectedValue,
+    List<String> options,
+    ValueChanged<String?> onChanged,
+  ) {
     return SizedBox(
       width: 220,
       child: DropdownButtonFormField<String>(
         value: selectedValue,
         isExpanded: true,
         decoration: InputDecoration(
-          labelText: label?.isNotEmpty == true ? label : null, // ✅ optional label
+          labelText: label?.isNotEmpty == true ? label : null,
           labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
           border: const OutlineInputBorder(),
           enabledBorder: const OutlineInputBorder(
@@ -367,14 +376,15 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
           ),
         ),
         onChanged: onChanged,
-        items: options
-            .map(
-              (e) => DropdownMenuItem(
-            value: e,
-            child: Text(e, style: const TextStyle(fontSize: 16)),
-          ),
-        )
-            .toList(),
+        items:
+            options
+                .map(
+                  (e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e, style: const TextStyle(fontSize: 16)),
+                  ),
+                )
+                .toList(),
       ),
     );
   }

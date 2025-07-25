@@ -1,6 +1,9 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 
+import '../../../dialogs/custom_fields.dart';
+
+
 class DialogueBankTransaction extends StatefulWidget {
   const DialogueBankTransaction({super.key});
 
@@ -24,8 +27,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     super.initState();
     _searchController = TextEditingController();
     _amountController = TextEditingController();
-    _paymentByController = TextEditingController(text: "Auto Fill: John Doe");
-    _receivedByController = TextEditingController(text: "Auto Fill: Jane Smith");
+    _paymentByController = TextEditingController();
+    _receivedByController = TextEditingController();
     _serviceTIDController = TextEditingController();
     _noteController = TextEditingController();
   }
@@ -68,7 +71,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                           color: Colors.red,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      SizedBox(height: 2),
                       Text(
                         "TID. 00001-292382",
                         style: TextStyle(fontSize: 14, color: Colors.black54),
@@ -82,19 +85,14 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                         style: const TextStyle(fontSize: 14, color: Colors.black54),
                       ),
                       const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.red),
-                          ),
-                          child: const Center(
-                            child: Icon(Icons.close, size: 18, color: Colors.red),
-                          ),
-                        ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 25,color: Colors.red,),
+                        // Smaller icon
+                        padding: EdgeInsets.zero,
+                        // Remove default padding
+                        constraints: const BoxConstraints(),
+                        // Remove minimum size
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                   ),
@@ -105,24 +103,28 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  _buildDropdownField(
-                    label: "Select Bank",
-                    value: selectedBank,
-                    options: ["HBL", "UBL", "MCB"],
-                    onChanged: (val) => setState(() => selectedBank = val),
+                  CustomDropdownField(
+                    label: 'Select Bank',
+                    selectedValue: selectedBank,
+                    options: ['HBL', 'UBL', 'OTHER'],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedBank = value;
+                      });
+                    },
                   ),
-                  _buildDropdownField(
+                  CustomDropdownField(
                     label: "Payment",
-                    value: selectedPaymentType,
+                    selectedValue: selectedPaymentType,
                     options: ["In", "Out"],
-                    onChanged: (val) => setState(() => selectedPaymentType = val),
+                    onChanged: (value) => setState(() => selectedPaymentType = value),
                   ),
-                  _buildTextField("Amount", _amountController),
-                  _buildTextFieldSearch("Select Project", _searchController),
-                  _buildTextField("Payment By", _paymentByController,  ),
-                  _buildTextField("Received By", _receivedByController,),
-                  _buildTextField("Service TID", _serviceTIDController),
-                  _buildTextField("Note", _noteController,),
+                  CustomTextField(label: "Amount",controller:  _amountController,hintText: '300',),
+                  _buildTextFieldSearch("Select Project", _searchController,),
+                  CustomTextField(label: "Payment By", controller:_paymentByController, hintText: "John Doe", ),
+                  CustomTextField(label: "Received By", controller:_receivedByController,hintText: 'Auto fill'),
+                  CustomTextField(label: "Service TID",controller:  _serviceTIDController,hintText: 'Bank Transation ID ',),
+                  CustomTextField(label: "Note", controller: _noteController,hintText: 'xxxx',),
                 ],
               ),
               const SizedBox(height: 20),
@@ -228,8 +230,12 @@ Widget _buildTextFieldSearch(
       enabled: enabled,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.red),
-        border: const OutlineInputBorder(),
+        labelStyle: const TextStyle(color: Colors.grey),
+        border: const OutlineInputBorder(
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+        ),
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(color: Colors.red),
         ),

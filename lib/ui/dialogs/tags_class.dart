@@ -111,23 +111,22 @@ class _HoverableTagState extends State<_HoverableTag> {
               style: TextStyle(
                 color: textColor,
                 fontWeight: FontWeight.w500,
-                fontSize: 12,
+                fontSize: 10,
               ),
             ),
           ),
           if (_hovering)
             Positioned(
-              top: 2,
+              bottom: 10,
               right: 2,
               child: GestureDetector(
                 onTap: widget.onDelete,
                 child: Container(
-                  padding: const EdgeInsets.all(1),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Colors.black,
-                      width: 0.8,
+                      width: 0.4,
                     ),
                     color: Colors.white,
                   ),

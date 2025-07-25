@@ -5,6 +5,7 @@ import 'package:abc_consultant/ui/screens/login%20screens/forgot_screen.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/sign_screen.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/verification_screen.dart';
+import 'package:abc_consultant/ui/screens/projects/create_order_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,8 +24,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     //  return MaterialApp(home: DashboardScrn());
-    return MaterialApp(home: SidebarLayout());
+    return MaterialApp(
+        debugShowCheckedModeBanner: false, // 👈 This hides the debug banner
+
+        home: SidebarLayout());
     //home: SidebarLayout()
   }
 }

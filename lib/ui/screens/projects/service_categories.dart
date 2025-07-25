@@ -84,47 +84,11 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                             children: [
                               CustomDropdown(
                                 selectedValue: selectedCategory2,
-                                hintText: "Payment Status",
+                                hintText: "Institutes ",
                                 items: categories2,
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory2 = newValue!);
                                 },
-                              ),
-                              CustomDropdown(
-                                selectedValue: selectedCategory3,
-                                hintText: "Dates",
-                                items: categories3,
-                                onChanged: (newValue) async {
-                                  if (newValue == 'Custom Range') {
-                                    final selectedRange =
-                                        await showDateRangePickerDialog(
-                                          context,
-                                        );
-
-                                    if (selectedRange != null) {
-                                      final start =
-                                          selectedRange.startDate ??
-                                          DateTime.now();
-                                      final end =
-                                          selectedRange.endDate ?? start;
-
-                                      final formattedRange =
-                                          '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
-
-                                      setState(() {
-                                        selectedCategory3 = formattedRange;
-                                      });
-                                    }
-                                  } else {
-                                    setState(
-                                      () => selectedCategory3 = newValue!,
-                                    );
-                                  }
-                                },
-                                icon: const Icon(
-                                  Icons.calendar_month,
-                                  size: 18,
-                                ),
                               ),
                             ],
                           ),

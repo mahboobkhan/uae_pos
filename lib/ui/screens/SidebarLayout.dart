@@ -39,14 +39,15 @@ class SidebarLayout extends StatefulWidget {
 
 class _SidebarLayoutState extends State<SidebarLayout> {
   bool isExpanded = true;
-  NavItem selectedItem = NavItem.projects;
+  NavItem selectedItem = NavItem.banking;
 
-  int _selectedSidebarIndex = 1;
+  int _selectedSidebarIndex = 4;
   int _selectedSubmenuIndex = -1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           // Top Header
@@ -120,6 +121,20 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                   ),
                 ),
                 // User info right side
+                GestureDetector(
+                  onTap: (){
+                    showProfileDialog(context); // This is correct
+                  },
+                  child: Card(
+                    elevation: 8,
+                    shape: const CircleBorder(),
+                    child: const CircleAvatar(
+                      backgroundColor: Colors.red,
+                      child: Icon(Icons.person, color: Colors.white),
+                    ),
+                  ),
+                ),
+
               ],
             ),
           ),
@@ -128,6 +143,169 @@ class _SidebarLayoutState extends State<SidebarLayout> {
           Expanded(
             child: Row(
               children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child:
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: isExpanded ? 230 : 86,
+                      color: Colors.white,
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              icon: Icon(
+                                isExpanded ? Icons.arrow_back_ios : Icons.menu,
+                              ),
+                              onPressed:
+                                  () => setState(() => isExpanded = !isExpanded),
+                            ),
+                          ),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: sidebarItems.length,
+                              itemBuilder: (context, index) {
+                                final item = sidebarItems[index];
+                                final isSelected = _selectedSidebarIndex == index;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedSidebarIndex =
+                                          (_selectedSidebarIndex == index)
+                                              ? -1
+                                              : index;
+                                          _selectedSubmenuIndex = -1;
+                                          selectedItem = NavItem.values[index];
+                                        });
+                                      },
+                                      child: Container(
+                                        color:
+                                        isSelected
+                                            ? Colors.red.shade50
+                                            : Colors.transparent,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 18,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              item.icon,
+                                              color:
+                                              isSelected
+                                                  ? Colors.red
+                                                  : Colors.black,
+                                              size: 18,
+                                            ),
+                                            if (isExpanded) ...[
+                                              const SizedBox(width: 20),
+                                              Expanded(
+                                                child: Text(
+                                                  item.title,
+                                                  style: TextStyle(
+                                                    color:
+                                                    isSelected
+                                                        ? Colors.red
+                                                        : Colors.black,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                    isSelected
+                                                        ? FontWeight.bold
+                                                        : FontWeight.normal,
+                                                  ),
+                                                ),
+                                              ),
+                                              if (item.submenus.isNotEmpty)
+                                                Icon(
+                                                  isSelected
+                                                      ? Icons.keyboard_arrow_down
+                                                      : Icons.keyboard_arrow_right,
+                                                  size: 16,
+                                                  color: Colors.grey,
+                                                ),
+                                              if (item.trailingIcon != null)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 8.0),
+                                                  child: Icon(
+                                                    item.trailingIcon,
+                                                    size: 16,
+                                                    color:  Colors.red ,
+                                                  ),
+                                                ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    if (isSelected && isExpanded)
+                                      ...List.generate(item.submenus.length, (i) {
+                                        final submenu = item.submenus[i];
+                                        final submenuSelected = _selectedSubmenuIndex == i;
+                                        final submenuIcon = (item.submenuIcons!.length > i) ? item.submenuIcons![i] : null;
+
+                                        return Padding(
+                                          padding: const EdgeInsets.only(left: 40, top: 4, bottom: 4, right: 16),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              setState(() => _selectedSubmenuIndex = i);
+                                            },
+                                            child: Container(
+                                              height: 40,
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  // Submenu title
+                                                  Expanded(
+                                                    child: Text(
+                                                      submenu,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: submenuSelected ? Colors.red : Colors.black,
+                                                        fontWeight: submenuSelected ? FontWeight.bold : FontWeight.normal,
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  // Lock icon aligned to far right
+                                                  if (submenuIcon != null)
+                                                    Icon(
+                                                      submenuIcon,
+                                                      size: 16,
+                                                      color: Colors.red,
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        child: Icon(Icons.logout),
+                      ),
+                    )
+
+                  ],
+                ),
+/*
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   width: isExpanded ? 230 : 86,
@@ -216,7 +394,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                               child: Icon(
                                                 item.trailingIcon,
                                                 size: 16,
-                                                color: Colors.grey,
+                                                color:  Colors.red ,
                                               ),
                                             ),
                                         ],
@@ -231,31 +409,34 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                     final submenuIcon = (item.submenuIcons!.length > i) ? item.submenuIcons![i] : null;
 
                                     return Padding(
-                                      padding: const EdgeInsets.only(left: 40, top: 4, bottom: 4),
+                                      padding: const EdgeInsets.only(left: 40, top: 4, bottom: 4, right: 16),
                                       child: GestureDetector(
                                         onTap: () {
                                           setState(() => _selectedSubmenuIndex = i);
                                         },
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(vertical: 6),
+                                          height: 40,
+                                          alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                              Text(
-                                                submenu,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: submenuSelected ? Colors.red : Colors.black,
-                                                  fontWeight: submenuSelected ? FontWeight.bold : FontWeight.normal,
+                                              // Submenu title
+                                              Expanded(
+                                                child: Text(
+                                                  submenu,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: submenuSelected ? Colors.red : Colors.black,
+                                                    fontWeight: submenuSelected ? FontWeight.bold : FontWeight.normal,
+                                                  ),
                                                 ),
                                               ),
+
+                                              // Lock icon aligned to far right
                                               if (submenuIcon != null)
-                                                Padding(
-                                                  padding: const EdgeInsets.only(left: 8.0),
-                                                  child: Icon(
-                                                    submenuIcon,
-                                                    size: 16,
-                                                    color: Colors.grey,
-                                                  ),
+                                                Icon(
+                                                  submenuIcon,
+                                                  size: 16,
+                                                  color: Colors.red,
                                                 ),
                                             ],
                                           ),
@@ -271,6 +452,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                     ],
                   ),
                 ),
+*/
                 Expanded(
                   child: Container(
                     color: Colors.grey.shade100,
@@ -282,7 +464,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
           ),
 
           // Bottom Footer
-          Container(
+          /*Container(
             color: Colors.white,
             width: double.infinity,
             child:Row(
@@ -297,7 +479,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                   ),
                 ),
                 // Icon on the far right
-                GestureDetector(
+               *//* GestureDetector(
                   onTap: (){
                     showProfileDialog(context); // This is correct
                   },
@@ -310,10 +492,10 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                     ),
                   ),
                 ),
-                SizedBox(width: 12,)
+                SizedBox(width: 12,)*//*
               ],
             ),
-          ),
+          ),*/
         ],
       ),
     );
