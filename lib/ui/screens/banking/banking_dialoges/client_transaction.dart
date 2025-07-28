@@ -46,10 +46,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.white,
       insetPadding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
+        constraints: const BoxConstraints(maxWidth: 720, maxHeight: 400),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -129,7 +130,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
               ),
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   CustomButton(
                     onPressed: () {},
@@ -141,11 +142,12 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                   CustomButton(
                     onPressed: () {},
                     text: "Submit",
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.green,
                   ),
                 ],
               ),
             ],
+
           ),
         ),
       ),

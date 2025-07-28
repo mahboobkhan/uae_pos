@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/employe_profile.dart';
 
 class EmployeeScreen extends StatefulWidget {
   const EmployeeScreen({super.key});
@@ -24,8 +25,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   final List<String> categories = [
     'All',
     'Full time job',
-    'half time job',
-    'Old employee',
+    'Half time job',
+    'Previous employee',
   ];
   final List<String> categories1 = [
     'All',
@@ -98,7 +99,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                               ),
                               CustomDropdown(
                                 selectedValue: selectedCategory1,
-                                hintText: "Employee List",
+                                hintText: "Designation",
                                 items: categories1,
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory1 = newValue!);
@@ -132,32 +133,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                     child: GestureDetector(
                                       key: _plusKey,
                                       onTap: () async {
-                                        final RenderBox renderBox =
-                                            _plusKey.currentContext!
-                                                    .findRenderObject()
-                                                as RenderBox;
-                                        final Offset offset = renderBox
-                                            .localToGlobal(Offset.zero);
-
-                                        final selected = await showMenu<String>(
-                                          context: context,
-                                          position: RelativeRect.fromLTRB(
-                                            offset.dx,
-                                            offset.dy + renderBox.size.height,
-                                            offset.dx + 30,
-                                            offset.dy,
-                                          ),
-                                          items: const [
-                                            PopupMenuItem<String>(
-                                              value: 'Short Services',
-                                              child: Text('Short Services'),
-                                            ),
-                                            PopupMenuItem<String>(
-                                              value: 'Add Services',
-                                              child: Text('Add Services'),
-                                            ),
-                                          ],
-                                        );
+                                        EmployeeProfileDialog(context);
                                       },
                                       child: Container(
                                         width: 30,
@@ -170,7 +146,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                         ),
                                         child: const Center(
                                           child: Icon(
-                                            Icons.add,
+                                            Icons.people_alt,
                                             color: Colors.white,
                                             size: 20,
                                           ),
@@ -180,7 +156,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                   ),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 5),
                         ],
                       ),
                     ],
@@ -216,15 +192,15 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                 defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                 columnWidths: const {
                                   0: FlexColumnWidth(0.8),
-                                  1: FlexColumnWidth(2),
+                                  1: FlexColumnWidth(1.2),
                                   2: FlexColumnWidth(1),
                                   3: FlexColumnWidth(1.5),
                                   4: FlexColumnWidth(1.3),
                                   5: FlexColumnWidth(1.3),
-                                  6: FlexColumnWidth(1.3),
-                                  7: FlexColumnWidth(1),
-                                  8: FlexColumnWidth(1),
-                                  9: FlexColumnWidth(1.5),
+                                  /*6: FlexColumnWidth(1.3),
+                                  7: FlexColumnWidth(1),*/
+                                  6: FlexColumnWidth(1),
+                                  7: FlexColumnWidth(1.5),
                                 },
                                 children: [
                                   // Header Row
@@ -234,14 +210,16 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                     ),
                                     children: [
                                       _buildHeader("Date"),
-                                      _buildHeader("Employee Name\nReference id "),
-                                      _buildHeader("Job Positions"),
+                                      _buildHeader("Employee Detail "),
+                                      _buildHeader("Designation"),
                                       _buildHeader("Payment Mode"),
                                       _buildHeader("Salary"),
                                       _buildHeader("Advance"),
-                                      _buildHeader("Bonuses "),
-                                      _buildHeader("Pending"),
+                                     /* _buildHeader("Bonuses "),
+                                      _buildHeader("Pending"),*/
+/*
                                       _buildHeader("Total "),
+*/
                                       _buildHeader("Others"),
                                     ],
                                   ),
@@ -255,15 +233,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                       ),
                                       children: [
                                         _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
-                                        _buildCell3("Sample Customer ", "xxxxxxxxx245", copyable: true),
+                                        _buildCell("User"),
                                         _buildCell("Manager"),
-                                        _buildCell3("Bank Transfer", "TID xxxxxxx234", copyable: true),
+                                        _buildCell3("Bank Transfer", "TID *********456", copyable: true),
                                         _buildPriceWithAdd("AED-", "100000"),
-                                        _buildPriceWithAdd("AED-", "300", showPlus: true),
-                                        _buildPriceWithAdd("AED-", "2000", showPlus: true),
-                                        _buildCell("N/A"),
-                                        _buildCell("1400"),
-                                        _buildCell("xxxxxxxxx245", copyable: true),
+                                        _buildPriceWithAdd1("AED-", "300", ),
+                                       /* _buildPriceWithAdd("AED-", "2000", showPlus: true),
+                                        _buildCell("N/A"),*/
+/*
+                                        _buildPriceWithAdd2("AED-"," 1400"),
+*/
+                                        _buildCell("**********456", copyable: true),
                                       ],
                                     ),
                                 ],
@@ -349,41 +329,42 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         children: [
           Text(text1, style: const TextStyle(fontSize: 12)),
           centerText2
-              ? Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-                if (copyable)
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(text: "$text1\n$text2"),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied to clipboard'),
-                        ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(
-                        Icons.copy,
-                        size: 14,
-                        color: Colors.blue[700],
+              ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
                       ),
                     ),
                   ),
-              ],
-            ),
-          )
+                  if (copyable)
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Copied to clipboard'),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.copy,
+                          size: 14,
+                          color: Colors.blue[700],
+                        ),
+                      ),
+                    ),
+                ],
+              )
               : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -462,7 +443,57 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             curr,
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price,style: TextStyle(fontSize: 12),),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.green),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
+        ],
+      ),
+    );
+  }
+  Widget _buildPriceWithAdd1(String curr, String price, {bool showPlus = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Text(
+            curr,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+          ),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.red),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
+        ],
+      ),
+    );
+  }
+  Widget _buildPriceWithAdd2(String curr, String price, {bool showPlus = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Text(
+            curr,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+          ),
+          Text(price,style: TextStyle(fontSize: 12,),),
           const Spacer(),
           if (showPlus)
             Container(

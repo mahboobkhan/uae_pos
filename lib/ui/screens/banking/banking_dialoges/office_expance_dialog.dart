@@ -1,6 +1,8 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 
+import '../../../dialogs/custom_fields.dart';
+
 class OfficeExpanceDialog extends StatefulWidget {
   const OfficeExpanceDialog({super.key});
 
@@ -26,8 +28,8 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
   void initState() {
     super.initState();
     _amountController = TextEditingController();
-    _paymentByController = TextEditingController(text: "Auto Fill: John Doe");
-    _receivedByController = TextEditingController(text: "Auto Fill: Jane Smith");
+    _paymentByController = TextEditingController();
+    _receivedByController = TextEditingController();
     _serviceTIDController = TextEditingController();
     _noteController = TextEditingController();
   }
@@ -45,12 +47,13 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.white,
       insetPadding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
+        constraints: const BoxConstraints(maxWidth: 720, maxHeight: 400),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +73,7 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                           color: Colors.red,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      SizedBox(height: 2),
                       Text(
                         "TID. 00001-292382",
                         style: TextStyle(fontSize: 14, color: Colors.black54),
@@ -84,19 +87,11 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                         style: const TextStyle(fontSize: 14, color: Colors.black54),
                       ),
                       const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.red),
-                          ),
-                          child: const Center(
-                            child: Icon(Icons.close, size: 18, color: Colors.red),
-                          ),
-                        ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 25,color: Colors.red,),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                   ),
@@ -107,46 +102,64 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  _buildDropdownField(
+                  CustomDropdownField(
                     label: "Select Bank",
-                    value: selectedBank,
+                    selectedValue: selectedBank,
                     options: ["HBL", "UBL", "MCB"],
                     onChanged: (val) => setState(() => selectedBank = val),
                   ),
-                  _buildDropdownField(
+                  CustomDropdownField(
                     label: "Payment",
-                    value: selectedPaymentType,
+                    selectedValue: selectedPaymentType,
                     options: ["In", "Out"],
                     onChanged: (val) => setState(() => selectedPaymentType = val),
                   ),
-                  _buildDropdownField(
+                  CustomDropdownField(
                     label: "Expanse Type",
-                    value: selectedPaymentType1,
+                    selectedValue: selectedPaymentType1,
                     options: ["Fixed Office Expanse", "Office Maintenance","Office Supplies","Miscellaneous","Other"],
                     onChanged: (val) => setState(() => selectedPaymentType1 = val),
                   ),
-                  _buildDropdownWithPlus1(
-                    context: context,
-                    label: "Select Platform",
-                    value: selectedPlatform,
-                    items: platformList,
-                    onChanged: (newValue) {
-                      // Update selectedPlatform state in parent
-                    },
-                    onAddPressed: () {
-                      showInstituteManagementDialog(context);
-                    },
+                  SizedBox(
+                    width: 220,
+                    child:
+                    CustomDropdownWithAddButton(
+                      label: "Select Platform",
+                      value: selectedPlatform,
+                      items: platformList,
+                      onChanged: (newValue) {
+                        // Update selectedPlatform state in parent
+                      },
+                      onAddPressed: () {
+                        showInstituteManagementDialog(context);
+                      },
+                    ),
+
                   ),
-                  _buildTextField("Amount", _amountController),
-                  _buildTextField("Payment By", _paymentByController,  ),
-                  _buildTextField("Received By", _receivedByController,),
-                  _buildTextField("Service TID", _serviceTIDController),
-                  _buildTextField("Note", _noteController,),
+
+                  SizedBox(
+                    width: 220,
+                    child: CustomDropdownWithAddButton(
+                      label: "Select Platform",
+                      value: selectedPlatform,
+                      items: platformList,
+                      onChanged: (newValue) {
+                      },
+                      onAddPressed: () {
+                        showInstituteManagementDialog(context);
+                      },
+                    ),
+                  ),
+                  CustomTextField(label: "Amount", controller: _amountController,hintText: '500',),
+                  CustomTextField(label: "Payment By",controller:  _paymentByController, hintText: 'John Doe' ),
+                  CustomTextField(label: "Received By",controller:  _receivedByController,hintText: 'Smith'),
+                  CustomTextField(label: "Service TID", controller: _serviceTIDController,hintText: 'xxxxxxx',),
+                  CustomTextField(label: "Note",controller:  _noteController,hintText: "xxxxx",),
                 ],
               ),
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   CustomButton(
                     onPressed: () {},
@@ -158,7 +171,7 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                   CustomButton(
                     onPressed: () {},
                     text: "Submit",
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.green,
                   ),
                 ],
               ),
@@ -174,57 +187,7 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
     return "${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}";
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {
-    bool enabled = true,
-    double width = 220,
-  }) {
-    return SizedBox(
-      width: width,
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.red),
-          border: const OutlineInputBorder(),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildDropdownField({
-    required String label,
-    required String? value,
-    required List<String> options,
-    required ValueChanged<String?> onChanged,
-    double width = 220,
-  }) {
-    return SizedBox(
-      width: width,
-      child: DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-
-          focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red)
-          ),
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.red),
-          border: const OutlineInputBorder(),
-        ),
-        items: options
-            .map((String val) => DropdownMenuItem<String>(
-          value: val,
-          child: Text(val),
-        ))
-            .toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
 }
 
 void showOfficeExpanceDialog(BuildContext context) {
@@ -232,63 +195,6 @@ void showOfficeExpanceDialog(BuildContext context) {
     context: context,
     barrierDismissible: false,
     builder: (context) => const OfficeExpanceDialog(),
-  );
-}
-Widget _buildDropdownWithPlus1({
-  required BuildContext context,
-  required String label,
-  required String? value,
-  required List<String> items,
-  required Function(String?) onChanged,
-  required VoidCallback onAddPressed,
-  double width = 220,
-}) {
-  return SizedBox(
-    width: width,
-    child: Stack(
-      children: [
-        DropdownButtonFormField<String>(
-          value: value,
-          decoration: InputDecoration(
-
-            focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.red)
-            ),
-            labelText: label,
-            labelStyle: const TextStyle(color: Colors.red),
-            border: const OutlineInputBorder(),
-            contentPadding: const EdgeInsets.fromLTRB(12, 14, 48, 14),
-
-          ),
-          isDense: true,
-          style: const TextStyle(fontSize: 13),
-          items: items.map((item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item, style: const TextStyle(fontSize: 13)),
-            );
-          }).toList(),
-          onChanged: onChanged,
-        ),
-        Positioned(
-          right: 4,
-          top: 6,
-          bottom: 6,
-          child: GestureDetector(
-            onTap: onAddPressed,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.red,
-              ),
-              child: const Icon(Icons.add, size: 20, color: Colors.white),
-            ),
-          ),
-        ),
-      ],
-    ),
   );
 }
 

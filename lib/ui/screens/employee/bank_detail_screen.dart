@@ -21,8 +21,8 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
   final List<String> categories = [
     'All',
     'Full time job',
-    'half time job',
-    'Old employee',
+    'Half time job',
+    'Previous employee',
   ];
   final List<String> categories1 = [
     'All',
@@ -86,7 +86,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                             ),
                             CustomDropdown(
                               selectedValue: selectedCategory1,
-                              hintText: "Employee List",
+                              hintText: "Designation",
                               items: categories1,
                               onChanged: (newValue) {
                                 setState(() => selectedCategory1 = newValue!);
@@ -186,8 +186,8 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                   children: [
                                     _buildHeader("Date "),
                                     _buildHeader("Select Bank"),
-                                    _buildHeader("Bank\nIBN Number "),
-                                    _buildHeader("Contact Number\nEmail id"),
+                                    _buildHeader("Account Detail "),
+                                    _buildHeader("Contact Detail"),
                                     _buildHeader("Title Name"),
                                     _buildHeader("Other Action"),
                                   ],
@@ -208,13 +208,12 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                         centerText2: true,
                                       ),
                                       _buildCell("UBL"),
-                                      _buildCell3(
-                                        "xxxxxxxxx ",
-                                        "xxxxxxxxx245",
+                                      _buildCell(
+                                        "444*********45",
                                         copyable: true,
                                       ),
-                                      _buildCell3("0310662662", "@gmail.comx"),
-                                      _buildCell("xxxx"),
+                                      _buildCell3("+9728888888", "@gmail.comx"),
+                                      _buildCell("Imran"),
                                       _buildActionCell(
                                         onEdit: () {},
                                         onDelete: () {},
@@ -341,12 +340,12 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.blue),
+          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
         ),
         IconButton(
-          icon: const Icon(Icons.share, size: 20, color: Colors.red),
+          icon: const Icon(Icons.share, size: 20, color: Colors.blue),
           tooltip: 'Share',
           onPressed: onDelete ?? () {},
         ),
@@ -380,11 +379,14 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
               ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    text2,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.black54,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
                   if (copyable)

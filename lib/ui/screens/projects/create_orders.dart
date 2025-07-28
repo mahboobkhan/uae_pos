@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
 import '../../dialogs/tags_class.dart';
 import 'create_order_dialog.dart';
@@ -298,7 +299,23 @@ class _CreateOrdersState extends State<CreateOrders> {
                                         ),
                                         _buildActionCell(
                                           onEdit: () {},
-                                          onDelete: () {},
+                                          onDelete: () {
+                                            final shouldDelete =  showDialog<bool>(
+                                              context: context,
+                                              builder: (context) => const ConfirmationDialog(
+                                                title: 'Confirm Deletion',
+                                                content: 'Are you sure you want to delete this?',
+                                                cancelText: 'Cancel',
+                                                confirmText: 'Delete',
+                                              ),
+                                            );
+                                            if (shouldDelete == true) {
+                                              // 👇 Put your actual delete logic here
+                                              print("Item deleted");
+                                              // You can also call a function like:
+                                              // await deleteItem();
+                                            }
+                                          },
                                           onDraft: () {},
                                         ),
                                       ],
@@ -540,7 +557,7 @@ class _CreateOrdersState extends State<CreateOrders> {
             'assets/icons/img_3.png',
             width: 20,
             height: 20,
-            color: Colors.red,
+            color: Colors.grey,
           ),
           tooltip: 'Draft',
           onPressed: onDraft ?? () {},

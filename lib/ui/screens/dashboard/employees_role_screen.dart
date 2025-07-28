@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-import '../../Model/SidebarItem.dart';
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
+import '../../dialogs/employe_profile.dart';
 import '../../utils/utils.dart';
 
 class EmployeesRoleScreen extends StatefulWidget {
@@ -15,17 +16,14 @@ class EmployeesRoleScreen extends StatefulWidget {
 }
 
 class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
+  String? selectedService;
+  final List<String> serviceOptions = ['Manager', 'Employee', 'Other'];
+
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
   bool _isHovering = false;
 
-  final List<String> categories = [
-    'All',
-    'New',
-    'In Progress',
-    'Completed',
-    'Stop',
-  ];
+  final List<String> categories = ['All', 'Active', 'Blocked'];
   String? selectedCategory;
 
   final List<String> categories1 = [
@@ -223,6 +221,9 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                         _buildActionCell(
                                           onEdit: () {},
                                           onDelete: () {},
+                                          onDraft: () {
+                                            EmployeeProfileDialog(context);
+                                          },
                                         ),
                                       ],
                                     ),
@@ -323,6 +324,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       ),
     );
   }
+
   /*void showMenuLockDialog(BuildContext context, List<SidebarItem> sidebarItems) {
     showDialog(
       context: context,
@@ -412,7 +414,29 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Grant Access',style: TextStyle(fontWeight: FontWeight.bold),),
+          backgroundColor: Colors.white,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Grant Access',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 12),
+              SizedBox(
+                width: 230,
+                child: CustomDropdownWithAddButton(
+                  label: "Assign Desigination ",
+                  value: selectedService,
+                  items: serviceOptions,
+                  onChanged: (val) => selectedService = val,
+                  onAddPressed: () {
+                    showInstituteManagementDialog2(context);
+                  },
+                ),
+              ),
+            ],
+          ),
           content: SizedBox(
             width: 400,
             child: ListView.builder(
@@ -420,7 +444,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
               itemCount: sidebarItems.length,
               itemBuilder: (context, index) {
                 final item = sidebarItems[index];
-
                 item.isLocked ??= true; // Default value
                 return ExpansionTile(
                   title: Row(
@@ -428,7 +451,10 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                       Icon(item.icon, size: 18),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        child: Text(
+                          item.title,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       Transform.scale(
                         scale: 0.5,
@@ -444,16 +470,21 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                           inactiveTrackColor: Colors.red,
                         ),
                       ),
-
                     ],
                   ),
                   children: List.generate(item.submenus.length, (subIndex) {
-                    item.submenuLockStates ??= List.generate(item.submenus.length, (_) => true);
+                    item.submenuLockStates ??= List.generate(
+                      item.submenus.length,
+                      (_) => true,
+                    );
 
                     return ListTile(
                       dense: true,
                       contentPadding: const EdgeInsets.only(left: 32, right: 8),
-                      title: Text(item.submenus[subIndex], style: const TextStyle(fontSize: 13)),
+                      title: Text(
+                        item.submenus[subIndex],
+                        style: const TextStyle(fontSize: 13),
+                      ),
                       trailing: Transform.scale(
                         scale: 0.5,
                         child: Switch(
@@ -468,7 +499,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                           inactiveTrackColor: Colors.red,
                         ),
                       ),
-
                     );
                   }),
                 );
@@ -479,7 +509,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 12.0, bottom: 8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end, // Aligns buttons to the right
+                mainAxisAlignment: MainAxisAlignment.end,
+                // Aligns buttons to the right
                 children: [
                   TextButton(
                     child: const Text(
@@ -502,32 +533,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       },
     );
   }
-/*
-  actions: [
-  Padding(
-  padding: const EdgeInsets.only(right: 12.0, bottom: 8),
-  child: Row(
-  mainAxisAlignment: MainAxisAlignment.end, // Aligns buttons to the right
-  children: [
-  TextButton(
-  child: const Text(
-  'Close',
-  style: TextStyle(color: Colors.grey),
-  ),
-  onPressed: () => Navigator.of(context).pop(),
-  ),
-  const SizedBox(width: 8),
-  CustomButton(
-  text: 'Submit',
-  backgroundColor: Colors.green,
-  onPressed: () {},
-  ),
-  ],
-  ),
-  ),
-  ],
-*/
-
 
   Widget _buildActionCell({
     VoidCallback? onEdit,
@@ -544,9 +549,14 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
           icon: const Icon(Icons.check_circle, size: 20, color: Colors.green),
           onPressed: onDelete ?? () {},
         ),
+        IconButton(
+          icon: const Icon(Icons.person, size: 23, color: Colors.grey),
+          onPressed: onDraft ?? () {},
+        ),
       ],
     );
   }
+
   Widget _buildCell1(String text, {bool copyable = false}) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
@@ -578,4 +588,273 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     );
   }
 
+  void showInstituteManagementDialog2(BuildContext context) {
+    final List<String> institutes = [];
+    final TextEditingController addController = TextEditingController();
+    final TextEditingController editController = TextEditingController();
+    int? editingIndex;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  12,
+                ), // Slightly smaller radius
+              ),
+              contentPadding: const EdgeInsets.all(12), // Reduced padding
+              insetPadding: const EdgeInsets.all(20), // Space around dialog
+              content: SizedBox(
+                width: 363,
+                height: 305,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Compact header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Add Services',
+                          style: TextStyle(
+                            fontSize: 16, // Smaller font
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            size: 25,
+                            color: Colors.red,
+                          ),
+                          // Smaller icon
+                          padding: EdgeInsets.zero,
+                          // Remove default padding
+                          constraints: const BoxConstraints(),
+                          // Remove minimum size
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Compact input field
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start, // align top
+                      children: [
+                        // TextField
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            alignment: Alignment.centerLeft,
+                            child: TextField(
+                              controller: addController,
+                              cursorColor: Colors.blue,
+                              style: const TextStyle(fontSize: 14),
+                              decoration: const InputDecoration(
+                                hintText: "Add institute...",
+                                border: InputBorder.none,
+                                // remove double border
+                                isDense: true,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        // Add Button
+                        SizedBox(
+                          height: 40,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            onPressed: () {
+                              if (addController.text.trim().isNotEmpty) {
+                                setState(() {
+                                  institutes.add(addController.text.trim());
+                                  addController.clear();
+                                });
+                              }
+                            },
+                            child: const Text(
+                              "Add",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Compact list
+                    Expanded(
+                      child:
+                          institutes.isEmpty
+                              ? const Center(
+                                child: Text(
+                                  'No institutes',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              )
+                              : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: institutes.length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 4),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: ListTile(
+                                      dense: true,
+                                      // Makes tiles more compact
+                                      visualDensity: VisualDensity.compact,
+                                      // Even more compact
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                      title: Text(
+                                        institutes[index],
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                      trailing: SizedBox(
+                                        width:
+                                            80, // Constrained width for buttons
+                                        child: Row(
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.edit,
+                                                size: 18,
+                                                color: Colors.green,
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              onPressed:
+                                                  () => _showEditDialog(
+                                                    context,
+                                                    setState,
+                                                    institutes,
+                                                    index,
+                                                    editController,
+                                                  ),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.delete,
+                                                size: 18,
+                                                color: Colors.red,
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              onPressed: () {
+                                                setState(() {
+                                                  institutes.removeAt(index);
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showEditDialog(
+    BuildContext context,
+    StateSetter setState,
+    List<String> institutes,
+    int index,
+    TextEditingController editController,
+  ) {
+    editController.text = institutes[index];
+    showDialog(
+      context: context,
+      builder: (editContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.all(16),
+          content: SizedBox(
+            width: 250, // Smaller width
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  cursorColor: Colors.blue,
+                  controller: editController,
+                  decoration: const InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1.5, color: Colors.grey),
+                    ),
+                    labelText: 'Edit institute',
+                    labelStyle: TextStyle(color: Colors.blue),
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(editContext),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    CustomButton(
+                      backgroundColor: Colors.blue,
+                      onPressed: () {
+                        if (editController.text.trim().isNotEmpty) {
+                          setState(() {
+                            institutes[index] = editController.text.trim();
+                          });
+                          Navigator.pop(editContext);
+                        }
+                      },
+                      text: 'Save',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

@@ -32,19 +32,21 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
             flex: 2,
             child: Column(
               children: [
-                SizedBox(height: 90),
+                SizedBox(height: 60),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 60),
-                        Text(
-                          'Create New Password',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25,
+                        const SizedBox(height: 30),
+                        FittedBox(
+                          child: Text(
+                            'Create New Password',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                            ),
                           ),
                         ),
                         SizedBox(height: 40,),
@@ -68,7 +70,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                 hintText: "",
                                 isPassword: true,
                               ),
-                              SizedBox(height: 20),
+                              SizedBox(height: 64),
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.push(
@@ -100,26 +102,38 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LogScreen()),
-                    );
-                  },
-                  child: RichText(
-                    text: TextSpan(
-                      text: 'Create New Account? ',
-                      style: TextStyle(color: Colors.grey, fontSize: 14),
-                      children: [
-                        TextSpan(
-                          text: 'Signup',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
+                FittedBox(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LogScreen()),
+                      );
+                    },
+                    style: ButtonStyle(
+                      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.hovered)) {
+                            return Colors.white; // 👈 Hover color
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    child: RichText(
+                      text: const TextSpan(
+                        text: 'Create New Account? ',
+                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                        children: [
+                          TextSpan(
+                            text: 'Signup',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

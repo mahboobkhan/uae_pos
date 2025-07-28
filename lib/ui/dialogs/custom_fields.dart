@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CustomTextField extends StatefulWidget {
   final String label;
@@ -53,7 +54,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   ? IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.grey.shade600,
+                      color: Colors.grey.shade600,size: 18,
                     ),
                     onPressed: () {
                       setState(() {
@@ -69,7 +70,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 }
 
-class CustomDropdownField extends StatelessWidget {
+  class CustomDropdownField extends StatelessWidget {
   final String label;
   final String? selectedValue;
   final List<String> options;
@@ -562,3 +563,366 @@ class InfoBoxNoColor extends StatelessWidget {
     );
   }
 }
+class SmallDropdownField extends StatelessWidget {
+  final String label;
+  final String? selectedValue;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  final double width;
+
+  const SmallDropdownField({
+    super.key,
+    required this.label,
+    required this.selectedValue,
+    required this.options,
+    required this.onChanged,
+    this.width = 220,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: DropdownButtonFormField<String>(
+        value: selectedValue,
+        isExpanded: true,
+        decoration: InputDecoration(
+          isDense: true, // Makes the field smaller vertically
+          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          labelText: label,
+          labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          border: const OutlineInputBorder(),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 1),
+          ),
+        ),
+        onChanged: onChanged,
+        items: options
+            .map(
+              (e) => DropdownMenuItem(
+            value: e,
+            child: Text(e, style: const TextStyle(fontSize: 16)),
+          ),
+        )
+            .toList(),
+      ),
+    );
+  }
+}
+
+class DateTimePickerExample extends StatefulWidget {
+  const DateTimePickerExample({Key? key}) : super(key: key);
+
+  @override
+  State<DateTimePickerExample> createState() => _DateTimePickerExampleState();
+}
+
+class _DateTimePickerExampleState extends State<DateTimePickerExample> {
+  DateTime selectedDateTime = DateTime.now();
+
+  Future<void> _selectDateTime() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDateTime,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.red,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            textTheme: const TextTheme(
+              headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+              titleSmall: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
+              bodyLarge: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      final TimeOfDay? time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(selectedDateTime),
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: Colors.red,
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+              dialogTheme: DialogTheme(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (time != null) {
+        setState(() {
+          selectedDateTime = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            time.hour,
+            time.minute,
+          );
+        });
+      }
+    }
+  }
+
+  Widget buildDateTimeField({
+    required String label,
+    required DateTime selectedDateTime,
+    required VoidCallback onTap,
+    IconData icon = Icons.calendar_month_outlined,
+    String dateFormat = "dd-MM-yyyy - hh:mm a",
+  }) {
+    return SizedBox(
+      width: 220,
+      child: GestureDetector(
+        onTap: onTap,
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+            border: const OutlineInputBorder(),
+            suffixIcon: Icon(
+              icon,
+              color: Colors.red,
+              size: 22,
+            ),
+          ),
+          child: Text(
+            DateFormat(dateFormat).format(selectedDateTime),
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("DateTime Picker")),
+      body: Center(
+        child: buildDateTimeField(
+          label: "Select Date & Time",
+          selectedDateTime: selectedDateTime,
+          onTap: _selectDateTime,
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class CustomDateField extends StatelessWidget {
+  final String label;
+  final String hintText;
+  final TextEditingController controller;
+  final double width;
+  final VoidCallback onTap;
+  final bool readOnly;
+
+  const CustomDateField({
+    Key? key,
+    required this.label,
+    required this.hintText,
+    required this.controller,
+    required this.onTap,
+    this.width = 220,
+    this.readOnly = true,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        onTap: onTap,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          border: const OutlineInputBorder(),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 1),
+          ),
+          suffixIcon: const Icon(Icons.calendar_today, color: Colors.red, size: 20),
+        ),
+        style: const TextStyle(fontSize: 16, color: Colors.black),
+      ),
+    );
+  }
+}
+
+
+
+class CustomDateNotificationField extends StatelessWidget {
+  final String label;
+  final String hintText;
+  final TextEditingController controller;
+  final double width;
+  final VoidCallback onTap;
+  final bool readOnly;
+
+  const CustomDateNotificationField({
+    Key? key,
+    required this.label,
+    required this.hintText,
+    required this.controller,
+    required this.onTap,
+    this.width = 150, // ⬅️ Reduced default width
+    this.readOnly = true,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: 30, // ⬅️ Compact height
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        onTap: onTap,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+          labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+          border: const OutlineInputBorder(),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5), // ⬅️ Shrinks field height
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 1),
+          ),
+          suffixIcon: const Icon(Icons.alarm_on_sharp, color: Colors.red, size: 20),
+        ),
+        style: const TextStyle(fontSize: 10, color: Colors.black), // ⬅️ Slightly smaller font
+      ),
+    );
+  }
+}
+
+class SearchTextField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final bool enabled;
+  final double width;
+
+  const SearchTextField({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.enabled = true,
+    this.width = 220,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.grey),
+          border: const OutlineInputBorder(),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+          ),
+          suffixIcon: const Icon(Icons.search, color: Colors.grey),
+        ),
+      ),
+    );
+  }
+}
+
+class ConfirmationDialog extends StatelessWidget {
+  final String title;
+  final String content;
+  final String cancelText;
+  final String confirmText;
+
+  const ConfirmationDialog({
+    Key? key,
+    this.title = 'Are you sure?',
+    this.content = 'Do you really want to close? Unsaved changes may be lost.',
+    this.cancelText = 'Cancel',
+    this.confirmText = 'Close',
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(cancelText,style: TextStyle(color: Colors.grey),),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(confirmText,style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    );
+  }
+}
+
+

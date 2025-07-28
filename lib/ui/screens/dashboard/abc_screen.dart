@@ -28,12 +28,22 @@ class _AbcScreenState extends State<AbcScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            const Text(
-              "Unlock",
-              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold,color: Colors.grey),
-              textAlign: TextAlign.center,
+            TextButton(
+              onPressed: () {
+              },
+              child: Text(
+                "Please contact the admin to request access.",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
 
+            /* const SizedBox(height: 20),
+            const Icon(Icons.lock, size: 45, color: Colors.grey),*/
           ],
         ),
       ),

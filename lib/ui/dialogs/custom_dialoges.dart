@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'custom_fields.dart';
+import 'package:flutter_popup/flutter_popup.dart';
 
 void showProfileDialog(BuildContext context) {
   showDialog(
@@ -18,6 +19,7 @@ void showProfileDialog(BuildContext context) {
 
 Widget _buildDialogContent(BuildContext context) {
   return Stack(
+    clipBehavior: Clip.none,
     alignment: Alignment.topCenter,
     children: [
       Container(
@@ -43,23 +45,68 @@ Widget _buildDialogContent(BuildContext context) {
             const Divider(thickness: 1),
             const _InfoRow(label: 'Email', value: 'john@example.com'),
             const _InfoRow(label: 'Phone', value: '+123456789'),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             _DialogButton(
               label: '',
               hint: 'realpassward',
               showEdit: true,
               onEditTap: () => showEditDialog(context),
             ),
-            SizedBox(height: 8),
-            _DialogButton(label: '', hint: 'real', showEdit: true,onEditTap: ()=>showEditDialog1(context),),
+            const SizedBox(height: 8),
+            _DialogButton(
+              label: '',
+              hint: 'real',
+              showEdit: true,
+              onEditTap: () => showEditDialog1(context),
+            ),
             labelWithArrow('Finance History'),
           ],
         ),
       ),
-      const CircleAvatar(
-        radius: 50,
-        backgroundColor: Colors.red,
-        child: Icon(Icons.person, color: Colors.white, size: 50),
+
+      // Circle Avatar with Edit Icon
+      Positioned(
+        top: 0,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.red,
+              child: Icon(Icons.person, color: Colors.white, size: 50),
+            ),
+            Positioned(
+              bottom: 4,
+              right: 4,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: const Icon(
+                  Icons.edit,
+                  size: 16,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // Exclamation icon positioned outside top-right of the card
+      Positioned(
+        top: 55,
+        right: 20,
+        child: CustomPopup(
+          content: const Text('The image size is 12mb'),
+          child: const Icon(
+            Icons.error_outline,
+            size: 20,
+            color: Colors.red,
+          ),
+        ),
       ),
     ],
   );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'custom_dialoges.dart';
+import 'custom_fields.dart';
 
 void showCompanyProfileDialog(BuildContext context) {
   showDialog(
@@ -9,8 +10,9 @@ void showCompanyProfileDialog(BuildContext context) {
     barrierDismissible: false,
     builder:
         (context) => Dialog(
+          backgroundColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: CompanyProfile(),
         ),
@@ -25,6 +27,33 @@ class CompanyProfile extends StatefulWidget {
 }
 
 class CompanyProfileState extends State<CompanyProfile> {
+  final TextEditingController companyNameController = TextEditingController();
+  final TextEditingController tradeLicenseController = TextEditingController();
+  final TextEditingController companyCodeController = TextEditingController();
+  final TextEditingController establishmentNumberController =
+      TextEditingController();
+  final TextEditingController extraNoteController = TextEditingController();
+  final TextEditingController emailId2Controller = TextEditingController();
+  final TextEditingController contactNumberController = TextEditingController();
+  final TextEditingController contactNumber2Controller =
+      TextEditingController();
+  final TextEditingController physicalAddressController =
+      TextEditingController();
+  final TextEditingController channelNameController = TextEditingController();
+  final TextEditingController channelLoginController = TextEditingController();
+  final TextEditingController channelPasswordController =
+      TextEditingController();
+  final TextEditingController documentNameController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emiratesIdController = TextEditingController();
+  final TextEditingController workPermitNumberController =
+      TextEditingController();
+  final TextEditingController emailId1Controller = TextEditingController();
+  final TextEditingController contactNumber3Controller =
+      TextEditingController();
+  final TextEditingController docName2 = TextEditingController();
+  final TextEditingController advancePayment = TextEditingController();
+
   String? selectedPlatform;
   List<String> platformList = ['Bank', 'Violet', 'Other'];
   String? selectedJobType3;
@@ -33,336 +62,362 @@ class CompanyProfileState extends State<CompanyProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Row(
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: SizedBox(
+        width: 950,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
                     children: [
                       const Text(
-                        "Company Profile",
+                        'Company Profile',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.red,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      CustomDropdownField(
-                        hintText: "Select job type",
-                        items: ['Regular', 'Walking'],
-                        selectedValue: selectedJobType3,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedJobType3 = value;
-                          });
-                        },
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 160,
+                        child: SmallDropdownField(
+                          label: "Employee type",
+                          options: ['Cleaning', 'Consultining', 'Reparing'],
+                          selectedValue: selectedJobType3,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedJobType3 = value;
+                            });
+                          },
+                        ),
                       ),
-                      const SizedBox(width: 8),
-                      const Text("12-02-2025", style: TextStyle(fontSize: 12)),
                     ],
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.red),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
+                  Row(
+                    children: [
+                      Text(
+                        DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.red),
+                        onPressed: () async {
+                          final shouldClose = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  title: const Text("Are you sure?"),
+                                  content: const Text(
+                                    "Do you want to close this form? Unsaved changes may be lost.",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () =>
+                                              Navigator.of(context).pop(false),
+                                      child: const Text(
+                                        "Keep Changes ",
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(context).pop(true),
+                                      child: const Text(
+                                        "Close",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          );
 
-            const SizedBox(height: 4),
-            // ORN Label
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "ORN. 00001-0000001",
-                style: TextStyle(fontSize: 12, color: Colors.black87),
+                          if (shouldClose == true) {
+                            Navigator.of(context).pop(); // close the dialog
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                CustomTextField(
-                  label: "Company Name",
-                  borderColor: Colors.red,
-                  hintText: "xyz",
-                ),
-                CustomTextField(
-                  label: "Trade Licence Number ",
-                  borderColor: Colors.red,
-                  hintText: "1234",
-                ),
-                CustomTextField(
-                  label: "Company Code ",
-                  borderColor: Colors.red,
-                  hintText: "456",
-                ),
-                CustomTextField(
-                  label: "Establishment Number ",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxxxx",
-                ),
-              ],
-            ),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                CustomTextField(
-                  label: "Note Extra ",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Email I'd ",
-                  borderColor: Colors.red,
-                  hintText: "@gmail.com",
-                ),
-                CustomTextField(
-                  label: "Contact Number ",
-                  borderColor: Colors.red,
-                  hintText: "03xxxxxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Contact Number 2",
-                  borderColor: Colors.red,
-                  hintText: "03xxxxxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Physical Address",
-                  borderColor: Colors.red,
-                  hintText: "Address,house,street,town,post code",
-                ),
-                CustomTextField(
-                  label: "E- Channel Name",
-                  borderColor: Colors.red,
-                  hintText: "S.E.C.P",
-                ),
-                CustomTextField(
-                  label: "E- Channel Login I'd",
-                  borderColor: Colors.red,
-                  hintText: "S.E.C.P",
-                ),
-                CustomTextField(
-                  label: "E- Channel Login Password",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Doc Name",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Issue Date Notifications",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
+              Text(
+                'ORN.0001-0000002', // Static example ID
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomTextField(
+                    label: "Company Name",
+                    hintText: "xyz",
+                    controller: companyNameController,
                   ),
-                ),
-                CustomTextField(
-                  label: "Expiry Date Notification",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
+                  CustomTextField(
+                    label: "Trade Licence Number ",
+                    controller: tradeLicenseController,
+                    hintText: "1234",
                   ),
-                ),
-                CustomButton(
-                  text: 'Upload File',
-                  onPressed: () {},
-                  backgroundColor: Colors.green,
-                  icon: Icons.file_copy_outlined,
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                Text(
-                  "Partner / Employee Records",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
+                  CustomTextField(
+                    label: "Company Code ",
+                    controller: companyCodeController,
+                    hintText: "456",
                   ),
-                ),
-              ],
-            ),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                CustomDropdownField(
-                  hintText: "Employee",
-                  items: ['Partner', 'Employee', 'Other Records'],
-                  selectedValue: selectedJobType4,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedJobType4 = value;
-                    });
-                  },
-                ),
-                _buildDropdownWithPlus1(
-                  context: context,
-                  label: "Select Platform",
-                  value: selectedPlatform,
-                  items: platformList,
-                  onChanged: (newValue) {
-                    // Update selectedPlatform state in parent
-                  },
-                  onAddPressed: () {
-                    showInstituteManagementDialog(context);
-                  },
-                ),
-                CustomTextField(
-                  label: " Name",
-                  borderColor: Colors.red,
-                  hintText: "Imran Khan",
-                ),
-                CustomTextField(
-                  label: "Emirates IDs",
-                  borderColor: Colors.red,
-                  hintText: "S.E.C.P",
-                ),
-                CustomTextField(
-                  label: "Work Permit No",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Email I'd",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Contact No",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Doc Name",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Issue Date Notifications",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
+                  CustomTextField(
+                    label: "Establishment Number ",
+                    controller: establishmentNumberController,
+                    hintText: "xxxxxxxxx",
                   ),
-                ),
-                CustomTextField(
-                  label: "Expiry Date Notification",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
-                  ),
-                ),
-                CustomButton(
-                  text: 'Upload File',
-                  onPressed: () {},
-                  backgroundColor: Colors.green,
-                  icon: Icons.file_copy_outlined,
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    "Add 2 more",
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    "Add More Employee",
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10,),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                CustomTextField(
-                  label: "Advance Payment TID",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxx",
-                ),
-                CustomCompactInfoBox(
-                  title: "Pending Payment",
-                  subtitle: "AED-3000",
-                  backgroundColor: Colors.blue.shade50,
-                  borderColor: Colors.blue,
-                ),
-                CustomCompactInfoBox(
-                  title: "Advance Payment",
-                  subtitle: "AED-3000",
-                  backgroundColor: Colors.blue.shade50,
-                  borderColor: Colors.blue,
-                ),
-              ],
-            ), SizedBox(height: 10),
-            Row(
-              children: [
-                CustomButton(
-                  text: "Editing",
-                  backgroundColor: Colors.red,
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 10),
-                CustomButton(
-                  text: "Submit",
-                  backgroundColor: Colors.green,
-                  onPressed: () {},
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
+                ],
+              ),
+              SizedBox(height: 10),
 
-          ],
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomTextField(
+                    label: "Note Extra ",
+                    controller: extraNoteController,
+                    hintText: "xxxxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Email I'd ",
+                    controller: emailId2Controller,
+                    hintText: "@gmail.com",
+                  ),
+                  CustomTextField(
+                    label: "Contact Number ",
+                    controller: contactNumberController,
+                    hintText: "03xxxxxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Contact Number 2",
+                    controller: contactNumber2Controller,
+                    hintText: "03xxxxxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Physical Address",
+                    controller: physicalAddressController,
+                    hintText: "Address,house,street,town,post code",
+                  ),
+                  CustomTextField(
+                    label: "E- Channel Name",
+                    controller: channelNameController,
+                    hintText: "S.E.C.P",
+                  ),
+                  CustomTextField(
+                    label: "E- Channel Login I'd",
+                    controller: channelLoginController,
+                    hintText: "S.E.C.P",
+                  ),
+                  CustomTextField(
+                    label: "E- Channel Login Password",
+                    controller: channelPasswordController,
+                    hintText: "xxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Doc Name",
+                    controller: documentNameController,
+                    hintText: "xxxxxxx",
+                  ),
+                  CustomDateField(
+                    label: "Issue Date Notifications",
+                    controller: _dateTimeController,
+                    readOnly: true,
+                    hintText: "dd-MM-yyyy",
+                    onTap: _pickDateTime,
+                  ),
+                  CustomDateField(
+                    label: "Expiry Date Notification",
+                    controller: _dateTimeController,
+                    readOnly: true,
+                    hintText: "dd-MM-yyyy",
+                    onTap: _pickDateTime,
+                  ),
+                  CustomButton(
+                    text: 'Upload File',
+                    onPressed: () {},
+                    backgroundColor: Colors.green,
+                    icon: Icons.file_copy_outlined,
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  Text(
+                    "Partner / Employee Records",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomDropdownField(
+                    label: "Employee",
+                    options: ['Partner', 'Employee', 'Other Records'],
+                    selectedValue: selectedJobType4,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedJobType4 = value;
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: CustomDropdownWithAddButton(
+                      label: "Select Platform",
+                      value: selectedPlatform,
+                      items: platformList,
+                      onChanged: (newValue) {
+                        // Update selectedPlatform state in parent
+                      },
+                      onAddPressed: () {
+                        showInstituteManagementDialog(context);
+                      },
+                    ),
+                  ),
+                  CustomTextField(
+                    label: " Name",
+                    controller: nameController,
+                    hintText: "Imran Khan",
+                  ),
+                  CustomTextField(
+                    label: "Emirates IDs",
+                    controller: emiratesIdController,
+                    hintText: "S.E.C.P",
+                  ),
+                  CustomTextField(
+                    label: "Work Permit No",
+                    controller: workPermitNumberController,
+                    hintText: "xxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Email I'd",
+                    controller: emailId1Controller,
+                    hintText: "xxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Contact No",
+                    controller: contactNumber3Controller,
+                    hintText: "xxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Doc Name",
+                    controller: docName2,
+                    hintText: "xxxxxxx",
+                  ),
+                  CustomDateField(
+                    label: "Issue Date Notifications",
+                    controller: _dateTimeController,
+                    readOnly: true,
+                    hintText: "dd-MM-yyyy",
+
+                    onTap: _pickDateTime,
+                  ),
+                  CustomDateField(
+                    label: "Expiry Date Notification",
+                    controller: _dateTimeController,
+                    readOnly: true,
+                    onTap: _pickDateTime,
+                    hintText: "dd-MM-yyyy",
+                  ),
+                  CustomButton(
+                    text: 'Upload File',
+                    onPressed: () {},
+                    backgroundColor: Colors.green,
+                    icon: Icons.file_copy_outlined,
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Add 2 more",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Add More Employee",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomTextField(
+                    label: "Advance Payment TID",
+                    controller: advancePayment,
+                    hintText: "*****",
+                  ),
+                  InfoBox(
+                    value: "Pending Payment",
+                    label: "AED-3000",
+                    color: Colors.blue.shade50,
+                  ),
+
+                  InfoBox(
+                    value: "Advance Payment",
+                    label: "AED-3000",
+                    color: Colors.blue.shade50,
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  CustomButton(
+                    text: "Editing",
+                    backgroundColor: Colors.red,
+                    onPressed: () {},
+                  ),
+                  const SizedBox(width: 10),
+                  CustomButton(
+                    text: "Submit",
+                    backgroundColor: Colors.green,
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -398,61 +453,7 @@ class CompanyProfileState extends State<CompanyProfile> {
   }
 }
 
-class CustomTextField extends StatelessWidget {
-  final String label;
-  final String? hintText;
-  final Color borderColor;
-  final TextEditingController? controller;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final Widget? prefixIcon;
-
-  const CustomTextField({
-    Key? key,
-    required this.label,
-    this.borderColor = Colors.grey,
-    this.controller,
-    this.hintText,
-    this.readOnly = false,
-    this.onTap,
-    this.prefixIcon,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 4.5, // 5 per row
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: TextField(
-          controller: controller,
-          readOnly: readOnly,
-          onTap: onTap,
-          decoration: InputDecoration(
-            labelStyle: TextStyle(color: Colors.red),
-
-            hintStyle: TextStyle(color: borderColor),
-            hintText: hintText,
-            labelText: label,
-            prefixIcon: prefixIcon,
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 12,
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor, width: 1),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
+/*
 class CustomDropdownField extends StatelessWidget {
   final String? label;
   final String? hintText;
@@ -509,6 +510,7 @@ class CustomDropdownField extends StatelessWidget {
     );
   }
 }
+*/
 
 Widget _buildDropdownWithPlus1({
   required BuildContext context,
@@ -814,6 +816,7 @@ void showInstituteManagementDialog(BuildContext context) {
     },
   );
 }
+
 class CustomCompactInfoBox extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -852,14 +855,14 @@ class CustomCompactInfoBox extends StatelessWidget {
               Text(
                 title,
                 style:
-                titleStyle ??
+                    titleStyle ??
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 style:
-                subtitleStyle ??
+                    subtitleStyle ??
                     const TextStyle(fontSize: 13, color: Colors.black87),
               ),
             ],

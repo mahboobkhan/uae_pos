@@ -419,54 +419,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
   }
 
 
-  Widget _buildTagsCell(List<Map<String, dynamic>> tags, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: [
-                for (int i = 0; i < tags.length; i++)
-                  _HoverableTag(
-                    tag: tags[i]['tag'],
-                    color: tags[i]['color'] ?? Colors.grey.shade200,
-                    onDelete: () {
-                      // You must call setState from the parent
-                      (context as Element)
-                          .markNeedsBuild(); // temporary refresh
-                      tags.removeAt(i);
-                    },
-                  ),
-              ],
-            ),
-          ),
-          Tooltip(
-            message: 'Add Tag',
-            child: GestureDetector(
-              onTap: () async {
-                final result = await showAddTagDialog(context);
-                if (result != null &&
-                    result['tag'].toString().trim().isNotEmpty) {
-                  (context as Element).markNeedsBuild();
-                  tags.add({'tag': result['tag'], 'color': result['color']});
-                }
-              },
-              child: Image.asset(
-                width: 14,
-                height: 14,
-                color: Colors.blue,
-                'assets/icons/img_1.png',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPriceWithAdd(String curr, String price) {
     return Padding(
@@ -509,7 +461,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
             'assets/icons/img_3.png',
             width: 20,
             height: 20,
-            color: Colors.red,
+            color: Colors.grey,
           ),
           tooltip: 'Order History',
           onPressed: onDraft ?? () {},

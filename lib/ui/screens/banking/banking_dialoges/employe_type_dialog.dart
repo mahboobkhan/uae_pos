@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 
+import '../../../dialogs/custom_fields.dart';
+
 class DialogEmployeType extends StatefulWidget {
   const DialogEmployeType({super.key});
 
@@ -43,10 +45,11 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.white,
       insetPadding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
+        constraints: const BoxConstraints(maxWidth: 720, maxHeight: 400),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -69,7 +72,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                           color: Colors.red,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      SizedBox(height: 2),
                       Text(
                         "TID. 00001-292382",
                         style: TextStyle(fontSize: 14, color: Colors.black54),
@@ -83,21 +86,12 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                         style: const TextStyle(fontSize: 14, color: Colors.black54),
                       ),
                       const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.red),
-                          ),
-                          child: const Center(
-                            child: Icon(Icons.close, size: 18, color: Colors.red),
-                          ),
-                        ),
-                      ),
-                    ],
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 25,color: Colors.red,),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () => Navigator.pop(context),
+                      ),                    ],
                   ),
                 ],
               ),
@@ -107,30 +101,30 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  _buildDropdownField(
+                  _buildDateTimeField(),
+                  CustomDropdownField(
                     label: "Select Bank",
-                    value: selectedBank,
+                    selectedValue: selectedBank,
                     options: ["HBL", "UBL", "MCB"],
                     onChanged: (val) => setState(() => selectedBank = val),
                   ),
-                  _buildDropdownField(
+                  CustomDropdownField(
                     label: "Payment",
-                    value: selectedPaymentType,
+                    selectedValue: selectedPaymentType,
                     options: ["In", "Out"],
                     onChanged: (val) => setState(() => selectedPaymentType = val),
                   ),
-                  _buildDateTimeField(),
-                  _buildTextField("Amount", _amountController),
-                  _buildTextField("Payment By", _paymentByController),
-                  _buildTextField("Received By", _receivedByController),
-                  _buildTextField("Service TID", _serviceTIDController),
-                  _buildTextField("Note", _noteController),
+                  CustomTextField(label: "Amount", controller: _amountController,hintText: '500',),
+                  CustomTextField(label: "Payment By", controller: _paymentByController,hintText: 'John Doe',),
+                  CustomTextField(label: "Received By", controller: _receivedByController,hintText: 'Smith',),
+                  CustomTextField(label: "Service TID",controller:  _serviceTIDController,hintText: 'xxxxxx',),
+                  CustomTextField(label: "Note",controller:  _noteController,hintText: 'xxxxx',),
                 ],
               ),
               const SizedBox(height: 20),
               // Buttons
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   CustomButton(
                     onPressed: () {},
@@ -141,7 +135,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                   CustomButton(
                     onPressed: () {},
                     text: "Submit",
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.green,
                   ),
                 ],
               ),
@@ -217,9 +211,14 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
         onTap: _selectDateTime,
         child: InputDecorator(
           decoration: const InputDecoration(
+            enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+            ),
             labelText: "Date and Time",
-            labelStyle: TextStyle(color: Colors.red),
-            border: OutlineInputBorder(),
+            labelStyle: TextStyle(color: Colors.grey),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+            ),
             suffixIcon: Icon(Icons.calendar_month, color: Colors.red),
           ),
           child: Text(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/custom_fields.dart';
 import '../../dialogs/tags_class.dart';
 
 class ShortServiceScreen extends StatefulWidget {
@@ -271,7 +272,24 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                         ),
                                         _buildActionCell(
                                           onEdit: () {},
-                                          onDelete: () {},
+                                          onDelete: () {
+                                            final shouldDelete =  showDialog<bool>(
+                                              context: context,
+                                              builder: (context) => const ConfirmationDialog(
+                                                title: 'Confirm Deletion',
+                                                content: 'Are you sure you want to delete this?',
+                                                cancelText: 'Cancel',
+                                                confirmText: 'Delete',
+                                              ),
+                                            );
+                                            if (shouldDelete == true) {
+                                              // 👇 Put your actual delete logic here
+                                              print("Item deleted");
+                                              // You can also call a function like:
+                                              // await deleteItem();
+                                            }
+
+                                          },
                                         ),
                                       ],
                                     ),

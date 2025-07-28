@@ -8,8 +8,15 @@ import 'package:abc_consultant/ui/screens/login%20screens/verification_screen.da
 import 'package:abc_consultant/ui/screens/projects/create_order_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Needed for plugins like shared_preferences
+  await SharedPreferences.getInstance();
+
+
   runApp(
     MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => SignupProvider())],
@@ -27,9 +34,8 @@ class MyApp extends StatelessWidget {
 
     //  return MaterialApp(home: DashboardScrn());
     return MaterialApp(
-        debugShowCheckedModeBanner: false, // 👈 This hides the debug banner
-
-        home: SidebarLayout());
+        debugShowCheckedModeBanner: false,
+        home:SignScreen());
     //home: SidebarLayout()
   }
 }

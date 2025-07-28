@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
 
 class ProjectScreen extends StatefulWidget {
@@ -442,7 +443,23 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                             context,
                                             MaterialPageRoute(builder: (context) => CreateOrderScreen()),
                                           );},
-                                          onDelete: () {},
+                                          onDelete: () {
+                                            final shouldDelete =  showDialog<bool>(
+                                              context: context,
+                                              builder: (context) => const ConfirmationDialog(
+                                                title: 'Confirm Deletion',
+                                                content: 'Are you sure you want to delete this?',
+                                                cancelText: 'Cancel',
+                                                confirmText: 'Delete',
+                                              ),
+                                            );
+                                            if (shouldDelete == true) {
+                                              // 👇 Put your actual delete logic here
+                                              print("Item deleted");
+                                              // You can also call a function like:
+                                              // await deleteItem();
+                                            }
+                                          },
                                           onDraft: () {},
                                         ),
                                       ],
@@ -682,7 +699,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
             'assets/icons/img_3.png',
             width: 20,
             height: 20,
-            color: Colors.red,
+            color: Colors.grey,
           ),
           tooltip: 'Draft',
           onPressed: onDraft ?? () {},

@@ -10,7 +10,8 @@ void showAddPaymentMethodDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Padding(
@@ -36,28 +37,19 @@ void showAddPaymentMethodDialog(BuildContext context) {
                             color: Colors.red,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        SizedBox(height: 2),
                         Text(
                           "BID. 00001",
                           style: TextStyle(fontSize: 14, color: Colors.black54),
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.red),
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.close, size: 18, color: Colors.red),
-                        ),
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 25,color: Colors.red,),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => Navigator.pop(context),
                     ),
-
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -154,7 +146,7 @@ void showAddPaymentMethodDialog(BuildContext context) {
 
                 // Action Buttons
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     CustomButton(
                       text: "Editing",
@@ -165,7 +157,7 @@ void showAddPaymentMethodDialog(BuildContext context) {
                     CustomButton(
                       text: "Submit",
                       onPressed: () {},
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.green,
                     ),
                   ],
                 ),

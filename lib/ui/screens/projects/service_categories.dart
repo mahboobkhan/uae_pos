@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
-import '../../dialogs/date_picker.dart';
+import '../../dialogs/custom_fields.dart';
 
 class ServiceCategories extends StatefulWidget {
   const ServiceCategories({super.key});
@@ -106,7 +105,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                     message: 'Show menu',
                                     waitDuration: Duration(milliseconds: 2),
                                     child: GestureDetector(
-                                      onTap: (){
+                                      onTap: () {
                                         showShortServicesPopup(context);
                                       },
                                       child: Container(
@@ -214,7 +213,26 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                         ),
                                         _buildActionCell(
                                           onEdit: () {},
-                                          onDelete: () {},
+                                          onDelete: () {
+                                            final shouldDelete = showDialog<
+                                              bool
+                                            >(
+                                              context: context,
+                                              builder:
+                                                  (
+                                                    context,
+                                                  ) => const ConfirmationDialog(
+                                                    title: 'Confirm Deletion',
+                                                    content:
+                                                        'Are you sure you want to delete this?',
+                                                    cancelText: 'Cancel',
+                                                    confirmText: 'Delete',
+                                                  ),
+                                            );
+                                            if (shouldDelete == true) {
+                                              print("Item deleted");
+                                            }
+                                          },
                                           onDraft: () {},
                                         ),
                                       ],
@@ -422,7 +440,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
             'assets/icons/img_3.png',
             width: 20,
             height: 20,
-            color: Colors.red,
+            color: Colors.grey,
           ),
           tooltip: 'Draft',
           onPressed: onDraft ?? () {},

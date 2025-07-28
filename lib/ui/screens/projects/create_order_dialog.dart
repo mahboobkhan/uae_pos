@@ -215,114 +215,142 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Create New Order",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 2.0),
-                      child: Text(
-                        "ORN. 00001–0000001",
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, color: Colors.red),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                _buildDateTimeField(),
-                _buildDropdown(
-                  "Search Client ",
-
-                  searchClient,
-                  ["Show Search Result", ""],
-                  (val) {
-                    setState(() => searchClient = val);
-                  },
-                ),
-                _buildDropdown(
-                  "Order Type ",
-                  selectedOrderType,
-                  ["Services Base", " Project base"],
-                  (val) {
-                    setState(() => selectedOrderType = val);
-                  },
-                ),
-                _buildDropdown(
-                  "Service Project ",
-                  selectedServiceProject,
-                  ["Passport Renewal", "Development", "Id Card"],
-                  (val) {
-                    setState(() => selectedServiceProject = val);
-                  },
-                ),
-                CustomTextField(
-                  label: "Service Beneficiary",
-                  controller: _beneficiaryController,
-                  hintText: "xyz",
-                ),
-                CustomTextField(
-                  label: "Order Quote Price",
-                  controller: _fundsController,
-                  hintText: '500',
-                ),
-                InfoBox(label: 'Muhammad Imran', value: 'Assign Employee',                          color: Colors.blue.shade200,// light blue fill
-                ),
-                InfoBox(label: '500', value: 'Received Funds',                          color: Colors.blue.shade200,// light blue fill
-                ),
-                InfoBox(label: 'xxxxxxxx', value: 'Transaction Id',
-                  color: Colors.yellow.shade100,// light blue fill
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.only(left: 2.0),
-              child: Row(
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomButton(
-                    text: "Save Draft",
-                    backgroundColor: Colors.blue,
-                    onPressed: () {},
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Create New Order",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 2.0),
+                        child: Text(
+                          "ORN. 00001–0000001",
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 20),
-                  CustomButton(
-                    text: "Submit",
-                    backgroundColor: Colors.green,
-                    onPressed: () {},
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.red),
+                    onPressed: () async {
+                      final shouldClose = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: Colors.white,
+                          title: const Text("Are you sure?"),
+                          content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text("Keep Changes ",style: TextStyle(color:Colors.grey ),),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text("Close",style: TextStyle(color:Colors.red ),),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (shouldClose == true) {
+                        Navigator.of(context).pop(); // close the dialog
+                      }
+                    },
+                  ),
+
+
+                ],
+              ),
+              const SizedBox(height: 20),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  _buildDateTimeField(),
+                  _buildDropdown(
+                    "Search Client ",
+                    searchClient,
+                    ["Show Search Result", ""],
+                    (val) {
+                      setState(() => searchClient = val);
+                    },
+                  ),
+                  _buildDropdown(
+                    "Order Type ",
+                    selectedOrderType,
+                    ["Services Base", " Project base"],
+                    (val) {
+                      setState(() => selectedOrderType = val);
+                    },
+                  ),
+                  _buildDropdown(
+                    "Service Project ",
+                    selectedServiceProject,
+                    ["Passport Renewal", "Development", "Id Card"],
+                    (val) {
+                      setState(() => selectedServiceProject = val);
+                    },
+                  ),
+                  SearchTextField(
+                    label: "Service Beneficiary",
+                    controller: _beneficiaryController,
+                  ),
+                  CustomTextField(
+                    label: "Order Quote Price",
+                    controller: _fundsController,
+                    hintText: '500',
+                  ),
+                  InfoBox(label: 'Muhammad Imran', value: 'Assign Employee',
+                      color: Colors.blue.shade200,// light blue fill
+                  ),
+                  InfoBox(label: '500', value: 'Received Funds',
+                    color: Colors.blue.shade200,// light blue fill
+                  ),
+                  InfoBox(label: 'xxxxxxxx', value: 'Transaction Id',
+                    color: Colors.yellow.shade100,// light blue fill
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 30),
+              Padding(
+                padding: const EdgeInsets.only(left: 2.0),
+                child: Row(
+                  children: [
+                    CustomButton(
+                      text: "Save Draft",
+                      backgroundColor: Colors.blue,
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 20),
+                    CustomButton(
+                      text: "Submit",
+                      backgroundColor: Colors.green,
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

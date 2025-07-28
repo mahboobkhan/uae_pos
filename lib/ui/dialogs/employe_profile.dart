@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'custom_dialoges.dart';
+import 'custom_fields.dart';
 
 void EmployeeProfileDialog(BuildContext context) {
   showDialog(
@@ -12,7 +13,7 @@ void EmployeeProfileDialog(BuildContext context) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
-        child: const EmployeProfile(),
+        child:  EmployeProfile(),
       );
     },
   );
@@ -26,12 +27,44 @@ class EmployeProfile extends StatefulWidget {
 }
 
 class _EmployeProfileState extends State<EmployeProfile> {
+  DateTime selectedDateTime = DateTime.now();
+  final _contactNumber1 = TextEditingController();
+  final TextEditingController _employeeNameController = TextEditingController();
+  final TextEditingController _contactNumber1Controller =
+      TextEditingController();
+  final TextEditingController _contactNumber2Controller =
+      TextEditingController();
+  final TextEditingController _homeContactNumberController =
+      TextEditingController();
+  final TextEditingController _workPermitNumberController =
+      TextEditingController();
+  final TextEditingController _emiratesIdController = TextEditingController();
+  final TextEditingController _emailIdController = TextEditingController();
+  final TextEditingController _physicalAddressController =
+      TextEditingController();
+
+  // Controllers for additional fields
+  final TextEditingController _titleNameController = TextEditingController();
+  final TextEditingController _bankAccountController = TextEditingController();
+  final TextEditingController _ibanNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
+  final TextEditingController _emailI2dController =
+      TextEditingController(); // reuse if same as above
+  final TextEditingController _noteController = TextEditingController();
+  final TextEditingController _docNameController = TextEditingController();
+  final TextEditingController _salaryController = TextEditingController();
+  final TextEditingController _incrementController = TextEditingController();
+  final TextEditingController _workingHoursController = TextEditingController();
+
   String? selectedJobType;
   String? selectedJobType2;
-    String? selectedJobType3;
+  String? selectedJobType3;
   String? selectedJobType4;
 
   final TextEditingController _dateTimeController = TextEditingController();
+  final TextEditingController _issueDateController = TextEditingController();
+  final TextEditingController _expiryDateController = TextEditingController();
 
   Future<void> _pickDateTime() async {
     final DateTime? pickedDate = await showDatePicker(
@@ -62,585 +95,428 @@ class _EmployeProfileState extends State<EmployeProfile> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 20, right: 5),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Left: Title and Date side by side
-                Row(
-                  children: [
-                    const Text(
-                      'Employee Profile',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    CustomDropdownField(
-                      hintText: "Select job type",
-                      items: ['Full time', 'Half Time', 'Remote'],
-                      selectedValue: selectedJobType3,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedJobType3 = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 12),
-                    CustomDropdownField(
-                      hintText: "select Gender",
-                      items: ['Male', 'Female','Other'],
-                      selectedValue: selectedJobType4,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedJobType4 = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      DateFormat('dd-MM-yyyy').format(DateTime.now()),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Right: Close button
-                InkWell(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.red, width: 1.5),
-                    ),
-                    child: const Icon(Icons.close, color: Colors.red, size: 16),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 4),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'EID.EE/EH 10110', // Static example ID
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // Fields
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                CustomTextField(
-                  label: "Employee Name",
-                  borderColor: Colors.red,
-                  hintText: "xyz",
-                ),
-                CustomDropdownField(
-                  label: "Job Position",
-                  items: ['Full Time', 'Part Time', 'Contract'],
-                  selectedValue: selectedJobType,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedJobType = value;
-                    });
-                  },
-                ),
-                CustomTextField(
-                  label: "Contact Number",
-                  borderColor: Colors.red,
-                  hintText: "+971",
-                ),
-                CustomTextField(
-                  label: "Contact No - 2",
-                  borderColor: Colors.red,
-                  hintText: "+971",
-                ),
-                CustomTextField(
-                  label: "Home Contact No",
-                  borderColor: Colors.red,
-                  hintText: "+971",
-                ),
-                CustomTextField(
-                  label: "Work Permit No",
-                  borderColor: Colors.red,
-                  hintText: "+WP-1234",
-                ),
-                CustomTextField(
-                  label: "Emirates ID",
-                  borderColor: Colors.red,
-                  hintText: "+12345",
-                ),
-                CustomTextField(
-                  label: "Email ID",
-                  borderColor: Colors.red,
-                  hintText: "abc@gmail.com",
-                ),
-                CustomTextField(
-                  label: "Physical Address",
-                  borderColor: Colors.red,
-                  hintText: "Address,house,street,town,post code",
-                ),
-                CustomTextField(
-                  label: "Date of Joining",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: const Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
-                  ),
-                ),
-                CustomTextField(
-                  label: "Work Contract Expiry",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: const Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
-                  ),
-                ),
-                CustomTextField(
-                  label: "Birthday",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
-                  ),
-                ),
-                CustomCompactTextField(
-                  label: 'Salary',
-                  hintText: 'AED-1000',
-                  borderColor: Colors.red,
-                ),
-                CustomCompactTextField(
-                  label: 'Increment',
-                  hintText: '10%',
-                  borderColor: Colors.red,
-                ),
-                CustomCompactTextField(
-                  label: 'Working HOurs ',
-                  hintText: '42',
-                  borderColor: Colors.red,
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: Text("Add More", style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                CustomTextField(label: "Note / Extra", borderColor: Colors.red),
-                CustomDropdownField(
-                  label: "Select Bank",
-                  items: ['ubl', 'Hbl', 'Mezan'],
-                  selectedValue: selectedJobType2,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedJobType2 = value;
-                    });
-                  },
-                ),
-                CustomTextField(
-                  label: "Title Name",
-                  borderColor: Colors.red,
-                  hintText: "Address,house,street,town,post code",
-                ),
-                CustomTextField(
-                  label: "Bank Account",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxxxxx",
-                ),
-                CustomTextField(
-                  label: "IBN Number",
-                  borderColor: Colors.red,
-                  hintText: "xxxxxxxxxxx",
-                ),
-                CustomTextField(
-                  label: "Contact Number",
-                  borderColor: Colors.red,
-                  hintText: "+971",
-                ),
-                CustomTextField(
-                  label: "Email ID",
-                  borderColor: Colors.red,
-                  hintText: "@gmail.com",
-                ),
-                CustomTextField(
-                  label: "Swift Code",
-                  borderColor: Colors.red,
-                ),
-                SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    CustomCompactInfoBox(
-                      title: "Remaining Salary",
-                      subtitle: "AED-3000",
-                      backgroundColor: Colors.blue.shade50,
-                      borderColor: Colors.blue,
-                    ),
-                    CustomCompactInfoBox(
-                      title: "Advance Payment",
-                      subtitle: "AED-3000",
-                      backgroundColor: Colors.blue.shade50,
-                      borderColor: Colors.blue,
-                    ),
-                    CustomCompactInfoBox(
-                      title: "Bonuses",
-                      subtitle: "AED-3000",
-                      backgroundColor: Colors.blue.shade50,
-                      borderColor: Colors.blue,
-                    ),
-                    CustomCompactInfoBox(
-                      title: "Fine Deductions",
-                      subtitle: "AED-3000",
-                      backgroundColor: Colors.blue.shade50,
-                      borderColor: Colors.blue,
-                    ),
-                    CustomCompactInfoBox(
-                      title: "Show Payments",
-                      subtitle: "AED-3000",
-                      backgroundColor: Colors.blue.shade50,
-                      borderColor: Colors.blue,
-                    ),
-
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                CustomCompactTextField(
-                  label: 'Doc Name ',
-                ),
-                CustomTextField(
-                  label: "Issue Date Notifications",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
-                  ),
-                ),
-                CustomTextField(
-                  label: "Expiry Date Notifications",
-                  controller: _dateTimeController,
-                  readOnly: true,
-                  onTap: _pickDateTime,
-                  borderColor: Colors.red,
-                  prefixIcon: Icon(
-                    Icons.calendar_month,
-                    color: Colors.red,
-                    size: 18,
-                  ),
-                ),
-                CustomButton(
-                  text: 'Upload File',
-                  onPressed: () {},
-                  backgroundColor: Colors.green,
-                  icon: Icons.file_copy_outlined,
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                CustomButton(
-                  text: "Editing",
-                  backgroundColor: Colors.blue,
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 10),
-                CustomButton(
-                  text: "Stop Contract",
-                  backgroundColor: Colors.red,
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 10),
-                CustomButton(
-                  text: "Submit",
-                  backgroundColor: Colors.green,
-                  onPressed: () {},
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-          ],
-        ),
-      ),
+  Future<void> _pickDateTime2() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
     );
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        final DateTime combined = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        final formatted = DateFormat('dd-MM-yyyy – hh:mm a').format(combined);
+        _expiryDateController.text = formatted;
+        _issueDateController.text = formatted;
+      }
+    }
   }
-}
-
-// Reusable text field widget
-class CustomTextField extends StatelessWidget {
-  final String label;
-  final String? hintText;
-  final Color borderColor;
-  final TextEditingController? controller;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final Widget? prefixIcon;
-
-  const CustomTextField({
-    Key? key,
-    required this.label,
-    this.borderColor = Colors.grey,
-    this.controller,
-    this.hintText,
-    this.readOnly = false,
-    this.onTap,
-    this.prefixIcon,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 4.5, // 5 per row
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: TextField(
-          controller: controller,
-          readOnly: readOnly,
-          onTap: onTap,
-          decoration: InputDecoration(
-            labelStyle: TextStyle(color: Colors.red),
-
-            hintStyle: TextStyle(color: borderColor),
-            hintText: hintText,
-            labelText: label,
-            prefixIcon: prefixIcon,
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 12,
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor, width: 1),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomDropdownField extends StatelessWidget {
-  final String? label;
-  final String? hintText;
-  final Color borderColor;
-  final String? selectedValue;
-  final List<String> items;
-  final ValueChanged<String?> onChanged;
-
-  const CustomDropdownField({
-    Key? key,
-    this.label,
-    this.hintText,
-    required this.items,
-    required this.onChanged,
-    this.selectedValue,
-    this.borderColor = Colors.grey,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width:
-          MediaQuery.of(context).size.width /
-          4.5, // Same width as CustomTextField
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: DropdownButtonFormField<String>(
-          value: selectedValue,
-          isDense: true,
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: TextStyle(color: Colors.red),
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 12,
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor, width: 1),
-            ),
-          ),
-          hint: hintText != null ? Text(hintText!) : null,
-          icon: const Icon(Icons.arrow_drop_down),
-          items:
-              items.map((item) {
-                return DropdownMenuItem<String>(value: item, child: Text(item));
-              }).toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
-}
-
-class CustomCompactTextField extends StatelessWidget {
-  final String label;
-  final String? hintText;
-  final Color borderColor;
-  final Color? fillColor;
-  final TextEditingController? controller;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final Widget? prefixIcon;
-
-  const CustomCompactTextField({
-    Key? key,
-    required this.label,
-    this.hintText,
-    this.borderColor = Colors.grey,
-    this.fillColor,
-    this.controller,
-    this.readOnly = false,
-    this.onTap,
-    this.prefixIcon,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 6.5,
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: TextField(
-          controller: controller,
-          readOnly: readOnly,
-          onTap: onTap,
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: TextStyle(color: Colors.red),
-            hintText: hintText,
-            hintStyle: TextStyle(color: borderColor),
-            prefixIcon: prefixIcon,
-            isDense: true,
-            filled: fillColor != null,
-            fillColor: fillColor,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 12,
-            ),
-            // 👈 Same height
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor, width: 1.5),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomCompactInfoBox extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final Color backgroundColor;
-  final Color borderColor;
-  final TextStyle? titleStyle;
-  final TextStyle? subtitleStyle;
-
-  const CustomCompactInfoBox({
-    Key? key,
-    required this.title,
-    required this.subtitle,
-    this.backgroundColor = const Color(0xFFE0E0E0),
-    this.borderColor = Colors.grey,
-    this.titleStyle,
-    this.subtitleStyle,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 6.5,
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: Border.all(color: borderColor),
-            borderRadius: BorderRadius.circular(4),
-          ),
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: SizedBox(
+          width: 950,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style:
-                    titleStyle ??
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left: Title and dropdowns
+                  Row(
+                    children: [
+                      const Text(
+                        'Employee Profile',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 160,
+                        child: SmallDropdownField(
+                          label: "Employee type",
+                          options: ['Cleaning', 'Consultining', 'Reparing'],
+                          selectedValue: selectedJobType3,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedJobType3 = value;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 160,
+                        child: SmallDropdownField(
+                          label: "Select Gender",
+                          options: ['Male', 'Female', 'Other'],
+                          selectedValue: selectedJobType4,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedJobType4 = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Right: Date and close icon
+                  Row(
+                    children: [
+                      Text(
+                        DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.red),
+                        onPressed: () async {
+                          final shouldClose = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: Colors.white,
+                              title: const Text("Are you sure?"),
+                              content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  child: const Text("Close",style: TextStyle(color:Colors.red ),),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (shouldClose == true) {
+                            Navigator.of(context).pop(); // close the dialog
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
               Text(
-                subtitle,
-                style:
-                    subtitleStyle ??
-                    const TextStyle(fontSize: 13, color: Colors.black87),
+                'EID.EE/EH 10110', // Static example ID
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+
+              // Fields
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomTextField(
+                    label: "Employee Name",
+                    hintText: "xyz",
+                    controller: _employeeNameController,
+                  ),
+                  CustomDropdownField(
+                    label: "Job Position",
+                    options: ['Manager', 'Employee', 'Other'],
+                    selectedValue: selectedJobType,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedJobType = value;
+                      });
+                    },
+                  ),
+                  CustomTextField(
+                    label: "Contact Number",
+                    hintText: "+971",
+                    controller: _contactNumber1,
+                  ),
+                  CustomTextField(
+                    label: "Contact No - 2",
+                    hintText: "+971",
+                    controller: _contactNumber2Controller,
+                  ),
+                  CustomTextField(
+                    label: "Home Contact No",
+                    hintText: "+971",
+                    controller: _homeContactNumberController,
+                  ),
+                  CustomTextField(
+                    label: "Work Permit No",
+                    hintText: "+WP-1234",
+                    controller: _workPermitNumberController,
+                  ),
+                  CustomTextField(
+                    label: "Emirates ID",
+                    hintText: "+12345",
+                    controller: _emiratesIdController,
+                  ),
+                  CustomTextField(
+                    label: "Email ID",
+                    hintText: "abc@gmail.com",
+                    controller: _emailIdController,
+                  ),
+                  CustomDateField(
+                    label: "Date of Joining",
+                    hintText: "dd-MM-yyyy",
+                    controller: _dateTimeController,
+                    readOnly: true,
+                    onTap: _pickDateTime,
+                  ),
+                  CustomDateField(
+                    label: "Work Contract Expiry",
+                    controller: _dateTimeController,
+                    hintText: "dd-MM-yyyy",
+                    readOnly: true,
+                    onTap: _pickDateTime,
+                  ),
+                  CustomDateField(
+                    label: "Birthday",
+                    controller: _dateTimeController,
+                    hintText: "dd-MM-yyyy",
+                    readOnly: true,
+                    onTap: _pickDateTime,
+                  ),
+                  SizedBox(
+                    width: 180,
+                    child: CustomTextField(
+                      label: 'Salary',
+                      hintText: 'AED-1000',
+                      controller: _salaryController,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 180,
+                    child: CustomTextField(
+                      label: 'Increment',
+                      hintText: '10',
+                      controller: _incrementController,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 180,
+                    child: CustomTextField(
+                      label: 'Working Hours ',
+                      hintText: '42',
+                      controller: _workingHoursController,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Add More",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10,),
+              Wrap(spacing: 10,
+              runSpacing: 10,
+              children: [
+                SizedBox(
+                  width: 450,
+                  child: CustomTextField(
+                    label: "Physical Address",
+                    hintText: "Address,house,street,town,post code",
+                    controller: _physicalAddressController,
+                  ),
+                ),
+                SizedBox(
+                  width: 450,
+                  child: CustomTextField(
+                    label: "Note / Extra",
+                    controller: _noteController,
+                    hintText: 'xxxxx',
+                  ),
+                ),
+              ],),
+              SizedBox(height: 10),
+              Text(
+                'Bank Details',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomDropdownField(
+                    label: "Select Bank",
+                    options: ['ubl', 'Hbl', 'Mezan'],
+                    selectedValue: selectedJobType2,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedJobType2 = value;
+                      });
+                    },
+                  ),
+                  CustomTextField(
+                    label: "Title Name",
+                    hintText: "xxxxxx",
+                    controller: _titleNameController,
+                  ),
+                  CustomTextField(
+                    label: "Bank Account",
+                    hintText: "xxxxxxxxxx",
+                    controller: _bankAccountController,
+                  ),
+                  CustomTextField(
+                    label: "IBN Number",
+                    hintText: "xxxxxxxxxxx",
+                    controller: _ibanNumberController,
+                  ),
+                  CustomTextField(
+                    label: "Contact Number",
+                    hintText: "+971",
+                    controller: _contactNumberController,
+                  ),
+                  CustomTextField(
+                    label: "Email ID",
+                    hintText: "@gmail.com",
+                    controller: _emailI2dController,
+                  ),
+                  CustomTextField(
+                    label: 'Doc Name',
+                    hintText: 'xxxxx',
+                    controller: _docNameController,
+                  ),
+
+                  SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      InfoBox(
+                        value: "Remaining Salary",
+                        label: "AED-3000",
+                        color: Colors.blue.shade50,
+                      ),
+                      InfoBox(
+                        value: "Advance Payment",
+                        label: "AED-3000",
+                        color: Colors.blue.shade50,
+                      ),
+                      InfoBox(
+                        value: "Bonuses",
+                        label: "AED-3000",
+                        color: Colors.blue.shade50,
+                      ),
+                      InfoBox(
+                        value: "Fine Deductions",
+                        label: "AED-3000",
+                        color: Colors.blue.shade50,
+                      ),
+                      InfoBox(
+                        value: "Show Payments",
+                        label: "AED-3000",
+                        color: Colors.blue.shade50,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  CustomButton(
+                    text: "Stop Contract",
+                    backgroundColor: Colors.red,
+                    onPressed: () {},
+                  ),
+                  const SizedBox(width: 10),
+                  CustomButton(
+                    text: "Editing",
+                    backgroundColor: Colors.blue,
+                    onPressed: () {},
+                  ),
+                  const SizedBox(width: 10),
+
+                  CustomButton(
+                    text: "Submit",
+                    backgroundColor: Colors.green,
+                    onPressed: () {},
+                  ),
+                  Spacer(),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      CustomDateNotificationField(
+                        label: "Issue Date Notifications",
+                        controller: _issueDateController,
+                        readOnly: true,
+                        hintText: "dd-MM-yyyy HH:mm",
+                        onTap: _pickDateTime2,
+                      ),
+                      CustomDateNotificationField(
+                        label: "Expiry Date Notifications",
+                        controller: _expiryDateController,
+                        readOnly: true,
+                        hintText: "dd-MM-yyyy HH:mm",
+                        onTap: _pickDateTime2,
+                      ),
+
+                      ElevatedButton(
+                        onPressed: () {
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          minimumSize: const Size(100, 30),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              4,
+                            ), // Optional: slight rounding
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(
+                              Icons.upload_file,
+                              size: 16,
+                              color: Colors.white,
+                            ), //
+                            SizedBox(width: 6),
+                            Text(
+                              'Upload File',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ), //
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

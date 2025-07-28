@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:abc_consultant/ui/screens/banking/bank_payment_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/banking_screen.dart';
 import 'package:abc_consultant/ui/screens/banking/statement_screen.dart';
@@ -10,6 +12,7 @@ import 'package:abc_consultant/ui/screens/dashboard/employees_role_screen.dart';
 import 'package:abc_consultant/ui/screens/employee/bank_detail_screen.dart';
 import 'package:abc_consultant/ui/screens/employee/employee_finance.dart';
 import 'package:abc_consultant/ui/screens/employee/employee_screen.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
 import 'package:abc_consultant/ui/screens/office/dynamic_atttribute_addition.dart';
 import 'package:abc_consultant/ui/screens/office/fixed_office_expense.dart';
 import 'package:abc_consultant/ui/screens/office/office_expense_screen.dart';
@@ -18,13 +21,12 @@ import 'package:abc_consultant/ui/screens/office/office_miscellaneous.dart';
 import 'package:abc_consultant/ui/screens/office/office_supplies_expanse.dart';
 import 'package:abc_consultant/ui/screens/projects/create_orders.dart';
 import 'package:abc_consultant/ui/screens/projects/project_screen.dart';
-import 'package:abc_consultant/ui/screens/projects/create_order_dialog.dart';
 import 'package:abc_consultant/ui/screens/projects/service_categories.dart';
 import 'package:abc_consultant/ui/screens/projects/short_service_screen.dart';
 import 'package:abc_consultant/ui/screens/setting/preferences_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Model/NavItem.dart';
 import '../dialogs/custom_dialoges.dart';
 import '../utils/utils.dart';
@@ -35,14 +37,40 @@ class SidebarLayout extends StatefulWidget {
 
   @override
   State<SidebarLayout> createState() => _SidebarLayoutState();
+
 }
 
 class _SidebarLayoutState extends State<SidebarLayout> {
-  bool isExpanded = true;
-  NavItem selectedItem = NavItem.banking;
+  int screen = 0;
 
-  int _selectedSidebarIndex = 4;
-  int _selectedSubmenuIndex = -1;
+  bool isExpanded = true;
+  NavItem selectedItem = NavItem.employees;
+
+  int _selectedSidebarIndex = 3;
+  int _selectedSubmenuIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    loadAccessFromPrefs();
+  }
+
+  void loadAccessFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final accessString = prefs.getString('access');
+
+    if (accessString != null) {
+      final access = jsonDecode(accessString);
+      print('Access object: $access');
+
+      // Example: print specific keys if it's a Map
+      if (access is Map<String, dynamic>) {
+      }
+    } else {
+      print('No access key found in SharedPreferences');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +150,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                 ),
                 // User info right side
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     showProfileDialog(context); // This is correct
                   },
                   child: Card(
@@ -134,7 +162,6 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),
@@ -146,166 +173,212 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child:
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: isExpanded ? 230 : 86,
-                      color: Colors.white,
-                      child: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: Icon(
-                                isExpanded ? Icons.arrow_back_ios : Icons.menu,
+                    Expanded(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: isExpanded ? 230 : 86,
+                        color: Colors.white,
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: IconButton(
+                                icon: Icon(
+                                  isExpanded
+                                      ? Icons.arrow_back_ios
+                                      : Icons.menu,
+                                ),
+                                onPressed:
+                                    () => setState(
+                                      () => isExpanded = !isExpanded,
+                                    ),
                               ),
-                              onPressed:
-                                  () => setState(() => isExpanded = !isExpanded),
                             ),
-                          ),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: sidebarItems.length,
-                              itemBuilder: (context, index) {
-                                final item = sidebarItems[index];
-                                final isSelected = _selectedSidebarIndex == index;
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: sidebarItems.length,
+                                itemBuilder: (context, index) {
+                                  final item = sidebarItems[index];
+                                  final isSelected =
+                                      _selectedSidebarIndex == index;
 
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedSidebarIndex =
-                                          (_selectedSidebarIndex == index)
-                                              ? -1
-                                              : index;
-                                          _selectedSubmenuIndex = -1;
-                                          selectedItem = NavItem.values[index];
-                                        });
-                                      },
-                                      child: Container(
-                                        color:
-                                        isSelected
-                                            ? Colors.red.shade50
-                                            : Colors.transparent,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 18,
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              item.icon,
-                                              color:
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedSidebarIndex =
+                                                (_selectedSidebarIndex == index)
+                                                    ? -1
+                                                    : index;
+                                            _selectedSubmenuIndex = -1;
+                                            selectedItem =
+                                                NavItem.values[index];
+                                          });
+                                        },
+                                        child: Container(
+                                          color:
                                               isSelected
-                                                  ? Colors.red
-                                                  : Colors.black,
-                                              size: 18,
-                                            ),
-                                            if (isExpanded) ...[
-                                              const SizedBox(width: 20),
-                                              Expanded(
-                                                child: Text(
-                                                  item.title,
-                                                  style: TextStyle(
-                                                    color:
+                                                  ? Colors.red.shade50
+                                                  : Colors.transparent,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 18,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                item.icon,
+                                                color:
                                                     isSelected
                                                         ? Colors.red
                                                         : Colors.black,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                    isSelected
-                                                        ? FontWeight.bold
-                                                        : FontWeight.normal,
-                                                  ),
-                                                ),
+                                                size: 18,
                                               ),
-                                              if (item.submenus.isNotEmpty)
-                                                Icon(
-                                                  isSelected
-                                                      ? Icons.keyboard_arrow_down
-                                                      : Icons.keyboard_arrow_right,
-                                                  size: 16,
-                                                  color: Colors.grey,
-                                                ),
-                                              if (item.trailingIcon != null)
-                                                Padding(
-                                                  padding: const EdgeInsets.only(left: 8.0),
-                                                  child: Icon(
-                                                    item.trailingIcon,
-                                                    size: 16,
-                                                    color:  Colors.red ,
-                                                  ),
-                                                ),
-                                            ],
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    if (isSelected && isExpanded)
-                                      ...List.generate(item.submenus.length, (i) {
-                                        final submenu = item.submenus[i];
-                                        final submenuSelected = _selectedSubmenuIndex == i;
-                                        final submenuIcon = (item.submenuIcons!.length > i) ? item.submenuIcons![i] : null;
-
-                                        return Padding(
-                                          padding: const EdgeInsets.only(left: 40, top: 4, bottom: 4, right: 16),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              setState(() => _selectedSubmenuIndex = i);
-                                            },
-                                            child: Container(
-                                              height: 40,
-                                              alignment: Alignment.centerLeft,
-                                              child: Row(
-                                                children: [
-                                                  // Submenu title
-                                                  Expanded(
-                                                    child: Text(
-                                                      submenu,
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: submenuSelected ? Colors.red : Colors.black,
-                                                        fontWeight: submenuSelected ? FontWeight.bold : FontWeight.normal,
-                                                      ),
+                                              if (isExpanded) ...[
+                                                const SizedBox(width: 20),
+                                                Expanded(
+                                                  child: Text(
+                                                    item.title,
+                                                    style: TextStyle(
+                                                      color:
+                                                          isSelected
+                                                              ? Colors.red
+                                                              : Colors.black,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          isSelected
+                                                              ? FontWeight.bold
+                                                              : FontWeight
+                                                                  .normal,
                                                     ),
                                                   ),
-
-                                                  // Lock icon aligned to far right
-                                                  if (submenuIcon != null)
-                                                    Icon(
-                                                      submenuIcon,
+                                                ),
+                                                if (item.submenus.isNotEmpty)
+                                                  Icon(
+                                                    isSelected
+                                                        ? Icons
+                                                            .keyboard_arrow_down
+                                                        : Icons
+                                                            .keyboard_arrow_right,
+                                                    size: 16,
+                                                    color: Colors.grey,
+                                                  ),
+                                                if (item.trailingIcon != null)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                          left: 8.0,
+                                                        ),
+                                                    child: Icon(
+                                                      item.trailingIcon,
                                                       size: 16,
                                                       color: Colors.red,
                                                     ),
-                                                ],
+                                                  ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      if (isSelected && isExpanded)
+                                        ...List.generate(item.submenus.length, (
+                                          i,
+                                        ) {
+                                          final submenu = item.submenus[i];
+                                          final submenuSelected =
+                                              _selectedSubmenuIndex == i;
+                                          final submenuIcon =
+                                              (item.submenuIcons!.length > i)
+                                                  ? item.submenuIcons![i]
+                                                  : null;
+
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 40,
+                                              top: 4,
+                                              bottom: 4,
+                                              right: 16,
+                                            ),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(
+                                                  () =>
+                                                      _selectedSubmenuIndex = i,
+                                                );
+                                              },
+                                              child: Container(
+                                                height: 40,
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    // Submenu title
+                                                    Expanded(
+                                                      child: Text(
+                                                        submenu,
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              submenuSelected
+                                                                  ? Colors.red
+                                                                  : Colors
+                                                                      .black,
+                                                          fontWeight:
+                                                              submenuSelected
+                                                                  ? FontWeight
+                                                                      .bold
+                                                                  : FontWeight
+                                                                      .normal,
+                                                        ),
+                                                      ),
+                                                    ),
+
+                                                    // Lock icon aligned to far right
+                                                    if (submenuIcon != null)
+                                                      Icon(
+                                                        submenuIcon,
+                                                        size: 16,
+                                                        color: Colors.red,
+                                                      ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      }),
-                                  ],
-                                );
-                              },
+                                          );
+                                        }),
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LogScreen()),
+                        );
+                      },
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          child: Icon(
+                            Icons.power_settings_new,
+                            color: Colors.red,
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        child: Icon(Icons.logout),
-                      ),
-                    )
-
                   ],
                 ),
-/*
+                /*
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   width: isExpanded ? 230 : 86,
@@ -479,7 +552,8 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                   ),
                 ),
                 // Icon on the far right
-               *//* GestureDetector(
+               */
+          /* GestureDetector(
                   onTap: (){
                     showProfileDialog(context); // This is correct
                   },
@@ -492,7 +566,8 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                     ),
                   ),
                 ),
-                SizedBox(width: 12,)*//*
+                SizedBox(width: 12,)*/
+          /*
               ],
             ),
           ),*/
@@ -502,6 +577,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   }
 
   Widget _buildScreenFor(NavItem item) {
+
     if (_selectedSubmenuIndex != -1) {
       final submenu = sidebarItems[item.index].submenus[_selectedSubmenuIndex];
       return _buildSubmenuScreen(item, submenu);
@@ -509,7 +585,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
 
     switch (item) {
       case NavItem.dashboard:
-        return Center(child: DashboardScreen());
+        return  Center(child: screen == 0 ? AbcScreen(): DashboardScreen());
       case NavItem.projects:
         return Center(
           child: ProjectScreen(
@@ -543,9 +619,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.dashboard:
         switch (submenu) {
           case 'ABC':
-            return const  Center(child: AbcScreen());
+            return const Center(child: AbcScreen());
           case 'Employees Role':
-            return const  Center(child: EmployeesRoleScreen());
+            return const Center(child: EmployeesRoleScreen());
         }
         break;
       case NavItem.projects:
@@ -555,7 +631,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
           case 'Create Orders':
             return const Center(child: CreateOrders());
           case 'Service Category':
-            return const Center(child:ServiceCategories());
+            return const Center(child: ServiceCategories());
         }
         break;
       case NavItem.clients:

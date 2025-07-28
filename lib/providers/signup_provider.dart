@@ -3,14 +3,15 @@ import 'dart:convert';
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:shared_preferences/shared_preferences.dart';
+import '../ui/screens/login screens/verification_screen.dart';
 import '../widgets/loading_dialog.dart';
 
 class SignupProvider with ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  Future<String?> registerUser({
+  Future<Map<String, dynamic>?> registerUser({
     required String name,
     required String email,
     required String password,
@@ -23,7 +24,6 @@ class SignupProvider with ChangeNotifier {
     final url = Uri.parse('https://abcwebservices.com/api/login/signup.php');
     final headers = {'Content-Type': 'application/json'};
 
-    // Build request body dynamically with optional fields
     final Map<String, dynamic> body = {
       "name": name,
       "email": email,
@@ -52,9 +52,58 @@ class SignupProvider with ChangeNotifier {
       notifyListeners();
 
       if (response.statusCode == 200 && jsonResponse['status'] == 'success') {
-        return null; // success
+        return {
+          "user_id": jsonResponse['data']['user_id'],
+          "email": jsonResponse['data']['email'],
+          "admin_email": jsonResponse['data']['admin_email'],
+        };
       } else {
-        return jsonResponse['message'] ?? "Signup failed";
+        return {
+          "error": jsonResponse['message'] ?? "Signup failed"
+        };
+      }
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+      return {
+        "error": "Network error: $e"
+      };
+    }
+  }
+
+
+
+  Future<String?> resendVerificationPin({
+    required String userId,
+    required String to, // 'user', 'admin', or 'both'
+  }) async {
+    final url = Uri.parse('https://abcwebservices.com/api/login/resend_verification.php');
+    final headers = {'Content-Type': 'application/json'};
+
+    final Map<String, dynamic> body = {
+      "user_id": userId,
+      "to": to,
+    };
+
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      final jsonResponse = jsonDecode(response.body);
+      isLoading = false;
+      notifyListeners();
+
+      if (response.statusCode == 200 && jsonResponse['status'] == 'success') {
+        return null; // Success
+      } else {
+        return jsonResponse['message'] ?? "Failed to resend PIN";
       }
     } catch (e) {
       isLoading = false;
@@ -63,70 +112,133 @@ class SignupProvider with ChangeNotifier {
     }
   }
 
-  // ------------------ LOGIN ------------------ //
-  Future<bool> loginUser(
-    BuildContext context,
-    String email,
-    String password,
-  ) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+
+  Future<String?> verifyUser({
+    required String userId,
+    required String pinUser,
+    required String pinAdmin,
+  }) async {
+    final url = Uri.parse('https://abcwebservices.com/api/login/verify_user.php');
+    final headers = {'Content-Type': 'application/json'};
+
+    final Map<String, dynamic> body = {
+      "user_id": userId,
+      "pin_user": pinUser,
+      "pin_admin": pinAdmin,
+    };
+
+    print('userID : $userId');
+    print('userID : pin  $pinUser');
+    print('userID :admin $pinAdmin');
 
     try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+
       final response = await http.post(
-        Uri.parse('https://abcwebservices.com/api/login/login.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"email": email, "password": password}),
+        url,
+        headers: headers,
+        body: jsonEncode(body),
       );
 
+      final jsonResponse = jsonDecode(response.body);
       isLoading = false;
       notifyListeners();
 
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-
-        if (jsonResponse['status'] == 'success') {
-          return true;
-        } else {
-          error = jsonResponse['message'];
-          return false;
-        }
+      if (response.statusCode == 200 && jsonResponse['status'] == 'success') {
+        return null; // Verification success
       } else {
-        error = "Login failed: ${response.body}";
-        return false;
+        return jsonResponse['message'] ?? "Verification failed";
       }
     } catch (e) {
       isLoading = false;
-      error = "Error: $e";
       notifyListeners();
-      return false;
+      return "Network error: $e";
     }
   }
 
-  // -------- LOGIN HANDLER ------------------ //
   Future<void> handleLogin(
-    BuildContext context,
-    TextEditingController emailController,
-    TextEditingController passwordController,
-  ) async {
+      BuildContext context,
+      TextEditingController emailController,
+      TextEditingController passwordController,
+      ) async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     showLoadingDialog(context);
+    print('loginwork start');
 
-    final success = await loginUser(context, email, password);
+    final response = await http.post(
+      Uri.parse('https://abcwebservices.com/api/login/login.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"email": email, "password": password}),
+    );
 
     hideLoadingDialog(context);
 
-    if (success) {
-      // next par move karny k lia ha ya
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SidebarLayout()),
-      );
+    if (response.statusCode == 200) {
+      print('loginwork 200 result');
+
+      final jsonResponse = jsonDecode(response.body);
+
+      if (jsonResponse['status'] == 'success') {
+
+        print('loginwork status success');
+
+
+        final user = jsonResponse['user'];
+        final access = jsonResponse['access'];
+
+        // ✅ Save to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_id', user['user_id']);
+        await prefs.setString('name', user['name']);
+        await prefs.setString('email', user['email']);
+        await prefs.setString('password', user['password']);
+        await prefs.setBool('verification', user['verification']);
+        await prefs.setString('created_at', user['created_at'] ?? '');
+        await prefs.setString('pin', user['pin'] ?? '');
+        await prefs.setString('login_time', user['login_time'] ?? '');
+
+        // Save all access permissions (optional)
+        await prefs.setString('access', jsonEncode(access));
+
+        print('loginwork access ${jsonEncode(access)}');
+
+
+        // ✅ Navigate based on verification status
+        if (user['verification'] == false) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => VerificationScreen(userId: user['user_id'],email: user['email'],adminEmail: "",)),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SidebarLayout()),
+          );
+        }
+      } else {
+
+        print('loginwork status error ${jsonResponse['message']} ');
+
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text("Login Failed"),
+            content: Text(jsonResponse['message']),
+            actions: [
+              TextButton(
+                child: const Text("OK"),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );;
+      }
     } else {
-      showError(context, error ?? "Login failed");
+      showError(context, 'Server error: ${response.statusCode}');
     }
   }
 
@@ -147,6 +259,7 @@ class SignupProvider with ChangeNotifier {
     );
   }
 
+/*
   Future<void> sendProjectToApi() async {
     var headers = {'Content-Type': 'application/json'};
     var request = http.Request(
@@ -185,4 +298,5 @@ class SignupProvider with ChangeNotifier {
       print("❗ Exception occurred: $e");
     }
   }
+*/
 }

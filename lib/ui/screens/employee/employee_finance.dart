@@ -30,8 +30,8 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
   final List<String> categories = [
     'All',
     'Full time job',
-    'half time job',
-    'Old employee',
+    'Half time job',
+    'Previous',
   ];
   final List<String> categories1 = [
     'All',
@@ -103,7 +103,7 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                             ),
                             CustomDropdown(
                               selectedValue: selectedCategory1,
-                              hintText: "Employee List",
+                              hintText: "Designation",
                               items: categories1,
                               onChanged: (newValue) {
                                 setState(() => selectedCategory1 = newValue!);
@@ -120,49 +120,6 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                           ],
                         ),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        Card(
-                          elevation: 8,
-                          color: Colors.blue,
-                          shape: const CircleBorder(),
-                          child: Builder(
-                            builder:
-                                (context) => Tooltip(
-                              message: 'Show menu',
-                              waitDuration: const Duration(
-                                milliseconds: 2,
-                              ),
-                              child: GestureDetector(
-                                key: _plusKey,
-                                onTap: ()  {
-                                  EmployeeProfileDialog(context);
-
-                                },
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.add,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      ],
                     ),
                   ],
                 ),
@@ -214,9 +171,9 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                                   ),
                                   children: [
                                     _buildHeader("Employee Type"),
-                                    _buildHeader("Employee Name\nReference id "),
+                                    _buildHeader("Employee Name "),
                                     _buildHeader("Tags Details"),
-                                    _buildHeader("Contact Number\nEmail id"),
+                                    _buildHeader("Contact detail"),
                                     _buildHeader("Salary"),
                                     _buildHeader("Advance"),
                                     _buildHeader("Bonuses "),
@@ -234,9 +191,9 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                                     ),
                                     children: [
                                       _buildCell("Half Time", ),
-                                      _buildCell3("Sample Customer ", "xxxxxxxxx245", copyable: true),
+                                      _buildCell("User "),
                                       TagsCellWidget(initialTags: currentTags),
-                                      _buildCell3("0310662662", "TID xxxxxxx234", copyable: true),
+                                      _buildCell("+9725563663",  copyable: true),
                                       _buildPriceWithAdd("AED-", "100000"),
                                       _buildPriceWithAdd("AED-", "300", ),
                                       _buildPriceWithAdd("AED-", "2000",),
@@ -285,6 +242,7 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
+/*
           Container(
             width: 15,
             height: 15,
@@ -294,6 +252,7 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
             ),
             child: const Icon(Icons.add, size: 13, color: Colors.blue),
           ),
+*/
           SizedBox(width: 6),
           Text(
             curr,

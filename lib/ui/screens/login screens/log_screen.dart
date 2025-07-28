@@ -86,19 +86,21 @@ class _LogScreenState extends State<LogScreen> {
                                 isPassword: true,
                               ),
                               SizedBox(height: 10),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => ForgotScreen()),
-                                  );
-                                },
-                                child: Text(
-                                  "Forgot/Update Password",
-                                  style: TextStyle(color: Colors.blue),
+                              FittedBox(
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => ForgotScreen()),
+                                    );
+                                  },
+                                  child: Text(
+                                    "Forgot/Update Password",
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              SizedBox(height: 31),
                               ElevatedButton(
                                 onPressed: () {
                                   final provider = Provider.of<SignupProvider>(
@@ -133,26 +135,28 @@ class _LogScreenState extends State<LogScreen> {
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignScreen()),
-                    );
-                  },
-                  child: RichText(
-                    text: TextSpan(
-                      text: 'Create New Account? ',
-                      style: TextStyle(color: Colors.grey, fontSize: 14),
-                      children: [
-                        TextSpan(
-                          text: 'Signup',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
+                FittedBox(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignScreen()),
+                      );
+                    },
+                    child: RichText(
+                      text: TextSpan(
+                        text: 'Create New Account? ',
+                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                        children: [
+                          TextSpan(
+                            text: 'Signup',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
