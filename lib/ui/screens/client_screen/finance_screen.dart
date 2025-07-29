@@ -1,5 +1,3 @@
-import 'package:abc_consultant/ui/screens/client_screen/add_individual_profile.dart';
-import 'package:abc_consultant/ui/screens/client_screen/add_comapny_profile.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -131,67 +129,6 @@ class _FinanceScreenState extends State<FinanceScreen> {
                                   onChanged: (newValue) {
                                     setState(() => selectedCategory3 = newValue!);
                                   },
-                                ),
-                                const SizedBox(width: 12),
-                                Row(
-                                  children: [
-                                    Card(
-                                      elevation: 4,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18),
-                                      ),
-                                      shadowColor: Colors.grey.shade700,
-                                      child: Container(
-                                        width:
-                                        MediaQuery.of(context).size.width *
-                                            0.11,
-                                        height: 30,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(18),
-                                          border: Border.all(
-                                            color: Colors.red,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        child: const TextField(
-                                          style: TextStyle(fontSize: 12),
-                                          textAlignVertical:
-                                          TextAlignVertical.center,
-                                          decoration: InputDecoration(
-                                            hintText: 'Search...',
-                                            hintStyle: TextStyle(fontSize: 12),
-                                            border: InputBorder.none,
-                                            isCollapsed: true,
-                                            contentPadding: EdgeInsets.zero,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Card(
-                                      elevation: 4,
-                                      shape: const CircleBorder(),
-                                      // Make the card circular
-                                      shadowColor: Colors.grey.shade700,
-                                      child: Container(
-                                        height: 30,
-                                        width: 30,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle, // Circular shape
-                                        ),
-                                        child: const Icon(
-                                          Icons.search,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),
@@ -450,26 +387,27 @@ class _FinanceScreenState extends State<FinanceScreen> {
       ),
     );
   }
-  Widget _buildPriceWithAdd(String curr, String price) {
+  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.blue),
-            ),
-            child: const Icon(Icons.add, size: 13, color: Colors.blue),
-          ),
-          SizedBox(width: 6),
           Text(
             curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
         ],
       ),
     );

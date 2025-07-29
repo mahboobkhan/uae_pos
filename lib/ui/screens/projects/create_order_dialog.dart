@@ -255,13 +255,14 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       final shouldClose = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           backgroundColor: Colors.white,
                           title: const Text("Are you sure?"),
                           content: const Text("Do you want to close this form? Unsaved changes may be lost."),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text("Keep Changes ",style: TextStyle(color:Colors.grey ),),
+                              child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
@@ -319,7 +320,8 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     controller: _fundsController,
                     hintText: '500',
                   ),
-                  InfoBox(label: 'Muhammad Imran', value: 'Assign Employee',
+                  InfoBox(label: 'Muhammad Imran',
+                    value: 'Assign Employee',
                       color: Colors.blue.shade200,// light blue fill
                   ),
                   InfoBox(label: '500', value: 'Received Funds',

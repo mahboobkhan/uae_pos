@@ -120,6 +120,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                             context: context,
                             builder:
                                 (context) => AlertDialog(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                   backgroundColor: Colors.white,
                                   title: const Text("Are you sure?"),
                                   content: const Text(
@@ -132,7 +133,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                                               Navigator.of(context).pop(false),
                                       child: const Text(
                                         "Keep Changes ",
-                                        style: TextStyle(color: Colors.grey),
+                                        style: TextStyle(color: Colors.blue),
                                       ),
                                     ),
                                     TextButton(
@@ -158,7 +159,7 @@ class CompanyProfileState extends State<CompanyProfile> {
               ),
               Text(
                 'ORN.0001-0000002', // Static example ID
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 12,),
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -206,12 +207,12 @@ class CompanyProfileState extends State<CompanyProfile> {
                   CustomTextField(
                     label: "Contact Number ",
                     controller: contactNumberController,
-                    hintText: "03xxxxxxxxxx",
+                    hintText: "+973xxxxxxxxxx",
                   ),
                   CustomTextField(
                     label: "Contact Number 2",
                     controller: contactNumber2Controller,
-                    hintText: "03xxxxxxxxxx",
+                    hintText: "+973xxxxxxxxxx",
                   ),
                   CustomTextField(
                     label: "Physical Address",
@@ -252,11 +253,14 @@ class CompanyProfileState extends State<CompanyProfile> {
                     hintText: "dd-MM-yyyy",
                     onTap: _pickDateTime,
                   ),
-                  CustomButton(
-                    text: 'Upload File',
-                    onPressed: () {},
-                    backgroundColor: Colors.green,
-                    icon: Icons.file_copy_outlined,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: CustomButton(
+                      text: 'Upload File',
+                      onPressed: () {},
+                      backgroundColor: Colors.green,
+                      icon: Icons.upload_file,
+                    ),
                   ),
                 ],
               ),
@@ -275,6 +279,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   ),
                 ],
               ),
+              SizedBox(height: 10),
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
@@ -348,17 +353,23 @@ class CompanyProfileState extends State<CompanyProfile> {
                     onTap: _pickDateTime,
                     hintText: "dd-MM-yyyy",
                   ),
-                  CustomButton(
-                    text: 'Upload File',
-                    onPressed: () {},
-                    backgroundColor: Colors.green,
-                    icon: Icons.file_copy_outlined,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: CustomButton(
+                      text: 'Upload File',
+                      onPressed: () {},
+                      backgroundColor: Colors.green,
+                      icon: Icons.upload_file,
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Add 2 more",
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        "Add 2 more",
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      ),
                     ),
                   ),
                 ],

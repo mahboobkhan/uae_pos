@@ -190,7 +190,6 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(
-                  height: 365,
                   child: ScrollbarTheme(
                     data: ScrollbarThemeData(
                       thumbVisibility: MaterialStateProperty.all(true),
@@ -258,7 +257,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                           centerText2: true,
                                         ),
                                         _buildCell3(
-                                          "Sample Customer ",
+                                          "User ",
                                           "xxxxxxxxx245",
                                           copyable: true,
                                         ),
@@ -481,26 +480,27 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
   }
 
 
-  Widget _buildPriceWithAdd(String curr, String price) {
+  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.blue),
-            ),
-            child: const Icon(Icons.add, size: 13, color: Colors.blue),
-          ),
-          SizedBox(width: 6),
           Text(
             curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
         ],
       ),
     );
@@ -512,14 +512,14 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
-          tooltip: 'Edit',
-          onPressed: onEdit ?? () {},
-        ),
-        IconButton(
           icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.edit, size: 20, color: Colors.green),
+          tooltip: 'Edit',
+          onPressed: onEdit ?? () {},
         ),
       ],
     );

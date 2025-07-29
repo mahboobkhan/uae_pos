@@ -246,7 +246,7 @@ class InfoBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 220,
-      height: 50,
+      height: 48.5,
       child: Container(
         decoration: BoxDecoration(
           color: color, // light blue fill
@@ -527,7 +527,7 @@ class InfoBoxNoColor extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 220,
-      height: 50,
+      height: 49,
       child: Container(
         decoration: BoxDecoration(
           // No background color
@@ -796,7 +796,7 @@ class CustomDateField extends StatelessWidget {
           focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 1),
           ),
-          suffixIcon: const Icon(Icons.calendar_today, color: Colors.red, size: 20),
+          suffixIcon: const Icon(Icons.calendar_month, color: Colors.red, size: 20),
         ),
         style: const TextStyle(fontSize: 16, color: Colors.black),
       ),
@@ -909,6 +909,9 @@ class ConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8)
+      ),
       title: Text(title),
       content: Text(content),
       actions: [
@@ -921,6 +924,50 @@ class ConfirmationDialog extends StatelessWidget {
           child: Text(confirmText,style: TextStyle(color: Colors.red)),
         ),
       ],
+    );
+  }
+}
+
+class CustomCompactTextField extends StatelessWidget {
+  final String label;
+  final String hintText;
+  final TextEditingController controller;
+  final double width;
+  final bool enabled;
+
+  const CustomCompactTextField({
+    Key? key,
+    required this.label,
+    required this.hintText,
+    required this.controller,
+    this.width = 150, // Compact width
+    this.enabled = true,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: 30, // Compact height
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+          labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+          border: const OutlineInputBorder(),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 1),
+          ),
+        ),
+        style: const TextStyle(fontSize: 10, color: Colors.black),
+      ),
     );
   }
 }

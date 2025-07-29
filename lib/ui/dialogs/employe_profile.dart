@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
-void EmployeeProfileDialog(BuildContext context) {
+
+void EmployeeProfileDialog(BuildContext context,Map<String, dynamic>? user) {
   showDialog(
     context: context,
     builder: (context) {
@@ -13,14 +14,16 @@ void EmployeeProfileDialog(BuildContext context) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
-        child:  EmployeProfile(),
+        child:  EmployeProfile(user: user,),
       );
     },
   );
 }
 
 class EmployeProfile extends StatefulWidget {
-  const EmployeProfile({super.key});
+  Map<String, dynamic>? user ;// Add any other parameters you need
+
+   EmployeProfile({super.key, required this.user});
 
   @override
   State<EmployeProfile> createState() => _EmployeProfileState();
@@ -30,8 +33,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
   DateTime selectedDateTime = DateTime.now();
   final _contactNumber1 = TextEditingController();
   final TextEditingController _employeeNameController = TextEditingController();
-  final TextEditingController _contactNumber1Controller =
-      TextEditingController();
   final TextEditingController _contactNumber2Controller =
       TextEditingController();
   final TextEditingController _homeContactNumberController =
@@ -65,6 +66,17 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    final user = widget.user;
+
+    _employeeNameController.text = user?['name']?.toString() ?? '';
+    _emailIdController.text = user?['email']?.toString() ?? '';
+  }
 
   Future<void> _pickDateTime() async {
     final DateTime? pickedDate = await showDatePicker(
@@ -200,6 +212,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           final shouldClose = await showDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               backgroundColor: Colors.white,
                               title: const Text("Are you sure?"),
                               content: const Text("Do you want to close this form? Unsaved changes may be lost."),
@@ -227,7 +240,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
               ),
               Text(
                 'EID.EE/EH 10110', // Static example ID
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 12, ),
               ),
               const SizedBox(height: 12),
 
@@ -240,6 +253,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     label: "Employee Name",
                     hintText: "xyz",
                     controller: _employeeNameController,
+
                   ),
                   CustomDropdownField(
                     label: "Job Position",
@@ -302,29 +316,20 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     readOnly: true,
                     onTap: _pickDateTime,
                   ),
-                  SizedBox(
-                    width: 180,
-                    child: CustomTextField(
-                      label: 'Salary',
-                      hintText: 'AED-1000',
-                      controller: _salaryController,
-                    ),
+                  CustomTextField(
+                    label: 'Salary',
+                    hintText: 'AED-1000',
+                    controller: _salaryController,
                   ),
-                  SizedBox(
-                    width: 180,
-                    child: CustomTextField(
-                      label: 'Increment',
-                      hintText: '10',
-                      controller: _incrementController,
-                    ),
+                  CustomTextField(
+                    label: 'Increment',
+                    hintText: '10',
+                    controller: _incrementController,
                   ),
-                  SizedBox(
-                    width: 180,
-                    child: CustomTextField(
-                      label: 'Working Hours ',
-                      hintText: '42',
-                      controller: _workingHoursController,
-                    ),
+                  CustomTextField(
+                    label: 'Working Hours ',
+                    hintText: '42',
+                    controller: _workingHoursController,
                   ),
                   TextButton(
                     onPressed: () {},
@@ -401,12 +406,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     hintText: "@gmail.com",
                     controller: _emailI2dController,
                   ),
-                  CustomTextField(
-                    label: 'Doc Name',
-                    hintText: 'xxxxx',
-                    controller: _docNameController,
-                  ),
-
                   SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -432,16 +431,76 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         label: "AED-3000",
                         color: Colors.blue.shade50,
                       ),
-                      InfoBox(
-                        value: "Show Payments",
-                        label: "AED-3000",
-                        color: Colors.blue.shade50,
+                    ],
+
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          CustomCompactTextField(
+                            label: 'Doc Name',
+                            hintText: '',
+                            controller: _docNameController,
+                          ),
+                          CustomDateNotificationField(
+                            label: "Issue Date Notifications",
+                            controller: _issueDateController,
+                            readOnly: true,
+                            hintText: "dd-MM-yyyy HH:mm",
+                            onTap: _pickDateTime2,
+                          ),
+                          CustomDateNotificationField(
+                            label: "Expiry Date Notifications",
+                            controller: _expiryDateController,
+                            readOnly: true,
+                            hintText: "dd-MM-yyyy HH:mm",
+                            onTap: _pickDateTime2,
+                          ),
+
+                          ElevatedButton(
+                            onPressed: () {
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              minimumSize: const Size(150, 38),
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  4,
+                                ), // Optional: slight rounding
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(
+                                  Icons.upload_file,
+                                  size: 16,
+                                  color: Colors.white,
+                                ), //
+                                SizedBox(width: 6),
+                                Text(
+                                  'Upload File',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ), //
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
+                  )
                 ],
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 20),
               Row(
                 children: [
                   CustomButton(
@@ -461,60 +520,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     text: "Submit",
                     backgroundColor: Colors.green,
                     onPressed: () {},
-                  ),
-                  Spacer(),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      CustomDateNotificationField(
-                        label: "Issue Date Notifications",
-                        controller: _issueDateController,
-                        readOnly: true,
-                        hintText: "dd-MM-yyyy HH:mm",
-                        onTap: _pickDateTime2,
-                      ),
-                      CustomDateNotificationField(
-                        label: "Expiry Date Notifications",
-                        controller: _expiryDateController,
-                        readOnly: true,
-                        hintText: "dd-MM-yyyy HH:mm",
-                        onTap: _pickDateTime2,
-                      ),
-
-                      ElevatedButton(
-                        onPressed: () {
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          minimumSize: const Size(100, 30),
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              4,
-                            ), // Optional: slight rounding
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(
-                              Icons.upload_file,
-                              size: 16,
-                              color: Colors.white,
-                            ), //
-                            SizedBox(width: 6),
-                            Text(
-                              'Upload File',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                              ), //
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

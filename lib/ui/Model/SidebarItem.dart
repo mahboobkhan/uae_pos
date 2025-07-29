@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 class SidebarItem {
   final IconData icon;
   final String title;
-  final IconData? trailingIcon;
+  final String accessKey;
   final List<String> submenus;
-  final List<IconData>? submenuIcons;
+  final List<String> submenuKeys;
 // Add these:
   bool? isLocked; // For main menu toggle
   List<bool>? submenuLockStates; // For submenus toggle
   SidebarItem({
     required this.icon,
     required this.title,
-    this.trailingIcon,
+    required this.accessKey,
     this.submenus = const [],
-    this.submenuIcons, // <-- NEW
+    this.submenuKeys = const [],
   });
 }

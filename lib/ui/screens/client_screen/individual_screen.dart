@@ -267,7 +267,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                         ),
                                         children: [
                                           _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
-                                          _buildCell3("Sample Customer ", "xxxxxxxxx245", copyable: true),
+                                          _buildCell3("User ", "xxxxxxxxx245", copyable: true),
                                           TagsCellWidget(initialTags: currentTags),
                                           _buildCell("In progress"),
                                           _buildCell2("PB-02 - 1 ", ' 23-days'),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../utils/clipboard_utils.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/employe_profile.dart';
 import '../../dialogs/tags_class.dart';
@@ -160,7 +161,6 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                                 4: FlexColumnWidth(1.3),
                                 5: FlexColumnWidth(1.3),
                                 6: FlexColumnWidth(1.3),
-                                7: FlexColumnWidth(1),
 
                               },
                               children: [
@@ -170,9 +170,8 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                                     color: Colors.red.shade50,
                                   ),
                                   children: [
-                                    _buildHeader("Employee Type"),
+                                    _buildHeader("Date"),
                                     _buildHeader("Employee Name "),
-                                    _buildHeader("Tags Details"),
                                     _buildHeader("Contact detail"),
                                     _buildHeader("Salary"),
                                     _buildHeader("Advance"),
@@ -190,12 +189,12 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                                           : Colors.grey.shade100,
                                     ),
                                     children: [
-                                      _buildCell("Half Time", ),
+                                      _buildCell2("12-02-2025",
+                                        "02:59 pm",centerText2: true ),
                                       _buildCell("User "),
-                                      TagsCellWidget(initialTags: currentTags),
-                                      _buildCell("+9725563663",  copyable: true),
+                                      _buildCell3("+9728888888", "@gmail.comx"),
                                       _buildPriceWithAdd("AED-", "100000"),
-                                      _buildPriceWithAdd("AED-", "300", ),
+                                      _buildPriceWithAdd1("AED-", "300", ),
                                       _buildPriceWithAdd("AED-", "2000",),
                                       _buildCell("N/A"),
 
@@ -237,28 +236,52 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
   }
 
 
-  Widget _buildPriceWithAdd(String curr, String price) {
+  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-/*
-          Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.blue),
-            ),
-            child: const Icon(Icons.add, size: 13, color: Colors.blue),
-          ),
-*/
-          SizedBox(width: 6),
           Text(
             curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
+        ],
+      ),
+    );
+  }
+  Widget _buildPriceWithAdd1(String curr, String price, {bool showPlus = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Text(
+            curr,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+          ),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.red,fontWeight: FontWeight.bold),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
         ],
       ),
     );
@@ -300,7 +323,22 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(text1, style: const TextStyle(fontSize: 12)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(text1, style: const TextStyle(fontSize: 12)),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    ClipboardUtils.copyToClipboard(text1, context, message: 'Text 1 copied');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
           const SizedBox(height: 4),
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -312,14 +350,96 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
               if (copyable)
                 GestureDetector(
                   onTap: () {
-                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    ClipboardUtils.copyToClipboard(text2, context, message: 'Text 2 copied');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildCell2(String text1,
+      String text2, {
+        bool copyable = false,
+        bool centerText2 = false,
+      }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(text1, style: const TextStyle(fontSize: 12)),
+          centerText2
+              ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  text2,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(
+                      ClipboardData(text: "$text1\n$text2"),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Copied to clipboard'),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Icon(
+                      Icons.copy,
+                      size: 14,
+                      color: Colors.blue[700],
+                    ),
+                  ),
+                ),
+            ],
+          )
+              : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  text2,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+              if (copyable)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(
+                      ClipboardData(text: "$text1\n$text2"),
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Copied to clipboard')),
                     );
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
-                    child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
+                    child: Icon(
+                      Icons.copy,
+                      size: 8,
+                      color: Colors.blue[700],
+                    ),
                   ),
                 ),
             ],
@@ -330,68 +450,7 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
   }
 
 }
-class _HoverableTag extends StatefulWidget {
-  final String tag;
-  final Color color;
-  final VoidCallback onDelete;
 
-  const _HoverableTag({
-    Key? key,
-    required this.tag,
-    required this.color,
-    required this.onDelete,
-  }) : super(key: key);
 
-  @override
-  State<_HoverableTag> createState() => _HoverableTagState();
-}
-
-class _HoverableTagState extends State<_HoverableTag> {
-  bool _hovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: Stack(
-        alignment: Alignment.topRight,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            margin: const EdgeInsets.only(top: 6, right: 2),
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              widget.tag,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
-            ),
-          ),
-          if (_hovering)
-            Positioned(
-              top: 5,
-              right: 5,
-              child: GestureDetector(
-                onTap: widget.onDelete,
-                child: Container(
-                  child: const Icon(
-                    Icons.close,
-                    size: 12,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 

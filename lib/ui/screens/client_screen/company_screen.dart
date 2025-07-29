@@ -303,9 +303,9 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                       ),
                                       children: [
                                         _buildCell("Company"),
-                                        _buildCell3("Sample Customer ", "xxxxxx345", copyable: true),
+                                        _buildCell3("User ", "xxxxxx345", copyable: true),
                                         TagsCellWidget(initialTags: currentTags),
-                                        _buildCell("+9727364676723", copyable: true),
+                                        _buildCell3("+9727364676723","@gmail.com", copyable: true),
                                         _buildCell("0/3 Running"),
                                         _buildPriceWithAdd("AED-", "300"),
                                         _buildPriceWithAdd("AED-", "7000"),
@@ -419,27 +419,27 @@ class _CompanyScreenState extends State<CompanyScreen> {
   }
 
 
-
-  Widget _buildPriceWithAdd(String curr, String price) {
+  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.blue),
-            ),
-            child: const Icon(Icons.add, size: 13, color: Colors.blue),
-          ),
-          SizedBox(width: 6),
           Text(
             curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
         ],
       ),
     );
@@ -461,7 +461,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
             'assets/icons/img_3.png',
             width: 20,
             height: 20,
-            color: Colors.grey,
+            color: Colors.blue,
           ),
           tooltip: 'Order History',
           onPressed: onDraft ?? () {},

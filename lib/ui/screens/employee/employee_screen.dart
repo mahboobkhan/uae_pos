@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../utils/clipboard_utils.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/employe_profile.dart';
+import '../../dialogs/tags_class.dart';
 
 class EmployeeScreen extends StatefulWidget {
   const EmployeeScreen({super.key});
@@ -12,6 +14,10 @@ class EmployeeScreen extends StatefulWidget {
 }
 
 class _EmployeeScreenState extends State<EmployeeScreen> {
+  List<Map<String, dynamic>> currentTags = [
+    {'tag': 'Tag1', 'color': Colors.green.shade100},
+    {'tag': 'Tag2', 'color': Colors.orange.shade100},
+  ];
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
 
@@ -133,7 +139,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                     child: GestureDetector(
                                       key: _plusKey,
                                       onTap: () async {
-                                        EmployeeProfileDialog(context);
+                                        EmployeeProfileDialog(context,null);
                                       },
                                       child: Container(
                                         width: 30,
@@ -193,14 +199,15 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                 columnWidths: const {
                                   0: FlexColumnWidth(0.8),
                                   1: FlexColumnWidth(1.2),
-                                  2: FlexColumnWidth(1),
-                                  3: FlexColumnWidth(1.5),
-                                  4: FlexColumnWidth(1.3),
+                                  2: FlexColumnWidth(1.2),
+                                  3: FlexColumnWidth(1),
+                                  4: FlexColumnWidth(1.5),
                                   5: FlexColumnWidth(1.3),
+                                  6: FlexColumnWidth(1.3),
                                   /*6: FlexColumnWidth(1.3),
                                   7: FlexColumnWidth(1),*/
-                                  6: FlexColumnWidth(1),
-                                  7: FlexColumnWidth(1.5),
+                                  7: FlexColumnWidth(1),
+                                  8: FlexColumnWidth(1.5),
                                 },
                                 children: [
                                   // Header Row
@@ -211,6 +218,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                     children: [
                                       _buildHeader("Date"),
                                       _buildHeader("Employee Detail "),
+                                      _buildHeader("Tags Details"),
                                       _buildHeader("Designation"),
                                       _buildHeader("Payment Mode"),
                                       _buildHeader("Salary"),
@@ -234,6 +242,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                       children: [
                                         _buildCell2("12-02-2025", "02:59 pm", centerText2: true),
                                         _buildCell("User"),
+                                        TagsCellWidget(initialTags: currentTags),
+
                                         _buildCell("Manager"),
                                         _buildCell3("Bank Transfer", "TID *********456", copyable: true),
                                         _buildPriceWithAdd("AED-", "100000"),
@@ -434,6 +444,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       ),
     );
   }
+
   Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -443,7 +454,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             curr,
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.green),),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
           const Spacer(),
           if (showPlus)
             Container(
@@ -468,7 +479,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             curr,
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.red),),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.red,fontWeight: FontWeight.bold),),
           const Spacer(),
           if (showPlus)
             Container(
@@ -484,30 +495,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       ),
     );
   }
-  Widget _buildPriceWithAdd2(String curr, String price, {bool showPlus = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Row(
-        children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-          Text(price,style: TextStyle(fontSize: 12,),),
-          const Spacer(),
-          if (showPlus)
-            Container(
-              width: 15,
-              height: 15,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
-              child: const Icon(Icons.add, size: 13, color: Colors.blue),
-            ),
-        ],
-      ),
-    );
-  }
+
 
 }

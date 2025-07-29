@@ -1,6 +1,8 @@
+import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
@@ -16,6 +18,10 @@ class EmployeesRoleScreen extends StatefulWidget {
 }
 
 class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
+
+  List<Map<String, dynamic>> users = [];
+  bool isLoading = true;
+
   String? selectedService;
   final List<String> serviceOptions = ['Manager', 'Employee', 'Other'];
 
@@ -47,8 +53,21 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   ];
   String? selectedCategory3;
 
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<SignupProvider>(context, listen: false).fetchAllUsersWithAccess();
+
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<SignupProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
@@ -202,27 +221,27 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                       _buildHeader("Access"),
                                     ],
                                   ),
-                                  for (int i = 0; i < 20; i++)
+                                  for (var user in provider.users)
                                     TableRow(
                                       decoration: BoxDecoration(
                                         color:
-                                            i.isEven
+                                        provider.users.indexOf(user).isEven
                                                 ? Colors.grey.shade200
                                                 : Colors.grey.shade100,
                                       ),
                                       children: [
                                         _buildCell3(
-                                          "Muhammad Imran",
-                                          "xxxxxxxxxx",
+                                          user['name'],
+                                          user['user_id'],
                                           copyable: true,
                                         ),
-                                        _buildCell1("PB-02 - 1"),
-                                        _buildCell("Role"),
+                                        _buildCell1("N/A"),
+                                        _buildCell("Role",user),
                                         _buildActionCell(
                                           onEdit: () {},
                                           onDelete: () {},
                                           onDraft: () {
-                                            EmployeeProfileDialog(context);
+                                            EmployeeProfileDialog(context,user);
                                           },
                                         ),
                                       ],
@@ -263,7 +282,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     );
   }
 
-  Widget _buildCell(String text) {
+  Widget _buildCell(String text, Map<String, dynamic> user) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
       child: Row(
@@ -272,7 +291,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
           Flexible(
             child: GestureDetector(
               onTap: () {
-                _showLockUnlockDialog(context);
+                // _showLockUnlockDialog(context);
+                showAccessDialog(context,user);
               },
               child: Text(
                 text,
@@ -409,7 +429,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     );
   }*/
 
-  void _showLockUnlockDialog(BuildContext context) {
+/*
+  void _showLockUnlockDialog(BuildContext context, Map<String, dynamic> user) {
     showDialog(
       context: context,
       builder: (context) {
@@ -523,12 +544,156 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                   CustomButton(
                     text: 'Submit',
                     backgroundColor: Colors.green,
-                    onPressed: () {},
+                    onPressed: () {
+
+                    },
                   ),
                 ],
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+*/
+
+  void showAccessDialog(BuildContext context, Map<String, dynamic> userAccess) {
+    for (var item in sidebarItemsAccess) {
+      item.isLocked = (userAccess[item.accessKey] ?? 0) == 0;
+
+      item.submenuLockStates = item.submenuKeys
+          .map((key) => (userAccess[key] ?? 0) == 0)
+          .toList();
+    }
+
+    showDialog(
+      context: context,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+
+            ),
+              backgroundColor: Colors.white,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   Text("Manage Access For ${userAccess['name']}"),
+                  SizedBox(height: 12),
+                  SizedBox(
+                    width: 230,
+                    child: CustomDropdownWithAddButton(
+                      label: "Assign Desigination ",
+                      value: selectedService,
+                      items: serviceOptions,
+                      onChanged: (val) => selectedService = val,
+                      onAddPressed: () {
+                        showInstituteManagementDialog2(context);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 400,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: sidebarItemsAccess.length,
+                  itemBuilder: (context, index) {
+                    final item = sidebarItemsAccess[index];
+                    return ExpansionTile(
+                      title: Row(
+                        children: [
+                          Icon(item.icon, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              item.title,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Transform.scale(
+                            scale: 0.5,
+                            child: Switch(
+                              value: !(item.isLocked ?? true),
+                              onChanged: (val) {
+                                setState(() {
+                                  item.isLocked = !val;
+                                });
+                              },
+                              activeColor: Colors.white,
+                              activeTrackColor: Colors.green,
+                              inactiveThumbColor: Colors.white,
+                              inactiveTrackColor: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                      children: List.generate(item.submenus.length, (subIndex) {
+                        return ListTile(
+                          dense: true,
+                          contentPadding: const EdgeInsets.only(left: 32, right: 8),
+                          title: Text(
+                            item.submenus[subIndex],
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                          trailing: Transform.scale(
+                            scale: 0.5,
+                            child: Switch(
+                              value: !item.submenuLockStates![subIndex],
+                              onChanged: (val) {
+                                setState(() {
+                                  item.submenuLockStates![subIndex] = !val;
+                                });
+                              },
+                              activeColor: Colors.white,
+                              activeTrackColor: Colors.green,
+                              inactiveThumbColor: Colors.white,
+                              inactiveTrackColor: Colors.red,
+                            ),
+                          ),
+                        );
+                      }),
+                    );
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                CustomButton(
+                  backgroundColor: Colors.green,
+                  text: "Submit",
+                  onPressed: () async {
+                    final accessMap = <String, bool>{};
+
+                    for (var item in sidebarItemsAccess) {
+                      accessMap[item.accessKey] = !(item.isLocked ?? true);
+                      for (int i = 0; i < item.submenuKeys.length; i++) {
+                        accessMap[item.submenuKeys[i]] = !item.submenuLockStates![i];
+                      }
+                    }
+
+                    final accessProvider = Provider.of<SignupProvider>(context, listen: false);
+                    final result = await accessProvider.updateUserAccess(
+                      userId: userAccess['user_id'],
+                      accessData: accessMap,
+                      context: context,
+                    );
+
+                    if (result) Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -550,7 +715,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
           onPressed: onDelete ?? () {},
         ),
         IconButton(
-          icon: const Icon(Icons.person, size: 23, color: Colors.grey),
+          icon: const Icon(Icons.person, size: 23, color: Colors.blue),
           onPressed: onDraft ?? () {},
         ),
       ],

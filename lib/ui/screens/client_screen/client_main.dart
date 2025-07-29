@@ -413,7 +413,7 @@ class _ClientMainState extends State<ClientMain> {
                                         ),
                                         children: [
                                           _buildCell("Company"),
-                                          _buildCell3("Sample Customer" ,"nxxxxxx345",copyable: true),
+                                          _buildCell3("User" ,"nxxxxxx345",copyable: true),
                                           TagsCellWidget(initialTags: currentTags),
                                           _buildCell("+9727364676723"),
                                           _buildCell("0/3 Running"),
@@ -595,26 +595,27 @@ class _ClientMainState extends State<ClientMain> {
       ),
     );
   }
-  Widget _buildPriceWithAdd(String curr, String price) {
+  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.blue),
-            ),
-            child: const Icon(Icons.add, size: 13, color: Colors.blue),
-          ),
-          SizedBox(width: 6),
           Text(
             curr,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price),
+          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
         ],
       ),
     );

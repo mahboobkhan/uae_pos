@@ -11,6 +11,14 @@ class SignupProvider with ChangeNotifier {
   bool isLoading = false;
   String? error;
 
+  List<Map<String, dynamic>> _users = [];
+  List<Map<String, dynamic>> get users => _users;
+
+  Map<String, bool> _accessMap = {};
+  Map<String, bool> get accessMap => _accessMap;
+
+
+
   Future<Map<String, dynamic>?> registerUser({
     required String name,
     required String email,
@@ -72,12 +80,12 @@ class SignupProvider with ChangeNotifier {
   }
 
 
-
   Future<String?> resendVerificationPin({
     required String userId,
     required String to, // 'user', 'admin', or 'both'
   }) async {
-    final url = Uri.parse('https://abcwebservices.com/api/login/resend_verification.php');
+    final url = Uri.parse(
+        'https://abcwebservices.com/api/login/resend_verification.php');
     final headers = {'Content-Type': 'application/json'};
 
     final Map<String, dynamic> body = {
@@ -118,7 +126,8 @@ class SignupProvider with ChangeNotifier {
     required String pinUser,
     required String pinAdmin,
   }) async {
-    final url = Uri.parse('https://abcwebservices.com/api/login/verify_user.php');
+    final url = Uri.parse(
+        'https://abcwebservices.com/api/login/verify_user.php');
     final headers = {'Content-Type': 'application/json'};
 
     final Map<String, dynamic> body = {
@@ -157,6 +166,129 @@ class SignupProvider with ChangeNotifier {
       return "Network error: $e";
     }
   }
+
+  Future<void> fetchAllUsersWithAccess() async {
+    final url = Uri.parse(
+        'https://abcwebservices.com/api/login/get_all_users_with_access.php');
+
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await http.get(url, headers: {
+        'Accept': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['status'] == 'success') {
+          _users = List<Map<String, dynamic>>.from(data['data']);
+          print('new data: ${jsonEncode(data['data'])}');
+        } else {
+          print('new data error' + data['message']);
+          throw Exception(data['message'] ?? 'Failed to fetch users');
+        }
+      } else {
+        print('new data error' + response.statusCode.toString());
+        throw Exception('Failed to fetch users: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching users: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+
+  /// Update user access
+  Future<bool> updateUserAccess({
+    required String userId,
+    required Map<String, dynamic> accessData,
+    required BuildContext context,
+  }) async {
+    final url = Uri.parse(
+        'https://abcwebservices.com/api/login/update_access.php');
+
+    try {
+      final body = {
+        'user_id': userId,
+        ...accessData, // Merge access permissions into request
+      };
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      final result = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && result['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Access updated successfully')),
+        );
+        return true;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Update failed')),
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Error updating access: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+      return false;
+    }
+  }
+
+  Future<void> fetchUserAccess(String userId) async {
+    isLoading = true;
+    notifyListeners();
+
+    final url = Uri.parse('https://abcwebservices.com/api/login/get_access.php?user_id=$userId');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['status'] == 'success') {
+          final accessData = Map<String, dynamic>.from(data['access']);
+          accessData.remove('id');
+          accessData.remove('user_id');
+          accessData.remove('updated_at');
+
+          _accessMap = accessData.map((key, value) => MapEntry(key, value == 1));
+        } else {
+          throw Exception(data['message']);
+        }
+      } else {
+        throw Exception('Failed to fetch access: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching access: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  bool getAccess(String key) {
+    return _accessMap[key] ?? false;
+  }
+
+
+
+
+
 
   Future<void> handleLogin(
       BuildContext context,

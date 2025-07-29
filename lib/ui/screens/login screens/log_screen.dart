@@ -23,8 +23,8 @@ class _LogScreenState extends State<LogScreen> {
   @override
   void initState() {
     super.initState();
-    _emailController.text = widget.email ?? 'default@gmail.com';
-    _passwordController.text = widget.password ?? 'yahya';
+    _emailController.text = widget.email ?? 'yousafrana1212@gmail.com';
+    _passwordController.text = widget.password ?? 'Yahya##22';
   }
 
   @override
