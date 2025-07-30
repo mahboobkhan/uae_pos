@@ -30,6 +30,7 @@ class EmployeProfile extends StatefulWidget {
 }
 
 class _EmployeProfileState extends State<EmployeProfile> {
+
   DateTime selectedDateTime = DateTime.now();
   final _contactNumber1 = TextEditingController();
   final TextEditingController _employeeNameController = TextEditingController();
@@ -408,8 +409,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
                   ),
                   SizedBox(height: 10),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: 10,
+                    runSpacing: 10,
                     children: [
                       InfoBox(
                         value: "Remaining Salary",
@@ -436,11 +437,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       SizedBox(height: 10),
                       Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: 10,
+                        runSpacing: 10,
                         children: [
                           CustomCompactTextField(
                             label: 'Doc Name',

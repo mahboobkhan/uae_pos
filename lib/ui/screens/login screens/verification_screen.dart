@@ -65,14 +65,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
       context: context,
       builder: (context) =>
           AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8)
+            ),
             content: const Text(" Are you sure you want to leave?"),
             actions: [
               TextButton(
-                child: const Text("No"),
+                child: const Text("No",style: TextStyle(color: Colors.black),),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
               TextButton(
-                child: const Text("Yes"),
+                child: const Text("Yes",style: TextStyle(color: Colors.black),),
                 onPressed: () => Navigator.of(context).pop(true),
               ),
             ],

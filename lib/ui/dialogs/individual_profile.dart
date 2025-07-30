@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'custom_dialoges.dart';
+import 'custom_fields.dart';
 
 void showIndividualProfileDialog(BuildContext context) {
   showDialog(
     context: context,
+    barrierDismissible: false,
     builder: (context) {
       return Dialog(
-        insetPadding: const EdgeInsets.all(10),
         backgroundColor: Colors.transparent,
-        child: Material(
-          elevation: 12,
-          color: Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            width: 820,
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.8,
-            ),
-            child: IndividualProfileDialog(),
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: IndividualProfileDialog(),
       );
     },
   );
@@ -33,89 +25,334 @@ class IndividualProfileDialog extends StatefulWidget {
 }
 
 class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
+  final TextEditingController _dateTimeController = TextEditingController();
+  final TextEditingController channelNameController = TextEditingController();
+  final TextEditingController channelLoginController = TextEditingController();
+  final TextEditingController advancePaymentController =
+      TextEditingController();
+  final TextEditingController channelPasswordController =
+      TextEditingController();
+  final TextEditingController _physicalAddressController =
+      TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
+  final TextEditingController clientNameController = TextEditingController();
+  final TextEditingController emiratesIdController = TextEditingController();
+  final TextEditingController emailId = TextEditingController();
+  final TextEditingController contactNumber = TextEditingController();
+  final TextEditingController contactNumber2 = TextEditingController();
+  final TextEditingController _issueDateController = TextEditingController();
+  final TextEditingController _expiryDateController = TextEditingController();
+
+  Future<void> _pickDateTime2() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        final DateTime combined = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        _dateTimeController.text = DateFormat(
+          'dd-MM-yyyy – hh:mm a',
+        ).format(combined);
+      }
+    }
+  }
+
+  String? selectedJobType3;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? selectedJobType2;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  "Individual Profile",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  "ORN. 00001-0000001",
-                  style: TextStyle(fontSize: 12, color: Colors.black87),
-                ),
-              ],
-            ),
-            SizedBox(width: 5),
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0,left: 4),
-              child: Text("12-02-2025", style: TextStyle(fontSize: 12)),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.red),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: SizedBox(
+        width: 950,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(20),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildStatusBar(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        'Individual Profile',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 160,
+                        child: SmallDropdownField(
+                          label: " Type",
+                          options: ['Regular', 'Walking'],
+                          selectedValue: selectedJobType3,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedJobType3 = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.red),
+                        onPressed: () async {
+                          final shouldClose = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  title: const Text("Are you sure?"),
+                                  content: const Text(
+                                    "Do you want to close this form? Unsaved changes may be lost.",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () =>
+                                              Navigator.of(context).pop(false),
+                                      child: const Text(
+                                        "Keep Changes ",
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(context).pop(true),
+                                      child: const Text(
+                                        "Close",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          );
+
+                          if (shouldClose == true) {
+                            Navigator.of(context).pop(); // close the dialog
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Text(
+                'ORN.0001-0000001', // Static example ID
+                style: TextStyle(fontSize: 12),
+              ),
+              const SizedBox(height: 12),
               Wrap(
-                spacing: 16,
+                spacing: 10,
                 runSpacing: 10,
                 children: [
-                  _buildTextField("Client Name"),
-                  _buildTextField("Emiratis I'd"),
-                  _buildTextField("Email I'd"),
-                  _buildTextField("Contact Number"),
-                  _buildTextField("Contact Number - 2"),
-                  _buildTextField("Note/Extra"),
-                  _buildTextField("Physical Address"),
-                  _buildTextField("E-Channel Name(Website link)"),
-                  _buildTextField("E-Channel Login I'd"),
-                  _buildTextField("E-Channel Login Password"),
-                  _buildTextField("Advance Payment TID"),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "Add More",
-                      style: TextStyle(color: Colors.purple),
+                  CustomTextField(
+                    label: "Client Name",
+                    hintText: "xyz",
+                    controller: clientNameController,
+                  ),
+                  CustomTextField(
+                    label: "Emirates ID ",
+                    controller: emiratesIdController,
+                    hintText: "1234",
+                  ),
+                  CustomTextField(
+                    label: "Email ID ",
+                    controller: emailId,
+                    hintText: "456",
+                  ),
+                  CustomTextField(
+                    label: "Contact Number ",
+                    controller: contactNumber,
+                    hintText: "xxxxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Contact Number 2",
+                    controller: contactNumber2,
+                    hintText: "xxxxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "E- Channel Name",
+                    controller: channelNameController,
+                    hintText: "S.E.C.P",
+                  ),
+                  CustomTextField(
+                    label: "E- Channel Login I'd",
+                    controller: channelLoginController,
+                    hintText: "S.E.C.P",
+                  ),
+                  CustomTextField(
+                    label: "E- Channel Login Password",
+                    controller: channelPasswordController,
+                    hintText: "xxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Advance Payment TID",
+                    controller: advancePaymentController,
+                    hintText: "*****",
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  SizedBox(
+                    width: 450,
+                    child: CustomTextField(
+                      label: "Physical Address",
+                      hintText: "Address,house,street,town,post code",
+                      controller: _physicalAddressController,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 450,
+                    child: CustomTextField(
+                      label: "Note / Extra",
+                      controller: _noteController,
+                      hintText: 'xxxxx',
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              _buildPaymentRow(),
-              const SizedBox(height: 10),
-              _buildDocumentUploadRow(),
-              const SizedBox(height: 10),
-              _buildActionButtons(),
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  InfoBox(
+                    value: "Pending Payment",
+                    label: "AED-3000",
+                    color: Colors.blue.shade50,
+                  ),
+                  InfoBox(
+                    value: "Advance Payment",
+                    label: "AED-3000",
+                    color: Colors.blue.shade50,
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      CustomDateNotificationField(
+                        label: "Issue Date Notifications",
+                        controller: _issueDateController,
+                        readOnly: true,
+                        hintText: "dd-MM-yyyy HH:mm",
+                        onTap: _pickDateTime2,
+                      ),
+                      CustomDateNotificationField(
+                        label: "Expiry Date Notifications",
+                        controller: _expiryDateController,
+                        readOnly: true,
+                        hintText: "dd-MM-yyyy HH:mm",
+                        onTap: _pickDateTime2,
+                      ),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          minimumSize: const Size(150, 38),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              4,
+                            ), // Optional: slight rounding
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(
+                              Icons.upload_file,
+                              size: 16,
+                              color: Colors.white,
+                            ), //
+                            SizedBox(width: 6),
+                            Text(
+                              'Upload File',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ), //
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  Row(
+                    children: [
+                      CustomButton(
+                        text: "Editing",
+                        backgroundColor: Colors.red,
+                        onPressed: () {},
+                      ),
+                      const SizedBox(width: 10),
+                      CustomButton(
+                        text: "Submit",
+                        backgroundColor: Colors.green,
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),

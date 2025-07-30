@@ -76,7 +76,7 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                       SizedBox(height: 2),
                       Text(
                         "TID. 00001-292382",
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                        style: TextStyle(fontSize: 12,),
                       ),
                     ],
                   ),
@@ -84,14 +84,36 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                     children: [
                       Text(
                         _formattedDate(),
-                        style: const TextStyle(fontSize: 14, color: Colors.black54),
+                        style: const TextStyle(fontSize: 14, color: Colors.red,fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 10),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 25,color: Colors.red,),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Colors.red),
+                        onPressed: () async {
+                          final shouldClose = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              backgroundColor: Colors.white,
+                              title: const Text("Are you sure?"),
+                              content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  child: const Text("Close",style: TextStyle(color:Colors.red ),),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (shouldClose == true) {
+                            Navigator.of(context).pop(); // close the dialog
+                          }
+                        },
                       ),
                     ],
                   ),

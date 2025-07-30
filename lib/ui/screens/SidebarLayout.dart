@@ -32,10 +32,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Model/NavItem.dart';
 import '../Model/SidebarItem.dart';
 import '../dialogs/custom_dialoges.dart';
+import '../dialogs/custom_fields.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
 
 class SidebarLayout extends StatefulWidget {
+
   SidebarLayout({super.key});
 
   @override
@@ -44,6 +46,7 @@ class SidebarLayout extends StatefulWidget {
 }
 
 class _SidebarLayoutState extends State<SidebarLayout> {
+
   int screen = 0;
 
   bool isExpanded = true;
@@ -366,24 +369,15 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                         ),
                       ),
                     ),
-                    GestureDetector(
+                    HoverLogoutButton(
+                      width: 40,
+                      height: 40,
+                      iconSize: 25,
+                      defaultColor: Colors.green,
+                      hoverColor: Colors.red,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LogScreen()),
-                        );
+
                       },
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          child: Icon(
-                            Icons.power_settings_new,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                 ),

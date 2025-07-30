@@ -32,13 +32,13 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     'All',
     'Full time job',
     'Half time job',
-    'Previous employee',
+    'Previous ',
   ];
   final List<String> categories1 = [
     'All',
-    'Name 1 - Manager',
-    'Name 1 - Manager',
-    'Name 1 - Manager',
+    'Manager',
+    'Manager',
+    'Manager',
   ];
   final List<String> categories2 = ['All', 'paid', 'Pending'];
   final List<String> categories3 = [
@@ -123,6 +123,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                           ),
                         ),
                       ),
+/*
                       Row(
                         children: [
                           Card(
@@ -165,6 +166,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                           const SizedBox(width: 5),
                         ],
                       ),
+*/
                     ],
                   ),
                 ),

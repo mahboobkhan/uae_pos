@@ -28,6 +28,7 @@ class _SignScreenState extends State<SignScreen> {
     final provider = Provider.of<SignupProvider>(context);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Row(
         children: [
           // Left Side - Image
@@ -116,26 +117,6 @@ class _SignScreenState extends State<SignScreen> {
                             if (confirmPassword.isEmpty)
                               missingFields.add("Confirm Password");
 
-                            if (missingFields.isNotEmpty) {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (_) => AlertDialog(
-                                      title: const Text("Missing Fields"),
-                                      content: Text(
-                                        "Please fill in the following:\n\n• ${missingFields.join("\n• ")}",
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () => Navigator.pop(context),
-                                          child: const Text("OK"),
-                                        ),
-                                      ],
-                                    ),
-                              );
-                              return;
-                            }
 
                             if (name.isEmpty ||
                                 email.isEmpty ||
@@ -157,7 +138,6 @@ class _SignScreenState extends State<SignScreen> {
                               showError(context, "Passwords do not match");
                               return;
                             }
-
                             showLoadingDialog(context);
                             final result = await provider.registerUser(
                               name: name,
@@ -165,13 +145,12 @@ class _SignScreenState extends State<SignScreen> {
                               password: password,
                             );
                             hideLoadingDialog(context);
-
                             if (result != null && result['error'] == null) {
                               final userId = result['user_id'];
                               final email = result['email'];
                               final adminEmail = result['admin_email'];
 
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => VerificationScreen(
@@ -238,12 +217,13 @@ class _SignScreenState extends State<SignScreen> {
       context: context,
       builder:
           (_) => AlertDialog(
-            title: const Text("Error"),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            title: const Text("Error",style: TextStyle(fontWeight: FontWeight.bold),),
             content: Text(message),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("OK"),
+                child: const Text("OK",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.black),),
               ),
             ],
           ),

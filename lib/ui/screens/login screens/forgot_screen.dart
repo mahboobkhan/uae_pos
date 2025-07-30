@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/create_new_password.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
+import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart';
 
 class ForgotScreen extends StatefulWidget {
@@ -12,6 +13,8 @@ class ForgotScreen extends StatefulWidget {
 }
 
 class _ForgotScreenState extends State<ForgotScreen> {
+  List<String> missingFields = [];
+
   final TextEditingController _gmailController = TextEditingController();
   final TextEditingController _adminGmailController = TextEditingController();
 
@@ -60,15 +63,16 @@ class _ForgotScreenState extends State<ForgotScreen> {
         context: context,
         builder:
             (context) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               content: const Text(" Are you sure you want to leave?"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text("No"),
+                  child: const Text("No",style: TextStyle(color: Colors.black),),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text("Yes"),
+                  child: const Text("Yes",style: TextStyle(color: Colors.black),),
                 ),
               ],
             ),
@@ -187,6 +191,18 @@ class _ForgotScreenState extends State<ForgotScreen> {
                               backgroundColor: Colors.red,
                             ),
                             onPressed: () {
+                              final gmail = _gmailController.text.trim();
+                              final adminGmail = _adminGmailController.text.trim();
+                              if (gmail.isEmpty) missingFields.add("User Pin");
+                              if (adminGmail.isEmpty) missingFields.add("Admin Pin");
+
+                              if (gmail.isEmpty ||
+                                  adminGmail.isEmpty)  {
+                                showError(context, "Please Enter the pin");
+                                return;
+                              }
+                              showLoadingDialog(context);
+                              hideLoadingDialog(context);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -268,6 +284,23 @@ class _ForgotScreenState extends State<ForgotScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+  void showError(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: const Text("Error",style: TextStyle(fontWeight: FontWeight.bold),),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.black),),
+          ),
+        ],
       ),
     );
   }

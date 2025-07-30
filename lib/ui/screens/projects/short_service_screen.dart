@@ -63,131 +63,130 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              MouseRegion(
-                onEnter: (_) => setState(() => _isHovering = true),
-                onExit: (_) => setState(() => _isHovering = false),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 45,
-                  width: MediaQuery.of(context).size.width,
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.grey, width: 1),
-                    borderRadius: BorderRadius.circular(2),
-                    boxShadow:
-                        _isHovering
-                            ? [
-                              BoxShadow(
-                                color: Colors.blue,
-                                blurRadius: 4,
-                                spreadRadius: 0.1,
-                                offset: Offset(0, 1),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            MouseRegion(
+              onEnter: (_) => setState(() => _isHovering = true),
+              onExit: (_) => setState(() => _isHovering = false),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 45,
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  border: Border.all(color: Colors.grey, width: 1),
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow:
+                      _isHovering
+                          ? [
+                            BoxShadow(
+                              color: Colors.blue,
+                              blurRadius: 4,
+                              spreadRadius: 0.1,
+                              offset: Offset(0, 1),
+                            ),
+                          ]
+                          : [],
+                ),
+                child: Row(
+                  children: [
+                    //  Scrollable Row with dropdowns
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            CustomDropdown(
+                              selectedValue: selectedCategory,
+                              hintText: "Status",
+                              items: categories,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              selectedValue: selectedCategory1,
+                              hintText: "Select Tags",
+                              items: categories1,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory1 = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              selectedValue: selectedCategory2,
+                              hintText: "Payment Status",
+                              items: categories2,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory2 = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              selectedValue: selectedCategory3,
+                              hintText: "Dates",
+                              items: categories3,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory3 = newValue!);
+                              },
+                              icon: const Icon(
+                                Icons.calendar_month,
+                                size: 18,
                               ),
-                            ]
-                            : [],
-                  ),
-                  child: Row(
-                    children: [
-                      //  Scrollable Row with dropdowns
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              CustomDropdown(
-                                selectedValue: selectedCategory,
-                                hintText: "Status",
-                                items: categories,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory = newValue!);
-                                },
-                              ),
-                              CustomDropdown(
-                                selectedValue: selectedCategory1,
-                                hintText: "Select Tags",
-                                items: categories1,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory1 = newValue!);
-                                },
-                              ),
-                              CustomDropdown(
-                                selectedValue: selectedCategory2,
-                                hintText: "Payment Status",
-                                items: categories2,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory2 = newValue!);
-                                },
-                              ),
-                              CustomDropdown(
-                                selectedValue: selectedCategory3,
-                                hintText: "Dates",
-                                items: categories3,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory3 = newValue!);
-                                },
-                                icon: const Icon(
-                                  Icons.calendar_month,
-                                  size: 18,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
 
-                      // Fixed Right Action Buttons
-                      Row(
-                        children: [
-                          Card(
-                            elevation: 8,
-                            color: Colors.blue,
-                            shape: CircleBorder(),
-                            child: Builder(
-                              builder:
-                                  (context) => Tooltip(
-                                    message: 'Show menu',
-                                    waitDuration: Duration(milliseconds: 2),
-                                    child: GestureDetector(
-                                      key: _plusKey,
-                                      onTap: () async {
-                                        showServicesProjectPopup(context);
-                                      },
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
+                    // Fixed Right Action Buttons
+                    Row(
+                      children: [
+                        Card(
+                          elevation: 8,
+                          color: Colors.blue,
+                          shape: CircleBorder(),
+                          child: Builder(
+                            builder:
+                                (context) => Tooltip(
+                                  message: 'Show menu',
+                                  waitDuration: Duration(milliseconds: 2),
+                                  child: GestureDetector(
+                                    key: _plusKey,
+                                    onTap: () async {
+                                      showServicesProjectPopup(context);
+                                    },
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.edit,
+                                          color: Colors.white,
+                                          size: 20,
                                         ),
                                       ),
                                     ),
                                   ),
-                            ),
+                                ),
                           ),
-                          const SizedBox(width: 10),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-
-              Padding(
+            ),
+            Expanded(
+              child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(
                   child: ScrollbarTheme(
@@ -302,8 +301,8 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

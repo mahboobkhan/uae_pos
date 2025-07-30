@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'custom_fields.dart';
 import 'package:flutter_popup/flutter_popup.dart';
 
@@ -8,16 +8,50 @@ void showProfileDialog(BuildContext context) {
     context: context,
     builder: (context) {
       return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         elevation: 8,
         backgroundColor: Colors.transparent,
-        child: _buildDialogContent(context),
+        child: FutureBuilder<Map<String, String>>(
+          future: _loadUserFromPrefs(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text("Error loading data"),
+              );
+            } else {
+              return _buildDialogContent(context, snapshot.data!);
+            }
+          },
+        ),
       );
     },
   );
 }
 
-Widget _buildDialogContent(BuildContext context) {
+Future<Map<String, String>> _loadUserFromPrefs() async {
+  final prefs = await SharedPreferences.getInstance();
+  return {
+    'user_id': prefs.getString('user_id') ?? '',
+    'name': prefs.getString('name') ?? '',
+    'email': prefs.getString('email') ?? '',
+    'password': prefs.getString('password') ?? '',
+    'pin': prefs.getString('pin') ?? '',
+  };
+}
+
+
+
+Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
+
+  final sharePref =  SharedPreferences.getInstance();
+
+
   return Stack(
     clipBehavior: Clip.none,
     alignment: Alignment.topCenter,
@@ -38,24 +72,27 @@ Widget _buildDialogContent(BuildContext context) {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'John Doe',
+             Text(
+               user['name']?.toString() ?? '-',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const Divider(thickness: 1),
-            const _InfoRow(label: 'Email', value: 'john@example.com'),
+             _InfoRow(label: 'Email', value:   user['email']?.toString() ?? '-',
+            ),
             const _InfoRow(label: 'Phone', value: '+123456789'),
             const SizedBox(height: 2),
             _DialogButton(
               label: '',
-              hint: 'realpassward',
+              hint:
+              user['password']?.toString() ?? '-',
+
               showEdit: true,
               onEditTap: () => showEditDialog(context),
             ),
             const SizedBox(height: 8),
             _DialogButton(
               label: '',
-              hint: 'real',
+              hint: user['pin']?.toString() ?? '-',
               showEdit: true,
               onEditTap: () => showEditDialog1(context),
             ),

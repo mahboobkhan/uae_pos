@@ -341,7 +341,7 @@ class SignupProvider with ChangeNotifier {
 
         // ✅ Navigate based on verification status
         if (user['verification'] == false) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => VerificationScreen(userId: user['user_id'],email: user['email'],adminEmail: "",)),
           );

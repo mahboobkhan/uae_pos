@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../screens/login screens/log_screen.dart';
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
+
 class CustomTextField extends StatefulWidget {
   final String label;
   final String hintText;
@@ -70,7 +73,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 }
 
-  class CustomDropdownField extends StatelessWidget {
+class CustomDropdownField extends StatelessWidget {
   final String label;
   final String? selectedValue;
   final List<String> options;
@@ -118,6 +121,59 @@ class _CustomTextFieldState extends State<CustomTextField> {
     );
   }
 }
+//////
+
+/*
+class CustomDropdownField extends StatelessWidget {
+  final String label;
+  final String? selectedValue;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  final double width;
+
+  const CustomDropdownField({
+    super.key,
+    required this.label,
+    required this.selectedValue,
+    required this.options,
+    required this.onChanged,
+    this.width = 220,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: 41, // Match CustomTextField height
+      child: CustomDropdown<String>(
+        hintText: 'Select $label',
+        items: options,
+        initialItem: options.contains(selectedValue) ? selectedValue : null,
+        onChanged: onChanged,
+        decoration: CustomDropdownDecoration(
+          closedFillColor: Colors.white,
+          expandedFillColor: Colors.white,
+          closedBorderRadius: BorderRadius.circular(4),
+          expandedBorderRadius: BorderRadius.circular(4),
+          closedBorder: Border.all(color: Colors.grey),
+          expandedBorder: Border.all(color: Colors.red),
+          closedSuffixIcon: const Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: Icon(Icons.keyboard_arrow_down_rounded),
+          ),
+          expandedSuffixIcon: const Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: Icon(Icons.keyboard_arrow_up_rounded),
+          ),
+        ),
+      ),
+    );
+  }
+}
+*/
+
+
+//////
 class CustomDropdownWithAddButton extends StatelessWidget {
   final String label;
   final String? value;
@@ -971,5 +1027,59 @@ class CustomCompactTextField extends StatelessWidget {
     );
   }
 }
+// logout button
+class HoverLogoutButton extends StatefulWidget {
+  final double width;
+  final double height;
+  final double iconSize;
+  final Color defaultColor;
+  final Color hoverColor;
+  final VoidCallback? onTap;
 
+  const HoverLogoutButton({
+    super.key,
+    this.width = 50,
+    this.height = 50,
+    this.iconSize = 28,
+    this.defaultColor = Colors.red,
+    this.hoverColor = Colors.redAccent,
+    this.onTap,
+  });
 
+  @override
+  State<HoverLogoutButton> createState() => _HoverLogoutButtonState();
+}
+
+class _HoverLogoutButtonState extends State<HoverLogoutButton> {
+  bool isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovered = true),
+      onExit: (_) => setState(() => isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap ??
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LogScreen()),
+              );
+            },
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: widget.width,
+            height: widget.height,
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.power_settings_new,
+              color: isHovered ? widget.hoverColor : widget.defaultColor,
+              size: widget.iconSize,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

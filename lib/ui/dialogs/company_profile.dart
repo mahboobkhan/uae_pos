@@ -19,6 +19,7 @@ void showCompanyProfileDialog(BuildContext context) {
   );
 }
 
+
 class CompanyProfile extends StatefulWidget {
   const CompanyProfile({super.key});
 
@@ -27,6 +28,35 @@ class CompanyProfile extends StatefulWidget {
 }
 
 class CompanyProfileState extends State<CompanyProfile> {
+  Future<void> _pickDateTime2() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        final DateTime combined = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        final formatted = DateFormat('dd-MM-yyyy – hh:mm a').format(combined);
+        _expiryDateController.text = formatted;
+        _issueDateController.text = formatted;
+      }
+    }
+  }
+
   final TextEditingController companyNameController = TextEditingController();
   final TextEditingController tradeLicenseController = TextEditingController();
   final TextEditingController companyCodeController = TextEditingController();
@@ -53,6 +83,9 @@ class CompanyProfileState extends State<CompanyProfile> {
       TextEditingController();
   final TextEditingController docName2 = TextEditingController();
   final TextEditingController advancePayment = TextEditingController();
+  final TextEditingController _issueDateController = TextEditingController();
+  final TextEditingController _expiryDateController = TextEditingController();
+
 
   String? selectedPlatform;
   List<String> platformList = ['Bank', 'Violet', 'Other'];
@@ -234,34 +267,71 @@ class CompanyProfileState extends State<CompanyProfile> {
                     controller: channelPasswordController,
                     hintText: "xxxxxxx",
                   ),
-                  CustomTextField(
-                    label: "Doc Name",
-                    controller: documentNameController,
-                    hintText: "xxxxxxx",
-                  ),
-                  CustomDateField(
-                    label: "Issue Date Notifications",
-                    controller: _dateTimeController,
-                    readOnly: true,
-                    hintText: "dd-MM-yyyy",
-                    onTap: _pickDateTime,
-                  ),
-                  CustomDateField(
-                    label: "Expiry Date Notification",
-                    controller: _dateTimeController,
-                    readOnly: true,
-                    hintText: "dd-MM-yyyy",
-                    onTap: _pickDateTime,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: CustomButton(
-                      text: 'Upload File',
-                      onPressed: () {},
-                      backgroundColor: Colors.green,
-                      icon: Icons.upload_file,
-                    ),
-                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          CustomCompactTextField(
+                            label: 'Doc Name',
+                            hintText: '',
+                            controller: documentNameController,
+                          ),
+                          CustomDateNotificationField(
+                            label: "Issue Date Notifications",
+                            controller: _issueDateController,
+                            readOnly: true,
+                            hintText: "dd-MM-yyyy HH:mm",
+                            onTap: _pickDateTime2,
+                          ),
+                          CustomDateNotificationField(
+                            label: "Expiry Date Notifications",
+                            controller: _expiryDateController,
+                            readOnly: true,
+                            hintText: "dd-MM-yyyy HH:mm",
+                            onTap: _pickDateTime2,
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              minimumSize: const Size(150, 38),
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  4,
+                                ), // Optional: slight rounding
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(
+                                  Icons.upload_file,
+                                  size: 16,
+                                  color: Colors.white,
+                                ), //
+                                SizedBox(width: 6),
+                                Text(
+                                  'Upload File',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ), //
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+
                 ],
               ),
               SizedBox(height: 10),
@@ -334,35 +404,93 @@ class CompanyProfileState extends State<CompanyProfile> {
                     hintText: "xxxxxxx",
                   ),
                   CustomTextField(
-                    label: "Doc Name",
-                    controller: docName2,
-                    hintText: "xxxxxxx",
+                    label: "Advance Payment TID",
+                    controller: advancePayment,
+                    hintText: "*****",
                   ),
-                  CustomDateField(
-                    label: "Issue Date Notifications",
-                    controller: _dateTimeController,
-                    readOnly: true,
-                    hintText: "dd-MM-yyyy",
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      InfoBox(
+                        value: "Pending Payment",
+                        label: "AED-3000",
+                        color: Colors.blue.shade50,
+                      ),
+                      InfoBox(
+                        value: "Advance Payment",
+                        label: "AED-3000",
+                        color: Colors.blue.shade50,
+                      ),
+                    ],
+                  ),
 
-                    onTap: _pickDateTime,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          CustomCompactTextField(
+                            label: 'Doc Name',
+                            hintText: '',
+                            controller: docName2,
+                          ),
+                          CustomDateNotificationField(
+                            label: "Issue Date Notifications",
+                            controller: _issueDateController,
+                            readOnly: true,
+                            hintText: "dd-MM-yyyy HH:mm",
+                            onTap: _pickDateTime,
+                          ),
+                          CustomDateNotificationField(
+                            label: "Expiry Date Notifications",
+                            controller: _expiryDateController,
+                            readOnly: true,
+                            hintText: "dd-MM-yyyy HH:mm",
+                            onTap: _pickDateTime,
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              minimumSize: const Size(150, 38),
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  4,
+                                ), // Optional: slight rounding
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(
+                                  Icons.upload_file,
+                                  size: 16,
+                                  color: Colors.white,
+                                ), //
+                                SizedBox(width: 6),
+                                Text(
+                                  'Upload File',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ), //
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  CustomDateField(
-                    label: "Expiry Date Notification",
-                    controller: _dateTimeController,
-                    readOnly: true,
-                    onTap: _pickDateTime,
-                    hintText: "dd-MM-yyyy",
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: CustomButton(
-                      text: 'Upload File',
-                      onPressed: () {},
-                      backgroundColor: Colors.green,
-                      icon: Icons.upload_file,
-                    ),
-                  ),
-                  Padding(
+
+                  /*     Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: TextButton(
                       onPressed: () {},
@@ -388,31 +516,10 @@ class CompanyProfileState extends State<CompanyProfile> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  CustomTextField(
-                    label: "Advance Payment TID",
-                    controller: advancePayment,
-                    hintText: "*****",
-                  ),
-                  InfoBox(
-                    value: "Pending Payment",
-                    label: "AED-3000",
-                    color: Colors.blue.shade50,
-                  ),
+              SizedBox(height: 10),*/
+              SizedBox(height: 20),
 
-                  InfoBox(
-                    value: "Advance Payment",
-                    label: "AED-3000",
-                    color: Colors.blue.shade50,
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
+                  Row(
                 children: [
                   CustomButton(
                     text: "Editing",
@@ -427,7 +534,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   ),
                 ],
               ),
-            ],
+            ])],
           ),
         ),
       ),

@@ -422,7 +422,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                           centerText2: true,
                                         ),
                                         _buildCell3(
-                                          "Sample Customer",
+                                          "User",
                                           "xxxxxxxxx245",
                                           copyable: true,
                                         ),

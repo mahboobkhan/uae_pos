@@ -4,8 +4,11 @@ void showLoadingDialog(BuildContext context) {
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (_) => Center(
-      child: CircularProgressIndicator(),
+    builder: (_) => const Center(
+      child: CircularProgressIndicator(
+        color: Colors.red, // You can change this to any color
+        strokeWidth: 4.0,         // Optional: to make the spinner thicker
+      ),
     ),
   );
 }
