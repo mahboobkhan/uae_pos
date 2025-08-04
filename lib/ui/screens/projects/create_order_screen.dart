@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
-import '../../dialogs/custom_fields.dart'
-    show
-        CustomDropdownWithAddButton,
-        CustomTextField,
-        InfoBox,
-        InfoBoxNoColor,
-        InstituteManagementDialog;
+import '../../dialogs/custom_fields.dart';
 
 class DropdownItem {
   final String id;
@@ -47,6 +42,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   final _servicesDepartment = TextEditingController();
   final _stepCost = TextEditingController();
   final _additionalProfit = TextEditingController();
+  final TextEditingController _issueDateController = TextEditingController();
+
   final _fundsController = TextEditingController(text: "");
   String? selectedOrderType;
   String? searchClient;
@@ -59,30 +56,39 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
   DateTime selectedDateTime = DateTime.now();
 
-  Future<void> _selectedDateTime() async {
-    final DateTime? picked = await showDatePicker(
+  void _selectedDateTime() {
+    showDialog(
       context: context,
-      initialDate: selectedDateTime,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      builder: (context) {
+        DateTime selectedDate = DateTime.now();
+
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          content: CustomCupertinoCalendar(
+            onDateTimeChanged: (date) {
+              selectedDate = date;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () {
+                _issueDateController.text =
+                "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
+                    "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("OK",style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
-    if (picked != null) {
-      final TimeOfDay? time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(selectedDateTime),
-      );
-      if (time != null) {
-        setState(() {
-          selectedDateTime = DateTime(
-            picked.year,
-            picked.month,
-            picked.day,
-            time.hour,
-            time.minute,
-          );
-        });
-      }
-    }
   }
 
   @override
@@ -123,9 +129,33 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             Text("ORN. 00001–0000001"),
                           ],
                         ),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(Icons.close, color: Colors.red),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.red),
+                          onPressed: () async {
+                            final shouldClose = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                backgroundColor: Colors.white,
+                                title: const Text("Are you sure?"),
+                                content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(false),
+                                    child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    child: const Text("Close",style: TextStyle(color:Colors.red ),),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (shouldClose == true) {
+                              Navigator.of(context).pop(); // close the dialog
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -146,18 +176,26 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             setState(() => searchClient = val);
                           },
                         ),
-                        _buildDropdown(
+                        CustomDropdownField(
+                          label:
                           "Order Type ",
+                          selectedValue:
                           selectedOrderType,
+                          options:
                           ["Services Base", " Project base"],
+                          onChanged:
                           (val) {
                             setState(() => selectedOrderType = val);
                           },
                         ),
-                        _buildDropdown(
+                        CustomDropdownField(
+                          label:
                           "Service Project ",
+                          selectedValue:
                           selectedServiceProject,
+                          options:
                           ["Passport Renewal", "Development", "Id Card"],
+                          onChanged:
                           (val) {
                             setState(() => selectedServiceProject = val);
                           },
@@ -198,21 +236,21 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       children: [
                         CustomButton(
                           text: "Stop",
-                          backgroundColor: Colors.black,
+                          backgroundColor: Colors.red,
                           onPressed: () {},
                         ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Editing",
+                          backgroundColor: Colors.blue,
+                          icon: Icons.lock_open,
+                          onPressed: () {},
+                        ),
+
                         const SizedBox(width: 10),
                         CustomButton(
                           text: "Submit",
                           backgroundColor: Colors.green,
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 10),
-
-                        CustomButton(
-                          text: "Editing",
-                          backgroundColor: Colors.blue.shade900,
-                          icon: Icons.lock_open,
                           onPressed: () {},
                         ),
 
@@ -272,9 +310,33 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         SizedBox(width: 10),
                         Text("SID–10000001"),
                         Spacer(),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(Icons.close, color: Colors.red),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.red),
+                          onPressed: () async {
+                            final shouldClose = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                backgroundColor: Colors.white,
+                                title: const Text("Are you sure?"),
+                                content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(false),
+                                    child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    child: const Text("Close",style: TextStyle(color:Colors.red ),),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (shouldClose == true) {
+                              Navigator.of(context).pop(); // close the dialog
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -283,28 +345,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        _field(
-                          "Date and Time",
-                          DateFormat(
-                            "dd-MM-yyyy – hh:mm a",
-                          ).format(selectedDateTime),
-                          icon: Icons.calendar_month,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        _field(
-                          "Reminder Date and Time",
-                          DateFormat(
-                            "dd-MM-yyyy – hh:mm a",
-                          ).format(selectedDateTime),
-                          icon: Icons.alarm_on_sharp,
-                        ),
+                        _buildDateTimeField(),
+                        _buildDateTimeField(),
                         InfoBoxNoColor(
                           label: "FBR",
                           value: 'Services Department ',
                         ),
                         SizedBox(
                           width: 220,
-                          child: CustomDropdownWithAddButton(
+                          child: CustomDropdownWithRightAdd(
                             label: "Services Status ",
                             value: selectedService,
                             items: serviceOptions,
@@ -316,7 +365,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         SizedBox(
                           width: 220,
-                          child: CustomDropdownWithAddButton(
+                          child: CustomDropdownWithRightAdd(
                             label: "Local Status ",
                             value: selectedService,
                             items: serviceOptions,
@@ -328,7 +377,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         SizedBox(
                           width: 220,
-                          child: CustomDropdownWithAddButton(
+                          child: CustomDropdownWithRightAdd(
                             label: "Tracking Status ",
                             value: selectedService,
                             items: serviceOptions,
@@ -460,27 +509,27 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       children: [
                         CustomButton(
                           text: "Close Project",
-                          backgroundColor: Colors.black,
+                          backgroundColor: Colors.red,
                           icon: Icons.lock_open_outlined,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Editing",
+                          backgroundColor: Colors.blue,
+                          icon: Icons.lock_open,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Next Step",
+                          backgroundColor: Colors.blue.shade200,
                           onPressed: () {},
                         ),
                         const SizedBox(width: 10),
                         CustomButton(
                           text: "Submit",
                           backgroundColor: Colors.green,
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 10),
-                        CustomButton(
-                          text: "Next Step",
-                          backgroundColor: Colors.blue,
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 10),
-                        CustomButton(
-                          text: "Editing",
-                          backgroundColor: Colors.blue.shade900,
-                          icon: Icons.lock_open,
                           onPressed: () {},
                         ),
                         const Spacer(), // Pushes the icon to the right
@@ -545,6 +594,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     );
   }
 
+/*
   Widget buildLabeledFieldWithHint({
     required String label,
     required String hint,
@@ -572,6 +622,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       ),
     );
   }
+*/
 
   Widget _field(
     String label,

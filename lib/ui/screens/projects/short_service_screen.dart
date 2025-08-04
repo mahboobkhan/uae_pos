@@ -66,6 +66,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MouseRegion(
               onEnter: (_) => setState(() => _isHovering = true),
@@ -130,10 +131,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                               onChanged: (newValue) {
                                 setState(() => selectedCategory3 = newValue!);
                               },
-                              icon: const Icon(
-                                Icons.calendar_month,
-                                size: 18,
-                              ),
+                              icon: const Icon(Icons.calendar_month, size: 18),
                             ),
                           ],
                         ),
@@ -196,107 +194,117 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                       thickness: MaterialStateProperty.all(8),
                       radius: const Radius.circular(4),
                     ),
-                    child: Scrollbar(
-                      controller: _verticalController,
-                      thumbVisibility: true,
-                      child: Scrollbar(
-                        controller: _horizontalController,
-                        thumbVisibility: true,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          controller: _horizontalController,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            controller: _verticalController,
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(minWidth: 1150),
-                              child: Table(
-                                defaultVerticalAlignment:
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final double tableWidth =
+                            constraints.maxWidth < 1150
+                                ? 1150
+                                : constraints
+                                    .maxWidth; // expand when screen is larger
+
+                        return Scrollbar(
+                          controller: _verticalController,
+                          thumbVisibility: true,
+                          child: Scrollbar(
+                            controller: _horizontalController,
+                            thumbVisibility: true,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              controller: _horizontalController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                controller: _verticalController,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(minWidth: tableWidth),
+                                  child: Table(
+                                    defaultVerticalAlignment:
                                     TableCellVerticalAlignment.middle,
-                                columnWidths: const {
-                                  0: FlexColumnWidth(0.2),
-                                  1: FlexColumnWidth(0.3),
-                                  2: FlexColumnWidth(0.3),
-                                  3: FlexColumnWidth(0.3),
-                                  4: FlexColumnWidth(0.3),
-                                  5: FlexColumnWidth(0.2),
-                                  6: FlexColumnWidth(0.3),
-                                  7: FlexColumnWidth(0.4),
-                                },
-                                children: [
-                                  // Header Row
-                                  TableRow(
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade50,
-                                    ),
+                                    columnWidths: const {
+                                      0: FlexColumnWidth(0.2),
+                                      1: FlexColumnWidth(0.3),
+                                      2: FlexColumnWidth(0.3),
+                                      3: FlexColumnWidth(0.3),
+                                      4: FlexColumnWidth(0.3),
+                                      5: FlexColumnWidth(0.2),
+                                      6: FlexColumnWidth(0.3),
+                                      7: FlexColumnWidth(0.4),
+                                    },
                                     children: [
-                                      _buildHeader("Date"),
-                                      _buildHeader("Service Beneficiary "),
-                                      _buildHeader("Tags Details"),
-                                      _buildHeader("Service"),
-                                      _buildHeader("Pending"),
-                                      _buildHeader("Manage"),
-                                      _buildHeader("Ref Id"),
-                                      _buildHeader("More Actions"),
-                                    ],
-                                  ),
-                                  // Sample Row
-                                  for (int i = 0; i < 20; i++)
-                                    TableRow(
-                                      decoration: BoxDecoration(
-                                        color:
+                                      // Header Row
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.shade50,
+                                        ),
+                                        children: [
+                                          _buildHeader("Date"),
+                                          _buildHeader("Service Beneficiary "),
+                                          _buildHeader("Tags Details"),
+                                          _buildHeader("Service"),
+                                          _buildHeader("Pending"),
+                                          _buildHeader("Manage"),
+                                          _buildHeader("Ref Id"),
+                                          _buildHeader("More Actions"),
+                                        ],
+                                      ),
+                                      // Sample Row
+                                      for (int i = 0; i < 20; i++)
+                                        TableRow(
+                                          decoration: BoxDecoration(
+                                            color:
                                             i.isEven
                                                 ? Colors.grey.shade100
                                                 : Colors.grey.shade50,
-                                      ),
-                                      children: [
-                                        _buildCell2(
-                                          "12-02-2025",
-                                          "02:59 pm",
-                                          centerText2: true,
-                                        ),
-                                        _buildCell3(
-                                          "User ",
-                                          "xxxxxxxxx245",
-                                          copyable: true,
-                                        ),
-                                        TagsCellWidget(initialTags: currentTags),
-                                        _buildCell("Repairing"),
-                                        _buildPriceWithAdd("AED-", "300"),
-                                        _buildCell("Mr. Imran"),
-                                        _buildCell(
-                                          "xxxxxxxxx245",
-                                          copyable: true,
-                                        ),
-                                        _buildActionCell(
-                                          onEdit: () {},
-                                          onDelete: () {
-                                            final shouldDelete =  showDialog<bool>(
-                                              context: context,
-                                              builder: (context) => const ConfirmationDialog(
-                                                title: 'Confirm Deletion',
-                                                content: 'Are you sure you want to delete this?',
-                                                cancelText: 'Cancel',
-                                                confirmText: 'Delete',
-                                              ),
-                                            );
-                                            if (shouldDelete == true) {
-                                              // 👇 Put your actual delete logic here
-                                              print("Item deleted");
-                                              // You can also call a function like:
-                                              // await deleteItem();
-                                            }
+                                          ),
+                                          children: [
+                                            _buildCell2(
+                                              "12-02-2025",
+                                              "02:59 pm",
+                                              centerText2: true,
+                                            ),
+                                            _buildCell3(
+                                              "User ",
+                                              "xxxxxxxxx245",
+                                              copyable: true,
+                                            ),
+                                            TagsCellWidget(initialTags: currentTags),
+                                            _buildCell("Repairing"),
+                                            _buildPriceWithAdd("AED-", "300"),
+                                            _buildCell("Mr. Imran"),
+                                            _buildCell(
+                                              "xxxxxxxxx245",
+                                              copyable: true,
+                                            ),
+                                            _buildActionCell(
+                                              onEdit: () {},
+                                              onDelete: () {
+                                                final shouldDelete =  showDialog<bool>(
+                                                  context: context,
+                                                  builder: (context) => const ConfirmationDialog(
+                                                    title: 'Confirm Deletion',
+                                                    content: 'Are you sure you want to delete this?',
+                                                    cancelText: 'Cancel',
+                                                    confirmText: 'Delete',
+                                                  ),
+                                                );
+                                                if (shouldDelete == true) {
+                                                  // 👇 Put your actual delete logic here
+                                                  print("Item deleted");
+                                                  // You can also call a function like:
+                                                  // await deleteItem();
+                                                }
 
-                                          },
+                                              },
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                ],
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -478,8 +486,11 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     );
   }
 
-
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(
+    String curr,
+    String price, {
+    bool showPlus = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
@@ -488,7 +499,14 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
             curr,
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          Text(
+            price,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const Spacer(),
           if (showPlus)
             Container(
@@ -504,10 +522,8 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       ),
     );
   }
-  Widget _buildActionCell({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-  }) {
+
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
     return Row(
       children: [
         IconButton(

@@ -2,6 +2,7 @@ import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../dialogs/calender.dart';
 import '../../dialogs/custom_fields.dart';
 
 class CreateOrderDialog extends StatefulWidget {
@@ -16,9 +17,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   String? searchClient;
   String? selectedServiceProject;
   String? selectedEmployee;
+  String? _beneficiaryController;
   DateTime selectedDateTime = DateTime.now();
 
-  final _beneficiaryController = TextEditingController();
   final _fundsController = TextEditingController(text: "");
 
   /*Future<void> _selectDateTime() async {
@@ -83,134 +84,40 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     }
   }*/
 
-  Future<void> _selectDateTime() async {
-    final DateTime? picked = await showDatePicker(
+  void _selectDateTime() {
+    showDialog(
       context: context,
-      initialDate: selectedDateTime,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.red, // Header background & selected date
-              onPrimary: Colors.white, // Text on header
-              onSurface: Colors.black, // Default text color
-            ),
+      builder: (context) {
 
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    5,
-                  ), // ✅ Button rounded corners
-                ),
-                textStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+        DateTime selectedDate = DateTime.now();
 
-            textTheme: const TextTheme(
-              headlineSmall: TextStyle(
-                // "Select Date" title
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-
-              titleSmall: TextStyle(
-                // Day name labels (Mon, Tue)
-                fontSize: 14,
-                color: Colors.grey,
-
-                fontWeight: FontWeight.w500,
-              ),
-              bodyLarge: TextStyle(
-                // Calendar day numbers
-                fontSize: 14,
-                color: Colors.grey,
-                fontWeight: FontWeight.normal,
-              ),
-              displayLarge: TextStyle(fontSize: 11),
-              displayMedium: TextStyle(fontSize: 10),
-              displaySmall: TextStyle(fontSize: 7),
-              /*
-              headlineLarge: TextStyle(fontSize: 20),
-*/
-              /*
-              labelLarge: TextStyle(fontSize: 20, color: Colors.red),
-*/
-            ),
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          content: CustomCupertinoCalendar(
+            onDateTimeChanged: (date) {
+                selectedDate = date;
+            },
           ),
-
-          child: child!,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                 selectedDateTime =  selectedDate;
+                });
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("OK", style: TextStyle(color: Colors.red)),
+            ),
+          ],
         );
       },
     );
-
-    if (picked != null) {
-      final TimeOfDay? time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(selectedDateTime),
-        builder: (BuildContext context, Widget? child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: Colors.red,
-                onPrimary: Colors.white,
-                onSurface: Colors.black,
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      5,
-                    ), // ✅ Button rounded corners
-                  ),
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              dialogTheme: DialogTheme(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100),
-                ),
-              ),
-            ),
-            child: child!,
-          );
-        },
-      );
-
-      if (time != null) {
-        setState(() {
-          selectedDateTime = DateTime(
-            picked.year,
-            picked.month,
-            picked.day,
-            time.hour,
-            time.minute,
-          );
-        });
-      }
-    }
   }
 
   @override
@@ -254,22 +161,35 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     onPressed: () async {
                       final shouldClose = await showDialog<bool>(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          backgroundColor: Colors.white,
-                          title: const Text("Are you sure?"),
-                          content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                        builder:
+                            (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              backgroundColor: Colors.white,
+                              title: const Text("Are you sure?"),
+                              content: const Text(
+                                "Do you want to close this form? Unsaved changes may be lost.",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.of(context).pop(false),
+                                  child: const Text(
+                                    "Keep Changes ",
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.of(context).pop(true),
+                                  child: const Text(
+                                    "Close",
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
                             ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text("Close",style: TextStyle(color:Colors.red ),),
-                            ),
-                          ],
-                        ),
                       );
 
                       if (shouldClose == true) {
@@ -277,8 +197,6 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       }
                     },
                   ),
-
-
                 ],
               ),
               const SizedBox(height: 20),
@@ -287,48 +205,64 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 runSpacing: 10,
                 children: [
                   _buildDateTimeField(),
-                  _buildDropdown(
-                    "Search Client ",
-                    searchClient,
-                    ["Show Search Result", ""],
-                    (val) {
+                  CustomDropdownField(
+                    label: "Search Client ",
+                    selectedValue: searchClient,
+                    options: ["Show Search Result", ""],
+                    onChanged: (val) {
                       setState(() => searchClient = val);
                     },
                   ),
-                  _buildDropdown(
-                    "Order Type ",
-                    selectedOrderType,
-                    ["Services Base", " Project base"],
-                    (val) {
+                  CustomDropdownField(
+                    label: "Order Type ",
+                    selectedValue: selectedOrderType,
+                    options: ["Services Base", " Project base"],
+                    onChanged: (val) {
                       setState(() => selectedOrderType = val);
                     },
                   ),
-                  _buildDropdown(
-                    "Service Project ",
-                    selectedServiceProject,
-                    ["Passport Renewal", "Development", "Id Card"],
-                    (val) {
+                  CustomDropdownField(
+                    label: "Service Project ",
+                    selectedValue: selectedServiceProject,
+                    options: ["Passport Renewal", "Development", "Id Card"],
+                    onChanged: (val) {
                       setState(() => selectedServiceProject = val);
                     },
                   ),
-                  SearchTextField(
+                  CustomDropdownWithSearch(
                     label: "Service Beneficiary",
-                    controller: _beneficiaryController,
+                    options: [
+                      "Passport Renewal",
+                      "Development",
+                      "Id Card",
+                      "Passport Renewal",
+                      "Development",
+                      "Id Card",
+                    ],
+                    selectedValue: _beneficiaryController,
+                    onChanged: (val) {
+                      setState(() => _beneficiaryController = val);
+                    },
                   ),
                   CustomTextField(
                     label: "Order Quote Price",
                     controller: _fundsController,
                     hintText: '500',
                   ),
-                  InfoBox(label: 'Muhammad Imran',
+                  InfoBox(
+                    label: 'Muhammad Imran',
                     value: 'Assign Employee',
-                      color: Colors.blue.shade200,// light blue fill
+                    color: Colors.blue.shade200, // light blue fill
                   ),
-                  InfoBox(label: '500', value: 'Received Funds',
-                    color: Colors.blue.shade200,// light blue fill
+                  InfoBox(
+                    label: '500',
+                    value: 'Received Funds',
+                    color: Colors.blue.shade200, // light blue fill
                   ),
-                  InfoBox(label: 'xxxxxxxx', value: 'Transaction Id',
-                    color: Colors.yellow.shade100,// light blue fill
+                  InfoBox(
+                    label: 'xxxxxxxx',
+                    value: 'Transaction Id',
+                    color: Colors.yellow.shade100, // light blue fill
                   ),
                 ],
               ),
@@ -342,7 +276,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       backgroundColor: Colors.blue,
                       onPressed: () {},
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 10),
                     CustomButton(
                       text: "Submit",
                       backgroundColor: Colors.green,
@@ -383,39 +317,34 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     );
   }
 
+  /*
   Widget _buildDropdown(
-    String? label,
-    String? selectedValue,
-    List<String> options,
-    ValueChanged<String?> onChanged,
-  ) {
+      String? label,
+      String? selectedValue,
+      List<String> options,
+      ValueChanged<String?> onChanged,
+      ) {
     return SizedBox(
       width: 220,
-      child: DropdownButtonFormField<String>(
-        value: selectedValue,
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: label?.isNotEmpty == true ? label : null,
-          labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          border: const OutlineInputBorder(),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 1),
-          ),
+      height: 48, // Similar to the default form field height
+      child: CustomDropdown<String>(
+        hintText: label ?? '',
+        items: options,
+        initialItem: selectedValue,
+        decoration: CustomDropdownDecoration(
+          closedBorder: Border.all(color: Colors.grey),
+          closedBorderRadius: BorderRadius.circular(4),
+          expandedBorder: Border.all(color: Colors.red, width: 1),
+          expandedBorderRadius: BorderRadius.circular(4),
+          closedFillColor: Colors.white,
+          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
+          closedPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          expandedPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
         ),
         onChanged: onChanged,
-        items:
-            options
-                .map(
-                  (e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: const TextStyle(fontSize: 16)),
-                  ),
-                )
-                .toList(),
       ),
     );
   }
+*/
 }

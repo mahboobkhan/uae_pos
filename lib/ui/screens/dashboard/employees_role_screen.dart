@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
@@ -58,16 +59,10 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   void initState() {
     super.initState();
     Provider.of<SignupProvider>(context, listen: false).fetchAllUsersWithAccess();
-
   }
-
-
-
-
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<SignupProvider>(context);
-
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
@@ -241,6 +236,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                           onEdit: () {},
                                           onDelete: () {},
                                           onDraft: () {
+                                            print(user);
                                             EmployeeProfileDialog(context,user);
                                           },
                                         ),
@@ -584,8 +580,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                   SizedBox(height: 12),
                   SizedBox(
                     width: 230,
-                    child: CustomDropdownWithAddButton(
-                      label: "Assign Desigination ",
+                    child: CustomDropdownWithRightAdd(
+                      label: "Assign Designation ",
                       value: selectedService,
                       items: serviceOptions,
                       onChanged: (val) => selectedService = val,

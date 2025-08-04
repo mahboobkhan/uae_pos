@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/signup_provider.dart';
 import 'custom_dialoges.dart';
 
 class TagsCellWidget extends StatefulWidget {
@@ -15,6 +17,63 @@ class _TagsCellWidgetState extends State<TagsCellWidget> {
     {'tag': 'Tag1', 'color': Colors.red},
     {'tag': 'Tag2', 'color': Colors.orange},
   ];
+  void _editTag(String oldTag, int index) async {
+    final controller = TextEditingController(text: oldTag);
+
+    final newTag = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          title: Text("Edit Tag",style: TextStyle(color: Colors.blue,),),
+          content: TextFormField(
+            cursorColor: Colors.blue,
+            controller: controller,
+            decoration: InputDecoration(hintText: "Enter new tag name",  focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue, width: 1), // active/focus line color
+            ),),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel",style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: Text("Update",style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newTag != null && newTag.isNotEmpty && newTag != oldTag) {
+      final provider = Provider.of<SignupProvider>(context, listen: false);
+      final status = await provider.updateTag(
+        userId: "user_123",
+        oldTagName: oldTag,
+        newTagName: newTag,
+      );
+
+      if (status == "success") {
+        setState(() {
+          tags[index]['tag'] = newTag;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Tag updated successfully")),
+        );
+      } else if (status == "exists") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Tag with this name already exists")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Something went wrong")),
+        );
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +91,32 @@ class _TagsCellWidgetState extends State<TagsCellWidget> {
                   _HoverableTag(
                     tag: tags[i]['tag'],
                     color: tags[i]['color'] ?? Colors.grey.shade200,
-                    onDelete: () {
-                      setState(() {
-                        tags.removeAt(i);
-                      });
+                    onDelete: () async {
+                      final provider = Provider.of<SignupProvider>(context, listen: false);
+                      final status = await provider.deleteTag(
+                        userId: "user_123",
+                        tagName: tags[i]['tag'],
+                      );
+                      if (status == "success") {
+                        setState(() {
+                          tags.removeAt(i);
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Tag deleted successfully")),
+                        );
+                      } else if (status == "failed") {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Tag not found")),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Something went wrong")),
+                        );
+                      }
                     },
+                    onEdit: () => _editTag(tags[i]['tag'], i),
                   ),
+
               ],
             ),
           ),
@@ -46,14 +125,35 @@ class _TagsCellWidgetState extends State<TagsCellWidget> {
             child: GestureDetector(
               onTap: () async {
                 final result = await showAddTagDialog(context);
-                if (result != null &&
-                    result['tag'].toString().trim().isNotEmpty) {
-                  setState(() {
-                    tags.add({
-                      'tag': result['tag'],
-                      'color': result['color'],
+
+                if (result != null && result['tag'].toString().trim().isNotEmpty) {
+                  final tagText = result['tag'];
+                  final tagColor = result['color'];
+
+                  final provider = Provider.of<SignupProvider>(context, listen: false);
+
+                  final status = await provider.createTag(
+                    userId: "user_123", // or dynamically from auth
+                    tagName: tagText,
+                    createdBy: "admin", // or logged-in user
+                  );
+
+                  if (status == "success") {
+                    setState(() {
+                      tags.add({'tag': tagText, 'color': tagColor});
                     });
-                  });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Tag added successfully')),
+                    );
+                  } else if (status == "exists") {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Tag already exists')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Something went wrong')),
+                    );
+                  }
                 }
               },
               child: Image.asset(
@@ -72,12 +172,14 @@ class _TagsCellWidgetState extends State<TagsCellWidget> {
 
 class _HoverableTag extends StatefulWidget {
   final String tag;
+  final VoidCallback? onEdit;
   final Color color;
   final VoidCallback onDelete;
 
   const _HoverableTag({
     Key? key,
     required this.tag,
+    required this.onEdit,
     required this.color,
     required this.onDelete,
   }) : super(key: key);
@@ -118,28 +220,50 @@ class _HoverableTagState extends State<_HoverableTag> {
           if (_hovering)
             Positioned(
               bottom: 10,
-              right: 2,
-              child: GestureDetector(
-                onTap: widget.onDelete,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 0.4,
+
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: widget.onEdit, // <-- Edit tap
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      margin: const EdgeInsets.only(right: 2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black, width: 0.4),
+                        color: Colors.white,
+                      ),
+                      child: const Icon(
+                        Icons.edit,
+                        size: 5,
+                        color: Colors.black,
+                      ),
                     ),
-                    color: Colors.white,
                   ),
-                  child: const Icon(
-                    Icons.close,
-                    size: 10,
-                    color: Colors.black,
+                  GestureDetector(
+                    onTap: widget.onDelete,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black, width: 0.4),
+                        color: Colors.white,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        size: 5,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
         ],
       ),
     );
   }
+
+
 }

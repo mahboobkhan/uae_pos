@@ -24,33 +24,6 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
   bool _isHovering = false;
   DateTime selectedDateTime = DateTime.now();
 
-  Future<void> _pickDateTime(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDateTime,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(selectedDateTime),
-      );
-
-      if (pickedTime != null) {
-        setState(() {
-          selectedDateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-        });
-      }
-    }
-  }
 
   final List<String> categories = [
     'All',
@@ -142,68 +115,6 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory2 = newValue!);
                                 },
-                              ),
-                              const SizedBox(width: 12),
-                              Row(
-                                children: [
-                                  Card(
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    shadowColor: Colors.grey.shade700,
-                                    child: Container(
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.11,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(18),
-                                        border: Border.all(
-                                          color: Colors.red,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                      ),
-                                      child: const TextField(
-                                        style: TextStyle(fontSize: 12),
-                                        textAlignVertical:
-                                            TextAlignVertical.center,
-                                        decoration: InputDecoration(
-                                          hintText: 'Search...',
-                                          hintStyle: TextStyle(fontSize: 12),
-                                          border: InputBorder.none,
-                                          isCollapsed: true,
-                                          contentPadding: EdgeInsets.zero,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Card(
-                                    elevation: 4,
-                                    shape: const CircleBorder(),
-                                    // Make the card circular
-                                    shadowColor: Colors.grey.shade700,
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape:
-                                            BoxShape.circle, // Circular shape
-                                      ),
-                                      child: const Icon(
-                                        Icons.search,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
                               ),
                             ],
                           ),

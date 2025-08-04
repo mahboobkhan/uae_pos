@@ -380,15 +380,16 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
-          tooltip: 'Edit',
-          onPressed: onEdit ?? () {},
-        ),
-        IconButton(
           icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
         ),
+        IconButton(
+          icon: const Icon(Icons.edit, size: 20, color: Colors.green),
+          tooltip: 'Edit',
+          onPressed: onEdit ?? () {},
+        ),
+
         /*IconButton(
           icon: Image.asset(
             'assets/icons/img_3.png',

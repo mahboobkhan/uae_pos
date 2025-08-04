@@ -481,7 +481,7 @@ class _BankingScreenState extends State<BankingScreen> {
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
+          icon: const Icon(Icons.edit, size: 20, color: Colors.green),
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
         ),

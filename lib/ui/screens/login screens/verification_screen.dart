@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart';
 import 'log_screen.dart';
 
@@ -215,7 +216,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           ),
                           onPressed: () async {
 
-                            onPressed: () async {
+                            {
 
                               // Step 2: Verify the user using entered PINs
                               final verifyError = await provider.verifyUser(
@@ -234,11 +235,14 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                 showError(context, verifyError);
                               }
                             };
+                            showLoadingDialog(context);
+
                             final error = await provider.verifyUser(
                               userId: widget.userId,
                               pinUser:_gmailController.text.trim(),
                               pinAdmin: _adminGmailController.text.trim(),
                             );
+                            hideLoadingDialog(context);
 
                             if (error == null) {
                               // Verified successfully

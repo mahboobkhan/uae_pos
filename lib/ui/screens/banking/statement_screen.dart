@@ -196,7 +196,7 @@ class _StatementScreenState extends State<StatementScreen> {
                                       _buildCell3("xxxxxxx245 ", "TID xxxxxxx"),
                                       _buildCell("xxxxx"),
                                       _buildCell("N/A"),
-                                      _buildPriceWithAdd("AED-", "4000"),
+                                      _buildPriceWithAdd("AED-", "4000",),
                                     ],
                                   ),
                               ],
@@ -274,8 +274,11 @@ class _StatementScreenState extends State<StatementScreen> {
             curr,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
-          Text(price),
+          Text(price,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold,color: Colors.green),
+          ),
           const Spacer(),
+/*
           Container(
             width: 15,
             height: 15,
@@ -285,6 +288,7 @@ class _StatementScreenState extends State<StatementScreen> {
             ),
             child: const Icon(Icons.add, size: 13, color: Colors.blue),
           ),
+*/
         ],
       ),
     );

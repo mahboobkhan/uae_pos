@@ -17,6 +17,7 @@ class LogScreen extends StatefulWidget {
 }
 
 class _LogScreenState extends State<LogScreen> {
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -45,7 +46,7 @@ class _LogScreenState extends State<LogScreen> {
             flex: 2,
             child: Column(
               children: [
-                SizedBox(height: 60,),
+                SizedBox(height: 60),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -70,7 +71,10 @@ class _LogScreenState extends State<LogScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 20),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 45,
+                            vertical: 20,
+                          ),
                           child: Column(
                             children: [
                               CustomTextField(
@@ -89,10 +93,29 @@ class _LogScreenState extends State<LogScreen> {
                               FittedBox(
                                 child: TextButton(
                                   onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => ForgotScreen()),
-                                    );
+                                    final email = _emailController.text.trim();
+                                    if (email.isEmpty) {
+                                      // Show error if no email entered
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          title: const Text("Email Required"),
+                                          content: const Text("Please enter your email before resetting password."),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context),
+                                              child: const Text("OK", style: TextStyle(color: Colors.black)),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    // Call the provider function
+                                    Provider.of<SignupProvider>(context, listen: false)
+                                        .sendForgetPasswordRequest(context, email);
                                   },
                                   child: Text(
                                     "Forgot/Update Password",

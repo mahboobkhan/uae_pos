@@ -132,7 +132,7 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                 children: [
                   SizedBox(
                     width: 220,
-                    child: CustomDropdownWithAddButton(
+                    child: CustomDropdownWithRightAdd(
                       label: "Services ",
                       value: selectedService,
                       items: serviceOptions,
@@ -191,7 +191,7 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                 children: [
                   CustomButton(
                     text: "Editing",
-                    backgroundColor: Colors.blue.shade900,
+                    backgroundColor: Colors.blue,
                     onPressed: () {},
                   ),
                   const SizedBox(width: 10),

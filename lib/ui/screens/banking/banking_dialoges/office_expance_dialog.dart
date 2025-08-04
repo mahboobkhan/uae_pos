@@ -74,17 +74,18 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                         ),
                       ),
                       SizedBox(height: 2),
-                      Text(
-                        "TID. 00001-292382",
-                        style: TextStyle(fontSize: 12,),
-                      ),
+                      Text("TID. 00001-292382", style: TextStyle(fontSize: 12)),
                     ],
                   ),
                   Row(
                     children: [
                       Text(
                         _formattedDate(),
-                        style: const TextStyle(fontSize: 14, color: Colors.red,fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       IconButton(
@@ -92,22 +93,36 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                         onPressed: () async {
                           final shouldClose = await showDialog<bool>(
                             context: context,
-                            builder: (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              backgroundColor: Colors.white,
-                              title: const Text("Are you sure?"),
-                              content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(false),
-                                  child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                            builder:
+                                (context) => AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  title: const Text("Are you sure?"),
+                                  content: const Text(
+                                    "Do you want to close this form? Unsaved changes may be lost.",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () =>
+                                              Navigator.of(context).pop(false),
+                                      child: const Text(
+                                        "Keep Changes ",
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(context).pop(true),
+                                      child: const Text(
+                                        "Close",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(true),
-                                  child: const Text("Close",style: TextStyle(color:Colors.red ),),
-                                ),
-                              ],
-                            ),
                           );
 
                           if (shouldClose == true) {
@@ -127,25 +142,41 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                   CustomDropdownField(
                     label: "Select Bank",
                     selectedValue: selectedBank,
-                    options: ["HBL", "UBL", "MCB"],
+                    options: ["HBL", "UBL", "MCB", "Cash", "Cheque"],
                     onChanged: (val) => setState(() => selectedBank = val),
                   ),
                   CustomDropdownField(
                     label: "Payment",
                     selectedValue: selectedPaymentType,
                     options: ["In", "Out"],
-                    onChanged: (val) => setState(() => selectedPaymentType = val),
+                    onChanged:
+                        (val) => setState(() => selectedPaymentType = val),
                   ),
                   CustomDropdownField(
                     label: "Expanse Type",
                     selectedValue: selectedPaymentType1,
-                    options: ["Fixed Office Expanse", "Office Maintenance","Office Supplies","Miscellaneous","Other"],
-                    onChanged: (val) => setState(() => selectedPaymentType1 = val),
+                    options: [
+                      "Fixed Office Expanse",
+                      "Office Maintenance",
+                      "Office Supplies",
+                      "Miscellaneous",
+                      "Other",
+                    ],
+                    onChanged:
+                        (val) => setState(() => selectedPaymentType1 = val),
                   ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
                   SizedBox(
                     width: 220,
                     child:
-                    CustomDropdownWithAddButton(
+                    CustomDropdownWithRightAdd(
                       label: "Select Platform",
                       value: selectedPlatform,
                       items: platformList,
@@ -158,10 +189,10 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                     ),
 
                   ),
-
+/*
                   SizedBox(
                     width: 220,
-                    child: CustomDropdownWithAddButton(
+                    child: CustomDropdownWithRightAdd(
                       label: "Select Platform",
                       value: selectedPlatform,
                       items: platformList,
@@ -172,13 +203,15 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                       },
                     ),
                   ),
+*/
                   CustomTextField(label: "Amount", controller: _amountController,hintText: '500',),
                   CustomTextField(label: "Payment By",controller:  _paymentByController, hintText: 'John Doe' ),
                   CustomTextField(label: "Received By",controller:  _receivedByController,hintText: 'Smith'),
                   CustomTextField(label: "Service TID", controller: _serviceTIDController,hintText: 'xxxxxxx',),
                   CustomTextField(label: "Note",controller:  _noteController,hintText: "xxxxx",),
-                ],
-              ),
+
+
+                ],),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -187,7 +220,6 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                     onPressed: () {},
                     text: "Editing",
                     backgroundColor: Colors.blue,
-
                   ),
                   const SizedBox(width: 10),
                   CustomButton(
@@ -208,8 +240,6 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
     final now = DateTime.now();
     return "${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}";
   }
-
-
 }
 
 void showOfficeExpanceDialog(BuildContext context) {
@@ -221,12 +251,12 @@ void showOfficeExpanceDialog(BuildContext context) {
 }
 
 void _showEditDialog(
-    BuildContext context,
-    StateSetter setState,
-    List<String> institutes,
-    int index,
-    TextEditingController editController,
-    ) {
+  BuildContext context,
+  StateSetter setState,
+  List<String> institutes,
+  int index,
+  TextEditingController editController,
+) {
   editController.text = institutes[index];
   showDialog(
     context: context,
@@ -379,77 +409,77 @@ void showInstituteManagementDialog(BuildContext context) {
                   // Compact list
                   Expanded(
                     child:
-                    institutes.isEmpty
-                        ? const Center(
-                      child: Text(
-                        'No institutes',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    )
-                        : ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: institutes.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey[300]!,
-                            ),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: ListTile(
-                            dense: true,
-                            // Makes tiles more compact
-                            visualDensity: VisualDensity.compact,
-                            // Even more compact
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                            ),
-                            title: Text(
-                              institutes[index],
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            trailing: SizedBox(
-                              width:
-                              80, // Constrained width for buttons
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.edit,
-                                      size: 18,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    onPressed:
-                                        () => _showEditDialog(
-                                      context,
-                                      setState,
-                                      institutes,
-                                      index,
-                                      editController,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      size: 18,
-                                      color: Colors.red,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      setState(() {
-                                        institutes.removeAt(index);
-                                      });
-                                    },
-                                  ),
-                                ],
+                        institutes.isEmpty
+                            ? const Center(
+                              child: Text(
+                                'No institutes',
+                                style: TextStyle(fontSize: 14),
                               ),
+                            )
+                            : ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: institutes.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.grey[300]!,
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: ListTile(
+                                    dense: true,
+                                    // Makes tiles more compact
+                                    visualDensity: VisualDensity.compact,
+                                    // Even more compact
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    title: Text(
+                                      institutes[index],
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    trailing: SizedBox(
+                                      width:
+                                          80, // Constrained width for buttons
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              size: 18,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            onPressed:
+                                                () => _showEditDialog(
+                                                  context,
+                                                  setState,
+                                                  institutes,
+                                                  index,
+                                                  editController,
+                                                ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              size: 18,
+                                              color: Colors.red,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            onPressed: () {
+                                              setState(() {
+                                                institutes.removeAt(index);
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          ),
-                        );
-                      },
-                    ),
                   ),
                 ],
               ),
@@ -460,5 +490,3 @@ void showInstituteManagementDialog(BuildContext context) {
     },
   );
 }
-
-

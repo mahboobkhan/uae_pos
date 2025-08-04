@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
@@ -28,33 +29,39 @@ class CompanyProfile extends StatefulWidget {
 }
 
 class CompanyProfileState extends State<CompanyProfile> {
-  Future<void> _pickDateTime2() async {
-    final DateTime? pickedDate = await showDatePicker(
+  void _pickDateTime2() {
+    showDialog(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
+      builder: (context) {
+        DateTime selectedDate = DateTime.now();
 
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-
-      if (pickedTime != null) {
-        final DateTime combined = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          content: CustomCupertinoCalendar(
+            onDateTimeChanged: (date) {
+              selectedDate = date;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () {
+                _issueDateController.text =
+                "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
+                    "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("OK",style: TextStyle(color: Colors.red)),
+            ),
+          ],
         );
-        final formatted = DateFormat('dd-MM-yyyy – hh:mm a').format(combined);
-        _expiryDateController.text = formatted;
-        _issueDateController.text = formatted;
-      }
-    }
+      },
+    );
   }
 
   final TextEditingController companyNameController = TextEditingController();
@@ -366,7 +373,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   ),
                   SizedBox(
                     width: 220,
-                    child: CustomDropdownWithAddButton(
+                    child: CustomDropdownWithRightAdd(
                       label: "Select Platform",
                       value: selectedPlatform,
                       items: platformList,
@@ -517,13 +524,12 @@ class CompanyProfileState extends State<CompanyProfile> {
                 ],
               ),
               SizedBox(height: 10),*/
-              SizedBox(height: 20),
-
+              SizedBox(height: 10),
                   Row(
                 children: [
                   CustomButton(
                     text: "Editing",
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.blue,
                     onPressed: () {},
                   ),
                   const SizedBox(width: 10),
@@ -541,158 +547,43 @@ class CompanyProfileState extends State<CompanyProfile> {
     );
   }
 
-  Future<void> _pickDateTime() async {
-    final DateTime? pickedDate = await showDatePicker(
+  void _pickDateTime() {
+    showDialog(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
+      builder: (context) {
+        DateTime selectedDate = DateTime.now();
 
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-
-      if (pickedTime != null) {
-        final DateTime combined = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          content: CustomCupertinoCalendar(
+            onDateTimeChanged: (date) {
+              selectedDate = date;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () {
+                _issueDateController.text =
+                "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
+                    "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("OK",style: TextStyle(color: Colors.red)),
+            ),
+          ],
         );
-        _dateTimeController.text = DateFormat(
-          'dd-MM-yyyy – hh:mm a',
-        ).format(combined);
-      }
-    }
-  }
-}
-
-/*
-class CustomDropdownField extends StatelessWidget {
-  final String? label;
-  final String? hintText;
-  final Color borderColor;
-  final String? selectedValue;
-  final List<String> items;
-  final ValueChanged<String?> onChanged;
-
-  const CustomDropdownField({
-    Key? key,
-    this.label,
-    this.hintText,
-    required this.items,
-    required this.onChanged,
-    this.selectedValue,
-    this.borderColor = Colors.grey,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width:
-          MediaQuery.of(context).size.width /
-          4.5, // Same width as CustomTextField
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: DropdownButtonFormField<String>(
-          value: selectedValue,
-          isDense: true,
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: TextStyle(color: Colors.red),
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 12,
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: borderColor, width: 1),
-            ),
-          ),
-          hint: hintText != null ? Text(hintText!) : null,
-          icon: const Icon(Icons.arrow_drop_down),
-          items:
-              items.map((item) {
-                return DropdownMenuItem<String>(value: item, child: Text(item));
-              }).toList(),
-          onChanged: onChanged,
-        ),
-      ),
+      },
     );
   }
 }
-*/
 
-Widget _buildDropdownWithPlus1({
-  required BuildContext context,
-  required String label,
-  required String? value,
-  required List<String> items,
-  required Function(String?) onChanged,
-  required VoidCallback onAddPressed,
-}) {
-  return SizedBox(
-    width: MediaQuery.of(context).size.width / 4.5,
-    child: Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          DropdownButtonFormField<String>(
-            value: value,
-            decoration: InputDecoration(
-              labelText: label,
-              labelStyle: const TextStyle(color: Colors.red),
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 12,
-                horizontal: 12,
-              ),
-              border: const OutlineInputBorder(),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.red),
-              ),
-            ),
-            isDense: true,
-            style: const TextStyle(fontSize: 13),
-            items:
-                items.map((item) {
-                  return DropdownMenuItem<String>(
-                    value: item,
-                    child: Text(item, style: const TextStyle(fontSize: 13)),
-                  );
-                }).toList(),
-            onChanged: onChanged,
-          ),
-          Positioned(
-            right: 6,
-            top: 6,
-            bottom: 6,
-            child: GestureDetector(
-              onTap: onAddPressed,
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.red,
-                ),
-                child: const Icon(Icons.add, size: 16, color: Colors.white),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
+
 
 void _showEditDialog(
   BuildContext context,
@@ -780,8 +671,8 @@ void showInstituteManagementDialog(BuildContext context) {
             contentPadding: const EdgeInsets.all(12), // Reduced padding
             insetPadding: const EdgeInsets.all(20), // Space around dialog
             content: SizedBox(
-              width: 300, // Fixed width
-              height: 400, // Fixed height
+              width: 363,
+              height: 305,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -790,14 +681,18 @@ void showInstituteManagementDialog(BuildContext context) {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Institutes',
+                        'Add Services',
                         style: TextStyle(
                           fontSize: 16, // Smaller font
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 20),
+                        icon: const Icon(
+                          Icons.close,
+                          size: 25,
+                          color: Colors.red,
+                        ),
                         // Smaller icon
                         padding: EdgeInsets.zero,
                         // Remove default padding
@@ -810,32 +705,45 @@ void showInstituteManagementDialog(BuildContext context) {
                   const SizedBox(height: 12),
 
                   // Compact input field
-                  SizedBox(
-                    height: 40,
-                    child: TextField(
-                      cursorColor: Colors.blue,
-                      controller: addController,
-                      decoration: InputDecoration(
-                        hintText: "Add institute...",
-                        isDense: true,
-                        // Makes the field more compact
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(width: 1, color: Colors.blue),
-                        ),
-                        // Border when focused
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            width: 1.5,
-                            color: Colors.blue,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start, // align top
+                    children: [
+                      // TextField
+                      Expanded(
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          alignment: Alignment.centerLeft,
+                          child: TextField(
+                            controller: addController,
+                            cursorColor: Colors.blue,
+                            style: const TextStyle(fontSize: 14),
+                            decoration: const InputDecoration(
+                              hintText: "Add institute...",
+                              border: InputBorder.none, // remove double border
+                              isDense: true,
+                            ),
                           ),
                         ),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.add, size: 20),
-                          padding: EdgeInsets.zero,
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Add Button
+                      SizedBox(
+                        height: 40,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
                           onPressed: () {
                             if (addController.text.trim().isNotEmpty) {
                               setState(() {
@@ -844,86 +752,89 @@ void showInstituteManagementDialog(BuildContext context) {
                               });
                             }
                           },
+                          child: const Text(
+                            "Add",
+                            style: TextStyle(fontSize: 14, color: Colors.white),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                   const SizedBox(height: 12),
 
                   // Compact list
                   Expanded(
                     child:
-                        institutes.isEmpty
-                            ? const Center(
-                              child: Text(
-                                'No institutes',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            )
-                            : ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: institutes.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 4),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey[300]!,
-                                    ),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: ListTile(
-                                    dense: true,
-                                    // Makes tiles more compact
-                                    visualDensity: VisualDensity.compact,
-                                    // Even more compact
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    title: Text(
-                                      institutes[index],
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                    trailing: SizedBox(
-                                      width:
-                                          80, // Constrained width for buttons
-                                      child: Row(
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.edit,
-                                              size: 18,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            onPressed:
-                                                () => _showEditDialog(
-                                                  context,
-                                                  setState,
-                                                  institutes,
-                                                  index,
-                                                  editController,
-                                                ),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.delete,
-                                              size: 18,
-                                              color: Colors.red,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            onPressed: () {
-                                              setState(() {
-                                                institutes.removeAt(index);
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
+                    institutes.isEmpty
+                        ? const Center(
+                      child: Text(
+                        'No institutes',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    )
+                        : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: institutes.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: ListTile(
+                            dense: true,
+                            // Makes tiles more compact
+                            visualDensity: VisualDensity.compact,
+                            // Even more compact
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
                             ),
+                            title: Text(
+                              institutes[index],
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            trailing: SizedBox(
+                              width:
+                              80, // Constrained width for buttons
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      size: 18,
+                                      color: Colors.green,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    onPressed:
+                                        () => _showEditDialog(
+                                      context,
+                                      setState,
+                                      institutes,
+                                      index,
+                                      editController,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      size: 18,
+                                      color: Colors.red,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      setState(() {
+                                        institutes.removeAt(index);
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

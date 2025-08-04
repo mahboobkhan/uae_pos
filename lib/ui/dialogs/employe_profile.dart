@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/signup_provider.dart';
+import '../widgets/simple_dropdown.dart';
+import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
@@ -30,6 +34,7 @@ class EmployeProfile extends StatefulWidget {
 }
 
 class _EmployeProfileState extends State<EmployeProfile> {
+
 
   DateTime selectedDateTime = DateTime.now();
   final _contactNumber1 = TextEditingController();
@@ -67,6 +72,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
+  // Add separate controllers for each date field
+  final TextEditingController _joiningDateController = TextEditingController();
+  final TextEditingController _contractExpiryController = TextEditingController();
+  final TextEditingController _birthDateController = TextEditingController();
+
+  late String userId;
 
 
   @override
@@ -77,65 +88,125 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
     _employeeNameController.text = user?['name']?.toString() ?? '';
     _emailIdController.text = user?['email']?.toString() ?? '';
+    userId = widget.user?['user_id']?.toString() ?? '';
+
   }
-
-  Future<void> _pickDateTime() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
+  Future<void> _submitProfile(BuildContext context) async {
+    if (_employeeNameController.text.isEmpty) {
+      showDialog(
         context: context,
-        initialTime: TimeOfDay.now(),
+        builder: (context) => const ErrorDialog(message: 'Employee name is required'),
       );
+      return;
+    }
 
-      if (pickedTime != null) {
-        final DateTime combined = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-        _dateTimeController.text = DateFormat(
-          'dd-MM-yyyy – hh:mm a',
-        ).format(combined);
-      }
+    if (_contactNumber1.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(message: 'Primary contact number is required'),
+      );
+      return;
+    }
+
+    if (_emailIdController.text.isEmpty || !_emailIdController.text.contains('@')) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(message: 'Valid email address is required'),
+      );
+      return;
+    }
+
+    if (_joiningDateController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(message: 'Joining date is required'),
+      );
+      return;
+    }
+
+    if (_emiratesIdController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(message: 'Emirates ID is required'),
+      );
+      return;
+    }
+
+    // Only required data is sent with optional values handled safely
+    final profileData = {
+      // ✅ Required fields
+      "user_id": userId,
+      "employee_name": _employeeNameController.text,
+      "personal_phone": _contactNumber1.text,
+      "email": _emailIdController.text,
+      "joining_date": _formatDate(_joiningDateController.text),
+      "emirate_id": _emiratesIdController.text,
+
+      // Optional but sending empty if not provided
+      "alternate_phone": _contactNumber2Controller.text.trim(),
+      "home_phone": _homeContactNumberController.text.trim(),
+      "work_permit_number": _workPermitNumberController.text.trim(),
+      "contract_expiry_date": _formatDate(_contractExpiryController.text.trim()),
+      "date_of_birth": _formatDate(_birthDateController.text.trim()),
+      "increment_amount": double.tryParse(_incrementController.text.trim()) ?? 0.0,
+      "next_increment_date": _formatDate(_dateTimeController.text.trim()),
+      "working_hours": _workingHoursController.text.trim(),
+      "physical_address": _physicalAddressController.text.trim(),
+      "extra_note_1": _noteController.text.trim(),
+
+      // Static or default values
+      "gender": selectedJobType4 ?? "",
+      "emp_designation": selectedJobType ?? "",
+      "employee_type": selectedJobType3 ?? "",
+      "payment_method": selectedJobType2 ?? "",
+      "is_user_active": true,
+      "profile_edited_by_username": "admin_user",
+      "country": "UAE",
+
+      // Optional or not used — send empty
+      "nickname": "",
+      "blood_group": "",
+      "father_name": "",
+      "religion": "",
+      "permanent_address": "",
+      "extra_note_2": "",
+      "marital_status": "",
+      "number_of_children": 0,
+      "tag": "",
+    };
+
+    final provider = Provider.of<SignupProvider>(context, listen: false);
+    final result = await provider.createEmployeeProfile(profileData);
+
+    if (!mounted) return;
+
+    if (result['success'] == true) {
+      await provider.fetchEmployees(); // ✅ Add this line to refresh employee list
+      showDialog(
+        context: context,
+        builder: (context) => SuccessDialog(message: result['message']),
+      ).then((_) => Navigator.of(context).pop());
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => ErrorDialog(message: result['message']),
+      );
+    }
+  }
+  String _formatDate(String inputDate) {
+    // This should convert from your display format "dd-MM-yyyy" to API format "yyyy-MM-dd"
+    try {
+      final parsedDate = DateFormat('dd-MM-yyyy').parse(inputDate);
+      return DateFormat('yyyy-MM-dd').format(parsedDate);
+    } catch (e) {
+      return ""; // or handle error appropriately
     }
   }
 
-  Future<void> _pickDateTime2() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
 
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
 
-      if (pickedTime != null) {
-        final DateTime combined = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-        final formatted = DateFormat('dd-MM-yyyy – hh:mm a').format(combined);
-        _expiryDateController.text = formatted;
-        _issueDateController.text = formatted;
-      }
-    }
-  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +237,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
-                        width: 160,
+                        width: 180,
                         child: SmallDropdownField(
                           label: "Employee type",
                           options: ['Cleaning', 'Consultining', 'Reparing'],
@@ -180,7 +251,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
-                        width: 160,
+                        width: 180,
                         child: SmallDropdownField(
                           label: "Select Gender",
                           options: ['Male', 'Female', 'Other'],
@@ -296,26 +367,27 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     hintText: "abc@gmail.com",
                     controller: _emailIdController,
                   ),
+
                   CustomDateField(
                     label: "Date of Joining",
                     hintText: "dd-MM-yyyy",
-                    controller: _dateTimeController,
+                    controller: _joiningDateController,  // Use the dedicated controller
                     readOnly: true,
-                    onTap: _pickDateTime,
+                    onTap: () => _pickJoiningDateCupertino(),
                   ),
                   CustomDateField(
                     label: "Work Contract Expiry",
-                    controller: _dateTimeController,
                     hintText: "dd-MM-yyyy",
+                    controller: _contractExpiryController,  // Use the dedicated controller
                     readOnly: true,
-                    onTap: _pickDateTime,
+                    onTap: _pickContractExpiryDate,  // Use the dedicated function
                   ),
                   CustomDateField(
                     label: "Birthday",
-                    controller: _dateTimeController,
                     hintText: "dd-MM-yyyy",
+                    controller: _birthDateController,  // Use the dedicated controller
                     readOnly: true,
-                    onTap: _pickDateTime,
+                    onTap: _pickBirthDate,  // Use the dedicated function
                   ),
                   CustomTextField(
                     label: 'Salary',
@@ -374,7 +446,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                 children: [
                   CustomDropdownField(
                     label: "Select Bank",
-                    options: ['ubl', 'Hbl', 'Mezan'],
+                    options: ['Ubl', 'Hbl', 'Mezan','Cheque','Cash'],
                     selectedValue: selectedJobType2,
                     onChanged: (value) {
                       setState(() {
@@ -454,16 +526,15 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             controller: _issueDateController,
                             readOnly: true,
                             hintText: "dd-MM-yyyy HH:mm",
-                            onTap: _pickDateTime2,
+                            onTap: _pickIssueDate,
                           ),
                           CustomDateNotificationField(
                             label: "Expiry Date Notifications",
                             controller: _expiryDateController,
                             readOnly: true,
                             hintText: "dd-MM-yyyy HH:mm",
-                            onTap: _pickDateTime2,
+                            onTap: _pickExpiryDate,
                           ),
-
                           ElevatedButton(
                             onPressed: () {
                             },
@@ -517,11 +588,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     onPressed: () {},
                   ),
                   const SizedBox(width: 10),
-
                   CustomButton(
                     text: "Submit",
                     backgroundColor: Colors.green,
-                    onPressed: () {},
+                    onPressed: () => _submitProfile(context),
+
                   ),
                 ],
               ),
@@ -529,6 +600,235 @@ class _EmployeProfileState extends State<EmployeProfile> {
           ),
         ),
       ),
+    );
+  }
+  void _pickIssueDate() async {
+    DateTime selectedDateTime = DateTime.now();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          title: const Text('Select Date & Time'),
+          content: CustomCupertinoCalendar(
+            initialDateTime: selectedDateTime,
+            onDateTimeChanged: (DateTime newDateTime) {
+              selectedDateTime = newDateTime;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel',style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(selectedDateTime),
+              child: const Text('Select',style: TextStyle(color: Colors.red),),
+            ),
+          ],
+        );
+      },
+    ).then((pickedDateTime) {
+      if (pickedDateTime != null && pickedDateTime is DateTime) {
+        setState(() {
+          _issueDateController.text =
+          "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime.year} "
+              "${pickedDateTime.hour.toString().padLeft(2, '0')}:${pickedDateTime.minute.toString().padLeft(2, '0')}";
+        });
+      }
+    });
+  }
+
+  void _pickExpiryDate() async {
+    DateTime selectedDateTime = DateTime.now();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          title: const Text('Select Expiry Date & Time'),
+          content: CustomCupertinoCalendar(
+            initialDateTime: selectedDateTime,
+            onDateTimeChanged: (DateTime newDateTime) {
+              selectedDateTime = newDateTime;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel',style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(selectedDateTime),
+              child: const Text('Select',style: TextStyle(color: Colors.blue),),
+            ),
+          ],
+        );
+      },
+    ).then((pickedDateTime) {
+      if (pickedDateTime != null && pickedDateTime is DateTime) {
+        setState(() {
+          _expiryDateController.text =
+          "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime.year} "
+              "${pickedDateTime.hour.toString().padLeft(2, '0')}:${pickedDateTime.minute.toString().padLeft(2, '0')}";
+        });
+      }
+    });
+  }
+  void _pickContractExpiryDate() async {
+    DateTime now = DateTime.now();
+    DateTime selectedDate = DateTime(now.year, now.month, now.day); // Strip time
+
+    final pickedDate = await showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          title: const Text('Select Contract Expiry Date'),
+          content: CustomCupertinoCalendar(
+            initialDateTime: selectedDate,
+            minimumDateTime: selectedDate,
+            maximumDateTime: DateTime(2100),
+            onDateTimeChanged: (DateTime newDate) {
+              selectedDate = newDate;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel',style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(selectedDate),
+              child: const Text('Select',style: TextStyle(color: Colors.red),),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _contractExpiryController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+      });
+    }
+  }
+
+  void _pickBirthDate() async {
+    DateTime selectedDate = DateTime.now();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          title: const Text('Select Birth Date'),
+          content: CustomCupertinoCalendar(
+            initialDateTime: selectedDate,
+            minimumDateTime: DateTime(1900),
+            maximumDateTime: DateTime.now(),
+            onDateTimeChanged: (DateTime newDate) {
+              selectedDate = newDate;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel',style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(selectedDate),
+              child: const Text('Select',style: TextStyle(color: Colors.blue),),
+            ),
+          ],
+        );
+      },
+    ).then((pickedDate) {
+      if (pickedDate != null && pickedDate is DateTime) {
+        setState(() {
+          _birthDateController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+        });
+      }
+    });
+  }
+  void _pickJoiningDateCupertino() async {
+    DateTime now = DateTime.now();
+    DateTime selectedDate = DateTime(now.year, now.month, now.day); // strip time
+
+    final pickedDate = await showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          title: Text('Joining Date'),
+          content: CustomCupertinoCalendar(
+            initialDateTime: selectedDate,
+            minimumDateTime: DateTime(1900),
+            maximumDateTime: DateTime(2100),
+            onDateTimeChanged: (DateTime newDate) {
+              selectedDate = newDate;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(selectedDate),
+              child: const Text('Select', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _joiningDateController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+      });
+    }
+  }
+
+}
+class SuccessDialog extends StatelessWidget {
+  final String message;
+
+  const SuccessDialog({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Success', style: TextStyle(color: Colors.green)),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    );
+  }
+}
+
+class ErrorDialog extends StatelessWidget {
+  final String message;
+
+  const ErrorDialog({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Error', style: TextStyle(color: Colors.red)),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 import '../screens/login screens/log_screen.dart';
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 class CustomTextField extends StatefulWidget {
   final String label;
@@ -73,7 +73,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 }
 
-class CustomDropdownField extends StatelessWidget {
+/*class CustomDropdownField extends StatelessWidget {
   final String label;
   final String? selectedValue;
   final List<String> options;
@@ -120,7 +120,112 @@ class CustomDropdownField extends StatelessWidget {
       ),
     );
   }
+}*/
+
+class CustomDropdownField extends StatelessWidget {
+  final String label;
+  final String? selectedValue;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  final double width;
+  final double height;
+
+  const CustomDropdownField({
+    super.key,
+    required this.label,
+    required this.selectedValue,
+    required this.options,
+    required this.onChanged,
+    this.width = 220,
+    this.height = 41, // Similar to default form field height
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: CustomDropdown<String>(
+        hintText: label,
+        items: options,
+        initialItem: selectedValue,
+        closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11.8),
+        decoration: CustomDropdownDecoration(
+          closedBorder: Border.all(color: Colors.grey),
+          closedBorderRadius: BorderRadius.circular(4),
+          expandedBorder: Border.all(color: Colors.red, width: 1),
+          expandedBorderRadius: BorderRadius.circular(4),
+          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
+          closedFillColor: Colors.white,
+
+        ),
+        onChanged: (value) => onChanged(value),
+      ),
+    );
+  }
 }
+
+class CustomDropdownWithSearch extends StatelessWidget {
+  final String label;
+  final String? selectedValue;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  final double width;
+  final double height;
+
+  const CustomDropdownWithSearch({
+    super.key,
+    required this.label,
+    required this.selectedValue,
+    required this.options,
+    required this.onChanged,
+    this.width = 220,
+    this.height = 41,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: options.length > 4 ? CustomDropdown.search(
+        hintText: label,
+        items: options,
+        initialItem: selectedValue,
+        closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11.8),
+        decoration: CustomDropdownDecoration(
+          closedBorder: Border.all(color: Colors.grey),
+          closedBorderRadius: BorderRadius.circular(4),
+          expandedBorder: Border.all(color: Colors.red, width: 1),
+          expandedBorderRadius: BorderRadius.circular(4),
+          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
+          closedFillColor: Colors.white,
+
+        ),
+        onChanged: (value) => onChanged(value),
+      ) : CustomDropdown<String>(
+        hintText: label,
+        items: options,
+        initialItem: selectedValue,
+        closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11.8),
+        decoration: CustomDropdownDecoration(
+          closedBorder: Border.all(color: Colors.grey),
+          closedBorderRadius: BorderRadius.circular(4),
+          expandedBorder: Border.all(color: Colors.red, width: 1),
+          expandedBorderRadius: BorderRadius.circular(4),
+          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
+          closedFillColor: Colors.white,
+
+        ),
+        onChanged: (value) => onChanged(value),
+      ) ,
+    );
+  }
+}
+
 //////
 
 /*
@@ -173,7 +278,96 @@ class CustomDropdownField extends StatelessWidget {
 */
 
 
+class CustomDropdownWithRightAdd extends StatelessWidget {
+  final String label;
+  final String? value;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+  final VoidCallback onAddPressed;
+  final double? width;
+
+  const CustomDropdownWithRightAdd({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+    required this.onAddPressed,
+    this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width ,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey), // Outer border
+        borderRadius: BorderRadius.circular(4),
+        color: Colors.white,
+      ),
+      child: Row(
+        children: [
+          /// Expanded dropdown without border
+          Expanded(
+            child: items.length > 4 ? CustomDropdown.search(
+              hintText: label,
+              initialItem: value,
+              items: items,
+              closedHeaderPadding:
+              const EdgeInsets.symmetric(horizontal: 5, vertical: 11.8),
+              decoration: const CustomDropdownDecoration(
+                closedBorder: Border.fromBorderSide(BorderSide.none), // No border
+                expandedBorder: Border.fromBorderSide(BorderSide.none),
+                closedBorderRadius: BorderRadius.zero,
+                expandedBorderRadius: BorderRadius.zero,
+                closedFillColor: Colors.white, // transparent so container shows
+                hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                listItemStyle: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+              onChanged: onChanged,
+            ) : CustomDropdown<String>(
+              hintText: label,
+              initialItem: value,
+              items: items,
+              closedHeaderPadding:
+              const EdgeInsets.symmetric(horizontal: 5, vertical: 11.8),
+              decoration: const CustomDropdownDecoration(
+                closedBorder: Border.fromBorderSide(BorderSide.none), // No border
+                expandedBorder: Border.fromBorderSide(BorderSide.none),
+                closedBorderRadius: BorderRadius.zero,
+                expandedBorderRadius: BorderRadius.zero,
+                closedFillColor: Colors.white, // transparent so container shows
+                hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                listItemStyle: TextStyle(fontSize: 16, color: Colors.black),
+              ),
+              onChanged: onChanged,
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          /// Plus (+) icon on the right
+          GestureDetector(
+            onTap: onAddPressed,
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.red,
+              ),
+              child: const Icon(Icons.add, size: 20, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 //////
+
+/*
 class CustomDropdownWithAddButton extends StatelessWidget {
   final String label;
   final String? value;
@@ -195,33 +389,27 @@ class CustomDropdownWithAddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width,
-      child: Stack(
-        children: [
-          DropdownButtonFormField<String>(
-            value: value,
-            decoration: InputDecoration(
-              labelText: label,
-              filled: true,
-              fillColor: Colors.white,
-              labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
+      width: width ,
+      child: Container(
+        child: Stack(
+          children: [
+            CustomDropdown.search(
+              hintText: label,
+              initialItem: value,
+              items: items,
+              closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11.8),
+              decoration: CustomDropdownDecoration(
+                closedBorder: Border.all(color: Colors.grey),
+                closedBorderRadius: BorderRadius.circular(4),
+                expandedBorder: Border.all(color: Colors.red, width: 1),
+                expandedBorderRadius: BorderRadius.circular(4),
+                closedFillColor: Colors.white,
+                hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+                listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
               ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.red, width: 1),
-              ),
-              contentPadding: const EdgeInsets.fromLTRB(12, 14, 48, 14),
+              onChanged: onChanged,
             ),
-            items: items
-                .map((item) => DropdownMenuItem<String>(
-              value: item,
-              child: Text(item, style: const TextStyle(fontSize: 16)),
-            ))
-                .toList(),
-            onChanged: onChanged,
-            style: const TextStyle(fontSize: 16, color: Colors.black),
-          ),
+
           Positioned(
             right: 12,
             top: 6,
@@ -239,11 +427,14 @@ class CustomDropdownWithAddButton extends StatelessWidget {
               ),
             ),
           ),
-        ],
+          ],
+
+        ),
       ),
     );
   }
 }
+*/
 
 class CustomTextField1 extends StatelessWidget {
   final String label;
@@ -639,34 +830,23 @@ class SmallDropdownField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      child: DropdownButtonFormField<String>(
-        value: selectedValue,
-        isExpanded: true,
-        decoration: InputDecoration(
-          isDense: true, // Makes the field smaller vertically
-          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          border: const OutlineInputBorder(),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 1),
-          ),
+      child: CustomDropdown<String>(
+        hintText: label, // works like labelText in small mode
+        items: options,
+        initialItem: selectedValue,
+        closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: .8),
+        decoration: CustomDropdownDecoration(
+          closedBorder: Border.all(color: Colors.grey),
+          closedBorderRadius: BorderRadius.circular(4),
+          expandedBorder: Border.all(color: Colors.red, width: 1),
+          expandedBorderRadius: BorderRadius.circular(4),
+          closedFillColor: Colors.white,
+          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
         ),
         onChanged: onChanged,
-        items: options
-            .map(
-              (e) => DropdownMenuItem(
-            value: e,
-            child: Text(e, style: const TextStyle(fontSize: 16)),
-          ),
-        )
-            .toList(),
       ),
-    );
-  }
+    );  }
 }
 
 class DateTimePickerExample extends StatefulWidget {

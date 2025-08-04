@@ -1,7 +1,8 @@
+import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 
+import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_fields.dart';
 
 class DialogEmployeType extends StatefulWidget {
@@ -19,6 +20,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
   late TextEditingController _amountController;
   late TextEditingController _paymentByController;
   late TextEditingController _receivedByController;
+  final TextEditingController _issueDateController = TextEditingController();
   late TextEditingController _serviceTIDController;
   late TextEditingController _noteController;
 
@@ -27,7 +29,9 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
     super.initState();
     _amountController = TextEditingController();
     _paymentByController = TextEditingController(text: "Auto Fill: John Doe");
-    _receivedByController = TextEditingController(text: "Auto Fill: Jane Smith");
+    _receivedByController = TextEditingController(
+      text: "Auto Fill: Jane Smith",
+    );
     _serviceTIDController = TextEditingController();
     _noteController = TextEditingController();
   }
@@ -73,48 +77,64 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                         ),
                       ),
                       SizedBox(height: 2),
-                      Text(
-                        "TID. 00001-292382",
-                        style: TextStyle(fontSize: 12,),
-                      ),
+                      Text("TID. 00001-292382", style: TextStyle(fontSize: 12)),
                     ],
                   ),
                   Row(
                     children: [
                       Text(
                         _formattedDate(),
-                        style: const TextStyle(fontSize: 14, color: Colors.red,fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(width: 10),
-        IconButton(
-          icon: const Icon(Icons.close, color: Colors.red),
-          onPressed: () async {
-            final shouldClose = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                backgroundColor: Colors.white,
-                title: const Text("Are you sure?"),
-                content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text("Close",style: TextStyle(color:Colors.red ),),
-                  ),
-                ],
-              ),
-            );
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.red),
+                        onPressed: () async {
+                          final shouldClose = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  title: const Text("Are you sure?"),
+                                  content: const Text(
+                                    "Do you want to close this form? Unsaved changes may be lost.",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () =>
+                                              Navigator.of(context).pop(false),
+                                      child: const Text(
+                                        "Keep Changes ",
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(context).pop(true),
+                                      child: const Text(
+                                        "Close",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          );
 
-            if (shouldClose == true) {
-              Navigator.of(context).pop(); // close the dialog
-            }
-          },
-        ),
-                  ]),
+                          if (shouldClose == true) {
+                            Navigator.of(context).pop(); // close the dialog
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -127,20 +147,41 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                   CustomDropdownField(
                     label: "Select Bank",
                     selectedValue: selectedBank,
-                    options: ["HBL", "UBL", "MCB"],
+                    options: ["Cash","Cheque","HBL", "UBL", "MCB"],
                     onChanged: (val) => setState(() => selectedBank = val),
                   ),
                   CustomDropdownField(
                     label: "Payment",
                     selectedValue: selectedPaymentType,
                     options: ["In", "Out"],
-                    onChanged: (val) => setState(() => selectedPaymentType = val),
+                    onChanged:
+                        (val) => setState(() => selectedPaymentType = val),
                   ),
-                  CustomTextField(label: "Amount", controller: _amountController,hintText: '500',),
-                  CustomTextField(label: "Payment By", controller: _paymentByController,hintText: 'John Doe',),
-                  CustomTextField(label: "Received By", controller: _receivedByController,hintText: 'Smith',),
-                  CustomTextField(label: "Service TID",controller:  _serviceTIDController,hintText: 'xxxxxx',),
-                  CustomTextField(label: "Note",controller:  _noteController,hintText: 'xxxxx',),
+                  CustomTextField(
+                    label: "Amount",
+                    controller: _amountController,
+                    hintText: '500',
+                  ),
+                  CustomTextField(
+                    label: "Payment By",
+                    controller: _paymentByController,
+                    hintText: 'John Doe',
+                  ),
+                  CustomTextField(
+                    label: "Received By",
+                    controller: _receivedByController,
+                    hintText: 'Smith',
+                  ),
+                  CustomTextField(
+                    label: "Service TID",
+                    controller: _serviceTIDController,
+                    hintText: 'xxxxxx',
+                  ),
+                  CustomTextField(
+                    label: "Note",
+                    controller: _noteController,
+                    hintText: 'xxxxx',
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -173,58 +214,6 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
     return "${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}";
   }
 
-  // TextField Builder
-  Widget _buildTextField(String label, TextEditingController controller, {
-    bool enabled = true,
-    double width = 220,
-  }) {
-    return SizedBox(
-      width: width,
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.red),
-          border: const OutlineInputBorder(),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Dropdown Builder
-  Widget _buildDropdownField({
-    required String label,
-    required String? value,
-    required List<String> options,
-    required ValueChanged<String?> onChanged,
-    double width = 220,
-  }) {
-    return SizedBox(
-      width: width,
-      child: DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-          focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red)),
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.red),
-          border: const OutlineInputBorder(),
-        ),
-        items: options
-            .map((String val) => DropdownMenuItem<String>(
-          value: val,
-          child: Text(val),
-        ))
-            .toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
-
   // DateTime Picker Field
   Widget _buildDateTimeField() {
     return SizedBox(
@@ -252,32 +241,39 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
     );
   }
 
-  Future<void> _selectDateTime() async {
-    final DateTime? pickedDate = await showDatePicker(
+  void _selectDateTime() {
+    showDialog(
       context: context,
-      initialDate: selectedDateTime,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      builder: (context) {
+        DateTime selectedDate = DateTime.now();
+
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          content: CustomCupertinoCalendar(
+            onDateTimeChanged: (date) {
+              selectedDate = date;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () {
+                _issueDateController.text =
+                "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
+                    "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("OK",style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
-
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(selectedDateTime),
-      );
-
-      if (pickedTime != null) {
-        setState(() {
-          selectedDateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-        });
-      }
-    }
   }
 }
 

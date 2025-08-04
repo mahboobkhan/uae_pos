@@ -1,10 +1,14 @@
+import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart' show CustomTextField;
 
 class CreateNewPassword extends StatefulWidget {
-  const CreateNewPassword({super.key});
+  final String userId;
+  const CreateNewPassword({super.key, required this.userId});
 
   @override
   State<CreateNewPassword> createState() => _CreateNewPasswordState();
@@ -72,29 +76,61 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                               ),
                               SizedBox(height: 64),
                               ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => LogScreen(),
-                                    ),
+                                onPressed: () async {
+                                  final newPass = _emailController.text.trim();
+                                  final confirmPass = _passwordController.text.trim();
+
+                                  if (newPass.isEmpty || confirmPass.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Please enter password in both fields')),
+                                    );
+                                    return;
+                                  }
+
+                                  if (newPass != confirmPass) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Passwords do not match')),
+                                    );
+                                    return;
+                                  }
+                                  showLoadingDialog(context);
+                                  final provider = Provider.of<SignupProvider>(context, listen: false);
+                                  final result = await provider.updatePassword(
+                                    userId: widget.userId,
+                                    newPassword: newPass,
                                   );
+
+                                  if (result == null) {
+                                    // Success → Go to login screen
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Password updated successfully!')),
+                                    );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => LogScreen()),
+                                    );
+                                  } else {
+                                    // Show error
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(result)),
+                                    );
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  minimumSize: Size(150, 48),
+                                  minimumSize: const Size(150, 48),
                                   backgroundColor: Colors.red,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
-                                child: Text(
+                                child: const Text(
                                   "Submit",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
+                              )
                             ],
                           ),
                         ),
@@ -114,7 +150,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                       overlayColor: MaterialStateProperty.resolveWith<Color?>(
                             (Set<MaterialState> states) {
                           if (states.contains(MaterialState.hovered)) {
-                            return Colors.white; // 👈 Hover color
+                            return Colors.white;
                           }
                           return null;
                         },

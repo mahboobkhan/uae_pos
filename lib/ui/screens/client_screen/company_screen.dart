@@ -125,68 +125,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                   setState(() => selectedCategory3 = newValue!);
                                 },
                               ),
-                              const SizedBox(width: 12),
-                              Row(
-                                children: [
-                                  Card(
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    shadowColor: Colors.grey.shade700,
-                                    child: Container(
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.11,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(18),
-                                        border: Border.all(
-                                          color: Colors.red,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                      ),
-                                      child: const TextField(
-                                        style: TextStyle(fontSize: 12),
-                                        textAlignVertical:
-                                            TextAlignVertical.center,
-                                        decoration: InputDecoration(
-                                          hintText: 'Search...',
-                                          hintStyle: TextStyle(fontSize: 12),
-                                          border: InputBorder.none,
-                                          isCollapsed: true,
-                                          contentPadding: EdgeInsets.zero,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Card(
-                                    elevation: 4,
-                                    shape: const CircleBorder(),
-                                    // Make the card circular
-                                    shadowColor: Colors.grey.shade700,
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape:
-                                            BoxShape.circle, // Circular shape
-                                      ),
-                                      child: const Icon(
-                                        Icons.search,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                         ),

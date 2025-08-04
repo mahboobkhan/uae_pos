@@ -595,8 +595,7 @@ void showShortServicesPopup(BuildContext context) {
                       onChanged: (val) => serviceName = val,
                     ),
                     const SizedBox(height: 12),
-
-                    CustomDropdownWithAddButton(
+                    CustomDropdownWithRightAdd(
                       label: ' SERVICES',
                       value: selectedInstitute,
                       items: instituteOptions,
@@ -706,7 +705,7 @@ void showServicesProjectPopup(BuildContext context) {
                     ),
                     const SizedBox(height: 12),
 
-                    CustomDropdownWithAddButton(
+                    CustomDropdownWithRightAdd(
                       label: 'SERVICES',
                       value: selectedService,
                       items: serviceOptions,

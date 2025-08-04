@@ -102,35 +102,35 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 120,
-                child: Row(
-                  children:
-                      stats.map((stat) {
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Material(
-                              elevation: 12,
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.white70,
-                              shadowColor: Colors.black,
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 120,
+              child: Row(
+                children:
+                    stats.map((stat) {
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Material(
+                            elevation: 12,
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white70,
+                            shadowColor: Colors.black,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FittedBox(
+                                    child: Text(
                                       stat['value'],
                                       style: const TextStyle(
                                         fontSize: 28,
@@ -139,239 +139,184 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
+                                  ),
+                                  const SizedBox(height: 8),
+                                  FittedBox(
+                                    child: Text(
                                       stat['label'],
                                       style: const TextStyle(
                                         fontSize: 14,
                                         color: Colors.white,
                                       ),
                                     ),
-                                  ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+              ),
+            ),
+
+            SizedBox(height: 10),
+            MouseRegion(
+              onEnter: (_) => setState(() => _isHovering = true),
+              onExit: (_) => setState(() => _isHovering = false),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 45,
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow:
+                      _isHovering
+                          ? [
+                            BoxShadow(
+                              color: Colors.blue,
+                              blurRadius: 4,
+                              spreadRadius: 0.2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                          : [],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            CustomDropdown(
+                              hintText: "Customer Type",
+                              selectedValue: selectedCategory,
+                              items: categories,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              hintText: "Select Tags",
+                              selectedValue: selectedCategory1,
+                              items: categories1,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory1 = newValue!);
+                              },
+                            ),
+                            CustomDropdown(
+                              hintText: "Payment Status",
+                              selectedValue: selectedCategory2,
+                              items: categories2,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory2 = newValue!);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => showFixedOfficeExpanseDialogue(context),
+                          child: Tooltip(
+                            message: 'Add Fixed Office Expense',
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.blue,
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.attach_money,
+                                  color: Colors.white,
+                                  size: 20, // optional
                                 ),
                               ),
                             ),
                           ),
-                        );
-                      }).toList(),
-                ),
-              ),
-        
-              SizedBox(height: 10),
-              MouseRegion(
-                onEnter: (_) => setState(() => _isHovering = true),
-                onExit: (_) => setState(() => _isHovering = false),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 45,
-                  width: MediaQuery.of(context).size.width,
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(2),
-                    boxShadow:
-                        _isHovering
-                            ? [
-                              BoxShadow(
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap:
+                              () => showOfficeMaintainanceExpanseDialogue(context),
+                          child: Tooltip(
+                            message: 'Add Office Maintenance',
+                            child: Container(
+                              height: 30,
+                              width: 30,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
                                 color: Colors.blue,
-                                blurRadius: 4,
-                                spreadRadius: 0.2,
-                                offset: const Offset(0, 1),
                               ),
-                            ]
-                            : [],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              CustomDropdown(
-                                hintText: "Customer Type",
-                                selectedValue: selectedCategory,
-                                items: categories,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory = newValue!);
-                                },
-                              ),
-                              CustomDropdown(
-                                hintText: "Select Tags",
-                                selectedValue: selectedCategory1,
-                                items: categories1,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory1 = newValue!);
-                                },
-                              ),
-                              CustomDropdown(
-                                hintText: "Payment Status",
-                                selectedValue: selectedCategory2,
-                                items: categories2,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory2 = newValue!);
-                                },
-                              ),
-                              const SizedBox(width: 12),
-                              Row(
-                                children: [
-                                  Card(
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    shadowColor: Colors.grey.shade700,
-                                    child: Container(
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.11,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(18),
-                                        border: Border.all(
-                                          color: Colors.red,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                      ),
-                                      child: const TextField(
-                                        style: TextStyle(fontSize: 12),
-                                        textAlignVertical:
-                                            TextAlignVertical.center,
-                                        decoration: InputDecoration(
-                                          hintText: 'Search...',
-                                          hintStyle: TextStyle(fontSize: 12),
-                                          border: InputBorder.none,
-                                          isCollapsed: true,
-                                          contentPadding: EdgeInsets.zero,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Card(
-                                    elevation: 4,
-                                    shape: const CircleBorder(),
-                                    // Make the card circular
-                                    shadowColor: Colors.grey.shade700,
-                                    child: Container(
-                                      height: 30,
-                                      width: 30,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle, // Circular shape
-                                      ),
-                                      child: const Icon(
-                                        Icons.search,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              child: Center(child: Icon(Icons.build, color: Colors.white,size: 20,)),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () => showFixedOfficeExpanseDialogue(context),
-                        child: Tooltip(
-                          message: 'Add Fixed Office Expense',
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.blue,
-                            ),
-                            child: Center(
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () => showOfficeSuppliesDialogue(context),
+                          child: Tooltip(
+                            message: 'Add Office Supplies',
+                            child: Container(
+                                height:30,
+                                width:30,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.blue,
+                                ),child: Icon(Icons.shopping_bag, color: Colors.white,size: 20,)),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () => showMiscellaneousDialogue(context),
+                          child: Tooltip(
+                            message: 'Add Miscellaneous',
+                            child: Container(
+                                height:30,
+                                width:30,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.blue,
+                                ),child: Icon(Icons.category, color: Colors.white,size: 20,)),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () => showDynamicAttributeDialogue(context),
+                          child: Tooltip(
+                            message: 'Add Dynamic Attribute',
+                            child: Container(  height:30,
+                              width:30,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.blue,
+                              ),
                               child: Icon(
-                                Icons.attach_money,
-                                color: Colors.white,
-                                size: 20, // optional
+                                Icons.add_circle_outline,
+                                color: Colors.white,size: 20,
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap:
-                            () => showOfficeMaintainanceExpanseDialogue(context),
-                        child: Tooltip(
-                          message: 'Add Office Maintenance',
-                          child: Container(
-                            height: 30,
-                            width: 30,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.blue,
-                            ),
-                            child: Center(child: Icon(Icons.build, color: Colors.white,size: 20,)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () => showOfficeSuppliesDialogue(context),
-                        child: Tooltip(
-                          message: 'Add Office Supplies',
-                          child: Container(
-                              height:30,
-                              width:30,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.blue,
-                              ),child: Icon(Icons.shopping_bag, color: Colors.white,size: 20,)),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () => showMiscellaneousDialogue(context),
-                        child: Tooltip(
-                          message: 'Add Miscellaneous',
-                          child: Container(
-                              height:30,
-                              width:30,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.blue,
-                              ),child: Icon(Icons.category, color: Colors.white,size: 20,)),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () => showDynamicAttributeDialogue(context),
-                        child: Tooltip(
-                          message: 'Add Dynamic Attribute',
-                          child: Container(  height:30,
-                            width:30,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.blue,
-                            ),
-                            child: Icon(
-                              Icons.add_circle_outline,
-                              color: Colors.white,size: 20,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
+                        const SizedBox(width: 5),
+                      ],
+                    )
+                  ],
                 ),
               ),
-          Padding(
+            ),
+        Expanded(
+          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
-              height: 300,
               child: ScrollbarTheme(
                 data: ScrollbarThemeData(
                   thumbVisibility: MaterialStateProperty.all(true),
@@ -455,9 +400,9 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                 ),
               ),
             ),
-          )
-            ],
           ),
+        )
+          ],
         ),
       ),
     );

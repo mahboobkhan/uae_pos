@@ -1,12 +1,25 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:abc_consultant/ui/screens/login%20screens/create_new_password.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../providers/signup_provider.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart';
 
 class ForgotScreen extends StatefulWidget {
-  const ForgotScreen({super.key});
+  final String userId;
+  final String email;
+  final String adminEmail;
+
+  const ForgotScreen({
+    super.key,
+    required this.userId,
+    required this.email,
+    required this.adminEmail,
+  });
 
   @override
   State<ForgotScreen> createState() => _ForgotScreenState();
@@ -18,7 +31,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
   final TextEditingController _gmailController = TextEditingController();
   final TextEditingController _adminGmailController = TextEditingController();
 
-  int countdown = 4;
+  int countdown = 60;
   bool isCountdownRunning = false;
   Timer? _timer;
 
@@ -31,7 +44,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
   void startCountdown() {
     setState(() {
       isCountdownRunning = true;
-      countdown = 4;
+      countdown = 60;
     });
 
     _timer?.cancel();
@@ -63,16 +76,24 @@ class _ForgotScreenState extends State<ForgotScreen> {
         context: context,
         builder:
             (context) => AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               content: const Text(" Are you sure you want to leave?"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text("No",style: TextStyle(color: Colors.black),),
+                  child: const Text(
+                    "No",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text("Yes",style: TextStyle(color: Colors.black),),
+                  child: const Text(
+                    "Yes",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ],
             ),
@@ -84,6 +105,8 @@ class _ForgotScreenState extends State<ForgotScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<SignupProvider>(context);
+
     return WillPopScope(
       onWillPop: _handleBackNavigation,
       child: Scaffold(
@@ -124,34 +147,6 @@ class _ForgotScreenState extends State<ForgotScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              /// Admin Code
-                              CustomTextField(
-                                controller: _adminGmailController,
-                                label: 'Enter Code',
-                                hintText: "00 00 00",
-                                suffixIcon:
-                                    isCountdownRunning
-                                        ? const SizedBox()
-                                        : TextButton(
-                                          onPressed: startCountdown,
-                                          child: const Text(
-                                            "Resend",
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.blue,
-                                            ),
-                                          ),
-                                        ),
-                              ),
-                              Text(
-                                'user@email.com',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              /// User Code
                               CustomTextField(
                                 controller: _gmailController,
                                 label: 'Enter Code',
@@ -160,7 +155,25 @@ class _ForgotScreenState extends State<ForgotScreen> {
                                     isCountdownRunning
                                         ? const SizedBox()
                                         : TextButton(
-                                          onPressed: startCountdown,
+                                          onPressed: () async {
+                                            // Step 1: Resend the verification PIN
+                                            final resendError = await provider
+                                                .resendVerificationPin(
+                                                  userId: widget.userId,
+                                                  to: "user", // or "user", or "both"
+                                                );
+
+                                            if (resendError != null) {
+                                              showError(context, resendError);
+                                              return;
+                                            } else {
+                                              startCountdown();
+                                              showSuccess(
+                                                context,
+                                                "Verification code resent successfully!",
+                                              );
+                                            }
+                                          },
                                           child: const Text(
                                             "Resend",
                                             style: TextStyle(
@@ -171,7 +184,64 @@ class _ForgotScreenState extends State<ForgotScreen> {
                                         ),
                               ),
                               Text(
-                                'admin@email.com',
+                                widget.email,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              CustomTextField(
+                                controller: _adminGmailController,
+                                label: 'Enter Code',
+                                hintText: "00 00 00",
+                                suffixIcon:
+                                    isCountdownRunning
+                                        ? const SizedBox()
+                                        : TextButton(
+                                          onPressed: () async {
+                                            // Step 1: Resend the verification PIN
+                                            final resendError = await provider
+                                                .resendVerificationPin(
+                                                  userId: widget.userId,
+                                                  to: "admin", // or "user", or "both"
+                                                );
+
+                                            if (resendError != null) {
+                                              showError(context, resendError);
+                                              return;
+                                            } else {
+                                              startCountdown();
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    "Verification code resent successfully!",
+                                                  ),
+                                                  backgroundColor: Colors.green,
+                                                  // Optional: Success color
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  duration: Duration(
+                                                    seconds: 3,
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+
+                                          child: const Text(
+                                            "Resend",
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ),
+                              ),
+                              Text(
+                                widget.adminEmail,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.blue,
@@ -190,26 +260,41 @@ class _ForgotScreenState extends State<ForgotScreen> {
                               ),
                               backgroundColor: Colors.red,
                             ),
-                            onPressed: () {
+                            onPressed: () async {
                               final gmail = _gmailController.text.trim();
-                              final adminGmail = _adminGmailController.text.trim();
+                              final adminGmail =
+                                  _adminGmailController.text.trim();
                               if (gmail.isEmpty) missingFields.add("User Pin");
-                              if (adminGmail.isEmpty) missingFields.add("Admin Pin");
+                              if (adminGmail.isEmpty)
+                                missingFields.add("Admin Pin");
 
-                              if (gmail.isEmpty ||
-                                  adminGmail.isEmpty)  {
+                              if (gmail.isEmpty || adminGmail.isEmpty) {
                                 showError(context, "Please Enter the pin");
                                 return;
                               }
                               showLoadingDialog(context);
-                              hideLoadingDialog(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => const CreateNewPassword(),
-                                ),
+
+                              final error = await provider.verifyUser(
+                                userId: widget.userId,
+                                pinUser: _gmailController.text.trim(),
+                                pinAdmin: _adminGmailController.text.trim(),
                               );
+
+                              if (error == null) {
+                                showLoadingDialog(context);
+                                hideLoadingDialog(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => CreateNewPassword(
+                                          userId: widget.userId,
+                                        ),
+                                  ),
+                                );
+                              } else {
+                                showError(context, error);
+                              }
                             },
                             child: const FittedBox(
                               fit: BoxFit.scaleDown,
@@ -287,21 +372,51 @@ class _ForgotScreenState extends State<ForgotScreen> {
       ),
     );
   }
+
   void showError(BuildContext context, String message) {
     showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: const Text("Error",style: TextStyle(fontWeight: FontWeight.bold),),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.black),),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            title: const Text(
+              "Error",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  "OK",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+    );
+  }
+
+  void showSuccess(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Success", style: TextStyle(color: Colors.green)),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
     );
   }
 }

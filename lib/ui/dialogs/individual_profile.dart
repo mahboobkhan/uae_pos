@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
@@ -43,33 +44,39 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
 
-  Future<void> _pickDateTime2() async {
-    final DateTime? pickedDate = await showDatePicker(
+  void _pickDateTime2() {
+    showDialog(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
+      builder: (context) {
+        DateTime selectedDate = DateTime.now();
 
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-
-      if (pickedTime != null) {
-        final DateTime combined = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          content: CustomCupertinoCalendar(
+            onDateTimeChanged: (date) {
+              selectedDate = date;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+            ),
+            TextButton(
+              onPressed: () {
+                _issueDateController.text =
+                "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
+                    "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("OK",style: TextStyle(color: Colors.red)),
+            ),
+          ],
         );
-        _dateTimeController.text = DateFormat(
-          'dd-MM-yyyy – hh:mm a',
-        ).format(combined);
-      }
-    }
+      },
+    );
   }
 
   String? selectedJobType3;
