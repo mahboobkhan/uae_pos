@@ -60,6 +60,8 @@ dev_dependencies:
   shared_preferences: ^2.5.3
   cupertino_calendar_picker: ^2.2.6
   animated_custom_dropdown: 3.1.1
+  connectivity_plus: ^6.0.3
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

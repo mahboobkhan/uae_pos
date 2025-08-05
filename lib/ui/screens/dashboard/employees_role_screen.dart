@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/desigination_provider.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
@@ -62,6 +63,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   }
   @override
   Widget build(BuildContext context) {
+    final designation = context.watch<DesignationProvider>().getDesignation();
     final provider = Provider.of<SignupProvider>(context);
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -230,7 +232,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                           user['user_id'],
                                           copyable: true,
                                         ),
-                                        _buildCell1("N/A"),
+                                        _buildCell1(designation.isEmpty ? "N/A" : designation,),
                                         _buildCell("Role",user),
                                         _buildActionCell(
                                           onEdit: () {},

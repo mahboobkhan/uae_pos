@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../../providers/desigination_provider.dart';
 import '../../../providers/signup_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/tags_class.dart';
@@ -54,6 +55,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final designation = context.watch<DesignationProvider>().getDesignation();
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
@@ -244,7 +247,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                         _buildCell("User"),
                                         TagsCellWidget(initialTags: tags),
 
-                                        _buildCell("Manager"),
+                                        _buildCell(designation.isEmpty ? "N/A" : designation,),
                                         _buildCell3("Bank Transfer", "TID *********456", copyable: true),
                                         _buildPriceWithAdd("AED-", "100000"),
                                         _buildPriceWithAdd1("AED-", "300", ),

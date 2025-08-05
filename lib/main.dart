@@ -1,4 +1,8 @@
+import 'package:abc_consultant/providers/desigination_provider.dart';
+import 'package:abc_consultant/providers/designation_delete_provider.dart';
+import 'package:abc_consultant/providers/designation_list_provider.dart';
 import 'package:abc_consultant/providers/signup_provider.dart';
+import 'package:abc_consultant/providers/update_designation.dart';
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
 import 'package:abc_consultant/ui/screens/dashboard/Dashboard.dart';
 import 'package:abc_consultant/ui/screens/dashboard/employees_role_screen.dart';
@@ -14,14 +18,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  /// ✅ Pehle provider ka object banao
+  final designationProvider = DesignationProvider();
+  /// ✅ Saved value load karo
+  await designationProvider.loadDesignation();
   // Needed for plugins like shared_preferences
   await SharedPreferences.getInstance();
 
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => SignupProvider())],
+      providers: [ChangeNotifierProvider(create: (_) => SignupProvider()),
+        ChangeNotifierProvider(create: (_) => DesignationProvider()),
+        ChangeNotifierProvider(create: (_) => DesignationUpdateProvider()),
+        ChangeNotifierProvider(create: (_) => DesignationDeleteProvider()),
+        ChangeNotifierProvider(create: (_) => DesignationListProvider()),
+      ],
+
       child: const MyApp(),
     ),
   );

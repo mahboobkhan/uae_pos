@@ -1,15 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../providers/signup_provider.dart';
-import '../widgets/simple_dropdown.dart';
+import '../../providers/desigination_provider.dart';
+import '../../providers/designation_delete_provider.dart';
+import '../../providers/update_designation.dart';
 import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
-
-void EmployeeProfileDialog(BuildContext context,Map<String, dynamic>? user) {
+void EmployeeProfileDialog(BuildContext context, Map<String, dynamic>? user) {
   showDialog(
     context: context,
     builder: (context) {
@@ -18,24 +21,22 @@ void EmployeeProfileDialog(BuildContext context,Map<String, dynamic>? user) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
-        child:  EmployeProfile(user: user,),
+        child: EmployeProfile(user: user),
       );
     },
   );
 }
 
 class EmployeProfile extends StatefulWidget {
-  Map<String, dynamic>? user ;// Add any other parameters you need
+  Map<String, dynamic>? user; // Add any other parameters you need
 
-   EmployeProfile({super.key, required this.user});
+  EmployeProfile({super.key, required this.user});
 
   @override
   State<EmployeProfile> createState() => _EmployeProfileState();
 }
 
 class _EmployeProfileState extends State<EmployeProfile> {
-
-
   DateTime selectedDateTime = DateTime.now();
   final _contactNumber1 = TextEditingController();
   final TextEditingController _employeeNameController = TextEditingController();
@@ -72,26 +73,40 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
+
   // Add separate controllers for each date field
   final TextEditingController _joiningDateController = TextEditingController();
-  final TextEditingController _contractExpiryController = TextEditingController();
+  final TextEditingController _contractExpiryController =
+      TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
 
-  late String userId;
-
+  String? userId;
 
   @override
   void initState() {
     super.initState();
+    _loadUserId();
 
     final user = widget.user;
 
     _employeeNameController.text = user?['name']?.toString() ?? '';
     _emailIdController.text = user?['email']?.toString() ?? '';
     userId = widget.user?['user_id']?.toString() ?? '';
-
   }
-  Future<void> _submitProfile(BuildContext context) async {
+
+  /// ✅ Function should be OUTSIDE initState
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('user_id');
+
+    print("📥 Loaded User ID from SharedPreferences: $id");
+
+    setState(() {
+      userId = id;
+    });
+  }
+
+  /*  Future<void> _submitProfile(BuildContext context) async {
     if (_employeeNameController.text.isEmpty) {
       showDialog(
         context: context,
@@ -201,20 +216,14 @@ class _EmployeProfileState extends State<EmployeProfile> {
     } catch (e) {
       return ""; // or handle error appropriately
     }
-  }
-
-
-
-
-
-
+  }*/
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: SizedBox(
-          width: 950,
+        width: 950,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -283,22 +292,36 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         onPressed: () async {
                           final shouldClose = await showDialog<bool>(
                             context: context,
-                            builder: (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              backgroundColor: Colors.white,
-                              title: const Text("Are you sure?"),
-                              content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(false),
-                                  child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                            builder:
+                                (context) => AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  title: const Text("Are you sure?"),
+                                  content: const Text(
+                                    "Do you want to close this form? Unsaved changes may be lost.",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () =>
+                                              Navigator.of(context).pop(false),
+                                      child: const Text(
+                                        "Keep Changes ",
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(context).pop(true),
+                                      child: const Text(
+                                        "Close",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(true),
-                                  child: const Text("Close",style: TextStyle(color:Colors.red ),),
-                                ),
-                              ],
-                            ),
                           );
 
                           if (shouldClose == true) {
@@ -311,8 +334,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
                 ],
               ),
               Text(
-                'EID.EE/EH 10110', // Static example ID
-                style: TextStyle(fontSize: 12, ),
+                userId != null ? "EID.EE/EH $userId" : "Loading...",
+                style: TextStyle(fontSize: 12),
               ),
               const SizedBox(height: 12),
 
@@ -325,17 +348,176 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     label: "Employee Name",
                     hintText: "xyz",
                     controller: _employeeNameController,
-
                   ),
-                  CustomDropdownField(
-                    label: "Job Position",
-                    options: ['Manager', 'Employee', 'Other'],
-                    selectedValue: selectedJobType,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedJobType = value;
-                      });
-                    },
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomDropdownField(
+                        label: "Job Position",
+                        options: ['Manager', 'Employee', 'Other'],
+                        selectedValue: selectedJobType, // ✅ Use local state, not provider
+                        onChanged: (value) {
+                          setState(() {
+                            selectedJobType = value;
+                          });
+                          // ✅ Just store in provider (no rebuild trigger)
+                          context.read<DesignationProvider>().setDesignation(value!);
+                        },
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // 🔵 Update Button
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.update),
+                        label: const Text("Update"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () async {
+                          print("🔹 Update button pressed");
+
+                          final selected =
+                              context
+                                  .read<DesignationProvider>()
+                                  .selectedDesignation;
+                          print("🔹 Selected designation: $selected");
+
+                          if (selected == null || selected.isEmpty) {
+                            print("❌ No designation selected");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Please select a job position first",
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          print("⏳ Calling update API...");
+                          await context
+                              .read<DesignationUpdateProvider>()
+                              .updateDesignation(
+                                DesignationUpdateRequest(
+                                  id: 5, // Replace with actual user/employee ID
+                                  newDesignations: selected,
+                                ),
+                              );
+
+                          final provider =
+                              context.read<DesignationUpdateProvider>();
+                          print(
+                            "📌 Provider state after update: ${provider.state}",
+                          );
+
+                          if (provider.state == RequestState.success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Designation updated to $selected",
+                                ),
+                              ),
+                            );
+                          } else if (provider.state == RequestState.error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  provider.errorMessage ?? "Update failed",
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+
+                      const SizedBox(height: 10),
+                      // 🔴 Delete Button
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.delete),
+                        label: const Text("Delete"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () async {
+                          print("🗑 Delete button pressed");
+
+                          final selected =
+                              context
+                                  .read<DesignationProvider>()
+                                  .selectedDesignation;
+                          print("🗑 Selected designation: $selected");
+
+                          if (selected == null || selected.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Please select a job position first",
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          await context
+                              .read<DesignationDeleteProvider>()
+                              .deleteDesignation(
+                                DesignationDeleteRequest(
+                                  designations: selected,
+                                ),
+                              );
+
+                          print("⏳ Calling delete API...");
+                          await context
+                              .read<DesignationDeleteProvider>()
+                              .deleteDesignation(
+                                DesignationDeleteRequest(
+                                  designations: selected,
+                                ),
+                              );
+
+                          final provider =
+                              context.read<DesignationDeleteProvider>();
+                          print(
+                            "📌 Provider state after delete: ${provider.state}",
+                          );
+
+                          if (provider.state == RequestState.success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Designation '$selected' deleted successfully",
+                                ),
+                              ),
+                            );
+                          } else if (provider.state == RequestState.error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  provider.errorMessage ?? "Delete failed",
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
                   CustomTextField(
                     label: "Contact Number",
@@ -371,23 +553,27 @@ class _EmployeProfileState extends State<EmployeProfile> {
                   CustomDateField(
                     label: "Date of Joining",
                     hintText: "dd-MM-yyyy",
-                    controller: _joiningDateController,  // Use the dedicated controller
+                    controller: _joiningDateController,
+                    // Use the dedicated controller
                     readOnly: true,
                     onTap: () => _pickJoiningDateCupertino(),
                   ),
                   CustomDateField(
                     label: "Work Contract Expiry",
                     hintText: "dd-MM-yyyy",
-                    controller: _contractExpiryController,  // Use the dedicated controller
+                    controller: _contractExpiryController,
+                    // Use the dedicated controller
                     readOnly: true,
-                    onTap: _pickContractExpiryDate,  // Use the dedicated function
+                    onTap:
+                        _pickContractExpiryDate, // Use the dedicated function
                   ),
                   CustomDateField(
                     label: "Birthday",
                     hintText: "dd-MM-yyyy",
-                    controller: _birthDateController,  // Use the dedicated controller
+                    controller: _birthDateController,
+                    // Use the dedicated controller
                     readOnly: true,
-                    onTap: _pickBirthDate,  // Use the dedicated function
+                    onTap: _pickBirthDate, // Use the dedicated function
                   ),
                   CustomTextField(
                     label: 'Salary',
@@ -413,27 +599,29 @@ class _EmployeProfileState extends State<EmployeProfile> {
                   ),
                 ],
               ),
-              SizedBox(height: 10,),
-              Wrap(spacing: 10,
-              runSpacing: 10,
-              children: [
-                SizedBox(
-                  width: 450,
-                  child: CustomTextField(
-                    label: "Physical Address",
-                    hintText: "Address,house,street,town,post code",
-                    controller: _physicalAddressController,
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  SizedBox(
+                    width: 450,
+                    child: CustomTextField(
+                      label: "Physical Address",
+                      hintText: "Address,house,street,town,post code",
+                      controller: _physicalAddressController,
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: 450,
-                  child: CustomTextField(
-                    label: "Note / Extra",
-                    controller: _noteController,
-                    hintText: 'xxxxx',
+                  SizedBox(
+                    width: 450,
+                    child: CustomTextField(
+                      label: "Note / Extra",
+                      controller: _noteController,
+                      hintText: 'xxxxx',
+                    ),
                   ),
-                ),
-              ],),
+                ],
+              ),
               SizedBox(height: 10),
               Text(
                 'Bank Details',
@@ -446,7 +634,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                 children: [
                   CustomDropdownField(
                     label: "Select Bank",
-                    options: ['Ubl', 'Hbl', 'Mezan','Cheque','Cash'],
+                    options: ['Ubl', 'Hbl', 'Mezan', 'Cheque', 'Cash'],
                     selectedValue: selectedJobType2,
                     onChanged: (value) {
                       setState(() {
@@ -505,7 +693,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         color: Colors.blue.shade50,
                       ),
                     ],
-
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -536,12 +723,13 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             onTap: _pickExpiryDate,
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                            },
+                            onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               minimumSize: const Size(150, 38),
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                   4,
@@ -570,7 +758,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         ],
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
               SizedBox(height: 20),
@@ -591,9 +779,42 @@ class _EmployeProfileState extends State<EmployeProfile> {
                   CustomButton(
                     text: "Submit",
                     backgroundColor: Colors.green,
-                    onPressed: () => _submitProfile(context),
+                    onPressed: () async {
+                      final provider = context.read<DesignationProvider>();
 
-                  ),
+                      final selected = provider.selectedDesignation?.trim() ?? "";
+                      if (selected.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Please select a job position first")),
+                        );
+                        return;
+                      }
+
+                      final prefs = await SharedPreferences.getInstance();
+                      final userId = prefs.getString("user_id") ?? "0";
+
+                      final request = DesignationRequest(
+                        userId: userId,
+                        designations: selected,
+                        createdBy: userId,
+                      );
+
+                      print("📦 Sending to API: ${jsonEncode(request.toJson())}");
+
+                      await provider.createDesignation(request);
+
+                      // ✅ Show correct API message immediately
+                      if (provider.state == RequestState.success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("✅ Designation '$selected' created successfully")),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("❌ ${provider.errorMessage ?? "Something went wrong"}")),
+                        );
+                      }
+                    },
+                  )
                 ],
               ),
             ],
@@ -602,6 +823,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
       ),
     );
   }
+
   void _pickIssueDate() async {
     DateTime selectedDateTime = DateTime.now();
 
@@ -620,11 +842,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel',style: TextStyle(color: Colors.grey),),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(selectedDateTime),
-              child: const Text('Select',style: TextStyle(color: Colors.red),),
+              child: const Text('Select', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -633,7 +855,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
       if (pickedDateTime != null && pickedDateTime is DateTime) {
         setState(() {
           _issueDateController.text =
-          "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime.year} "
+              "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime.year} "
               "${pickedDateTime.hour.toString().padLeft(2, '0')}:${pickedDateTime.minute.toString().padLeft(2, '0')}";
         });
       }
@@ -658,11 +880,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel',style: TextStyle(color: Colors.grey),),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(selectedDateTime),
-              child: const Text('Select',style: TextStyle(color: Colors.blue),),
+              child: const Text('Select', style: TextStyle(color: Colors.blue)),
             ),
           ],
         );
@@ -671,15 +893,20 @@ class _EmployeProfileState extends State<EmployeProfile> {
       if (pickedDateTime != null && pickedDateTime is DateTime) {
         setState(() {
           _expiryDateController.text =
-          "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime.year} "
+              "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime.year} "
               "${pickedDateTime.hour.toString().padLeft(2, '0')}:${pickedDateTime.minute.toString().padLeft(2, '0')}";
         });
       }
     });
   }
+
   void _pickContractExpiryDate() async {
     DateTime now = DateTime.now();
-    DateTime selectedDate = DateTime(now.year, now.month, now.day); // Strip time
+    DateTime selectedDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ); // Strip time
 
     final pickedDate = await showDialog<DateTime>(
       context: context,
@@ -698,11 +925,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel',style: TextStyle(color: Colors.grey),),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(selectedDate),
-              child: const Text('Select',style: TextStyle(color: Colors.red),),
+              child: const Text('Select', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -711,7 +938,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
     if (pickedDate != null) {
       setState(() {
-        _contractExpiryController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+        _contractExpiryController.text = DateFormat(
+          'dd-MM-yyyy',
+        ).format(pickedDate);
       });
     }
   }
@@ -736,11 +965,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel',style: TextStyle(color: Colors.grey),),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(selectedDate),
-              child: const Text('Select',style: TextStyle(color: Colors.blue),),
+              child: const Text('Select', style: TextStyle(color: Colors.blue)),
             ),
           ],
         );
@@ -748,14 +977,21 @@ class _EmployeProfileState extends State<EmployeProfile> {
     ).then((pickedDate) {
       if (pickedDate != null && pickedDate is DateTime) {
         setState(() {
-          _birthDateController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+          _birthDateController.text = DateFormat(
+            'dd-MM-yyyy',
+          ).format(pickedDate);
         });
       }
     });
   }
+
   void _pickJoiningDateCupertino() async {
     DateTime now = DateTime.now();
-    DateTime selectedDate = DateTime(now.year, now.month, now.day); // strip time
+    DateTime selectedDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ); // strip time
 
     final pickedDate = await showDialog<DateTime>(
       context: context,
@@ -787,12 +1023,14 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
     if (pickedDate != null) {
       setState(() {
-        _joiningDateController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+        _joiningDateController.text = DateFormat(
+          'dd-MM-yyyy',
+        ).format(pickedDate);
       });
     }
   }
-
 }
+
 class SuccessDialog extends StatelessWidget {
   final String message;
 
