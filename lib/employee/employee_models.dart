@@ -232,6 +232,9 @@ class Designation {
       'createdDate': createdDate,
     };
   }
+
+  @override
+  String toString() => designations; // 👈 This is important
 }
 
 class Bank {

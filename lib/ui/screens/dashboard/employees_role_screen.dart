@@ -25,7 +25,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   bool isLoading = true;
 
   String? selectedService;
-  final List<String> serviceOptions = ['Manager', 'Employee', 'Other'];
 
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
@@ -278,6 +277,9 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                               ),
                                               _buildCell(
                                                 singleEmployee
+                                                    .value
+                                                    .allDesignations,
+                                                singleEmployee
                                                         .value
                                                         .employeeType
                                                         .isEmpty
@@ -285,6 +287,9 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                     : singleEmployee
                                                         .value
                                                         .employeeType,
+                                                singleEmployee
+                                                    .value
+                                                    .employeeName,
                                                 singleEmployee.value.access,
                                               ),
                                               _buildActionCell(
@@ -339,7 +344,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     );
   }
 
-  Widget _buildCell(String text, UserAccess? access) {
+  Widget _buildCell(
+    List<Designation> designation,
+    String text,
+    String userName,
+    UserAccess? access,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
       child: Row(
@@ -349,7 +359,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
             child: GestureDetector(
               onTap: () {
                 // _showLockUnlockDialog(context);
-                showAccessDialog(context, access!.toJson());
+                showAccessDialog(
+                  context,
+                  designation,
+                  userName,
+                  access!.toJson(),
+                );
               },
               child: Text(
                 text,
@@ -402,7 +417,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     );
   }
 
-  void showAccessDialog(BuildContext context, Map<String, dynamic> userAccess) {
+  void showAccessDialog(
+    BuildContext context,
+    List<Designation> designation,
+    String userName,
+    Map<String, dynamic> userAccess,
+  ) {
     for (var item in sidebarItemsAccess) {
       item.isLocked = (userAccess[item.accessKey] ?? 0) == 0;
 
@@ -423,14 +443,14 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Manage Access For ${userAccess}"),
+                  Text("Manage Access For $userName"),
                   SizedBox(height: 12),
                   SizedBox(
                     width: 230,
                     child: CustomDropdownWithRightAdd(
                       label: "Assign Designation ",
                       value: selectedService,
-                      items: serviceOptions,
+                      items: designation,
                       onChanged: (val) => selectedService = val,
                       onAddPressed: () {
                         showInstituteManagementDialog2(context);

@@ -175,21 +175,21 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                 children: [
                   SizedBox(
                     width: 220,
-                    child:
-                    CustomDropdownWithRightAdd(
-                      label: "Select Platform",
-                      value: selectedPlatform,
-                      items: platformList,
-                      onChanged: (newValue) {
-                        // Update selectedPlatform state in parent
-                      },
-                      onAddPressed: () {
-                        showInstituteManagementDialog(context);
-                      },
-                    ),
 
+                    // child:
+                    // CustomDropdownWithRightAdd(
+                    //   label: "Select Platform",
+                    //   value: selectedPlatform,
+                    //   items: designations.map((e) => e.designations).toList(),
+                    //   onChanged: (newValue) {
+                    //     // Update selectedPlatform state in parent
+                    //   },
+                    //   onAddPressed: () {
+                    //     showInstituteManagementDialog(context);
+                    //   },
+                    // ),
                   ),
-/*
+                  /*
                   SizedBox(
                     width: 220,
                     child: CustomDropdownWithRightAdd(
@@ -204,14 +204,33 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                     ),
                   ),
 */
-                  CustomTextField(label: "Amount", controller: _amountController,hintText: '500',),
-                  CustomTextField(label: "Payment By",controller:  _paymentByController, hintText: 'John Doe' ),
-                  CustomTextField(label: "Received By",controller:  _receivedByController,hintText: 'Smith'),
-                  CustomTextField(label: "Service TID", controller: _serviceTIDController,hintText: 'xxxxxxx',),
-                  CustomTextField(label: "Note",controller:  _noteController,hintText: "xxxxx",),
-
-
-                ],),
+                  CustomTextField(
+                    label: "Amount",
+                    controller: _amountController,
+                    hintText: '500',
+                  ),
+                  CustomTextField(
+                    label: "Payment By",
+                    controller: _paymentByController,
+                    hintText: 'John Doe',
+                  ),
+                  CustomTextField(
+                    label: "Received By",
+                    controller: _receivedByController,
+                    hintText: 'Smith',
+                  ),
+                  CustomTextField(
+                    label: "Service TID",
+                    controller: _serviceTIDController,
+                    hintText: 'xxxxxxx',
+                  ),
+                  CustomTextField(
+                    label: "Note",
+                    controller: _noteController,
+                    hintText: "xxxxx",
+                  ),
+                ],
+              ),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,

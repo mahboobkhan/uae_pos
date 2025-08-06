@@ -45,12 +45,8 @@ Future<Map<String, String>> _loadUserFromPrefs() async {
   };
 }
 
-
-
 Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
-
-  final sharePref =  SharedPreferences.getInstance();
-
+  final sharePref = SharedPreferences.getInstance();
 
   return Stack(
     clipBehavior: Clip.none,
@@ -72,19 +68,17 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             Text(
-               user['name']?.toString() ?? '-',
+            Text(
+              user['name']?.toString() ?? '-',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const Divider(thickness: 1),
-             _InfoRow(label: 'Email', value:   user['email']?.toString() ?? '-',
-            ),
+            _InfoRow(label: 'Email', value: user['email']?.toString() ?? '-'),
             const _InfoRow(label: 'Phone', value: '+123456789'),
             const SizedBox(height: 2),
             _DialogButton(
               label: '',
-              hint:
-              user['password']?.toString() ?? '-',
+              hint: user['password']?.toString() ?? '-',
 
               showEdit: true,
               onEditTap: () => showEditDialog(context),
@@ -121,11 +115,7 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
                   shape: BoxShape.circle,
                 ),
                 padding: const EdgeInsets.all(4),
-                child: const Icon(
-                  Icons.edit,
-                  size: 16,
-                  color: Colors.white,
-                ),
+                child: const Icon(Icons.edit, size: 16, color: Colors.white),
               ),
             ),
           ],
@@ -138,29 +128,20 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
         right: 20,
         child: CustomPopup(
           content: const Text('The image size is 12mb'),
-          child: const Icon(
-            Icons.error_outline,
-            size: 20,
-            color: Colors.red,
-          ),
+          child: const Icon(Icons.error_outline, size: 20, color: Colors.red),
         ),
       ),
     ],
   );
 }
+
 Widget labelWithArrow(String text) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-          ),
-        ),
+        Text(text, style: const TextStyle(color: Colors.black, fontSize: 16)),
         const Icon(
           Icons.chevron_right, // Greater than-style arrow
           color: Colors.black54,
@@ -595,16 +576,16 @@ void showShortServicesPopup(BuildContext context) {
                       onChanged: (val) => serviceName = val,
                     ),
                     const SizedBox(height: 12),
-                    CustomDropdownWithRightAdd(
-                      label: ' SERVICES',
-                      value: selectedInstitute,
-                      items: instituteOptions,
-                      onChanged: (val) => selectedInstitute = val,
-                      onAddPressed: () {
-                        showInstituteManagementDialog(context);
-                      },
-                    ),
 
+                    // CustomDropdownWithRightAdd(
+                    //   label: ' SERVICES',
+                    //   value: selectedInstitute,
+                    //   items: instituteOptions,
+                    //   onChanged: (val) => selectedInstitute = val,
+                    //   onAddPressed: () {
+                    //     showInstituteManagementDialog(context);
+                    //   },
+                    // ),
                     const SizedBox(height: 12),
 
                     CustomTextField1(
@@ -705,15 +686,15 @@ void showServicesProjectPopup(BuildContext context) {
                     ),
                     const SizedBox(height: 12),
 
-                    CustomDropdownWithRightAdd(
-                      label: 'SERVICES',
-                      value: selectedService,
-                      items: serviceOptions,
-                      onChanged: (val) => selectedService = val,
-                      onAddPressed: () {
-                        showInstituteManagementDialog1(context);
-                      },
-                    ),
+                    // CustomDropdownWithRightAdd(
+                    //   label: 'SERVICES',
+                    //   value: selectedService,
+                    //   items: serviceOptions,
+                    //   onChanged: (val) => selectedService = val,
+                    //   onAddPressed: () {
+                    //     showInstituteManagementDialog1(context);
+                    //   },
+                    // ),
                     const SizedBox(height: 12),
 
                     CustomTextField1(

@@ -74,16 +74,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               onPressed: () {
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () {
                 _issueDateController.text =
-                "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
+                    "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK",style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -134,22 +134,38 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           onPressed: () async {
                             final shouldClose = await showDialog<bool>(
                               context: context,
-                              builder: (context) => AlertDialog(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                backgroundColor: Colors.white,
-                                title: const Text("Are you sure?"),
-                                content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(false),
-                                    child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                              builder:
+                                  (context) => AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    backgroundColor: Colors.white,
+                                    title: const Text("Are you sure?"),
+                                    content: const Text(
+                                      "Do you want to close this form? Unsaved changes may be lost.",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.of(
+                                              context,
+                                            ).pop(false),
+                                        child: const Text(
+                                          "Keep Changes ",
+                                          style: TextStyle(color: Colors.blue),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed:
+                                            () =>
+                                                Navigator.of(context).pop(true),
+                                        child: const Text(
+                                          "Close",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(true),
-                                    child: const Text("Close",style: TextStyle(color:Colors.red ),),
-                                  ),
-                                ],
-                              ),
                             );
 
                             if (shouldClose == true) {
@@ -177,26 +193,22 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           },
                         ),
                         CustomDropdownField(
-                          label:
-                          "Order Type ",
-                          selectedValue:
-                          selectedOrderType,
-                          options:
-                          ["Services Base", " Project base"],
-                          onChanged:
-                          (val) {
+                          label: "Order Type ",
+                          selectedValue: selectedOrderType,
+                          options: ["Services Base", " Project base"],
+                          onChanged: (val) {
                             setState(() => selectedOrderType = val);
                           },
                         ),
                         CustomDropdownField(
-                          label:
-                          "Service Project ",
-                          selectedValue:
-                          selectedServiceProject,
-                          options:
-                          ["Passport Renewal", "Development", "Id Card"],
-                          onChanged:
-                          (val) {
+                          label: "Service Project ",
+                          selectedValue: selectedServiceProject,
+                          options: [
+                            "Passport Renewal",
+                            "Development",
+                            "Id Card",
+                          ],
+                          onChanged: (val) {
                             setState(() => selectedServiceProject = val);
                           },
                         ),
@@ -315,22 +327,38 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           onPressed: () async {
                             final shouldClose = await showDialog<bool>(
                               context: context,
-                              builder: (context) => AlertDialog(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                backgroundColor: Colors.white,
-                                title: const Text("Are you sure?"),
-                                content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(false),
-                                    child: const Text("Keep Changes ",style: TextStyle(color:Colors.blue ),),
+                              builder:
+                                  (context) => AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    backgroundColor: Colors.white,
+                                    title: const Text("Are you sure?"),
+                                    content: const Text(
+                                      "Do you want to close this form? Unsaved changes may be lost.",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.of(
+                                              context,
+                                            ).pop(false),
+                                        child: const Text(
+                                          "Keep Changes ",
+                                          style: TextStyle(color: Colors.blue),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed:
+                                            () =>
+                                                Navigator.of(context).pop(true),
+                                        child: const Text(
+                                          "Close",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(true),
-                                    child: const Text("Close",style: TextStyle(color:Colors.red ),),
-                                  ),
-                                ],
-                              ),
                             );
 
                             if (shouldClose == true) {
@@ -353,39 +381,39 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         SizedBox(
                           width: 220,
-                          child: CustomDropdownWithRightAdd(
-                            label: "Services Status ",
-                            value: selectedService,
-                            items: serviceOptions,
-                            onChanged: (val) => selectedService = val,
-                            onAddPressed: () {
-                              showInstituteManagementDialog2(context);
-                            },
-                          ),
+                          // child: CustomDropdownWithRightAdd(
+                          //   label: "Services Status ",
+                          //   value: selectedService,
+                          //   items: serviceOptions,
+                          //   onChanged: (val) => selectedService = val,
+                          //   onAddPressed: () {
+                          //     showInstituteManagementDialog2(context);
+                          //   },
+                          // ),
                         ),
                         SizedBox(
                           width: 220,
-                          child: CustomDropdownWithRightAdd(
-                            label: "Local Status ",
-                            value: selectedService,
-                            items: serviceOptions,
-                            onChanged: (val) => selectedService = val,
-                            onAddPressed: () {
-                              showInstituteManagementDialog2(context);
-                            },
-                          ),
+                          // child: CustomDropdownWithRightAdd(
+                          //   label: "Local Status ",
+                          //   value: selectedService,
+                          //   items: serviceOptions,
+                          //   onChanged: (val) => selectedService = val,
+                          //   onAddPressed: () {
+                          //     showInstituteManagementDialog2(context);
+                          //   },
+                          // ),
                         ),
                         SizedBox(
                           width: 220,
-                          child: CustomDropdownWithRightAdd(
-                            label: "Tracking Status ",
-                            value: selectedService,
-                            items: serviceOptions,
-                            onChanged: (val) => selectedService = val,
-                            onAddPressed: () {
-                              showInstituteManagementDialog2(context);
-                            },
-                          ),
+                          // child: CustomDropdownWithRightAdd(
+                          //   label: "Tracking Status ",
+                          //   value: selectedService,
+                          //   items: serviceOptions,
+                          //   onChanged: (val) => selectedService = val,
+                          //   onAddPressed: () {
+                          //     showInstituteManagementDialog2(context);
+                          //   },
+                          // ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 5.0),
@@ -594,7 +622,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     );
   }
 
-/*
+  /*
   Widget buildLabeledFieldWithHint({
     required String label,
     required String hint,
@@ -691,6 +719,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       ),
     );
   }
+
   void showInstituteManagementDialog2(BuildContext context) {
     final List<String> institutes = [];
     final TextEditingController addController = TextEditingController();
@@ -728,7 +757,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, size: 25,color: Colors.red,),
+                          icon: const Icon(
+                            Icons.close,
+                            size: 25,
+                            color: Colors.red,
+                          ),
                           // Smaller icon
                           padding: EdgeInsets.zero,
                           // Remove default padding
@@ -760,7 +793,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                               style: const TextStyle(fontSize: 14),
                               decoration: const InputDecoration(
                                 hintText: "Add institute...",
-                                border: InputBorder.none, // remove double border
+                                border:
+                                    InputBorder.none, // remove double border
                                 isDense: true,
                               ),
                             ),
@@ -775,11 +809,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(6),
                               ),
-
                             ),
                             onPressed: () {
                               if (addController.text.trim().isNotEmpty) {
@@ -789,7 +824,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 });
                               }
                             },
-                            child: const Text("Add", style: TextStyle(fontSize: 14,color: Colors.white),),
+                            child: const Text(
+                              "Add",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -799,78 +840,77 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     // Compact list
                     Expanded(
                       child:
-                      institutes.isEmpty
-                          ? const Center(
-                        child: Text(
-                          'No institutes',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      )
-                          : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: institutes.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey,
-                              ),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: ListTile(
-                              dense: true,
-                              // Makes tiles more compact
-                              visualDensity: VisualDensity.compact,
-                              // Even more compact
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
-                              title: Text(
-                                institutes[index],
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                              trailing: SizedBox(
-                                width:
-                                80, // Constrained width for buttons
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.edit,
-                                        size: 18,
-                                        color: Colors.green,
-                                      ),
-                                      padding: EdgeInsets.zero,
-                                      onPressed:
-                                          () => _showEditDialog(
-                                        context,
-                                        setState,
-                                        institutes,
-                                        index,
-                                        editController,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        size: 18,
-                                        color: Colors.red,
-                                      ),
-                                      padding: EdgeInsets.zero,
-                                      onPressed: () {
-                                        setState(() {
-                                          institutes.removeAt(index);
-                                        });
-                                      },
-                                    ),
-                                  ],
+                          institutes.isEmpty
+                              ? const Center(
+                                child: Text(
+                                  'No institutes',
+                                  style: TextStyle(fontSize: 14),
                                 ),
+                              )
+                              : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: institutes.length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 4),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: ListTile(
+                                      dense: true,
+                                      // Makes tiles more compact
+                                      visualDensity: VisualDensity.compact,
+                                      // Even more compact
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                      title: Text(
+                                        institutes[index],
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                      trailing: SizedBox(
+                                        width:
+                                            80, // Constrained width for buttons
+                                        child: Row(
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.edit,
+                                                size: 18,
+                                                color: Colors.green,
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              onPressed:
+                                                  () => _showEditDialog(
+                                                    context,
+                                                    setState,
+                                                    institutes,
+                                                    index,
+                                                    editController,
+                                                  ),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.delete,
+                                                size: 18,
+                                                color: Colors.red,
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              onPressed: () {
+                                                setState(() {
+                                                  institutes.removeAt(index);
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            ),
-                          );
-                        },
-                      ),
                     ),
                   ],
                 ),
@@ -883,18 +923,20 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   }
 
   void _showEditDialog(
-      BuildContext context,
-      StateSetter setState,
-      List<String> institutes,
-      int index,
-      TextEditingController editController,
-      ) {
+    BuildContext context,
+    StateSetter setState,
+    List<String> institutes,
+    int index,
+    TextEditingController editController,
+  ) {
     editController.text = institutes[index];
     showDialog(
       context: context,
       builder: (editContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           contentPadding: const EdgeInsets.all(16),
           content: SizedBox(
             width: 250, // Smaller width
@@ -909,8 +951,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       borderSide: BorderSide(width: 1.5, color: Colors.grey),
                     ),
                     labelText: 'Edit institute',
-                    labelStyle: TextStyle(
-                      color: Colors.blue, ),
+                    labelStyle: TextStyle(color: Colors.blue),
                     isDense: true,
                     border: OutlineInputBorder(),
                   ),
@@ -948,5 +989,4 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       },
     );
   }
-
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
+import '../../employee/employee_models.dart';
 import '../screens/login screens/log_screen.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -57,7 +58,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   ? IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.grey.shade600,size: 18,
+                      color: Colors.grey.shade600,
+                      size: 18,
                     ),
                     onPressed: () {
                       setState(() {
@@ -72,55 +74,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
     );
   }
 }
-
-/*class CustomDropdownField extends StatelessWidget {
-  final String label;
-  final String? selectedValue;
-  final List<String> options;
-  final ValueChanged<String?> onChanged;
-  final double width;
-
-  const CustomDropdownField({
-    super.key,
-    required this.label,
-    required this.selectedValue,
-    required this.options,
-    required this.onChanged,
-    this.width = 220,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      child: DropdownButtonFormField<String>(
-        value: selectedValue,
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          border: const OutlineInputBorder(),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 1),
-          ),
-        ),
-        onChanged: onChanged,
-        items:
-            options
-                .map(
-                  (e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: const TextStyle(fontSize: 16)),
-                  ),
-                )
-                .toList(),
-      ),
-    );
-  }
-}*/
 
 class CustomDropdownField extends StatelessWidget {
   final String label;
@@ -149,7 +102,10 @@ class CustomDropdownField extends StatelessWidget {
         hintText: label,
         items: options,
         initialItem: selectedValue,
-        closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11.8),
+        closedHeaderPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 11.8,
+        ),
         decoration: CustomDropdownDecoration(
           closedBorder: Border.all(color: Colors.grey),
           closedBorderRadius: BorderRadius.circular(4),
@@ -158,7 +114,6 @@ class CustomDropdownField extends StatelessWidget {
           hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
           listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
           closedFillColor: Colors.white,
-
         ),
         onChanged: (value) => onChanged(value),
       ),
@@ -189,99 +144,60 @@ class CustomDropdownWithSearch extends StatelessWidget {
     return SizedBox(
       width: width,
       height: height,
-      child: options.length > 4 ? CustomDropdown.search(
-        hintText: label,
-        items: options,
-        initialItem: selectedValue,
-        closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11.8),
-        decoration: CustomDropdownDecoration(
-          closedBorder: Border.all(color: Colors.grey),
-          closedBorderRadius: BorderRadius.circular(4),
-          expandedBorder: Border.all(color: Colors.red, width: 1),
-          expandedBorderRadius: BorderRadius.circular(4),
-          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
-          closedFillColor: Colors.white,
-
-        ),
-        onChanged: (value) => onChanged(value),
-      ) : CustomDropdown<String>(
-        hintText: label,
-        items: options,
-        initialItem: selectedValue,
-        closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11.8),
-        decoration: CustomDropdownDecoration(
-          closedBorder: Border.all(color: Colors.grey),
-          closedBorderRadius: BorderRadius.circular(4),
-          expandedBorder: Border.all(color: Colors.red, width: 1),
-          expandedBorderRadius: BorderRadius.circular(4),
-          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
-          closedFillColor: Colors.white,
-
-        ),
-        onChanged: (value) => onChanged(value),
-      ) ,
+      child:
+          options.length > 4
+              ? CustomDropdown.search(
+                hintText: label,
+                items: options,
+                initialItem: selectedValue,
+                closedHeaderPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 11.8,
+                ),
+                decoration: CustomDropdownDecoration(
+                  closedBorder: Border.all(color: Colors.grey),
+                  closedBorderRadius: BorderRadius.circular(4),
+                  expandedBorder: Border.all(color: Colors.red, width: 1),
+                  expandedBorderRadius: BorderRadius.circular(4),
+                  hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+                  listItemStyle: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  closedFillColor: Colors.white,
+                ),
+                onChanged: (value) => onChanged(value),
+              )
+              : CustomDropdown<String>(
+                hintText: label,
+                items: options,
+                initialItem: selectedValue,
+                closedHeaderPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 11.8,
+                ),
+                decoration: CustomDropdownDecoration(
+                  closedBorder: Border.all(color: Colors.grey),
+                  closedBorderRadius: BorderRadius.circular(4),
+                  expandedBorder: Border.all(color: Colors.red, width: 1),
+                  expandedBorderRadius: BorderRadius.circular(4),
+                  hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+                  listItemStyle: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  closedFillColor: Colors.white,
+                ),
+                onChanged: (value) => onChanged(value),
+              ),
     );
   }
 }
-
-//////
-
-/*
-class CustomDropdownField extends StatelessWidget {
-  final String label;
-  final String? selectedValue;
-  final List<String> options;
-  final ValueChanged<String?> onChanged;
-  final double width;
-
-  const CustomDropdownField({
-    super.key,
-    required this.label,
-    required this.selectedValue,
-    required this.options,
-    required this.onChanged,
-    this.width = 220,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: 41, // Match CustomTextField height
-      child: CustomDropdown<String>(
-        hintText: 'Select $label',
-        items: options,
-        initialItem: options.contains(selectedValue) ? selectedValue : null,
-        onChanged: onChanged,
-        decoration: CustomDropdownDecoration(
-          closedFillColor: Colors.white,
-          expandedFillColor: Colors.white,
-          closedBorderRadius: BorderRadius.circular(4),
-          expandedBorderRadius: BorderRadius.circular(4),
-          closedBorder: Border.all(color: Colors.grey),
-          expandedBorder: Border.all(color: Colors.red),
-          closedSuffixIcon: const Padding(
-            padding: EdgeInsets.only(right: 8.0),
-            child: Icon(Icons.keyboard_arrow_down_rounded),
-          ),
-          expandedSuffixIcon: const Padding(
-            padding: EdgeInsets.only(right: 8.0),
-            child: Icon(Icons.keyboard_arrow_up_rounded),
-          ),
-        ),
-      ),
-    );
-  }
-}
-*/
-
 
 class CustomDropdownWithRightAdd extends StatelessWidget {
   final String label;
   final String? value;
-  final List<String> items;
+  final List<Designation> items;
   final ValueChanged<String?> onChanged;
   final VoidCallback onAddPressed;
   final double? width;
@@ -299,7 +215,7 @@ class CustomDropdownWithRightAdd extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width ,
+      width: width,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey), // Outer border
@@ -310,39 +226,58 @@ class CustomDropdownWithRightAdd extends StatelessWidget {
         children: [
           /// Expanded dropdown without border
           Expanded(
-            child: items.length > 4 ? CustomDropdown.search(
-              hintText: label,
-              initialItem: value,
-              items: items,
-              closedHeaderPadding:
-              const EdgeInsets.symmetric(horizontal: 5, vertical: 11.8),
-              decoration: const CustomDropdownDecoration(
-                closedBorder: Border.fromBorderSide(BorderSide.none), // No border
-                expandedBorder: Border.fromBorderSide(BorderSide.none),
-                closedBorderRadius: BorderRadius.zero,
-                expandedBorderRadius: BorderRadius.zero,
-                closedFillColor: Colors.white, // transparent so container shows
-                hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
-                listItemStyle: TextStyle(fontSize: 16, color: Colors.black),
-              ),
-              onChanged: onChanged,
-            ) : CustomDropdown<String>(
-              hintText: label,
-              initialItem: value,
-              items: items,
-              closedHeaderPadding:
-              const EdgeInsets.symmetric(horizontal: 5, vertical: 11.8),
-              decoration: const CustomDropdownDecoration(
-                closedBorder: Border.fromBorderSide(BorderSide.none), // No border
-                expandedBorder: Border.fromBorderSide(BorderSide.none),
-                closedBorderRadius: BorderRadius.zero,
-                expandedBorderRadius: BorderRadius.zero,
-                closedFillColor: Colors.white, // transparent so container shows
-                hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
-                listItemStyle: TextStyle(fontSize: 16, color: Colors.black),
-              ),
-              onChanged: onChanged,
-            ),
+            child:
+                items.length > 4
+                    ? CustomDropdown.search(
+                      hintText: label,
+                      initialItem: value,
+                      items: items.map((e) => e.designations).toList(),
+                      closedHeaderPadding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 11.8,
+                      ),
+                      decoration: const CustomDropdownDecoration(
+                        closedBorder: Border.fromBorderSide(
+                          BorderSide.none,
+                        ), // No border
+                        expandedBorder: Border.fromBorderSide(BorderSide.none),
+                        closedBorderRadius: BorderRadius.zero,
+                        expandedBorderRadius: BorderRadius.zero,
+                        closedFillColor:
+                            Colors.white, // transparent so container shows
+                        hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                        listItemStyle: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      onChanged: onChanged,
+                    )
+                    : CustomDropdown<String>(
+                      hintText: label,
+                      initialItem: value,
+                      items: items.map((e) => e.designations).toList(),
+                      closedHeaderPadding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 11.8,
+                      ),
+                      decoration: const CustomDropdownDecoration(
+                        closedBorder: Border.fromBorderSide(
+                          BorderSide.none,
+                        ), // No border
+                        expandedBorder: Border.fromBorderSide(BorderSide.none),
+                        closedBorderRadius: BorderRadius.zero,
+                        expandedBorderRadius: BorderRadius.zero,
+                        closedFillColor:
+                            Colors.white, // transparent so container shows
+                        hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                        listItemStyle: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      onChanged: onChanged,
+                    ),
           ),
           const SizedBox(width: 8),
 
@@ -364,77 +299,6 @@ class CustomDropdownWithRightAdd extends StatelessWidget {
     );
   }
 }
-
-//////
-
-/*
-class CustomDropdownWithAddButton extends StatelessWidget {
-  final String label;
-  final String? value;
-  final List<String> items;
-  final ValueChanged<String?> onChanged;
-  final VoidCallback onAddPressed;
-  final double? width;
-
-  const CustomDropdownWithAddButton({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.items,
-    required this.onChanged,
-    required this.onAddPressed,
-    this.width,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width ,
-      child: Container(
-        child: Stack(
-          children: [
-            CustomDropdown.search(
-              hintText: label,
-              initialItem: value,
-              items: items,
-              closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11.8),
-              decoration: CustomDropdownDecoration(
-                closedBorder: Border.all(color: Colors.grey),
-                closedBorderRadius: BorderRadius.circular(4),
-                expandedBorder: Border.all(color: Colors.red, width: 1),
-                expandedBorderRadius: BorderRadius.circular(4),
-                closedFillColor: Colors.white,
-                hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-                listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
-              ),
-              onChanged: onChanged,
-            ),
-
-          Positioned(
-            right: 12,
-            top: 6,
-            bottom: 6,
-            child: GestureDetector(
-              onTap: onAddPressed,
-              child: Container(
-                width: 25,
-                height: 25,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.red,
-                ),
-                child: const Icon(Icons.add, size: 20, color: Colors.white),
-              ),
-            ),
-          ),
-          ],
-
-        ),
-      ),
-    );
-  }
-}
-*/
 
 class CustomTextField1 extends StatelessWidget {
   final String label;
@@ -466,7 +330,10 @@ class CustomTextField1 extends StatelessWidget {
           focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 1),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 14,
+          ),
         ),
         keyboardType: keyboardType,
         style: const TextStyle(fontSize: 16, color: Colors.black),
@@ -475,18 +342,17 @@ class CustomTextField1 extends StatelessWidget {
     );
   }
 }
+
 class InfoBox extends StatelessWidget {
   final String label;
   final String value;
   final Color color; // single required color
-
 
   const InfoBox({
     super.key,
     required this.label,
     required this.value,
     required this.color,
-
   });
 
   @override
@@ -518,7 +384,7 @@ class InfoBox extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.black87,
-                fontWeight: FontWeight.bold
+                fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
@@ -533,7 +399,8 @@ class InstituteManagementDialog extends StatefulWidget {
   const InstituteManagementDialog({super.key});
 
   @override
-  State<InstituteManagementDialog> createState() => _InstituteManagementDialogState();
+  State<InstituteManagementDialog> createState() =>
+      _InstituteManagementDialogState();
 }
 
 class _InstituteManagementDialogState extends State<InstituteManagementDialog> {
@@ -615,7 +482,10 @@ class _InstituteManagementDialogState extends State<InstituteManagementDialog> {
                         });
                       }
                     },
-                    child: const Text("Add", style: TextStyle(fontSize: 14, color: Colors.white)),
+                    child: const Text(
+                      "Add",
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                    ),
                   ),
                 ),
               ],
@@ -624,60 +494,83 @@ class _InstituteManagementDialogState extends State<InstituteManagementDialog> {
 
             // List
             Expanded(
-              child: institutes.isEmpty
-                  ? const Center(child: Text('No institutes', style: TextStyle(fontSize: 14)))
-                  : ListView.builder(
-                itemCount: institutes.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 4),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity.compact,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                      title: Text(institutes[index], style: const TextStyle(fontSize: 14)),
-                      trailing: SizedBox(
-                        width: 80,
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, size: 18, color: Colors.green),
-                              padding: EdgeInsets.zero,
-                              onPressed: () async {
-                                final updated = await showDialog<String>(
-                                  context: context,
-                                  builder: (_) => EditInstituteDialog(
-                                    initialValue: institutes[index],
-                                  ),
-                                );
-
-                                if (updated != null && updated.trim().isNotEmpty) {
-                                  setState(() {
-                                    institutes[index] = updated.trim();
-                                  });
-                                }
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-                              padding: EdgeInsets.zero,
-                              onPressed: () {
-                                setState(() {
-                                  institutes.removeAt(index);
-                                });
-                              },
-                            ),
-                          ],
+              child:
+                  institutes.isEmpty
+                      ? const Center(
+                        child: Text(
+                          'No institutes',
+                          style: TextStyle(fontSize: 14),
                         ),
+                      )
+                      : ListView.builder(
+                        itemCount: institutes.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: ListTile(
+                              dense: true,
+                              visualDensity: VisualDensity.compact,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              title: Text(
+                                institutes[index],
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              trailing: SizedBox(
+                                width: 80,
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        size: 18,
+                                        color: Colors.green,
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () async {
+                                        final updated =
+                                            await showDialog<String>(
+                                              context: context,
+                                              builder:
+                                                  (_) => EditInstituteDialog(
+                                                    initialValue:
+                                                        institutes[index],
+                                                  ),
+                                            );
+
+                                        if (updated != null &&
+                                            updated.trim().isNotEmpty) {
+                                          setState(() {
+                                            institutes[index] = updated.trim();
+                                          });
+                                        }
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        size: 18,
+                                        color: Colors.red,
+                                      ),
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () {
+                                        setState(() {
+                                          institutes.removeAt(index);
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  );
-                },
-              ),
             ),
           ],
         ),
@@ -739,7 +632,10 @@ class _EditInstituteDialogState extends State<EditInstituteDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
@@ -764,11 +660,7 @@ class InfoBoxNoColor extends StatelessWidget {
   final String label;
   final String value;
 
-  const InfoBoxNoColor({
-    super.key,
-    required this.label,
-    required this.value,
-  });
+  const InfoBoxNoColor({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -810,6 +702,7 @@ class InfoBoxNoColor extends StatelessWidget {
     );
   }
 }
+
 class SmallDropdownField extends StatelessWidget {
   final String label;
   final String? selectedValue;
@@ -834,7 +727,10 @@ class SmallDropdownField extends StatelessWidget {
         hintText: label, // works like labelText in small mode
         items: options,
         initialItem: selectedValue,
-        closedHeaderPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: .8),
+        closedHeaderPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: .8,
+        ),
         decoration: CustomDropdownDecoration(
           closedBorder: Border.all(color: Colors.grey),
           closedBorderRadius: BorderRadius.circular(4),
@@ -846,7 +742,8 @@ class SmallDropdownField extends StatelessWidget {
         ),
         onChanged: onChanged,
       ),
-    );  }
+    );
+  }
 }
 
 class DateTimePickerExample extends StatefulWidget {
@@ -877,7 +774,10 @@ class _DateTimePickerExampleState extends State<DateTimePickerExample> {
               style: TextButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),
                 ),
@@ -888,8 +788,16 @@ class _DateTimePickerExampleState extends State<DateTimePickerExample> {
               ),
             ),
             textTheme: const TextTheme(
-              headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
-              titleSmall: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
+              headlineSmall: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+              titleSmall: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
               bodyLarge: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
@@ -914,11 +822,17 @@ class _DateTimePickerExampleState extends State<DateTimePickerExample> {
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
-                  textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               dialogTheme: DialogTheme(
@@ -962,11 +876,7 @@ class _DateTimePickerExampleState extends State<DateTimePickerExample> {
             labelText: label,
             labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
             border: const OutlineInputBorder(),
-            suffixIcon: Icon(
-              icon,
-              color: Colors.red,
-              size: 22,
-            ),
+            suffixIcon: Icon(icon, color: Colors.red, size: 22),
           ),
           child: Text(
             DateFormat(dateFormat).format(selectedDateTime),
@@ -991,8 +901,6 @@ class _DateTimePickerExampleState extends State<DateTimePickerExample> {
     );
   }
 }
-
-
 
 class CustomDateField extends StatelessWidget {
   final String label;
@@ -1032,15 +940,17 @@ class CustomDateField extends StatelessWidget {
           focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 1),
           ),
-          suffixIcon: const Icon(Icons.calendar_month, color: Colors.red, size: 20),
+          suffixIcon: const Icon(
+            Icons.calendar_month,
+            color: Colors.red,
+            size: 20,
+          ),
         ),
         style: const TextStyle(fontSize: 16, color: Colors.black),
       ),
     );
   }
 }
-
-
 
 class CustomDateNotificationField extends StatelessWidget {
   final String label;
@@ -1075,16 +985,26 @@ class CustomDateNotificationField extends StatelessWidget {
           hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
           labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
           border: const OutlineInputBorder(),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5), // ⬅️ Shrinks field height
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 5,
+            vertical: 5,
+          ), // ⬅️ Shrinks field height
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey),
           ),
           focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 1),
           ),
-          suffixIcon: const Icon(Icons.alarm_on_sharp, color: Colors.red, size: 20),
+          suffixIcon: const Icon(
+            Icons.alarm_on_sharp,
+            color: Colors.red,
+            size: 20,
+          ),
         ),
-        style: const TextStyle(fontSize: 10, color: Colors.black), // ⬅️ Slightly smaller font
+        style: const TextStyle(
+          fontSize: 10,
+          color: Colors.black,
+        ), // ⬅️ Slightly smaller font
       ),
     );
   }
@@ -1145,19 +1065,17 @@ class ConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8)
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       title: Text(title),
       content: Text(content),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text(cancelText,style: TextStyle(color: Colors.grey),),
+          child: Text(cancelText, style: TextStyle(color: Colors.grey)),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
-          child: Text(confirmText,style: TextStyle(color: Colors.red)),
+          child: Text(confirmText, style: TextStyle(color: Colors.red)),
         ),
       ],
     );
@@ -1194,7 +1112,10 @@ class CustomCompactTextField extends StatelessWidget {
           hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
           labelStyle: const TextStyle(fontSize: 14, color: Colors.grey),
           border: const OutlineInputBorder(),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 5,
+            vertical: 5,
+          ),
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey),
           ),
@@ -1207,6 +1128,7 @@ class CustomCompactTextField extends StatelessWidget {
     );
   }
 }
+
 // logout button
 class HoverLogoutButton extends StatefulWidget {
   final double width;
@@ -1239,8 +1161,9 @@ class _HoverLogoutButtonState extends State<HoverLogoutButton> {
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       child: GestureDetector(
-        onTap: widget.onTap ??
-                () {
+        onTap:
+            widget.onTap ??
+            () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const LogScreen()),
