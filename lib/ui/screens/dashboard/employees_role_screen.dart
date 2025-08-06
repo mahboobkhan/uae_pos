@@ -423,7 +423,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Manage Access For ${userAccess['name']}"),
+                  Text("Manage Access For ${userAccess}"),
                   SizedBox(height: 12),
                   SizedBox(
                     width: 230,
