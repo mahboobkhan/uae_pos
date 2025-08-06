@@ -38,9 +38,22 @@ class EmployeeProvider extends ChangeNotifier {
       if (streamedResponse.statusCode == 200) {
         final responseBody = await streamedResponse.stream.bytesToString();
 
+        print("🧾 Raw API Response:");
+        debugPrint(responseBody);
+
         final jsonMap = jsonDecode(responseBody);
+
         if (jsonMap is Map<String, dynamic>) {
-          _data = AllEmployeeData.fromJson(jsonMap);
+          try {
+            print("✅ Starting AllEmployeeData parsing...");
+            _data = AllEmployeeData.fromJson(jsonMap);
+            print("✅ Successfully parsed AllEmployeeData");
+          } catch (e, stackTrace) {
+            print("❌ Failed during AllEmployeeData parsing: $e");
+            print("🔍 Partial JSON: ${jsonEncode(jsonMap)}");
+            print("📍 Stack Trace: $stackTrace");
+            _error = "Parsing error: $e";
+          }
         } else {
           _error = "Invalid response format.";
         }
@@ -48,13 +61,14 @@ class EmployeeProvider extends ChangeNotifier {
         _error = "Server Error: ${streamedResponse.statusCode}";
       }
     } on TimeoutException {
-      print("time out");
+      print("⏱️ Timeout: API took too long.");
       _error = "Connection timed out.";
     } on http.ClientException catch (e) {
-      print(e);
+      print("📡 ClientException: ${e.message}");
       _error = "Client error: ${e.message}";
-    } catch (e) {
-      print(e);
+    } catch (e, stackTrace) {
+      print("🚨 Unexpected error: $e");
+      print(stackTrace);
       _error = "Unexpected error: $e";
     }
 

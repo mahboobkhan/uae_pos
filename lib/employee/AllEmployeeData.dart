@@ -29,33 +29,57 @@ class AllEmployeeData {
 
   factory AllEmployeeData.fromJson(Map<String, dynamic> json) {
     return AllEmployeeData(
-      status: json['status'],
-      employees: List<Employee>.from(
-        json['employees'].map((x) => Employee.fromJson(x)),
-      ),
-      allProfiles: List<Profile>.from(
-        json['all_profiles'].map((x) => Profile.fromJson(x)),
-      ),
-      allUserAccess: List<UserAccess>.from(
-        json['all_user_access'].map((x) => UserAccess.fromJson(x)),
-      ),
-      allEmployeeTypes: List<EmployeeType>.from(
-        json['all_employee_types'].map((x) => EmployeeType.fromJson(x)),
-      ),
-      allDesignations: List<Designation>.from(
-        json['all_designations'].map((x) => Designation.fromJson(x)),
-      ),
-      allBanks: List<Bank>.from(json['all_banks'].map((x) => Bank.fromJson(x))),
-      allUserBankAccounts: List<BankAccount>.from(
-        json['all_user_bank_accounts'].map((x) => BankAccount.fromJson(x)),
-      ),
-      allTags: List<Tag>.from(json['all_tags'].map((x) => Tag.fromJson(x))),
-      allMonthlySalaries: List<Salary>.from(
-        json['all_monthly_salaries'].map((x) => Salary.fromJson(x)),
-      ),
-      allPaymentMethods: List<PaymentMethod>.from(
-        json['all_payment_methods'].map((x) => PaymentMethod.fromJson(x)),
-      ),
+      status: json['status'] ?? '',
+      employees:
+          (json['employees'] as List<dynamic>?)
+              ?.map((x) => Employee.fromJson(x))
+              .toList() ??
+          [],
+      allProfiles:
+          (json['all_profiles'] as List<dynamic>?)
+              ?.map((x) => Profile.fromJson(x))
+              .toList() ??
+          [],
+      allUserAccess:
+          (json['all_user_access'] as List<dynamic>?)
+              ?.map((x) => UserAccess.fromJson(x))
+              .toList() ??
+          [],
+      allEmployeeTypes:
+          (json['all_employee_types'] as List<dynamic>?)
+              ?.map((x) => EmployeeType.fromJson(x))
+              .toList() ??
+          [],
+      allDesignations:
+          (json['all_designations'] as List<dynamic>?)
+              ?.map((x) => Designation.fromJson(x))
+              .toList() ??
+          [],
+      allBanks:
+          (json['all_banks'] as List<dynamic>?)
+              ?.map((x) => Bank.fromJson(x))
+              .toList() ??
+          [],
+      allUserBankAccounts:
+          (json['all_user_bank_accounts'] as List<dynamic>?)
+              ?.map((x) => BankAccount.fromJson(x))
+              .toList() ??
+          [],
+      allTags:
+          (json['all_tags'] as List<dynamic>?)
+              ?.map((x) => Tag.fromJson(x))
+              .toList() ??
+          [],
+      allMonthlySalaries:
+          (json['all_monthly_salaries'] as List<dynamic>?)
+              ?.map((x) => Salary.fromJson(x))
+              .toList() ??
+          [],
+      allPaymentMethods:
+          (json['all_payment_methods'] as List<dynamic>?)
+              ?.map((x) => PaymentMethod.fromJson(x))
+              .toList() ??
+          [],
     );
   }
 }
