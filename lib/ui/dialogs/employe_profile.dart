@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../employee/employee_models.dart';
 import '../../providers/desigination_provider.dart';
 import '../../providers/designation_delete_provider.dart';
 import '../../providers/update_designation.dart';
@@ -12,7 +13,10 @@ import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
-void EmployeeProfileDialog(BuildContext context, Map<String, dynamic>? user) {
+void EmployeeProfileDialog(
+  BuildContext context,
+  MapEntry<int, Employee> singleEmployee,
+) {
   showDialog(
     context: context,
     builder: (context) {
@@ -21,16 +25,16 @@ void EmployeeProfileDialog(BuildContext context, Map<String, dynamic>? user) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
-        child: EmployeProfile(user: user),
+        child: EmployeProfile(singleEmployee: singleEmployee),
       );
     },
   );
 }
 
 class EmployeProfile extends StatefulWidget {
-  Map<String, dynamic>? user; // Add any other parameters you need
+  MapEntry<int, Employee> singleEmployee; // Add any other parameters you need
 
-  EmployeProfile({super.key, required this.user});
+  EmployeProfile({super.key, required this.singleEmployee});
 
   @override
   State<EmployeProfile> createState() => _EmployeProfileState();
@@ -87,11 +91,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
     super.initState();
     _loadUserId();
 
-    final user = widget.user;
+    final singleEmployee = widget.singleEmployee;
 
-    _employeeNameController.text = user?['name']?.toString() ?? '';
-    _emailIdController.text = user?['email']?.toString() ?? '';
-    userId = widget.user?['user_id']?.toString() ?? '';
+    _employeeNameController.text =
+        singleEmployee.value.employeeName.toString() ?? '';
+    _emailIdController.text = singleEmployee.value.email.toString() ?? '';
+    userId = widget.singleEmployee.value.userId.toString() ?? '';
   }
 
   /// ✅ Function should be OUTSIDE initState
@@ -106,117 +111,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
     });
   }
 
-  /*  Future<void> _submitProfile(BuildContext context) async {
-    if (_employeeNameController.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => const ErrorDialog(message: 'Employee name is required'),
-      );
-      return;
-    }
-
-    if (_contactNumber1.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => const ErrorDialog(message: 'Primary contact number is required'),
-      );
-      return;
-    }
-
-    if (_emailIdController.text.isEmpty || !_emailIdController.text.contains('@')) {
-      showDialog(
-        context: context,
-        builder: (context) => const ErrorDialog(message: 'Valid email address is required'),
-      );
-      return;
-    }
-
-    if (_joiningDateController.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => const ErrorDialog(message: 'Joining date is required'),
-      );
-      return;
-    }
-
-    if (_emiratesIdController.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => const ErrorDialog(message: 'Emirates ID is required'),
-      );
-      return;
-    }
-
-    // Only required data is sent with optional values handled safely
-    final profileData = {
-      // ✅ Required fields
-      "user_id": userId,
-      "employee_name": _employeeNameController.text,
-      "personal_phone": _contactNumber1.text,
-      "email": _emailIdController.text,
-      "joining_date": _formatDate(_joiningDateController.text),
-      "emirate_id": _emiratesIdController.text,
-
-      // Optional but sending empty if not provided
-      "alternate_phone": _contactNumber2Controller.text.trim(),
-      "home_phone": _homeContactNumberController.text.trim(),
-      "work_permit_number": _workPermitNumberController.text.trim(),
-      "contract_expiry_date": _formatDate(_contractExpiryController.text.trim()),
-      "date_of_birth": _formatDate(_birthDateController.text.trim()),
-      "increment_amount": double.tryParse(_incrementController.text.trim()) ?? 0.0,
-      "next_increment_date": _formatDate(_dateTimeController.text.trim()),
-      "working_hours": _workingHoursController.text.trim(),
-      "physical_address": _physicalAddressController.text.trim(),
-      "extra_note_1": _noteController.text.trim(),
-
-      // Static or default values
-      "gender": selectedJobType4 ?? "",
-      "emp_designation": selectedJobType ?? "",
-      "employee_type": selectedJobType3 ?? "",
-      "payment_method": selectedJobType2 ?? "",
-      "is_user_active": true,
-      "profile_edited_by_username": "admin_user",
-      "country": "UAE",
-
-      // Optional or not used — send empty
-      "nickname": "",
-      "blood_group": "",
-      "father_name": "",
-      "religion": "",
-      "permanent_address": "",
-      "extra_note_2": "",
-      "marital_status": "",
-      "number_of_children": 0,
-      "tag": "",
-    };
-
-    final provider = Provider.of<SignupProvider>(context, listen: false);
-    final result = await provider.createEmployeeProfile(profileData);
-
-    if (!mounted) return;
-
-    if (result['success'] == true) {
-      await provider.fetchEmployees(); // ✅ Add this line to refresh employee list
-      showDialog(
-        context: context,
-        builder: (context) => SuccessDialog(message: result['message']),
-      ).then((_) => Navigator.of(context).pop());
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => ErrorDialog(message: result['message']),
-      );
-    }
-  }
-  String _formatDate(String inputDate) {
-    // This should convert from your display format "dd-MM-yyyy" to API format "yyyy-MM-dd"
-    try {
-      final parsedDate = DateFormat('dd-MM-yyyy').parse(inputDate);
-      return DateFormat('yyyy-MM-dd').format(parsedDate);
-    } catch (e) {
-      return ""; // or handle error appropriately
-    }
-  }*/
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -355,13 +249,16 @@ class _EmployeProfileState extends State<EmployeProfile> {
                       CustomDropdownField(
                         label: "Job Position",
                         options: ['Manager', 'Employee', 'Other'],
-                        selectedValue: selectedJobType, // ✅ Use local state, not provider
+                        selectedValue:
+                            selectedJobType, // ✅ Use local state, not provider
                         onChanged: (value) {
                           setState(() {
                             selectedJobType = value;
                           });
                           // ✅ Just store in provider (no rebuild trigger)
-                          context.read<DesignationProvider>().setDesignation(value!);
+                          context.read<DesignationProvider>().setDesignation(
+                            value!,
+                          );
                         },
                       ),
 
@@ -782,10 +679,13 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     onPressed: () async {
                       final provider = context.read<DesignationProvider>();
 
-                      final selected = provider.selectedDesignation?.trim() ?? "";
+                      final selected =
+                          provider.selectedDesignation?.trim() ?? "";
                       if (selected.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Please select a job position first")),
+                          const SnackBar(
+                            content: Text("Please select a job position first"),
+                          ),
                         );
                         return;
                       }
@@ -799,22 +699,32 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         createdBy: userId,
                       );
 
-                      print("📦 Sending to API: ${jsonEncode(request.toJson())}");
+                      print(
+                        "📦 Sending to API: ${jsonEncode(request.toJson())}",
+                      );
 
                       await provider.createDesignation(request);
 
                       // ✅ Show correct API message immediately
                       if (provider.state == RequestState.success) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("✅ Designation '$selected' created successfully")),
+                          SnackBar(
+                            content: Text(
+                              "✅ Designation '$selected' created successfully",
+                            ),
+                          ),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("❌ ${provider.errorMessage ?? "Something went wrong"}")),
+                          SnackBar(
+                            content: Text(
+                              "❌ ${provider.errorMessage ?? "Something went wrong"}",
+                            ),
+                          ),
                         );
                       }
                     },
-                  )
+                  ),
                 ],
               ),
             ],
