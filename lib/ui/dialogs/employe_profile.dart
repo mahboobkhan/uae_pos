@@ -1,16 +1,18 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../providers/create_payment_method_provider.dart';
+import '../../providers/create_salary_provider.dart';
 import '../../providers/desigination_provider.dart';
 import '../../providers/designation_delete_provider.dart';
 import '../../providers/update_designation.dart';
+import '../../widgets/loading_dialog.dart';
 import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
+import 'package:provider/provider.dart';
 
 void EmployeeProfileDialog(BuildContext context, Map<String, dynamic>? user) {
   showDialog(
@@ -88,7 +90,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
     _loadUserId();
 
     final user = widget.user;
-
+    Future.microtask(
+      () => context.read<DesignationProvider>().loadDesignation(),
+    );
     _employeeNameController.text = user?['name']?.toString() ?? '';
     _emailIdController.text = user?['email']?.toString() ?? '';
     userId = widget.user?['user_id']?.toString() ?? '';
@@ -219,6 +223,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
   }*/
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<DesignationProvider>();
+    final paymentProvider = context.watch<PaymentMethodProvider>();
+
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -355,92 +362,19 @@ class _EmployeProfileState extends State<EmployeProfile> {
                       CustomDropdownField(
                         label: "Job Position",
                         options: ['Manager', 'Employee', 'Other'],
-                        selectedValue: selectedJobType, // ✅ Use local state, not provider
+                        selectedValue:
+                            selectedJobType ??
+                            (provider.getDesignation().isNotEmpty
+                                ? provider.getDesignation()
+                                : null),
                         onChanged: (value) {
-                          setState(() {
-                            selectedJobType = value;
-                          });
-                          // ✅ Just store in provider (no rebuild trigger)
-                          context.read<DesignationProvider>().setDesignation(value!);
+                          setState(() => selectedJobType = value);
+                          provider.setDesignation(value!);
                         },
                       ),
 
                       const SizedBox(height: 10),
-
-                      // 🔵 Update Button
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.update),
-                        label: const Text("Update"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () async {
-                          print("🔹 Update button pressed");
-
-                          final selected =
-                              context
-                                  .read<DesignationProvider>()
-                                  .selectedDesignation;
-                          print("🔹 Selected designation: $selected");
-
-                          if (selected == null || selected.isEmpty) {
-                            print("❌ No designation selected");
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Please select a job position first",
-                                ),
-                              ),
-                            );
-                            return;
-                          }
-
-                          print("⏳ Calling update API...");
-                          await context
-                              .read<DesignationUpdateProvider>()
-                              .updateDesignation(
-                                DesignationUpdateRequest(
-                                  id: 5, // Replace with actual user/employee ID
-                                  newDesignations: selected,
-                                ),
-                              );
-
-                          final provider =
-                              context.read<DesignationUpdateProvider>();
-                          print(
-                            "📌 Provider state after update: ${provider.state}",
-                          );
-
-                          if (provider.state == RequestState.success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Designation updated to $selected",
-                                ),
-                              ),
-                            );
-                          } else if (provider.state == RequestState.error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  provider.errorMessage ?? "Update failed",
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-
-                      const SizedBox(height: 10),
-                      // 🔴 Delete Button
+                  /*    // 🔵 Update Button
                       ElevatedButton.icon(
                         icon: const Icon(Icons.delete),
                         label: const Text("Delete"),
@@ -517,7 +451,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           }
                         },
                       ),
-                    ],
+*/                    ],
                   ),
                   CustomTextField(
                     label: "Contact Number",
@@ -640,6 +574,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
                       setState(() {
                         selectedJobType2 = value;
                       });
+                     /* context.read<PaymentMethodProvider>().setPaymentMethod(
+                        value!,
+                      );*/
                     },
                   ),
                   CustomTextField(
@@ -780,47 +717,41 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     text: "Submit",
                     backgroundColor: Colors.green,
                     onPressed: () async {
-                      final provider = context.read<DesignationProvider>();
 
-                      final selected = provider.selectedDesignation?.trim() ?? "";
-                      if (selected.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Please select a job position first")),
-                        );
-                        return;
-                      }
-
-                      final prefs = await SharedPreferences.getInstance();
-                      final userId = prefs.getString("user_id") ?? "0";
-
-                      final request = DesignationRequest(
-                        userId: userId,
-                        designations: selected,
-                        createdBy: userId,
-                      );
-
-                      print("📦 Sending to API: ${jsonEncode(request.toJson())}");
-
-                      await provider.createDesignation(request);
-
-                      // ✅ Show correct API message immediately
-                      if (provider.state == RequestState.success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("✅ Designation '$selected' created successfully")),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("❌ ${provider.errorMessage ?? "Something went wrong"}")),
-                        );
-                      }
                     },
-                  )
+                  ),
                 ],
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showMessageDialog(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color:
+                    title.toLowerCase() == "success"
+                        ? Colors.green
+                        : Colors.red,
+              ),
+            ),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
     );
   }
 

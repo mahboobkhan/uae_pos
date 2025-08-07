@@ -50,6 +50,7 @@ class DesignationProvider with ChangeNotifier {
     try {
       // ✅ Reset state but don't clear errorMessage here
       state = RequestState.loading;
+      errorMessage = null;
       notifyListeners();
 
       print("⏳ Step 2: Sending request to API...");
@@ -66,20 +67,13 @@ class DesignationProvider with ChangeNotifier {
       final res = DesignationResponse.fromJson(json);
 
       if (res.status.toLowerCase() == "success") {
-        print("✅ Step 4: Success - Saving locally");
-        _designations.add(request);
-
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('selected_designation', request.designations);
-
-        selectedDesignation = request.designations;
         state = RequestState.success;
-        errorMessage = null; // ✅ No error
+        errorMessage = null; // Keep success clean
       } else {
-        print("⚠️ Step 4: API Error - ${res.message}");
         state = RequestState.error;
-        errorMessage = res.message; // ✅ Store real API error
+        errorMessage = res.message; // Store exact API message
       }
+
     } catch (e) {
       print("💥 Step 5: Exception - $e");
       state = RequestState.error;
