@@ -9,6 +9,7 @@ import 'package:abc_consultant/providers/desigination_provider.dart';
 import 'package:abc_consultant/providers/designation_delete_provider.dart';
 import 'package:abc_consultant/providers/designation_list_provider.dart';
 import 'package:abc_consultant/providers/signup_provider.dart';
+import 'package:abc_consultant/providers/update_ban_account_provider.dart';
 import 'package:abc_consultant/providers/update_designation.dart';
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => SignupProvider()),
         ChangeNotifierProvider(create: (_) => EmployeeProvider()),
+        ChangeNotifierProvider(create: (_) => UpdateUserBankAccountProvider()),
         ChangeNotifierProvider(create: (_) => DesignationProvider()),
         ChangeNotifierProvider(create: (_) => DesignationUpdateProvider()),
         ChangeNotifierProvider(create: (_) => DesignationDeleteProvider()),
@@ -42,7 +44,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => CreateMonthlySalaryProvider()),
         ChangeNotifierProvider(create: (_) => CreateUserBankAccountProvider()),
         ChangeNotifierProvider(create: (_) => PaymentMethodProvider()),
-        ChangeNotifierProvider(create: (_)=> EmployeeTypeProvider())
+        ChangeNotifierProvider(create: (_) => EmployeeTypeProvider()),
       ],
 
       child: const MyApp(),

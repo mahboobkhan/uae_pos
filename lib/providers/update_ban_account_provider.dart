@@ -1,5 +1,7 @@
-// providers/update_user_bank_account_provider.dart
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -11,79 +13,109 @@ class UpdateUserBankAccountProvider extends ChangeNotifier {
   RequestState state = RequestState.idle;
   String? errorMessage;
 
-  /// Internet check
+  static const String _apiUrl =
+      "https://abcwebservices.com/api/employee/update_user_bank_account.php";
+  static const String _localStorageKey = "last_updated_bank_account";
+
+  /// Check for active internet connection
   Future<bool> _hasInternet() async {
     final result = await Connectivity().checkConnectivity();
     return result != ConnectivityResult.none;
   }
 
-  /// Update Bank Account
+  /// Update user bank account via API
   Future<void> updateBankAccount(UpdateUserBankAccountRequest request) async {
     if (!await _hasInternet()) {
-      errorMessage = "No internet connection";
-      state = RequestState.error;
-      notifyListeners();
-      print("❌ No internet connection");
+      _setError("No internet connection");
       return;
     }
 
     try {
-      print("⏳ Updating bank account...");
-      state = RequestState.loading;
-      notifyListeners();
+      _setLoading();
 
-      final response = await http.post(
-        Uri.parse("https://abcwebservices.com/api/employee/update_user_bank_account.php"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(request.toJson()),
-      );
+      final response = await http
+          .post(
+            Uri.parse(_apiUrl),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(request.toJson()),
+          )
+          .timeout(const Duration(seconds: 10));
 
       print("📥 API Response: ${response.body}");
-      final data = jsonDecode(response.body);
-      final res = UpdateUserBankAccountResponse.fromJson(data);
 
-      if (res.status == "success") {
-        state = RequestState.success;
-        print("✅ Bank account updated successfully");
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final res = UpdateUserBankAccountResponse.fromJson(json);
 
-        // Save last updated account locally
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("last_updated_bank_account", jsonEncode(request.toJson()));
-        print("💾 Saved last updated bank account locally");
+        if (res.status == "success") {
+          _setSuccess();
+          await _saveToLocal(request);
+        } else {
+          _setError(res.message);
+        }
       } else {
-        errorMessage = res.message;
-        state = RequestState.error;
-        print("⚠️ Update failed: ${res.message}");
+        _setError("Server error: ${response.statusCode}");
       }
+    } on SocketException {
+      _setError("No internet connection (socket)");
+    } on http.ClientException catch (e) {
+      _setError("Client error: ${e.message}");
+    } on TimeoutException {
+      _setError("Request timed out");
     } catch (e) {
-      errorMessage = e.toString();
-      state = RequestState.error;
-      print("❌ Exception: $e");
+      _setError("Unexpected error: $e");
     }
-
-    notifyListeners();
   }
 
-  /// Get last updated bank account from SharedPreferences
+  /// Save last updated account locally
+  Future<void> _saveToLocal(UpdateUserBankAccountRequest request) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_localStorageKey, jsonEncode(request.toJson()));
+    print("💾 Saved last updated bank account locally");
+  }
+
+  /// Retrieve last saved account (optional use)
   Future<Map<String, dynamic>?> getLastUpdatedAccount() async {
     final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString("last_updated_bank_account");
+    final saved = prefs.getString(_localStorageKey);
     if (saved != null) {
-      print("📌 Retrieved last updated bank account");
+      print("📌 Retrieved last updated bank account from local storage");
       return jsonDecode(saved);
     }
     return null;
   }
+
+  /// Set provider state to loading
+  void _setLoading() {
+    state = RequestState.loading;
+    errorMessage = null;
+    notifyListeners();
+    print("⏳ Updating bank account...");
+  }
+
+  /// Set provider state to success
+  void _setSuccess() {
+    state = RequestState.success;
+    errorMessage = null;
+    notifyListeners();
+    print("✅ Bank account updated successfully");
+  }
+
+  /// Set provider state to error with message
+  void _setError(String message) {
+    state = RequestState.error;
+    errorMessage = message;
+    notifyListeners();
+    print("❌ $message");
+  }
 }
+
 // models/update_user_bank_account_response.dart
 class UpdateUserBankAccountResponse {
   final String status;
   final String message;
 
-  UpdateUserBankAccountResponse({
-    required this.status,
-    required this.message,
-  });
+  UpdateUserBankAccountResponse({required this.status, required this.message});
 
   factory UpdateUserBankAccountResponse.fromJson(Map<String, dynamic> json) {
     return UpdateUserBankAccountResponse(
@@ -92,6 +124,7 @@ class UpdateUserBankAccountResponse {
     );
   }
 }
+
 // models/update_user_bank_account_request.dart
 class UpdateUserBankAccountRequest {
   final String userId;

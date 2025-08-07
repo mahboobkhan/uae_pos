@@ -3,11 +3,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../employee/AllEmployeeData.dart';
 import '../../employee/EmployeeProvider.dart';
 import '../../employee/employee_models.dart';
 import '../../providers/create_payment_method_provider.dart';
 import '../../providers/desigination_provider.dart';
 import '../../providers/designation_delete_provider.dart';
+import '../../providers/update_ban_account_provider.dart';
 import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
@@ -15,9 +17,7 @@ import 'custom_fields.dart';
 void EmployeeProfileDialog(
   BuildContext context,
   MapEntry<int, Employee> singleEmployee,
-  //  MapEntry<int, BankAccount> bankAccount,
-
-    // MapEntry<int, BankAccount> bankAccount,
+  AllEmployeeData? data,
 ) {
   showDialog(
     context: context,
@@ -27,10 +27,7 @@ void EmployeeProfileDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
-        child: EmployeProfile(
-         // bankAccount: bankAccount,
-          singleEmployee: singleEmployee,
-        ),
+        child: EmployeProfile(data: data, singleEmployee: singleEmployee),
       );
     },
   );
@@ -38,13 +35,8 @@ void EmployeeProfileDialog(
 
 class EmployeProfile extends StatefulWidget {
   MapEntry<int, Employee> singleEmployee; // Add any other parameters you need
-  //MapEntry<int, BankAccount> bankAccount; // ✅ Change this
-
-  EmployeProfile({
-    super.key,
-    required this.singleEmployee,
-   // required this.bankAccount,
-  });
+  AllEmployeeData? data;
+  EmployeProfile({super.key, required this.singleEmployee, required this.data});
 
   @override
   State<EmployeProfile> createState() => _EmployeProfileState();
@@ -79,13 +71,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _workingHoursController = TextEditingController();
 
   String? selectedJobType;
-  String? selectedJobType2;
+  // String? selectedJobType2;
   String? selectedJobType3;
   String? selectedGender;
   final List<String> jobTypeOptions = ['Cleaning', 'Consultining', 'Reparing'];
   final List<String> genderOptions = ['Male', 'Female', 'Other'];
   final List<String> jobPositionOptions = ['Manager', 'Employee', 'Other'];
-  final List<String> bankOptions = ['Ubl', 'Hbl', 'Mezan', 'Cheque', 'Cash'];
 
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
@@ -102,7 +93,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
     super.initState();
 
     final singleEmployee = widget.singleEmployee;
-   // final bankAccount = widget.bankAccount;
 
     _employeeNameController.text =
         singleEmployee.value.employeeName.toString() ?? '';
@@ -117,17 +107,19 @@ class _EmployeProfileState extends State<EmployeProfile> {
     } else {
       selectedJobType3 = null; // or set to default like jobTypeOptions.first
     }
-    final incomingGender = singleEmployee.value.gender?.trim();
+    final incomingGender = singleEmployee.value.gender.trim();
     selectedGender =
-        genderOptions.contains(incomingGender) ? incomingGender : null;
-    final incomingPosition = singleEmployee.value.empDesignation?.trim();
-    selectedJobType =
-        jobPositionOptions.contains(incomingPosition) ? incomingPosition : null;
+        genderOptions.contains(incomingGender) ? incomingGender : "Male";
 
-    // 🔄 Also update the provider (optional)
-    if (selectedJobType != null) {
-      context.read<DesignationProvider>().setDesignation(selectedJobType!);
-    }
+    final incomingPosition = singleEmployee.value.empDesignation.trim();
+    selectedJobType =
+        singleEmployee.value.allDesignations
+                .map((d) => d.designations)
+                .toList()
+                .contains(incomingPosition)
+            ? incomingPosition
+            : "Manager";
+
     _contactNumber1.text = singleEmployee.value.homePhone.toString() ?? '';
     _contactNumber2Controller.text =
         singleEmployee.value.homePhone.toString() ?? '';
@@ -151,16 +143,14 @@ class _EmployeProfileState extends State<EmployeProfile> {
     _physicalAddressController.text =
         singleEmployee.value.physicalAddress.toString() ?? '';
     _noteController.text = singleEmployee.value.extraNote1.toString() ?? '';
-   // _titleNameController.text = bankAccount.value.titleName;
-
+    // _titleNameController.text = bankAccount.value.titleName;
   }
-
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Consumer<EmployeeProvider>(
-        builder: (ctx, employeeProvider, _) {
+      child: Consumer<UpdateUserBankAccountProvider>(
+        builder: (ctx, updateUserBankAccountProvider, _) {
           return Dialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -306,7 +296,10 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           children: [
                             CustomDropdownField(
                               label: "Job Position",
-                              options: jobPositionOptions,
+                              options:
+                                  widget.singleEmployee.value.allDesignations
+                                      .map((d) => d.designations)
+                                      .toList(),
                               selectedValue: selectedJobType,
                               onChanged: (value) {
                                 setState(() {
@@ -438,15 +431,15 @@ class _EmployeProfileState extends State<EmployeProfile> {
                       children: [
                         CustomDropdownField(
                           label: "Select Bank",
-                          options: bankOptions,
-                          selectedValue: selectedJobType2,
+                          options:
+                              widget.data!.allBanks
+                                  .map((d) => d.bankName.trim())
+                                  .toList(),
+                          selectedValue: null,
                           onChanged: (value) {
                             setState(() {
-                              selectedJobType2 = value;
+                              //   selectedJobType2 = value;
                             });
-
-                            // ✅ Save to provider (optional but helpful)
-                            context.read<PaymentMethodProvider>().setPaymentMethod(value!);
                           },
                         ),
 
@@ -588,75 +581,23 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           text: "Submit",
                           backgroundColor: Colors.green,
                           onPressed: () async {
-                            final provider = context.read<PaymentMethodProvider>();
-
-                            if ((selectedJobType2 ?? "").isEmpty) {
-                              _showMessage(context, "Please select a bank/payment method");
-                              return;
-                            }
-
-                            provider.setPaymentMethod(selectedJobType2!);
-
-                            final request = PaymentMethodRequest(
-                              userId: "123",        // Replace with real user ID
-                              paymentMethod: selectedJobType2!,
-                              createdBy: "admin",   // Replace accordingly
+                            //  Navigator.of(context).pop(true);
+                            updateUserBankAccountProvider.updateBankAccount(
+                              UpdateUserBankAccountRequest(
+                                userId: widget.singleEmployee.value.userId,
+                                bankAccountNumber: '',
+                                bankName: _titleNameController.text,
+                                branchCode: 'N/A',
+                                bankAddress: 'N/A',
+                                titleName: '',
+                                ibanNumber: '',
+                                contactNumber: '',
+                                emailId: '',
+                                additionalNote: 'N/A',
+                              ),
                             );
 
-                            await provider.savePaymentMethod(request);
-
-                            if (provider.state == RequestState.success) {
-                              _showMessage(context, "Payment method saved successfully!");
-                            } else if (provider.state == RequestState.error) {
-                              _showMessage(context, provider.errorMessage ?? "Something went wrong");
-                            }
-                            /*final provider =
-                                context.read<DesignationProvider>();
-
-                            final selected =
-                                provider.selectedDesignation?.trim() ?? "";
-                            if (selected.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Please select a job position first",
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
-
-                            final prefs = await SharedPreferences.getInstance();
-                            final userId = prefs.getString("user_id") ?? "0";
-
-                            final request = DesignationRequest(
-                              userId: userId,
-                              designations: selected,
-                              createdBy: userId,
-                            );
-
-                            await provider.createDesignation(request);
-
-                            // ✅ Show correct API message immediately
-                            if (provider.state == RequestState.success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "✅ Designation '$selected' created successfully",
-                                  ),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "❌ ${provider.errorMessage ?? "Something went wrong"}",
-                                  ),
-                                ),
-                              );
-                            }*/
-
-
+                            //   Navigator.of(context).pop(true);
                           },
                         ),
                       ],
@@ -670,8 +611,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
       ),
     );
   }
+
   void _showMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _pickIssueDate() async {

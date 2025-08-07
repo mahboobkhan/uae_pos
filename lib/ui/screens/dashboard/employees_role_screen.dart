@@ -23,7 +23,6 @@ class EmployeesRoleScreen extends StatefulWidget {
 class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   List<Map<String, dynamic>> users = [];
   bool isLoading = true;
-
   String? selectedService;
 
   final ScrollController _verticalController = ScrollController();
@@ -53,7 +52,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     'Custom Range',
   ];
   String? selectedCategory3;
-  final List<String> jobPositionOptions = ['Manager', 'Employee', 'Other'];
 
   @override
   void initState() {
@@ -130,7 +128,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                         );
                                       },
                                     ),
-                                   /* CustomDropdown(
+                                    /* CustomDropdown(
                                       selectedValue: selectedCategory1,
                                       hintText: "Select Tags",
                                       items: categories1,
@@ -275,6 +273,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                         .value
                                                         .empDesignation,
                                               ),
+
                                               _buildCell(
                                                 singleEmployee
                                                     .value
@@ -284,14 +283,13 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                         .employeeType
                                                         .isEmpty
                                                     ? "N/A"
-                                                    : singleEmployee
-                                                        .value
-                                                        .employeeType,
+                                                    : "Role",
                                                 singleEmployee
                                                     .value
                                                     .employeeName,
                                                 singleEmployee.value.access,
                                               ),
+
                                               _buildActionCell(
                                                 onEdit: () {},
                                                 onDelete: () {},
@@ -300,7 +298,9 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                   EmployeeProfileDialog(
                                                     context,
                                                     singleEmployee,
-                                                  //  bankAccount,
+                                                    employeeProvider.data,
+
+                                                    //  bankAccount,
                                                   );
                                                 },
                                               ),
@@ -451,7 +451,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                     child: CustomDropdownField(
                       label: "Assign Designation ",
                       selectedValue: selectedService,
-                      options: jobPositionOptions,
+                      options: designation.map((d) => d.designations).toList(),
                       onChanged: (value) {
                         setState(() {
                           selectedService = value;
