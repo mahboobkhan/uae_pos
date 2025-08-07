@@ -20,7 +20,6 @@ void showCompanyProfileDialog(BuildContext context) {
   );
 }
 
-
 class CompanyProfile extends StatefulWidget {
   const CompanyProfile({super.key});
 
@@ -47,16 +46,16 @@ class CompanyProfileState extends State<CompanyProfile> {
               onPressed: () {
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () {
                 _issueDateController.text =
-                "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
+                    "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK",style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -92,7 +91,6 @@ class CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController advancePayment = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
-
 
   String? selectedPlatform;
   List<String> platformList = ['Bank', 'Violet', 'Other'];
@@ -160,7 +158,9 @@ class CompanyProfileState extends State<CompanyProfile> {
                             context: context,
                             builder:
                                 (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                   backgroundColor: Colors.white,
                                   title: const Text("Are you sure?"),
                                   content: const Text(
@@ -199,7 +199,7 @@ class CompanyProfileState extends State<CompanyProfile> {
               ),
               Text(
                 'ORN.0001-0000002', // Static example ID
-                style: TextStyle(fontSize: 12,),
+                style: TextStyle(fontSize: 12),
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -303,12 +303,13 @@ class CompanyProfileState extends State<CompanyProfile> {
                             onTap: _pickDateTime2,
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                            },
+                            onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               minimumSize: const Size(150, 38),
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                   4,
@@ -337,8 +338,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                         ],
                       ),
                     ],
-                  )
-
+                  ),
                 ],
               ),
               SizedBox(height: 10),
@@ -373,17 +373,17 @@ class CompanyProfileState extends State<CompanyProfile> {
                   ),
                   SizedBox(
                     width: 220,
-                    child: CustomDropdownWithRightAdd(
-                      label: "Select Platform",
-                      value: selectedPlatform,
-                      items: platformList,
-                      onChanged: (newValue) {
-                        // Update selectedPlatform state in parent
-                      },
-                      onAddPressed: () {
-                        showInstituteManagementDialog(context);
-                      },
-                    ),
+                    // child: CustomDropdownWithRightAdd(
+                    //   label: "Select Platform",
+                    //   value: selectedPlatform,
+                    //   items: platformList,
+                    //   onChanged: (newValue) {
+                    //     // Update selectedPlatform state in parent
+                    //   },
+                    //   onAddPressed: () {
+                    //     showInstituteManagementDialog(context);
+                    //   },
+                    // ),
                   ),
                   CustomTextField(
                     label: " Name",
@@ -461,12 +461,13 @@ class CompanyProfileState extends State<CompanyProfile> {
                             onTap: _pickDateTime,
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                            },
+                            onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               minimumSize: const Size(150, 38),
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                   4,
@@ -524,23 +525,25 @@ class CompanyProfileState extends State<CompanyProfile> {
                 ],
               ),
               SizedBox(height: 10),*/
-              SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Row(
-                children: [
-                  CustomButton(
-                    text: "Editing",
-                    backgroundColor: Colors.blue,
-                    onPressed: () {},
-                  ),
-                  const SizedBox(width: 10),
-                  CustomButton(
-                    text: "Submit",
-                    backgroundColor: Colors.green,
-                    onPressed: () {},
+                    children: [
+                      CustomButton(
+                        text: "Editing",
+                        backgroundColor: Colors.blue,
+                        onPressed: () {},
+                      ),
+                      const SizedBox(width: 10),
+                      CustomButton(
+                        text: "Submit",
+                        backgroundColor: Colors.green,
+                        onPressed: () {},
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ])],
+            ],
           ),
         ),
       ),
@@ -565,16 +568,16 @@ class CompanyProfileState extends State<CompanyProfile> {
               onPressed: () {
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("Cancel",style: TextStyle(color: Colors.grey),),
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () {
                 _issueDateController.text =
-                "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
+                    "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK",style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -582,8 +585,6 @@ class CompanyProfileState extends State<CompanyProfile> {
     );
   }
 }
-
-
 
 void _showEditDialog(
   BuildContext context,
@@ -765,76 +766,76 @@ void showInstituteManagementDialog(BuildContext context) {
                   // Compact list
                   Expanded(
                     child:
-                    institutes.isEmpty
-                        ? const Center(
-                      child: Text(
-                        'No institutes',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    )
-                        : ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: institutes.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: ListTile(
-                            dense: true,
-                            // Makes tiles more compact
-                            visualDensity: VisualDensity.compact,
-                            // Even more compact
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                            ),
-                            title: Text(
-                              institutes[index],
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            trailing: SizedBox(
-                              width:
-                              80, // Constrained width for buttons
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.edit,
-                                      size: 18,
-                                      color: Colors.green,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    onPressed:
-                                        () => _showEditDialog(
-                                      context,
-                                      setState,
-                                      institutes,
-                                      index,
-                                      editController,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      size: 18,
-                                      color: Colors.red,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      setState(() {
-                                        institutes.removeAt(index);
-                                      });
-                                    },
-                                  ),
-                                ],
+                        institutes.isEmpty
+                            ? const Center(
+                              child: Text(
+                                'No institutes',
+                                style: TextStyle(fontSize: 14),
                               ),
+                            )
+                            : ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: institutes.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: ListTile(
+                                    dense: true,
+                                    // Makes tiles more compact
+                                    visualDensity: VisualDensity.compact,
+                                    // Even more compact
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    title: Text(
+                                      institutes[index],
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    trailing: SizedBox(
+                                      width:
+                                          80, // Constrained width for buttons
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              size: 18,
+                                              color: Colors.green,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            onPressed:
+                                                () => _showEditDialog(
+                                                  context,
+                                                  setState,
+                                                  institutes,
+                                                  index,
+                                                  editController,
+                                                ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              size: 18,
+                                              color: Colors.red,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            onPressed: () {
+                                              setState(() {
+                                                institutes.removeAt(index);
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          ),
-                        );
-                      },
-                    ),
                   ),
                 ],
               ),

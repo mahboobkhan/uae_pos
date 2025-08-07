@@ -1,6 +1,9 @@
 import 'package:abc_consultant/providers/create_bank_account.dart';
 import 'package:abc_consultant/providers/create_payment_method_provider.dart';
 import 'package:abc_consultant/providers/create_salary_provider.dart';
+import 'package:abc_consultant/providers/create_bank_account.dart';
+import 'package:abc_consultant/providers/create_payment_method_provider.dart';
+import 'package:abc_consultant/providers/create_salary_provider.dart';
 import 'package:abc_consultant/providers/desigination_provider.dart';
 import 'package:abc_consultant/providers/designation_delete_provider.dart';
 import 'package:abc_consultant/providers/designation_list_provider.dart';
@@ -10,6 +13,10 @@ import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'employee/EmployeeProvider.dart';
+
+import 'employee/EmployeeProvider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +33,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SignupProvider()),
+        ChangeNotifierProvider(create: (_) => EmployeeProvider()),
         ChangeNotifierProvider(create: (_) => DesignationProvider()),
         ChangeNotifierProvider(create: (_) => DesignationUpdateProvider()),
         ChangeNotifierProvider(create: (_) => DesignationDeleteProvider()),
@@ -50,9 +58,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SidebarLayout(),
-      /*
-      home: UpdateDesignationScreen(employeeId: 0),
-*/
     );
     //home: SidebarLayout()
   }
