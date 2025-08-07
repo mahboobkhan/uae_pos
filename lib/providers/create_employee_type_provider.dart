@@ -3,6 +3,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../utils/request_state.dart';
 
 class EmployeeTypeProvider extends ChangeNotifier {
@@ -11,44 +12,45 @@ class EmployeeTypeProvider extends ChangeNotifier {
   String? selectedEmployeeType;
   List<String> employeeTypeList = [];
 
+  static const _savedKey = "saved_employee_type";
+  static const _listKey = "employee_type_list";
+
   /// Set employee type from dropdown/textfield
   void setEmployeeType(String value) {
     selectedEmployeeType = value;
     print("✅ Selected Employee Type set: $value");
+    notifyListeners();
   }
 
-  /// Internet check
+  /// Check for internet
   Future<bool> _hasInternet() async {
     final result = await Connectivity().checkConnectivity();
     return result != ConnectivityResult.none;
   }
 
-  /// Save employee type
+  /// Save new employee type to API and local storage
   Future<void> saveEmployeeType(EmployeeTypeRequest request) async {
     if (!await _hasInternet()) {
       errorMessage = "No internet connection";
       state = RequestState.error;
       notifyListeners();
-      print("❌ No internet connection");
       return;
     }
 
     final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString("saved_employee_type");
-
-    print("📌 Previously saved: $saved");
+    final savedType = prefs.getString(_savedKey);
+    print("📌 Previously saved: $savedType");
     print("📌 New Employee Type: ${request.employeeType}");
 
-    // Skip if same
-    if (saved == request.employeeType) {
-      print("⚠️ Same Employee Type found → Skipping API call");
+    // If same, skip
+    if (savedType == request.employeeType) {
+      print("⚠️ Same employee type, skipping");
       state = RequestState.success;
       notifyListeners();
       return;
     }
 
     try {
-      print("⏳ Sending request to create Employee Type...");
       state = RequestState.loading;
       notifyListeners();
 
@@ -58,20 +60,25 @@ class EmployeeTypeProvider extends ChangeNotifier {
         body: jsonEncode(request.toJson()),
       );
 
-      print("📥 API Raw Response: ${response.body}");
-      final data = jsonDecode(response.body);
-
-      final res = EmployeeTypeResponse.fromJson(data);
+      print("📥 API Response: ${response.body}");
+      final jsonData = jsonDecode(response.body);
+      final res = EmployeeTypeResponse.fromJson(jsonData);
 
       if (res.status == "success") {
         state = RequestState.success;
-        await prefs.setString("saved_employee_type", request.employeeType);
-        employeeTypeList.add(request.employeeType);
-        print("💾 Saved locally: ${request.employeeType}");
+        await prefs.setString(_savedKey, request.employeeType);
+
+        // Save to list and persist
+        if (!employeeTypeList.contains(request.employeeType)) {
+          employeeTypeList.add(request.employeeType);
+          await prefs.setStringList(_listKey, employeeTypeList);
+        }
+
+        print("✅ Employee type saved: ${request.employeeType}");
       } else {
         errorMessage = res.message;
         state = RequestState.error;
-        print("⚠️ API Error: ${res.message}");
+        print("❌ Error: ${res.message}");
       }
     } catch (e) {
       errorMessage = e.toString();
@@ -82,37 +89,35 @@ class EmployeeTypeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Get saved employee type
+  /// Load all employee types from local storage
+  Future<void> loadEmployeeTypes() async {
+    final prefs = await SharedPreferences.getInstance();
+    employeeTypeList = prefs.getStringList(_listKey) ?? [];
+    print("📄 Loaded employee types: $employeeTypeList");
+    notifyListeners();
+  }
+
+  /// Get last saved employee type
   Future<String?> getSavedEmployeeType() async {
     final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString("saved_employee_type");
-    print("📌 Retrieved saved employee type: $saved");
+    final saved = prefs.getString(_savedKey);
+    print("📌 Last selected employee type: $saved");
     return saved;
   }
 
-  /// Get all locally stored types
-  List<String> getAllEmployeeTypes() {
-    return employeeTypeList;
+  /// Clear all stored types (optional helper)
+  Future<void> clearEmployeeTypes() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_listKey);
+    await prefs.remove(_savedKey);
+    employeeTypeList.clear();
+    print("🧹 Cleared all saved employee types");
+    notifyListeners();
   }
-}
-// models/employee_type_response.dart
-class EmployeeTypeResponse {
-  final String status;
-  final String message;
 
-  EmployeeTypeResponse({
-    required this.status,
-    required this.message,
-  });
-
-  factory EmployeeTypeResponse.fromJson(Map<String, dynamic> json) {
-    return EmployeeTypeResponse(
-      status: json["status"] ?? "",
-      message: json["message"] ?? "",
-    );
-  }
+  /// Get all current employee types
+  List<String> getAllEmployeeTypes() => employeeTypeList;
 }
-// models/employee_type_request.dart
 class EmployeeTypeRequest {
   final String action;
   final String userId;
@@ -133,5 +138,21 @@ class EmployeeTypeRequest {
       "employee_type": employeeType,
       "created_by": createdBy,
     };
+  }
+}
+class EmployeeTypeResponse {
+  final String status;
+  final String message;
+
+  EmployeeTypeResponse({
+    required this.status,
+    required this.message,
+  });
+
+  factory EmployeeTypeResponse.fromJson(Map<String, dynamic> json) {
+    return EmployeeTypeResponse(
+      status: json["status"] ?? "",
+      message: json["message"] ?? "",
+    );
   }
 }

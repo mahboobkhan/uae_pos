@@ -1,7 +1,11 @@
+import 'package:abc_consultant/employee/EmployeeProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'custom_fields.dart';
 import 'package:flutter_popup/flutter_popup.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../employee/employee_models.dart';
+import 'custom_fields.dart';
 
 void showProfileDialog(BuildContext context) {
   showDialog(
@@ -95,7 +99,7 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
         ),
       ),
 
-      // Circle Avatar with Edit Icon
+      // Circle Avatar
       Positioned(
         top: 0,
         child: Stack(
@@ -122,7 +126,7 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
         ),
       ),
 
-      // Exclamation icon positioned outside top-right of the card
+      // Info icon
       Positioned(
         top: 55,
         right: 20,
@@ -180,6 +184,7 @@ class _DialogButtonState extends State<_DialogButton> {
     _controller = TextEditingController(
       text: _obscure ? _maskPassword(realText) : realText,
     );
+
   }
 
   String _maskPassword(String text) => '*' * text.length;

@@ -53,6 +53,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     'Custom Range',
   ];
   String? selectedCategory3;
+  final List<String> jobPositionOptions = ['Manager', 'Employee', 'Other'];
 
   @override
   void initState() {
@@ -80,7 +81,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
           if (employeeProvider.data == null) {
             return const Center(child: Text("No data available."));
           }
-
           return Scaffold(
             backgroundColor: Colors.grey.shade100,
             body: SingleChildScrollView(
@@ -130,7 +130,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                         );
                                       },
                                     ),
-                                    CustomDropdown(
+                                   /* CustomDropdown(
                                       selectedValue: selectedCategory1,
                                       hintText: "Select Tags",
                                       items: categories1,
@@ -186,7 +186,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                         Icons.calendar_month,
                                         size: 18,
                                       ),
-                                    ),
+                                    ),*/
                                   ],
                                 ),
                               ),
@@ -300,6 +300,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                   EmployeeProfileDialog(
                                                     context,
                                                     singleEmployee,
+                                                  //  bankAccount,
                                                   );
                                                 },
                                               ),
@@ -447,13 +448,14 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                   SizedBox(height: 12),
                   SizedBox(
                     width: 230,
-                    child: CustomDropdownWithRightAdd(
+                    child: CustomDropdownField(
                       label: "Assign Designation ",
-                      value: selectedService,
-                      items: designation,
-                      onChanged: (val) => selectedService = val,
-                      onAddPressed: () {
-                        showInstituteManagementDialog2(context);
+                      selectedValue: selectedService,
+                      options: jobPositionOptions,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedService = value;
+                        });
                       },
                     ),
                   ),
@@ -540,8 +542,9 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                   backgroundColor: Colors.green,
                   text: "Submit",
                   onPressed: () async {
-                    final accessMap = <String, bool>{};
+                    print("🔁 Submit button pressed");
 
+                    final accessMap = <String, bool>{};
                     for (var item in sidebarItemsAccess) {
                       accessMap[item.accessKey] = !(item.isLocked ?? true);
                       for (int i = 0; i < item.submenuKeys.length; i++) {
@@ -625,7 +628,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     );
   }
 
-  void showInstituteManagementDialog2(BuildContext context) {
+  /*void showInstituteManagementDialog2(BuildContext context) {
     final List<String> institutes = [];
     final TextEditingController addController = TextEditingController();
     final TextEditingController editController = TextEditingController();
@@ -893,5 +896,5 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
         );
       },
     );
-  }
+  }*/
 }

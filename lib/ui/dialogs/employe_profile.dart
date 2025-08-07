@@ -3,18 +3,21 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../employee/EmployeeProvider.dart';
 import '../../employee/employee_models.dart';
+import '../../providers/create_payment_method_provider.dart';
 import '../../providers/desigination_provider.dart';
 import '../../providers/designation_delete_provider.dart';
-import '../../providers/update_designation.dart';
 import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
-import '';
 
 void EmployeeProfileDialog(
   BuildContext context,
   MapEntry<int, Employee> singleEmployee,
+  //  MapEntry<int, BankAccount> bankAccount,
+
+    // MapEntry<int, BankAccount> bankAccount,
 ) {
   showDialog(
     context: context,
@@ -24,7 +27,10 @@ void EmployeeProfileDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
-        child: EmployeProfile(singleEmployee: singleEmployee),
+        child: EmployeProfile(
+         // bankAccount: bankAccount,
+          singleEmployee: singleEmployee,
+        ),
       );
     },
   );
@@ -32,8 +38,13 @@ void EmployeeProfileDialog(
 
 class EmployeProfile extends StatefulWidget {
   MapEntry<int, Employee> singleEmployee; // Add any other parameters you need
+  //MapEntry<int, BankAccount> bankAccount; // ✅ Change this
 
-  EmployeProfile({super.key, required this.singleEmployee});
+  EmployeProfile({
+    super.key,
+    required this.singleEmployee,
+   // required this.bankAccount,
+  });
 
   @override
   State<EmployeProfile> createState() => _EmployeProfileState();
@@ -43,8 +54,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
   DateTime selectedDateTime = DateTime.now();
   final _contactNumber1 = TextEditingController();
   final TextEditingController _employeeNameController = TextEditingController();
-  final TextEditingController _contactNumber2Controller =
-      TextEditingController();
+  final _contactNumber2Controller = TextEditingController();
   final TextEditingController _homeContactNumberController =
       TextEditingController();
   final TextEditingController _workPermitNumberController =
@@ -71,9 +81,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
   String? selectedJobType;
   String? selectedJobType2;
   String? selectedJobType3;
-  String? selectedJobType4;
+  String? selectedGender;
+  final List<String> jobTypeOptions = ['Cleaning', 'Consultining', 'Reparing'];
+  final List<String> genderOptions = ['Male', 'Female', 'Other'];
+  final List<String> jobPositionOptions = ['Manager', 'Employee', 'Other'];
+  final List<String> bankOptions = ['Ubl', 'Hbl', 'Mezan', 'Cheque', 'Cash'];
 
-  final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
 
@@ -82,642 +95,583 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _contractExpiryController =
       TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
-
-  String? userId;
+  TextEditingController _eidController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadUserId();
 
     final singleEmployee = widget.singleEmployee;
+   // final bankAccount = widget.bankAccount;
 
     _employeeNameController.text =
         singleEmployee.value.employeeName.toString() ?? '';
     _emailIdController.text = singleEmployee.value.email.toString() ?? '';
-    userId = widget.singleEmployee.value.userId.toString() ?? '';
+    _eidController.text = singleEmployee.value.userId.toString() ?? '';
+    selectedJobType3 = singleEmployee.value.employeeType ?? '';
+    final incomingType = singleEmployee.value.employeeType?.trim() ?? '';
+
+    // Validate that the incoming value is in the list
+    if (jobTypeOptions.contains(incomingType)) {
+      selectedJobType3 = incomingType;
+    } else {
+      selectedJobType3 = null; // or set to default like jobTypeOptions.first
+    }
+    final incomingGender = singleEmployee.value.gender?.trim();
+    selectedGender =
+        genderOptions.contains(incomingGender) ? incomingGender : null;
+    final incomingPosition = singleEmployee.value.empDesignation?.trim();
+    selectedJobType =
+        jobPositionOptions.contains(incomingPosition) ? incomingPosition : null;
+
+    // 🔄 Also update the provider (optional)
+    if (selectedJobType != null) {
+      context.read<DesignationProvider>().setDesignation(selectedJobType!);
+    }
+    _contactNumber1.text = singleEmployee.value.homePhone.toString() ?? '';
+    _contactNumber2Controller.text =
+        singleEmployee.value.homePhone.toString() ?? '';
+    _homeContactNumberController.text =
+        singleEmployee.value.homePhone.toString() ?? '';
+    _workPermitNumberController.text =
+        singleEmployee.value.workPermitNumber.toString() ?? '';
+    _emiratesIdController.text =
+        singleEmployee.value.emirateId.toString() ?? '';
+    _joiningDateController.text =
+        singleEmployee.value.joiningDate.toString() ?? '';
+    _contractExpiryController.text =
+        singleEmployee.value.contractExpiryDate.toString() ?? '';
+    _birthDateController.text =
+        singleEmployee.value.dateOfBirth.toString() ?? '';
+    _salaryController.text = singleEmployee.value.salary.toString() ?? '';
+    _incrementController.text =
+        singleEmployee.value.incrementAmount.toString() ?? '';
+    _workingHoursController.text =
+        singleEmployee.value.workingHours.toString() ?? '';
+    _physicalAddressController.text =
+        singleEmployee.value.physicalAddress.toString() ?? '';
+    _noteController.text = singleEmployee.value.extraNote1.toString() ?? '';
+   // _titleNameController.text = bankAccount.value.titleName;
+
   }
 
-  /// ✅ Function should be OUTSIDE initState
-  Future<void> _loadUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    final id = prefs.getString('user_id');
-
-    print("📥 Loaded User ID from SharedPreferences: $id");
-
-    setState(() {
-      userId = id;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: SizedBox(
-        width: 950,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Left: Title and dropdowns
-                  Row(
-                    children: [
-                      const Text(
-                        'Employee Profile',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      SizedBox(
-                        width: 180,
-                        child: SmallDropdownField(
-                          label: "Employee type",
-                          options: ['Cleaning', 'Consultining', 'Reparing'],
-                          selectedValue: selectedJobType3,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedJobType3 = value;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      SizedBox(
-                        width: 180,
-                        child: SmallDropdownField(
-                          label: "Select Gender",
-                          options: ['Male', 'Female', 'Other'],
-                          selectedValue: selectedJobType4,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedJobType4 = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Right: Date and close icon
-                  Row(
-                    children: [
-                      Text(
-                        DateFormat('dd-MM-yyyy').format(DateTime.now()),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
-                        onPressed: () async {
-                          final shouldClose = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  backgroundColor: Colors.white,
-                                  title: const Text("Are you sure?"),
-                                  content: const Text(
-                                    "Do you want to close this form? Unsaved changes may be lost.",
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () =>
-                                              Navigator.of(context).pop(false),
-                                      child: const Text(
-                                        "Keep Changes ",
-                                        style: TextStyle(color: Colors.blue),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(context).pop(true),
-                                      child: const Text(
-                                        "Close",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                          );
-
-                          if (shouldClose == true) {
-                            Navigator.of(context).pop(); // close the dialog
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Text(
-                userId != null ? "EID.EE/EH $userId" : "Loading...",
-                style: TextStyle(fontSize: 12),
-              ),
-              const SizedBox(height: 12),
-
-              // Fields
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  CustomTextField(
-                    label: "Employee Name",
-                    hintText: "xyz",
-                    controller: _employeeNameController,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomDropdownField(
-                        label: "Job Position",
-                        options: ['Manager', 'Employee', 'Other'],
-                        selectedValue:
-                            selectedJobType, // ✅ Use local state, not provider
-                        onChanged: (value) {
-                          setState(() {
-                            selectedJobType = value;
-                          });
-                          // ✅ Just store in provider (no rebuild trigger)
-                          context.read<DesignationProvider>().setDesignation(
-                            value!,
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      // 🔵 Update Button
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.update),
-                        label: const Text("Update"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () async {
-                          print("🔹 Update button pressed");
-
-                          final selected =
-                              context
-                                  .read<DesignationProvider>()
-                                  .selectedDesignation;
-                          print("🔹 Selected designation: $selected");
-
-                          if (selected == null || selected.isEmpty) {
-                            print("❌ No designation selected");
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Please select a job position first",
-                                ),
-                              ),
-                            );
-                            return;
-                          }
-
-                          final provider =
-                              context.read<DesignationUpdateProvider>();
-                          print(
-                            "📌 Provider state after update: ${provider.state}",
-                          );
-
-                          if (provider.state == RequestState.success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Designation updated to $selected",
-                                ),
-                              ),
-                            );
-                          } else if (provider.state == RequestState.error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  provider.errorMessage ?? "Update failed",
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-
-                      const SizedBox(height: 10),
-                      // 🔴 Delete Button
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.delete),
-                        label: const Text("Delete"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () async {
-                          print("🗑 Delete button pressed");
-
-                          final selected =
-                              context
-                                  .read<DesignationProvider>()
-                                  .selectedDesignation;
-                          print("🗑 Selected designation: $selected");
-
-                          if (selected == null || selected.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Please select a job position first",
-                                ),
-                              ),
-                            );
-                            return;
-                          }
-
-                          await context
-                              .read<DesignationDeleteProvider>()
-                              .deleteDesignation(
-                                DesignationDeleteRequest(
-                                  designations: selected,
-                                ),
-                              );
-
-                          print("⏳ Calling delete API...");
-                          await context
-                              .read<DesignationDeleteProvider>()
-                              .deleteDesignation(
-                                DesignationDeleteRequest(
-                                  designations: selected,
-                                ),
-                              );
-
-                          final provider =
-                              context.read<DesignationDeleteProvider>();
-                          print(
-                            "📌 Provider state after delete: ${provider.state}",
-                          );
-
-                          if (provider.state == RequestState.success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Designation '$selected' deleted successfully",
-                                ),
-                              ),
-                            );
-                          } else if (provider.state == RequestState.error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  provider.errorMessage ?? "Delete failed",
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  CustomTextField(
-                    label: "Contact Number",
-                    hintText: "+971",
-                    controller: _contactNumber1,
-                  ),
-                  CustomTextField(
-                    label: "Contact No - 2",
-                    hintText: "+971",
-                    controller: _contactNumber2Controller,
-                  ),
-                  CustomTextField(
-                    label: "Home Contact No",
-                    hintText: "+971",
-                    controller: _homeContactNumberController,
-                  ),
-                  CustomTextField(
-                    label: "Work Permit No",
-                    hintText: "+WP-1234",
-                    controller: _workPermitNumberController,
-                  ),
-                  CustomTextField(
-                    label: "Emirates ID",
-                    hintText: "+12345",
-                    controller: _emiratesIdController,
-                  ),
-                  CustomTextField(
-                    label: "Email ID",
-                    hintText: "abc@gmail.com",
-                    controller: _emailIdController,
-                  ),
-
-                  CustomDateField(
-                    label: "Date of Joining",
-                    hintText: "dd-MM-yyyy",
-                    controller: _joiningDateController,
-                    // Use the dedicated controller
-                    readOnly: true,
-                    onTap: () => _pickJoiningDateCupertino(),
-                  ),
-                  CustomDateField(
-                    label: "Work Contract Expiry",
-                    hintText: "dd-MM-yyyy",
-                    controller: _contractExpiryController,
-                    // Use the dedicated controller
-                    readOnly: true,
-                    onTap:
-                        _pickContractExpiryDate, // Use the dedicated function
-                  ),
-                  CustomDateField(
-                    label: "Birthday",
-                    hintText: "dd-MM-yyyy",
-                    controller: _birthDateController,
-                    // Use the dedicated controller
-                    readOnly: true,
-                    onTap: _pickBirthDate, // Use the dedicated function
-                  ),
-                  CustomTextField(
-                    label: 'Salary',
-                    hintText: 'AED-1000',
-                    controller: _salaryController,
-                  ),
-                  CustomTextField(
-                    label: 'Increment',
-                    hintText: '10',
-                    controller: _incrementController,
-                  ),
-                  CustomTextField(
-                    label: 'Working Hours ',
-                    hintText: '42',
-                    controller: _workingHoursController,
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Add More",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  SizedBox(
-                    width: 450,
-                    child: CustomTextField(
-                      label: "Physical Address",
-                      hintText: "Address,house,street,town,post code",
-                      controller: _physicalAddressController,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 450,
-                    child: CustomTextField(
-                      label: "Note / Extra",
-                      controller: _noteController,
-                      hintText: 'xxxxx',
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Bank Details',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  CustomDropdownField(
-                    label: "Select Bank",
-                    options: ['Ubl', 'Hbl', 'Mezan', 'Cheque', 'Cash'],
-                    selectedValue: selectedJobType2,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedJobType2 = value;
-                      });
-                    },
-                  ),
-                  CustomTextField(
-                    label: "Title Name",
-                    hintText: "xxxxxx",
-                    controller: _titleNameController,
-                  ),
-                  CustomTextField(
-                    label: "Bank Account",
-                    hintText: "xxxxxxxxxx",
-                    controller: _bankAccountController,
-                  ),
-                  CustomTextField(
-                    label: "IBN Number",
-                    hintText: "xxxxxxxxxxx",
-                    controller: _ibanNumberController,
-                  ),
-                  CustomTextField(
-                    label: "Contact Number",
-                    hintText: "+971",
-                    controller: _contactNumberController,
-                  ),
-                  CustomTextField(
-                    label: "Email ID",
-                    hintText: "@gmail.com",
-                    controller: _emailI2dController,
-                  ),
-                  SizedBox(height: 10),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      InfoBox(
-                        value: "Remaining Salary",
-                        label: "AED-3000",
-                        color: Colors.blue.shade50,
-                      ),
-                      InfoBox(
-                        value: "Advance Payment",
-                        label: "AED-3000",
-                        color: Colors.blue.shade50,
-                      ),
-                      InfoBox(
-                        value: "Bonuses",
-                        label: "AED-3000",
-                        color: Colors.blue.shade50,
-                      ),
-                      InfoBox(
-                        value: "Fine Deductions",
-                        label: "AED-3000",
-                        color: Colors.blue.shade50,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      SizedBox(height: 10),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: [
-                          CustomCompactTextField(
-                            label: 'Doc Name',
-                            hintText: '',
-                            controller: _docNameController,
-                          ),
-                          CustomDateNotificationField(
-                            label: "Issue Date Notifications",
-                            controller: _issueDateController,
-                            readOnly: true,
-                            hintText: "dd-MM-yyyy HH:mm",
-                            onTap: _pickIssueDate,
-                          ),
-                          CustomDateNotificationField(
-                            label: "Expiry Date Notifications",
-                            controller: _expiryDateController,
-                            readOnly: true,
-                            hintText: "dd-MM-yyyy HH:mm",
-                            onTap: _pickExpiryDate,
-                          ),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              minimumSize: const Size(150, 38),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  4,
-                                ), // Optional: slight rounding
+    return SafeArea(
+      child: Consumer<EmployeeProvider>(
+        builder: (ctx, employeeProvider, _) {
+          return Dialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: SizedBox(
+              width: 950,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Left: Title and dropdowns
+                        Row(
+                          children: [
+                            const Text(
+                              'Employee Profile',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
                               ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Icon(
-                                  Icons.upload_file,
-                                  size: 16,
-                                  color: Colors.white,
-                                ), //
-                                SizedBox(width: 6),
-                                Text(
-                                  'Upload File',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ), //
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: 180,
+                              child: SmallDropdownField(
+                                label: "Employee type",
+                                options: jobTypeOptions,
+                                selectedValue: selectedJobType3,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedJobType3 = value;
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: 180,
+                              child: SmallDropdownField(
+                                label: "Select Gender",
+                                options: genderOptions,
+                                selectedValue: selectedGender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedGender = value;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Right: Date and close icon
+                        Row(
+                          children: [
+                            Text(
+                              DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            IconButton(
+                              icon: const Icon(Icons.close, color: Colors.red),
+                              onPressed: () async {
+                                final shouldClose = await showDialog<bool>(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.white,
+                                        title: const Text("Are you sure?"),
+                                        content: const Text(
+                                          "Do you want to close this form? Unsaved changes may be lost.",
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.of(
+                                                  context,
+                                                ).pop(false),
+                                            child: const Text(
+                                              "Keep Changes ",
+                                              style: TextStyle(
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.of(
+                                                  context,
+                                                ).pop(true),
+                                            child: const Text(
+                                              "Close",
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                );
+
+                                if (shouldClose == true) {
+                                  Navigator.of(
+                                    context,
+                                  ).pop(); // close the dialog
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Text(_eidController.text, style: TextStyle(fontSize: 12)),
+                    const SizedBox(height: 12),
+
+                    // Fields
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        CustomTextField(
+                          label: "Employee Name",
+                          hintText: "xyz",
+                          controller: _employeeNameController,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomDropdownField(
+                              label: "Job Position",
+                              options: jobPositionOptions,
+                              selectedValue: selectedJobType,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedJobType = value;
+                                });
+                                // ✅ Update provider value
+                                context
+                                    .read<DesignationProvider>()
+                                    .setDesignation(value!);
+                              },
+                            ),
+                          ],
+                        ),
+                        CustomTextField(
+                          label: "Contact Number",
+                          hintText: "+971",
+                          controller: _contactNumber1,
+                        ),
+                        CustomTextField(
+                          label: "Contact No - 2",
+                          hintText: "+971",
+                          controller: _contactNumber2Controller,
+                        ),
+                        CustomTextField(
+                          label: "Home Contact No",
+                          hintText: "+971",
+                          controller: _homeContactNumberController,
+                        ),
+                        CustomTextField(
+                          label: "Work Permit No",
+                          hintText: "+WP-1234",
+                          controller: _workPermitNumberController,
+                        ),
+                        CustomTextField(
+                          label: "Emirates ID",
+                          hintText: "+12345",
+                          controller: _emiratesIdController,
+                        ),
+                        CustomTextField(
+                          label: "Email ID",
+                          hintText: "abc@gmail.com",
+                          controller: _emailIdController,
+                        ),
+
+                        CustomDateField(
+                          label: "Date of Joining",
+                          hintText: "dd-MM-yyyy",
+                          controller: _joiningDateController,
+                          // Use the dedicated controller
+                          readOnly: true,
+                          onTap: () => _pickJoiningDateCupertino(),
+                        ),
+                        CustomDateField(
+                          label: "Work Contract Expiry",
+                          hintText: "dd-MM-yyyy",
+                          controller: _contractExpiryController,
+                          // Use the dedicated controller
+                          readOnly: true,
+                          onTap:
+                              _pickContractExpiryDate, // Use the dedicated function
+                        ),
+                        CustomDateField(
+                          label: "Birthday",
+                          hintText: "dd-MM-yyyy",
+                          controller: _birthDateController,
+                          // Use the dedicated controller
+                          readOnly: true,
+                          onTap: _pickBirthDate, // Use the dedicated function
+                        ),
+                        CustomTextField(
+                          label: 'Salary',
+                          hintText: 'AED-1000',
+                          controller: _salaryController,
+                        ),
+                        CustomTextField(
+                          label: 'Increment',
+                          hintText: '10',
+                          controller: _incrementController,
+                        ),
+                        CustomTextField(
+                          label: 'Working Hours ',
+                          hintText: '42',
+                          controller: _workingHoursController,
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            "Add More",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        SizedBox(
+                          width: 450,
+                          child: CustomTextField(
+                            label: "Physical Address",
+                            hintText: "Address,house,street,town,post code",
+                            controller: _physicalAddressController,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 450,
+                          child: CustomTextField(
+                            label: "Note / Extra",
+                            controller: _noteController,
+                            hintText: 'xxxxx',
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Bank Details',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        CustomDropdownField(
+                          label: "Select Bank",
+                          options: bankOptions,
+                          selectedValue: selectedJobType2,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedJobType2 = value;
+                            });
+
+                            // ✅ Save to provider (optional but helpful)
+                            context.read<PaymentMethodProvider>().setPaymentMethod(value!);
+                          },
+                        ),
+
+                        CustomTextField(
+                          label: "Title Name",
+                          hintText: "xxxxxx",
+                          controller: _titleNameController,
+                        ),
+                        CustomTextField(
+                          label: "Bank Account",
+                          hintText: "xxxxxxxxxx",
+                          controller: _bankAccountController,
+                        ),
+                        CustomTextField(
+                          label: "IBN Number",
+                          hintText: "xxxxxxxxxxx",
+                          controller: _ibanNumberController,
+                        ),
+                        CustomTextField(
+                          label: "Contact Number",
+                          hintText: "+971",
+                          controller: _contactNumberController,
+                        ),
+                        CustomTextField(
+                          label: "Email ID",
+                          hintText: "@gmail.com",
+                          controller: _emailI2dController,
+                        ),
+                        SizedBox(height: 10),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            InfoBox(
+                              value: "Remaining Salary",
+                              label: "AED-3000",
+                              color: Colors.blue.shade50,
+                            ),
+                            InfoBox(
+                              value: "Advance Payment",
+                              label: "AED-3000",
+                              color: Colors.blue.shade50,
+                            ),
+                            InfoBox(
+                              value: "Bonuses",
+                              label: "AED-3000",
+                              color: Colors.blue.shade50,
+                            ),
+                            InfoBox(
+                              value: "Fine Deductions",
+                              label: "AED-3000",
+                              color: Colors.blue.shade50,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(height: 10),
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: [
+                                CustomCompactTextField(
+                                  label: 'Doc Name',
+                                  hintText: '',
+                                  controller: _docNameController,
+                                ),
+                                CustomDateNotificationField(
+                                  label: "Issue Date Notifications",
+                                  controller: _issueDateController,
+                                  readOnly: true,
+                                  hintText: "dd-MM-yyyy HH:mm",
+                                  onTap: _pickIssueDate,
+                                ),
+                                CustomDateNotificationField(
+                                  label: "Expiry Date Notifications",
+                                  controller: _expiryDateController,
+                                  readOnly: true,
+                                  hintText: "dd-MM-yyyy HH:mm",
+                                  onTap: _pickExpiryDate,
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    minimumSize: const Size(150, 38),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        4,
+                                      ), // Optional: slight rounding
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [
+                                      Icon(
+                                        Icons.upload_file,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ), //
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Upload File',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ), //
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        CustomButton(
+                          text: "Stop Contract",
+                          backgroundColor: Colors.red,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Editing",
+                          backgroundColor: Colors.blue,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        CustomButton(
+                          text: "Submit",
+                          backgroundColor: Colors.green,
+                          onPressed: () async {
+                            final provider = context.read<PaymentMethodProvider>();
+
+                            if ((selectedJobType2 ?? "").isEmpty) {
+                              _showMessage(context, "Please select a bank/payment method");
+                              return;
+                            }
+
+                            provider.setPaymentMethod(selectedJobType2!);
+
+                            final request = PaymentMethodRequest(
+                              userId: "123",        // Replace with real user ID
+                              paymentMethod: selectedJobType2!,
+                              createdBy: "admin",   // Replace accordingly
+                            );
+
+                            await provider.savePaymentMethod(request);
+
+                            if (provider.state == RequestState.success) {
+                              _showMessage(context, "Payment method saved successfully!");
+                            } else if (provider.state == RequestState.error) {
+                              _showMessage(context, provider.errorMessage ?? "Something went wrong");
+                            }
+                            /*final provider =
+                                context.read<DesignationProvider>();
+
+                            final selected =
+                                provider.selectedDesignation?.trim() ?? "";
+                            if (selected.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Please select a job position first",
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+
+                            final prefs = await SharedPreferences.getInstance();
+                            final userId = prefs.getString("user_id") ?? "0";
+
+                            final request = DesignationRequest(
+                              userId: userId,
+                              designations: selected,
+                              createdBy: userId,
+                            );
+
+                            await provider.createDesignation(request);
+
+                            // ✅ Show correct API message immediately
+                            if (provider.state == RequestState.success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "✅ Designation '$selected' created successfully",
+                                  ),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "❌ ${provider.errorMessage ?? "Something went wrong"}",
+                                  ),
+                                ),
+                              );
+                            }*/
+
+
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  CustomButton(
-                    text: "Stop Contract",
-                    backgroundColor: Colors.red,
-                    onPressed: () {},
-                  ),
-                  const SizedBox(width: 10),
-                  CustomButton(
-                    text: "Editing",
-                    backgroundColor: Colors.blue,
-                    onPressed: () {},
-                  ),
-                  const SizedBox(width: 10),
-                  CustomButton(
-                    text: "Submit",
-                    backgroundColor: Colors.green,
-                    onPressed: () async {
-                      final provider = context.read<DesignationProvider>();
-
-                      final selected =
-                          provider.selectedDesignation?.trim() ?? "";
-                      if (selected.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Please select a job position first"),
-                          ),
-                        );
-                        return;
-                      }
-
-                      final prefs = await SharedPreferences.getInstance();
-                      final userId = prefs.getString("user_id") ?? "0";
-
-                      final request = DesignationRequest(
-                        userId: userId,
-                        designations: selected,
-                        createdBy: userId,
-                      );
-
-
-                      await provider.createDesignation(request);
-
-                      // ✅ Show correct API message immediately
-                      if (provider.state == RequestState.success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "✅ Designation '$selected' created successfully",
-                            ),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "❌ ${provider.errorMessage ?? "Something went wrong"}",
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
+  }
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _pickIssueDate() async {

@@ -49,7 +49,6 @@ final List<SidebarItem> sidebarItems = [
     ],
     accessKey: 'office_expenses',
 
-
     submenus: [
       'Fixed office expanse',
       'Office maintenance',
