@@ -431,7 +431,7 @@ class SignupProvider with ChangeNotifier {
     return _accessMap[key] ?? false;
   }
 
-  ////////
+  //////// login provider
   Future<void> handleLogin(
     BuildContext context,
     TextEditingController emailController,

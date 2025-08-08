@@ -99,7 +99,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
     widget.singleEmployee.value.allEmployeeTypes
         .map((d) => d.employeeType)
         .toList();
-
     selectedJobType3 =
     allTypes.contains(incomingType)
         ? incomingType

@@ -58,16 +58,28 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   @override
   void initState() {
     super.initState();
-    // loadAccessFromPrefs();
 
-    final accessProvider = Provider.of<SignupProvider>(context, listen: false);
-    final userId ='user_68886bd0cd62b';
-
-    accessProvider.fetchUserAccess(userId).then((_) {
-      updateSidebarAccess(accessProvider.accessMap);
-      setState(() {}); // To rebuild sidebar with updated lock states
-    });
+    _loadUserIdAndFetchAccess();
   }
+
+  Future<void> _loadUserIdAndFetchAccess() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedUserId = prefs.getString('user_id');
+
+
+    if (storedUserId != null && storedUserId.isNotEmpty) {
+      final accessProvider = Provider.of<SignupProvider>(context, listen: false);
+
+      await accessProvider.fetchUserAccess(storedUserId);
+
+      updateSidebarAccess(accessProvider.accessMap);
+
+      setState(() {}); // rebuild sidebar with updated lock states
+    } else {
+      debugPrint("⚠ No user_id found in SharedPreferences");
+    }
+  }
+
 
   void updateSidebarAccess(Map<String, bool> accessMap) {
     for (final item in sidebarItems) {

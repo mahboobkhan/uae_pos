@@ -15,6 +15,7 @@ import 'package:abc_consultant/providers/update_ban_account_provider.dart';
 import 'package:abc_consultant/providers/update_designation.dart';
 import 'package:abc_consultant/ui/create_bank_account_screen..dart';
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/sign_screen.dart';
 import 'package:abc_consultant/ui/widgets/CreateMonthlySalaryScreen.dart';
 import 'package:abc_consultant/ui/widgets/delete_user_bank_account_screen.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +69,7 @@ class MyApp extends StatelessWidget {
     //  return MaterialApp(home: DashboardScrn());
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CreateMonthlySalaryScreen(),
+      home: SignScreen(),
     );
     //home: SidebarLayout()
   }
