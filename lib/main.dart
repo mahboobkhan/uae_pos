@@ -1,17 +1,22 @@
 import 'package:abc_consultant/providers/create_bank_account.dart';
+import 'package:abc_consultant/providers/create_bank_provider.dart';
 import 'package:abc_consultant/providers/create_employee_type_provider.dart';
 import 'package:abc_consultant/providers/create_payment_method_provider.dart';
 import 'package:abc_consultant/providers/create_salary_provider.dart';
 import 'package:abc_consultant/providers/create_bank_account.dart';
 import 'package:abc_consultant/providers/create_payment_method_provider.dart';
 import 'package:abc_consultant/providers/create_salary_provider.dart';
+import 'package:abc_consultant/providers/delete_bank_account.dart';
 import 'package:abc_consultant/providers/desigination_provider.dart';
 import 'package:abc_consultant/providers/designation_delete_provider.dart';
 import 'package:abc_consultant/providers/designation_list_provider.dart';
 import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:abc_consultant/providers/update_ban_account_provider.dart';
 import 'package:abc_consultant/providers/update_designation.dart';
+import 'package:abc_consultant/ui/create_bank_account_screen..dart';
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
+import 'package:abc_consultant/ui/widgets/CreateMonthlySalaryScreen.dart';
+import 'package:abc_consultant/ui/widgets/delete_user_bank_account_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +50,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => CreateUserBankAccountProvider()),
         ChangeNotifierProvider(create: (_) => PaymentMethodProvider()),
         ChangeNotifierProvider(create: (_) => EmployeeTypeProvider()),
+        ChangeNotifierProvider(create: (_) => BankCreateProvider()),
+        ChangeNotifierProvider(create: (_) => DeleteUserBankAccountProvider()),
       ],
 
       child: const MyApp(),
@@ -61,7 +68,7 @@ class MyApp extends StatelessWidget {
     //  return MaterialApp(home: DashboardScrn());
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SidebarLayout(),
+      home: CreateMonthlySalaryScreen(),
     );
     //home: SidebarLayout()
   }
