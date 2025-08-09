@@ -573,47 +573,6 @@ class SignupProvider with ChangeNotifier {
     }
   }
 
-  /*
-  Future<void> sendProjectToApi() async {
-    var headers = {'Content-Type': 'application/json'};
-    var request = http.Request(
-      'POST',
-      Uri.parse('https://abcwebservices.com/api/projects/projects.php'),
-    );
-    request.body = json.encode({
-      "date_time": "2025-07-22 10:00:00",
-      "client_search_type": "by_name",
-      "order_type": "Urgent",
-      "service_project": "Website Design",
-      "assign_employee": "Hamza",
-      "service_beneficiary": "Ali",
-      "quote_price": 50000,
-      "received_funds": 30000,
-      "payment_id": "PAY123456",
-      "status": "Pending",
-      "tags": "Urgent,Priority",
-      "stage": "Proposal Sent",
-      "ref_id": "REF20250722001",
-      "is_draft": 0,
-    });
-    request.headers.addAll(headers);
-    try {
-      // Send the request
-      http.StreamedResponse response = await request.send();
-
-      // Handle the response
-      if (response.statusCode == 200) {
-        String responseBody = await response.stream.bytesToString();
-        print("✅ Success: $responseBody");
-      } else {
-        print("❌ Error ${response.statusCode}: ${response.reasonPhrase}");
-      }
-    } catch (e) {
-      print("❗ Exception occurred: $e");
-    }
-  }
-*/
-
   //////////
   Future<void> sendForgetPasswordRequest(
     BuildContext context,

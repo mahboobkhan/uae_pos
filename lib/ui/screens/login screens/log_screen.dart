@@ -17,7 +17,6 @@ class LogScreen extends StatefulWidget {
 }
 
 class _LogScreenState extends State<LogScreen> {
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -98,24 +97,42 @@ class _LogScreenState extends State<LogScreen> {
                                       // Show error if no email entered
                                       showDialog(
                                         context: context,
-                                        builder: (context) => AlertDialog(
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                          title: const Text("Email Required"),
-                                          content: const Text("Please enter your email before resetting password."),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context),
-                                              child: const Text("OK", style: TextStyle(color: Colors.black)),
+                                        builder:
+                                            (context) => AlertDialog(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              title: const Text(
+                                                "Email Required",
+                                              ),
+                                              content: const Text(
+                                                "Please enter your email before resetting password.",
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                      ),
+                                                  child: const Text(
+                                                    "OK",
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
                                       );
                                       return;
                                     }
 
                                     // Call the provider function
-                                    Provider.of<SignupProvider>(context, listen: false)
-                                        .sendForgetPasswordRequest(context, email);
+                                    Provider.of<SignupProvider>(
+                                      context,
+                                      listen: false,
+                                    ).sendForgetPasswordRequest(context, email);
                                   },
                                   child: Text(
                                     "Forgot/Update Password",
