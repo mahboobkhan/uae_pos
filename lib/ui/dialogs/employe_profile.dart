@@ -11,9 +11,11 @@ import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
-void EmployeeProfileDialog(BuildContext context,
-    MapEntry<int, Employee> singleEmployee,
-    AllEmployeeData? data,) {
+void EmployeeProfileDialog(
+  BuildContext context,
+  MapEntry<int, Employee> singleEmployee,
+  AllEmployeeData? data,
+) {
   showDialog(
     context: context,
     builder: (context) {
@@ -44,22 +46,22 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _employeeNameController = TextEditingController();
   final _contactNumber2Controller = TextEditingController();
   final TextEditingController _homeContactNumberController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _workPermitNumberController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _emiratesIdController = TextEditingController();
   final TextEditingController _emailIdController = TextEditingController();
   final TextEditingController _physicalAddressController =
-  TextEditingController();
+      TextEditingController();
 
   // Controllers for additional fields
   final TextEditingController _titleNameController = TextEditingController();
   final TextEditingController _bankAccountController = TextEditingController();
   final TextEditingController _ibanNumberController = TextEditingController();
   final TextEditingController _contactNumberController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _emailI2dController =
-  TextEditingController(); // reuse if same as above
+      TextEditingController(); // reuse if same as above
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _docNameController = TextEditingController();
   final TextEditingController _salaryController = TextEditingController();
@@ -67,8 +69,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _workingHoursController = TextEditingController();
 
   String? selectedJobType;
-  final List<String> jobTypeOptions = ['Cleaning', 'Consultining', 'Reparing'];
-  final List<String> jobPositionOptions = ['Manager', 'Employee', 'Other'];
 
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
@@ -76,13 +76,14 @@ class _EmployeProfileState extends State<EmployeProfile> {
   // Add separate controllers for each date field
   final TextEditingController _joiningDateController = TextEditingController();
   final TextEditingController _contractExpiryController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
   TextEditingController _eidController = TextEditingController();
-  final genderOptions = ["Male", "Female"];
-  String? selectedGender;
-  String? selectedJobType3;
-  final employeeType = ["Employee", "Manager"];
+
+  final genderOptions = ["Male", "Female"]; // ok
+  String? selectedGender; //ok
+
+  String? employeeTypeSelected;
 
   @override
   void initState() {
@@ -94,34 +95,56 @@ class _EmployeProfileState extends State<EmployeProfile> {
         singleEmployee.value.employeeName.toString() ?? '';
     _emailIdController.text = singleEmployee.value.email.toString() ?? '';
     _eidController.text = singleEmployee.value.userId.toString() ?? '';
-    final incomingType = widget.singleEmployee.value.employeeType.trim();
-    final allTypes =
-    widget.singleEmployee.value.allEmployeeTypes
-        .map((d) => d.employeeType)
-        .toList();
-    selectedJobType3 =
-    allTypes.contains(incomingType)
-        ? incomingType
-        : allTypes.isNotEmpty
-        ? allTypes
-        .first // fallback to first valid option
-        : null;
 
     final incomingGender = singleEmployee.value.gender.trim();
     selectedGender =
-    genderOptions.contains(incomingGender)
-        ? incomingGender
-        : genderOptions.first;
+        genderOptions.contains(incomingGender)
+            ? incomingGender
+            : genderOptions.first;
+
+    final employeeType = widget.singleEmployee.value.employeeType.trim();
+
+    employeeTypeSelected =
+        singleEmployee.value.allEmployeeTypes
+                .map((d) => d.employeeType)
+                .toList()
+                .contains(employeeType)
+            ? employeeType
+            : null;
+
+    final allTypes =
+        widget.singleEmployee.value.allEmployeeTypes
+            .map((d) => d.employeeType)
+            .toList();
+
+    // print("all Types 0  ${employeeTypeSelected}");
+    // print("all Types ${widget.singleEmployee.value.allEmployeeTypes}");
+
     final incomingPosition = singleEmployee.value.empDesignation.trim();
+
     selectedJobType =
-    singleEmployee.value.allDesignations
-        .map((d) => d.designations)
-        .toList()
-        .contains(incomingPosition)
-        ? incomingPosition
-        : "Manager";
+        singleEmployee.value.allDesignations
+                .map((d) => d.designations)
+                .toList()
+                .contains(incomingPosition)
+            ? incomingPosition
+            : null;
+
+    final list =
+        widget.singleEmployee.value.allDesignations
+            .map((d) => d.designations)
+            .toList();
+
+    final list2 =
+        widget.singleEmployee.value.allEmployeeTypes
+            .map((d) => d.employeeType)
+            .toList();
+
+    print("all Types 2 ----${list}");
+    print("all Types list2 -------${list2}");
 
     _contactNumber1.text = singleEmployee.value.homePhone.toString() ?? '';
+
     _contactNumber2Controller.text =
         singleEmployee.value.homePhone.toString() ?? '';
     _homeContactNumberController.text =
@@ -151,10 +174,15 @@ class _EmployeProfileState extends State<EmployeProfile> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Consumer2<
-          UpdateUserBankAccountProvider,
-          CreateUserBankAccountProvider>(
-        builder: (ctx, updateUserBankAccountProvider,
-            createUserBankAccountProvider, _) {
+        UpdateUserBankAccountProvider,
+        CreateUserBankAccountProvider
+      >(
+        builder: (
+          ctx,
+          updateUserBankAccountProvider,
+          createUserBankAccountProvider,
+          _,
+        ) {
           return Dialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -188,13 +216,14 @@ class _EmployeProfileState extends State<EmployeProfile> {
                               child: SmallDropdownField(
                                 label: "Employee type",
                                 options:
-                                widget.singleEmployee.value.allEmployeeTypes
-                                    .map((d) => d.employeeType)
-                                    .toList(),
-                                selectedValue: selectedJobType3,
+                                    widget.singleEmployee.value.allEmployeeTypes
+                                        .map((d) => d.employeeType)
+                                        .toList(),
+
+                                selectedValue: employeeTypeSelected,
                                 onChanged: (value) {
                                   setState(() {
-                                    selectedJobType3 = value;
+                                    employeeTypeSelected = value;
                                   });
                                 },
                               ),
@@ -304,18 +333,15 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             CustomDropdownField(
                               label: "Job Position",
                               options:
-                              widget.singleEmployee.value.allDesignations
-                                  .map((d) => d.designations)
-                                  .toList(),
+                                  widget.singleEmployee.value.allDesignations
+                                      .map((d) => d.designations)
+                                      .toList(),
                               selectedValue: selectedJobType,
                               onChanged: (value) {
                                 setState(() {
                                   selectedJobType = value;
                                 });
                                 // ✅ Update provider value
-                                context
-                                    .read<DesignationProvider>()
-                                    .setDesignation(value!);
                               },
                             ),
                           ],
@@ -366,7 +392,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           // Use the dedicated controller
                           readOnly: true,
                           onTap:
-                          _pickContractExpiryDate, // Use the dedicated function
+                              _pickContractExpiryDate, // Use the dedicated function
                         ),
                         CustomDateField(
                           label: "Birthday",
@@ -439,14 +465,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         CustomDropdownField(
                           label: "Select Bank",
                           options:
-                          widget.data!.allBanks
-                              .map((d) => d.bankName.trim())
-                              .toList(),
+                              widget.data!.allBanks
+                                  .map((d) => d.bankName.trim())
+                                  .toList(),
                           selectedValue: null,
                           onChanged: (value) {
-                            setState(() {
-                              //   selectedJobType2 = value;
-                            });
+                            setState(() {});
                           },
                         ),
                         CustomTextField(
@@ -588,7 +612,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           backgroundColor: Colors.green,
                           onPressed: () async {
                             //  Navigator.of(context).pop(true);
-                              updateUserBankAccountProvider.updateBankAccount(
+                            updateUserBankAccountProvider.updateBankAccount(
                               UpdateUserBankAccountRequest(
                                 userId: widget.singleEmployee.value.userId,
                                 bankAccountNumber: 'yahya',
@@ -602,9 +626,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 additionalNote: 'N/A',
                               ),
                             );
-                               Navigator.of(context).pop(true);
+                            Navigator.of(context).pop(true);
 
-                           /* createUserBankAccountProvider.createBankAccount(
+                            /* createUserBankAccountProvider.createBankAccount(
                               CreateUserBankAccountRequest(
                                 userId: widget.singleEmployee.value.userId,
                                 bankName:  "N/A",
@@ -670,10 +694,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
       if (pickedDateTime != null && pickedDateTime is DateTime) {
         setState(() {
           _issueDateController.text =
-          "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime
-              .year} "
-              "${pickedDateTime.hour.toString().padLeft(
-              2, '0')}:${pickedDateTime.minute.toString().padLeft(2, '0')}";
+              "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime.year} "
+              "${pickedDateTime.hour.toString().padLeft(2, '0')}:${pickedDateTime.minute.toString().padLeft(2, '0')}";
         });
       }
     });
@@ -710,10 +732,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
       if (pickedDateTime != null && pickedDateTime is DateTime) {
         setState(() {
           _expiryDateController.text =
-          "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime
-              .year} "
-              "${pickedDateTime.hour.toString().padLeft(
-              2, '0')}:${pickedDateTime.minute.toString().padLeft(2, '0')}";
+              "${pickedDateTime.day}-${pickedDateTime.month}-${pickedDateTime.year} "
+              "${pickedDateTime.hour.toString().padLeft(2, '0')}:${pickedDateTime.minute.toString().padLeft(2, '0')}";
         });
       }
     });

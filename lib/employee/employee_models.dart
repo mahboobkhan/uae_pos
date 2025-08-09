@@ -180,8 +180,8 @@ class EmployeeType {
   factory EmployeeType.fromJson(Map<String, dynamic> json) {
     return EmployeeType(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
-      employeeType: json['employeeType'] ?? '',
+      userId: json['user_id'] ?? '',
+      employeeType: json['employee_type'] ?? '',
       createdBy: json['createdBy'] ?? '',
       createdDate: json['createdDate'] ?? '',
     );
@@ -191,7 +191,7 @@ class EmployeeType {
     return {
       'id': id,
       'userId': userId,
-      'employeeType': employeeType,
+      'employee_type': employeeType,
       'createdBy': createdBy,
       'createdDate': createdDate,
     };
