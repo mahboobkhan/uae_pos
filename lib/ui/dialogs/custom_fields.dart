@@ -36,7 +36,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.width,
-      child: TextField(
+      child: TextField(cursorColor: Colors.black,
         controller: widget.controller,
         enabled: widget.enabled,
         obscureText: widget.isPassword ? _obscureText : false,

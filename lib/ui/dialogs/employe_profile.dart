@@ -84,6 +84,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
   String? selectedJobType3;
   final employeeType = ["Employee", "Manager"];
 
+
+
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +115,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
     genderOptions.contains(incomingGender)
         ? incomingGender
         : genderOptions.first;
+    // employee designation
     final incomingPosition = singleEmployee.value.empDesignation.trim();
     selectedJobType =
     singleEmployee.value.allDesignations
@@ -119,7 +123,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
         .toList()
         .contains(incomingPosition)
         ? incomingPosition
-        : "Manager";
+        : null;
 
     _contactNumber1.text = singleEmployee.value.homePhone.toString() ?? '';
     _contactNumber2Controller.text =
@@ -310,9 +314,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
                               selectedValue: selectedJobType,
                               onChanged: (value) {
                                 setState(() {
-                                  selectedJobType = value;
+                                  selectedJobType = null;
                                 });
-                                // ✅ Update provider value
                                 context
                                     .read<DesignationProvider>()
                                     .setDesignation(value!);
