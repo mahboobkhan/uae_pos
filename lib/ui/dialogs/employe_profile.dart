@@ -615,7 +615,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             updateUserBankAccountProvider.updateBankAccount(
                               UpdateUserBankAccountRequest(
                                 userId: widget.singleEmployee.value.userId,
-                                bankAccountNumber: 'yahya',
+                                bankAccountNumber: '',
                                 bankName: _titleNameController.text,
                                 branchCode: 'N/A',
                                 bankAddress: 'N/A',
@@ -628,7 +628,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             );
                             Navigator.of(context).pop(true);
 
-                           /* createUserBankAccountProvider.createBankAccount(
+                            createUserBankAccountProvider.createBankAccount(
                               CreateUserBankAccountRequest(
                                 userId: widget.singleEmployee.value.userId,
                                 bankName:  "N/A",
@@ -642,7 +642,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 additionalNote: _noteController.text.trim(),
                                 createdBy: "N/A", // whoever is logged in
                               ),
-                            );*/
+                            );
                           },
                         ),
                       ],

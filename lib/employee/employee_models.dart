@@ -80,42 +80,42 @@ class UserAccess {
   factory UserAccess.fromJson(Map<String, dynamic> json) {
     return UserAccess(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
+      userId: json['user_id'] ?? '',
       dashboard: json['dashboard'] ?? 0,
       abc: json['abc'] ?? 0,
-      employeesRole: json['employeesRole'] ?? 0,
+      employeesRole: json['employees_role'] ?? 0,
       projects: json['projects'] ?? 0,
-      shortService: json['shortService'] ?? 0,
-      createOrders: json['createOrders'] ?? 0,
-      serviceCategory: json['serviceCategory'] ?? 0,
+      shortService: json['short_service'] ?? 0,
+      createOrders: json['create_orders'] ?? 0,
+      serviceCategory: json['service_category'] ?? 0,
       clients: json['clients'] ?? 0,
       company: json['company'] ?? 0,
       individuals: json['individuals'] ?? 0,
-      financeHistory: json['financeHistory'] ?? 0,
+      financeHistory: json['finance_history'] ?? 0,
       employees: json['employees'] ?? 0,
       finance: json['finance'] ?? 0,
       bankDetail: json['bankDetail'] ?? 0,
       banking: json['banking'] ?? 0,
-      addPaymentMethod: json['addPaymentMethod'] ?? 0,
-      statementHistory: json['statementHistory'] ?? 0,
-      officeExpenses: json['officeExpenses'] ?? 0,
-      fixedOfficeExpanse: json['fixedOfficeExpanse'] ?? 0,
-      officeMaintenance: json['officeMaintenance'] ?? 0,
-      officeSupplies: json['officeSupplies'] ?? 0,
+      addPaymentMethod: json['add_payment_method'] ?? 0,
+      statementHistory: json['statement_history'] ?? 0,
+      officeExpenses: json['office_expenses'] ?? 0,
+      fixedOfficeExpanse: json['fixed_office_expanse'] ?? 0,
+      officeMaintenance: json['office_maintenance'] ?? 0,
+      officeSupplies: json['office_supplies'] ?? 0,
       miscellaneous: json['miscellaneous'] ?? 0,
       others: json['others'] ?? 0,
       notifications: json['notifications'] ?? 0,
       inbox: json['inbox'] ?? 0,
       system: json['system'] ?? 0,
       push: json['push'] ?? 0,
-      filesCashFlow: json['filesCashFlow'] ?? 0,
+      filesCashFlow: json['files_cash_flow'] ?? 0,
       download: json['download'] ?? 0,
       upload: json['upload'] ?? 0,
       settings: json['settings'] ?? 0,
       preferences: json['preferences'] ?? 0,
       account: json['account'] ?? 0,
       security: json['security'] ?? 0,
-      updatedAt: json['updatedAt'] ?? '',
+      updatedAt: json['updated_at'] ?? '',
     );
   }
 
@@ -182,8 +182,8 @@ class EmployeeType {
       id: json['id'] ?? 0,
       userId: json['user_id'] ?? '',
       employeeType: json['employee_type'] ?? '',
-      createdBy: json['createdBy'] ?? '',
-      createdDate: json['createdDate'] ?? '',
+      createdBy: json['created_by'] ?? '',
+      createdDate: json['created_date'] ?? '',
     );
   }
 
@@ -216,10 +216,10 @@ class Designation {
   factory Designation.fromJson(Map<String, dynamic> json) {
     return Designation(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
+      userId: json['user_id'] ?? '',
       designations: json['designations'] ?? '',
-      createdBy: json['createdBy'] ?? '',
-      createdDate: json['createdDate'] ?? '',
+      createdBy: json['created_by'] ?? '',
+      createdDate: json['created_date'] ?? '',
     );
   }
 
@@ -255,10 +255,10 @@ class Bank {
   factory Bank.fromJson(Map<String, dynamic> json) {
     return Bank(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
-      bankName: json['bankName'] ?? '',
-      createdBy: json['createdBy'] ?? '',
-      createdDate: json['createdDate'] ?? '',
+      userId: json['user_id'] ?? '',
+      bankName: json['bank_name'] ?? '',
+      createdBy: json['created_by'] ?? '',
+      createdDate: json['created_date'] ?? '',
     );
   }
 
@@ -307,18 +307,18 @@ class BankAccount {
   factory BankAccount.fromJson(Map<String, dynamic> json) {
     return BankAccount(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
-      bankName: json['bankName'] ?? '',
-      branchCode: json['branchCode'] ?? '',
-      bankAddress: json['bankAddress'] ?? '',
-      titleName: json['titleName'] ?? '',
-      bankAccountNumber: json['bankAccountNumber'] ?? '',
-      ibanNumber: json['ibanNumber'] ?? '',
-      contactNumber: json['contactNumber'] ?? '',
-      emailId: json['emailId'] ?? '',
-      additionalNote: json['additionalNote'] ?? '',
-      createdBy: json['createdBy'] ?? '',
-      createdDate: json['createdDate'] ?? '',
+      userId: json['user_id'] ?? '',
+      bankName: json['bank_name'] ?? '',
+      branchCode: json['branch_code'] ?? '',
+      bankAddress: json['bank_address'] ?? '',
+      titleName: json['title_name'] ?? '',
+      bankAccountNumber: json['bank_account_number'] ?? '',
+      ibanNumber: json['iban_number'] ?? '',
+      contactNumber: json['contact_number'] ?? '',
+      emailId: json['email_id'] ?? '',
+      additionalNote: json['additional_note'] ?? '',
+      createdBy: json['created_by'] ?? '',
+      createdDate: json['created_date'] ?? '',
     );
   }
 
@@ -361,11 +361,11 @@ class Tag {
   factory Tag.fromJson(Map<String, dynamic> json) {
     return Tag(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
-      tagName: json['tagName'] ?? '',
-      createdByUser: json['createdByUser'] ?? '',
-      createdDate: json['createdDate'] ?? '',
-      lastUpdatedDate: json['lastUpdatedDate'] ?? '',
+      userId: json['user_id'] ?? '',
+      tagName: json['tag_name'] ?? '',
+      createdByUser: json['created_by_user'] ?? '',
+      createdDate: json['created_date'] ?? '',
+      lastUpdatedDate: json['last_updated_date'] ?? '',
     );
   }
 
@@ -409,15 +409,15 @@ class Salary {
   factory Salary.fromJson(Map<String, dynamic> json) {
     return Salary(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
-      salaryMonth: json['salaryMonth'] ?? '',
-      totalSalary: json['totalSalary'] ?? '',
-      advanceSalary: json['advanceSalary'] ?? '',
+      userId: json['user_id'] ?? '',
+      salaryMonth: json['salary_month'] ?? '',
+      totalSalary: json['total_salary'] ?? '',
+      advanceSalary: json['advance_salary'] ?? '',
       bonus: json['bonus'] ?? '',
-      fineDeduction: json['fineDeduction'] ?? '',
-      remainingSalary: json['remainingSalary'] ?? '',
+      fineDeduction: json['fine_deduction'] ?? '',
+      remainingSalary: json['remaining_salary'] ?? '',
       status: json['status'] ?? '',
-      lastModified: json['lastModified'] ?? '',
+      lastModified: json['last_modified'] ?? '',
     );
   }
 
@@ -455,10 +455,10 @@ class PaymentMethod {
   factory PaymentMethod.fromJson(Map<String, dynamic> json) {
     return PaymentMethod(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
-      paymentMethod: json['paymentMethod'] ?? '',
-      createdBy: json['createdBy'],
-      createdDate: json['createdDate'],
+      userId: json['user_id'] ?? '',
+      paymentMethod: json['payment_method'] ?? '',
+      createdBy: json['created_by'],
+      createdDate: json['created_date'],
     );
   }
 }
@@ -543,41 +543,41 @@ class Profile {
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
       id: json['id'] ?? 0,
-      userId: json['userId'] ?? '',
-      employeeName: json['employeeName'] ?? '',
-      nickname: json['nickname'] ?? '',
+      userId: json['user_id'] ?? '',
+      employeeName: json['employee_name'] ?? '',
+      nickname: json['nick_name'] ?? '',
       gender: json['gender'] ?? '',
-      personalPhone: json['personalPhone'] ?? '',
-      alternatePhone: json['alternatePhone'],
-      homePhone: json['homePhone'],
-      workPermitNumber: json['workPermitNumber'],
-      emirateId: json['emirateId'],
+      personalPhone: json['personal_phone'] ?? '',
+      alternatePhone: json['alternate_phone'],
+      homePhone: json['home_phone'],
+      workPermitNumber: json['work_permit_number'],
+      emirateId: json['emirate_id'],
       email: json['email'],
-      isUserActive: json['isUserActive'] ?? 0,
-      joiningDate: json['joiningDate'],
-      contractExpiryDate: json['contractExpiryDate'],
-      dateOfBirth: json['dateOfBirth'],
-      bloodGroup: json['bloodGroup'],
-      fatherName: json['fatherName'],
+      isUserActive: json['is_user_active'] ?? 0,
+      joiningDate: json['joining_date'],
+      contractExpiryDate: json['contract_expiry_date'],
+      dateOfBirth: json['date_of_birth'],
+      bloodGroup: json['blood_group'],
+      fatherName: json['father_name'],
       religion: json['religion'],
       country: json['country'],
-      incrementAmount: json['incrementAmount'],
-      nextIncrementDate: json['nextIncrementDate'],
-      workingHours: json['workingHours'],
-      physicalAddress: json['physicalAddress'],
-      permanentAddress: json['permanentAddress'],
-      extraNote1: json['extraNote1'],
-      extraNote2: json['extraNote2'],
-      maritalStatus: json['maritalStatus'],
-      numberOfChildren: json['numberOfChildren'],
-      profileEditedByUsername: json['profileEditedByUsername'],
-      empDesignation: json['empDesignation'],
-      employeeType: json['employeeType'],
+      incrementAmount: json['increment_amount'],
+      nextIncrementDate: json['next_increment_date'],
+      workingHours: json['working_hours'],
+      physicalAddress: json['physical_address'],
+      permanentAddress: json['permanent_address'],
+      extraNote1: json['extra_note_1'],
+      extraNote2: json['extra_note_2'],
+      maritalStatus: json['marital_status'],
+      numberOfChildren: json['number_of_children'],
+      profileEditedByUsername: json['profile_edited_by_username'],
+      empDesignation: json['emp_designation'],
+      employeeType: json['employee_type'],
       tag: json['tag'],
-      paymentMethod: json['paymentMethod'],
+      paymentMethod: json['payment_method'],
       salary: json['salary'],
-      createdDate: json['createdDate'],
-      lastUpdatedDate: json['lastUpdatedDate'],
+      createdDate: json['created_date'],
+      lastUpdatedDate: json['last_updated_Date'],
     );
   }
 }
