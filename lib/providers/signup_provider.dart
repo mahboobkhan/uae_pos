@@ -9,6 +9,20 @@ import '../ui/screens/login screens/forgot_screen.dart';
 import '../ui/screens/login screens/verification_screen.dart';
 import '../widgets/loading_dialog.dart';
 
+extension _AccessNormalize on Map<String, dynamic> {
+  Map<String, int> toZeroOne() {
+    int asBit(dynamic v) {
+      if (v == null) return 0;
+      if (v is bool) return v ? 1 : 0;
+      if (v is num) return v == 0 ? 0 : 1;
+      final s = v.toString().trim().toLowerCase();
+      return (s == '1' || s == 'true' || s == 'yes') ? 1 : 0;
+    }
+
+    return map((k, v) => MapEntry(k, asBit(v)));
+  }
+}
+
 class SignupProvider with ChangeNotifier {
   bool isLoading = false;
   String? error;
@@ -352,39 +366,49 @@ class SignupProvider with ChangeNotifier {
       'https://abcwebservices.com/api/login/update_access.php',
     );
 
+    // Build payload exactly as the PHP expects
+    final payload = <String, dynamic>{
+      'user_id': userId,
+      'access': accessData.toZeroOne(), // <-- nested + normalized to 0/1
+    };
+
     try {
-      final body = {
-        'user_id': userId,
-        ...accessData, // Merge access permissions into request
-      };
+      final response = await http
+          .post(
+            url,
+            headers: const {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(payload),
+          )
+          .timeout(const Duration(seconds: 20));
 
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(body),
-      );
+      // Try to parse JSON; if server sends HTML on errors, guard it
+      Map<String, dynamic>? result;
+      try {
+        result = jsonDecode(response.body) as Map<String, dynamic>?;
+      } catch (_) {}
 
-      final result = jsonDecode(response.body);
-
-      if (response.statusCode == 200 && result['status'] == 'success') {
+      if (response.statusCode == 200 &&
+          result != null &&
+          result['status'] == 'success') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Access updated successfully')),
         );
         return true;
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Update failed')),
-        );
+        final msg =
+            result?['message'] ?? 'Update failed (HTTP ${response.statusCode})';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
         return false;
       }
     } catch (e) {
-      debugPrint('Error updating access: $e');
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ).showSnackBar(SnackBar(content: Text('Network error: $e')));
       return false;
     }
   }
