@@ -15,6 +15,7 @@ import 'package:abc_consultant/providers/update_ban_account_provider.dart';
 import 'package:abc_consultant/providers/update_designation.dart';
 import 'package:abc_consultant/ui/create_bank_account_screen..dart';
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
+import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/sign_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -65,7 +66,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //  return MaterialApp(home: DashboardScrn());
-    return MaterialApp(debugShowCheckedModeBanner: false, home: SignScreen());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: LogScreen());
     //home: SidebarLayout()
   }
 }
