@@ -11,7 +11,6 @@ import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/employe_profile.dart';
 import '../../utils/utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class EmployeesRoleScreen extends StatefulWidget {
   const EmployeesRoleScreen({super.key});
@@ -195,7 +194,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Container(
+                      child: SizedBox(
                         height: 700,
                         child: ScrollbarTheme(
                           data: ScrollbarThemeData(
@@ -360,12 +359,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
             child: GestureDetector(
               onTap: () {
                 // _showLockUnlockDialog(context);
-                showAccessDialog(
-                  context,
-                  designation,
-                  userName,
-                  access!.toJson(),
-                );
+                showAccessDialog(context, userName, access!.toJson());
               },
               child: Text(
                 text,
@@ -420,200 +414,150 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
 
   void showAccessDialog(
     BuildContext context,
-    List<Designation> designation,
     String userName,
-    Map<String, dynamic> userAccess,
+    Map<String, dynamic> apiUserAccess,
   ) {
-    // 1) Build local, mutable state once (unlocked = true)
-    final Map<String, bool> moduleState = {}; // key -> unlocked?
-    final Map<String, bool> submenuState = {}; // subKey -> unlocked?
+    final cols = _buildDbCols();
+    final userAccess = _fillMissing(_normalizeKeys(apiUserAccess), cols);
+    final String userId = (userAccess['user_id'] ?? '').toString();
 
-    for (var item in sidebarItemsAccess) {
-      final unlocked = (userAccess[item.accessKey] ?? 0) == 1;
-      moduleState[item.accessKey] = unlocked;
+    // Local UI state
+    final moduleState = <String, bool>{};
+    final submenuState = <String, bool>{};
 
+    // Seed from DB
+    for (final item in sidebarItemsAccess) {
+      moduleState[item.accessKey] = _toBool(userAccess[item.accessKey]);
       for (final key in item.submenuKeys) {
-        submenuState[key] = (userAccess[key] ?? 0) == 1;
+        submenuState[key] = _toBool(userAccess[key]);
+      }
+    }
+    // If any submenu is ON, ensure parent is ON
+    for (final item in sidebarItemsAccess) {
+      if (item.submenuKeys.any((k) => submenuState[k] == true)) {
+        moduleState[item.accessKey] = true;
       }
     }
 
-    String? selectedService; // local selection for dropdown
-
     showDialog(
       context: context,
-      builder: (_) {
-        return SafeArea(
-          child: Consumer2<SignupProvider, DesignationUpdateProvider>(
-            builder: (ctx, signupProvider, designationUpdateProvider, __) {
-              return StatefulBuilder(
-                builder: (context, setState) {
-                  return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    backgroundColor: Colors.white,
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Manage Access For $userName"),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: 230,
-                          child: CustomDropdownField(
-                            label: "Assign Designation",
-                            selectedValue: selectedService,
-                            options:
-                                designation.map((d) => d.designations).toList(),
-                            onChanged: (value) {
-                              setState(() => selectedService = value);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    content: SizedBox(
-                      width: 400,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: sidebarItemsAccess.length,
-                        itemBuilder: (context, index) {
-                          final item = sidebarItemsAccess[index];
-                          final bool isModuleUnlocked =
-                              moduleState[item.accessKey] ?? false;
+      builder:
+          (_) => StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                title: Text('Manage Access For $userName'),
+                content: SizedBox(
+                  width: 420,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: sidebarItemsAccess.length,
+                    itemBuilder: (_, i) {
+                      final item = sidebarItemsAccess[i];
+                      final parentOn = moduleState[item.accessKey] ?? false;
 
-                          return ExpansionTile(
-                            title: Row(
-                              children: [
-                                Icon(item.icon, size: 18),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    item.title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                      return ExpansionTile(
+                        title: Row(
+                          children: [
+                            Icon(item.icon, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                item.title,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                Transform.scale(
-                                  scale: 0.9,
-                                  child: Switch(
-                                    value: isModuleUnlocked,
-                                    onChanged: (val) {
-                                      setState(() {
-                                        moduleState[item.accessKey] = val;
-
-                                        // OPTIONAL: when locking module, lock all its submenus
-                                        if (!val) {
-                                          for (final key in item.submenuKeys) {
-                                            submenuState[key] = false;
-                                          }
-                                        }
-                                      });
-                                    },
-                                    activeColor: Colors.white,
-                                    activeTrackColor: Colors.green,
-                                    inactiveThumbColor: Colors.white,
-                                    inactiveTrackColor: Colors.red,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                            children: List.generate(item.submenus.length, (
-                              subIndex,
-                            ) {
-                              final subKey = item.submenuKeys[subIndex];
-                              final bool isSubUnlocked =
-                                  submenuState[subKey] ?? false;
-
-                              return ListTile(
-                                dense: true,
-                                contentPadding: const EdgeInsets.only(
-                                  left: 32,
-                                  right: 8,
-                                ),
-                                title: Text(
-                                  item.submenus[subIndex],
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                                trailing: Transform.scale(
-                                  scale: 0.9,
-                                  child: Switch(
-                                    value: isSubUnlocked,
-                                    onChanged: (val) {
-                                      setState(() {
-                                        // If module is locked, unlock module first when turning on a submenu (optional behavior)
-                                        if (val &&
-                                            !(moduleState[item.accessKey] ??
-                                                false)) {
-                                          moduleState[item.accessKey] = true;
-                                        }
-                                        submenuState[subKey] = val;
-                                      });
-                                    },
-                                    activeColor: Colors.white,
-                                    activeTrackColor: Colors.green,
-                                    inactiveThumbColor: Colors.white,
-                                    inactiveTrackColor: Colors.red,
-                                  ),
-                                ),
-                              );
-                            }),
-                          );
-                        },
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text(
-                          'Close',
-                          style: TextStyle(color: Colors.grey),
+                            Transform.scale(
+                              scale: 0.9,
+                              child: Switch(
+                                value: parentOn,
+                                onChanged: (val) {
+                                  setState(() {
+                                    moduleState[item.accessKey] = val;
+                                    if (!val) {
+                                      for (final k in item.submenuKeys) {
+                                        submenuState[k] = false;
+                                      }
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                      CustomButton(
-                        backgroundColor: Colors.green,
-                        text: "Submit",
-                          onPressed: () async {
-                            // Convert bool → int (1/0)
-                            final accessMap = <String, dynamic>{};
-                            for (var item in sidebarItemsAccess) {
-                              accessMap[item.accessKey] = (moduleState[item.accessKey] ?? false) ? 1 : 0;
-                              for (final key in item.submenuKeys) {
-                                accessMap[key] = (submenuState[key] ?? false) ? 1 : 0;
-                              }
-                            }
+                        children: List.generate(item.submenuKeys.length, (j) {
+                          final subKey = item.submenuKeys[j];
+                          final subOn = submenuState[subKey] ?? false;
+                          return ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.only(
+                              left: 32,
+                              right: 8,
+                            ),
+                            title: Text(item.submenus[j]),
+                            trailing: Transform.scale(
+                              scale: 0.9,
+                              child: Switch(
+                                value: subOn,
+                                onChanged: (val) {
+                                  setState(() {
+                                    if (val &&
+                                        !(moduleState[item.accessKey] ??
+                                            false)) {
+                                      moduleState[item.accessKey] = true;
+                                    }
+                                    submenuState[subKey] = val;
+                                  });
+                                },
+                              ),
+                            ),
+                          );
+                        }),
+                      );
+                    },
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Build full 1/0 payload
+                      final payload = <String, dynamic>{
+                        for (final c in cols) c: 0,
+                      };
+                      for (final item in sidebarItemsAccess) {
+                        final pOn = moduleState[item.accessKey] ?? false;
+                        payload[item.accessKey] = pOn ? 1 : 0;
+                        for (final k in item.submenuKeys) {
+                          final sOn = submenuState[k] ?? false;
+                          payload[k] =
+                              pOn ? (sOn ? 1 : 0) : 0; // parent off -> sub off
+                        }
+                      }
 
-                            // Get current logged-in user ID from SharedPreferences
-                            final prefs = await SharedPreferences.getInstance();
-                            final userId = prefs.getString('user_id');
+                      // Submit using your provider / API
+                      final signup = context.read<SignupProvider>();
+                      await signup.updateUserAccess(
+                        userId: userId,
+                        accessData: payload,
+                        context: context,
+                      );
 
-                            if (userId == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('User ID not found')),
-                              );
-                              return;
-                            }
-
-                            await signupProvider.updateUserAccess(
-                              userId: userId,
-                              accessData: accessMap,
-                              context: context,
-                            );
-
-                            // Optional: refresh access from server
-                            await signupProvider.fetchUserAccess(userId);
-
-                            Navigator.of(context).pop();
-                          }
-                      ),
-                    ],
-                  );
-                },
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Submit'),
+                  ),
+                ],
               );
             },
           ),
-        );
-      },
     );
   }
 
@@ -669,6 +613,40 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
         ],
       ),
     );
+  }
+
+  Map<String, dynamic> _normalizeKeys(Map<String, dynamic> raw) {
+    final out = <String, dynamic>{};
+    raw.forEach((k, v) => out[aliases[k] ?? k] = v);
+    return out;
+  }
+
+  bool _toBool(dynamic v) {
+    if (v == null) return false;
+    if (v is bool) return v;
+    if (v is num) return v.toInt() == 1;
+    if (v is String) {
+      final s = v.trim().toLowerCase();
+      return s == '1' || s == 'true' || s == 'yes';
+    }
+    return false;
+  }
+
+  Map<String, dynamic> _fillMissing(Map<String, dynamic> m, List<String> cols) {
+    final out = Map<String, dynamic>.from(m);
+    for (final c in cols) {
+      out.putIfAbsent(c, () => 0);
+    }
+    return out;
+  }
+
+  List<String> _buildDbCols() {
+    final s = <String>{};
+    for (final it in sidebarItemsAccess) {
+      s.add(it.accessKey);
+      s.addAll(it.submenuKeys);
+    }
+    return s.toList();
   }
 
   /*void showInstituteManagementDialog2(BuildContext context) {
