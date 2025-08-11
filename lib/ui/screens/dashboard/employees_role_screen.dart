@@ -11,6 +11,7 @@ import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/employe_profile.dart';
 import '../../utils/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EmployeesRoleScreen extends StatefulWidget {
   const EmployeesRoleScreen({super.key});
@@ -572,31 +573,38 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                       CustomButton(
                         backgroundColor: Colors.green,
                         text: "Submit",
-                        onPressed: () async {
-                          // Build payload: true=unlocked, false=locked
-                          final accessMap = <String, bool>{};
-                          for (var item in sidebarItemsAccess) {
-                            accessMap[item.accessKey] =
-                                moduleState[item.accessKey] ?? false;
-                            for (final key in item.submenuKeys) {
-                              accessMap[key] = submenuState[key] ?? false;
+                          onPressed: () async {
+                            // Convert bool → int (1/0)
+                            final accessMap = <String, dynamic>{};
+                            for (var item in sidebarItemsAccess) {
+                              accessMap[item.accessKey] = (moduleState[item.accessKey] ?? false) ? 1 : 0;
+                              for (final key in item.submenuKeys) {
+                                accessMap[key] = (submenuState[key] ?? false) ? 1 : 0;
+                              }
                             }
+
+                            // Get current logged-in user ID from SharedPreferences
+                            final prefs = await SharedPreferences.getInstance();
+                            final userId = prefs.getString('user_id');
+
+                            if (userId == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('User ID not found')),
+                              );
+                              return;
+                            }
+
+                            await signupProvider.updateUserAccess(
+                              userId: userId,
+                              accessData: accessMap,
+                              context: context,
+                            );
+
+                            // Optional: refresh access from server
+                            await signupProvider.fetchUserAccess(userId);
+
+                            Navigator.of(context).pop();
                           }
-                          // ignore: avoid_print
-                          print("user id: ${userAccess['user_id']}");
-                          // ignore: avoid_print
-                          //Yousaf
-                          // user_6896ea35be8dd
-                          print("accessMap: $accessMap");
-
-                          signupProvider.updateUserAccess(
-                            userId: "user_6896ea35be8dd",
-                            accessData: accessMap,
-                            context: context,
-                          );
-
-                          // Debug logs
-                        },
                       ),
                     ],
                   );

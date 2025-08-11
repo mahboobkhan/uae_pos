@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../employee/AllEmployeeData.dart';
+import '../../employee/EmployeeProvider.dart';
 import '../../employee/employee_models.dart';
 import '../../providers/create_bank_account.dart';
 import '../../providers/desigination_provider.dart';
@@ -53,7 +54,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _emailIdController = TextEditingController();
   final TextEditingController _physicalAddressController =
       TextEditingController();
-
+  String? _selectedBank;
   // Controllers for additional fields
   final TextEditingController _titleNameController = TextEditingController();
   final TextEditingController _bankAccountController = TextEditingController();
@@ -86,24 +87,27 @@ class _EmployeProfileState extends State<EmployeProfile> {
   String? employeeTypeSelected;
 
   @override
+  @override
   void initState() {
     super.initState();
 
+    _selectedBank = null;
+
     final singleEmployee = widget.singleEmployee;
 
-    _employeeNameController.text =
-        singleEmployee.value.employeeName.toString() ?? '';
-    _emailIdController.text = singleEmployee.value.email.toString() ?? '';
-    _eidController.text = singleEmployee.value.userId.toString() ?? '';
+    // Basic info
+    _employeeNameController.text = singleEmployee.value.employeeName ?? '';
+    _emailIdController.text = singleEmployee.value.email ?? '';
+    _eidController.text = singleEmployee.value.userId?.toString() ?? '';
 
+    // Gender
     final incomingGender = singleEmployee.value.gender.trim();
-    selectedGender =
-        genderOptions.contains(incomingGender)
-            ? incomingGender
-            : genderOptions.first;
+    selectedGender = genderOptions.contains(incomingGender)
+        ? incomingGender
+        : genderOptions.first;
 
-    final employeeType = widget.singleEmployee.value.employeeType.trim();
-
+    // Employee type
+    final employeeType = singleEmployee.value.employeeType.trim();
     employeeTypeSelected =
         singleEmployee.value.allEmployeeTypes
                 .map((d) => d.employeeType)
@@ -112,75 +116,88 @@ class _EmployeProfileState extends State<EmployeProfile> {
             ? employeeType
             : null;
 
-    final allTypes =
-        widget.singleEmployee.value.allEmployeeTypes
-            .map((d) => d.employeeType)
-            .toList();
-
-    // print("all Types 0  ${employeeTypeSelected}");
-    // print("all Types ${widget.singleEmployee.value.allEmployeeTypes}");
-
+    // Job type / designation
     final incomingPosition = singleEmployee.value.empDesignation.trim();
-
     selectedJobType =
-        singleEmployee.value.allDesignations
-                .map((d) => d.designations)
-                .toList()
-                .contains(incomingPosition)
-            ? incomingPosition
-            : null;
+    singleEmployee.value.allDesignations
+        .map((d) => d.designations)
+        .toList()
+        .contains(incomingPosition)
+        ? incomingPosition
+        : null;
 
-    final list =
-        widget.singleEmployee.value.allDesignations
-            .map((d) => d.designations)
-            .toList();
-
-    final list2 =
-        widget.singleEmployee.value.allEmployeeTypes
-            .map((d) => d.employeeType)
-            .toList();
-
-    print("all Types 2 ----${list}");
-    print("all Types list2 -------${list2}");
-
-    _contactNumber1.text = singleEmployee.value.homePhone.toString() ?? '';
-
-    _contactNumber2Controller.text =
-        singleEmployee.value.homePhone.toString() ?? '';
-    _homeContactNumberController.text =
-        singleEmployee.value.homePhone.toString() ?? '';
+    // Contact & other details
+    _contactNumber1.text = singleEmployee.value.homePhone ?? '';
+    _contactNumber2Controller.text = singleEmployee.value.homePhone ?? '';
+    _homeContactNumberController.text = singleEmployee.value.homePhone ?? '';
     _workPermitNumberController.text =
-        singleEmployee.value.workPermitNumber.toString() ?? '';
-    _emiratesIdController.text =
-        singleEmployee.value.emirateId.toString() ?? '';
-    _joiningDateController.text =
-        singleEmployee.value.joiningDate.toString() ?? '';
+        singleEmployee.value.workPermitNumber ?? '';
+    _emiratesIdController.text = singleEmployee.value.emirateId ?? '';
+    _joiningDateController.text = singleEmployee.value.joiningDate ?? '';
     _contractExpiryController.text =
-        singleEmployee.value.contractExpiryDate.toString() ?? '';
-    _birthDateController.text =
-        singleEmployee.value.dateOfBirth.toString() ?? '';
-    _salaryController.text = singleEmployee.value.salary.toString() ?? '';
+        singleEmployee.value.contractExpiryDate ?? '';
+    _birthDateController.text = singleEmployee.value.dateOfBirth ?? '';
+    _salaryController.text = singleEmployee.value.salary?.toString() ?? '';
     _incrementController.text =
-        singleEmployee.value.incrementAmount.toString() ?? '';
+        singleEmployee.value.incrementAmount?.toString() ?? '';
     _workingHoursController.text =
-        singleEmployee.value.workingHours.toString() ?? '';
+        singleEmployee.value.workingHours?.toString() ?? '';
     _physicalAddressController.text =
-        singleEmployee.value.physicalAddress.toString() ?? '';
-    _noteController.text = singleEmployee.value.extraNote1.toString() ?? '';
-    // _titleNameController.text = bankAccount.value.titleName;
+        singleEmployee.value.physicalAddress ?? '';
+    _noteController.text = singleEmployee.value.extraNote1 ?? '';
+
+  /*  // Load existing bank account info from API
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadExistingBankAccount();
+    });*/
   }
+
+/*
+  Future<void> _loadExistingBankAccount() async {
+    try {
+      final response = await context
+          .read<UpdateUserBankAccountProvider>()
+          .getUserBankAccount(widget.singleEmployee.value.userId);
+
+      if (response["status"] == "exists") {
+        final account = response["data"];
+
+        setState(() {
+          // Set selected bank in dropdown
+          final allBankNames =
+          widget.data!.allBanks.map((d) => d.bankName.trim()).toList();
+          if (allBankNames.contains(account["bank_name"]?.toString()?.trim())) {
+            _selectedBank = account["bank_name"].toString().trim();
+          }
+
+          // Fill text controllers
+          _titleNameController.text = account["title_name"] ?? '';
+          _bankAccountController.text = account["bank_account_number"] ?? '';
+          _ibanNumberController.text = account["iban_number"] ?? '';
+          _contactNumberController.text = account["contact_number"] ?? '';
+          _emailI2dController.text = account["email_id"] ?? '';
+          _noteController.text = account["additional_note"] ?? '';
+        });
+      }
+    } catch (e) {
+      print("Error loading bank account: $e");
+    }
+  }
+*/
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Consumer2<
+      child: Consumer3<
         UpdateUserBankAccountProvider,
-        CreateUserBankAccountProvider
+        CreateUserBankAccountProvider,
+          EmployeeProvider
       >(
         builder: (
           ctx,
           updateUserBankAccountProvider,
           createUserBankAccountProvider,
+            employeeProvider,
           _,
         ) {
           return Dialog(
@@ -470,7 +487,10 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                   .toList(),
                           selectedValue: null,
                           onChanged: (value) {
-                            setState(() {});
+                            setState(() {
+                              _selectedBank = value;
+
+                            });
                           },
                         ),
                         CustomTextField(
@@ -612,26 +632,24 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           backgroundColor: Colors.green,
                           onPressed: () async {
                             //  Navigator.of(context).pop(true);
-                            updateUserBankAccountProvider.updateBankAccount(
+                            /*updateUserBankAccountProvider.updateBankAccount(
                               UpdateUserBankAccountRequest(
                                 userId: widget.singleEmployee.value.userId,
-                                bankAccountNumber: '',
-                                bankName: _titleNameController.text,
+                                bankAccountNumber: _bankAccountController.text.trim(),
+                                bankName: "N/A",
                                 branchCode: 'N/A',
                                 bankAddress: 'N/A',
-                                titleName: '',
-                                ibanNumber: '',
-                                contactNumber: '',
-                                emailId: '',
+                                titleName: _titleNameController.text.trim(),
+                                ibanNumber: 'N/A',
+                                contactNumber: 'N/A',
+                                emailId: widget.singleEmployee.value.email,
                                 additionalNote: 'N/A',
                               ),
-                            );
-                            Navigator.of(context).pop(true);
-
+                            );*/
                             createUserBankAccountProvider.createBankAccount(
                               CreateUserBankAccountRequest(
                                 userId: widget.singleEmployee.value.userId,
-                                bankName:  "N/A",
+                                bankName: _selectedBank ?? "N/A", // <-- use selected value here
                                 branchCode:  "N/A",
                                 bankAddress: "N/A",
                                 titleName: _titleNameController.text.trim(),
@@ -643,6 +661,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 createdBy: "N/A", // whoever is logged in
                               ),
                             );
+                            Navigator.of(context).pop();
+
                           },
                         ),
                       ],
