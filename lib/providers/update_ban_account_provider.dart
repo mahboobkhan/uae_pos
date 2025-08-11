@@ -54,7 +54,16 @@ class UpdateUserBankAccountProvider extends ChangeNotifier {
           _setError(res.message);
         }
       } else {
-        _setError("Server error: ${response.statusCode}");
+        // Surface backend message on non-200 responses (e.g., 409 exists)
+        try {
+          final json = jsonDecode(response.body);
+          final String msg = (json is Map<String, dynamic>)
+              ? (json['message']?.toString() ?? '')
+              : '';
+          _setError(msg.isNotEmpty ? msg : "Server error: ${response.statusCode}");
+        } catch (_) {
+          _setError("Server error: ${response.statusCode}");
+        }
       }
     } on SocketException {
       _setError("No internet connection (socket)");
@@ -127,6 +136,7 @@ class UpdateUserBankAccountResponse {
 
 // models/update_user_bank_account_request.dart
 class UpdateUserBankAccountRequest {
+  final int? bankAccountId; // optional DB primary key of bank account
   final String userId;
   final String bankName;
   final String branchCode;
@@ -139,6 +149,7 @@ class UpdateUserBankAccountRequest {
   final String additionalNote;
 
   UpdateUserBankAccountRequest({
+    this.bankAccountId,
     required this.userId,
     required this.bankName,
     required this.branchCode,
@@ -152,7 +163,7 @@ class UpdateUserBankAccountRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> json = {
       "user_id": userId,
       "bank_name": bankName,
       "branch_code": branchCode,
@@ -164,5 +175,9 @@ class UpdateUserBankAccountRequest {
       "email_id": emailId,
       "additional_note": additionalNote,
     };
+    if (bankAccountId != null) {
+      json['id'] = bankAccountId; // backend may require 'id' to target the record
+    }
+    return json;
   }
 }

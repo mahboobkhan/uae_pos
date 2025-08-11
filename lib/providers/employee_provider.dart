@@ -4,7 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class EmployeeProvider extends ChangeNotifier {
+class Profile extends ChangeNotifier {
   EmployeeStatus status = EmployeeStatus.idle;
   List<Employee> employees = [];
   String errorMessage = '';

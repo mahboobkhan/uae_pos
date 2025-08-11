@@ -6,18 +6,21 @@ import '../../employee/AllEmployeeData.dart';
 import '../../employee/EmployeeProvider.dart';
 import '../../employee/employee_models.dart';
 import '../../providers/create_bank_account.dart';
-import '../../providers/desigination_provider.dart';
 import '../../providers/update_ban_account_provider.dart';
+import '../../providers/signup_provider.dart';
+import '../../utils/request_state.dart';
 import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
-void EmployeeProfileDialog(
-  BuildContext context,
-  MapEntry<int, Employee> singleEmployee,
-  AllEmployeeData? data,
+Future<Map<String, dynamic>?> EmployeeProfileDialog(
+    BuildContext context,
+      MapEntry<int, Employee> singleEmployee,
+      AllEmployeeData? data,
+
+
 ) {
-  showDialog(
+  return showDialog<Map<String, dynamic>?>(
     context: context,
     builder: (context) {
       return Dialog(
@@ -32,10 +35,10 @@ void EmployeeProfileDialog(
 }
 
 class EmployeProfile extends StatefulWidget {
-  MapEntry<int, Employee> singleEmployee; // Add any other parameters you need
-  AllEmployeeData? data;
+  final MapEntry<int, Employee> singleEmployee; // Add any other parameters you need
+  final AllEmployeeData? data;
 
-  EmployeProfile({super.key, required this.singleEmployee, required this.data});
+  const EmployeProfile({super.key, required this.singleEmployee, required this.data});
 
   @override
   State<EmployeProfile> createState() => _EmployeProfileState();
@@ -87,7 +90,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
   String? employeeTypeSelected;
 
   @override
-  @override
   void initState() {
     super.initState();
 
@@ -96,9 +98,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
     final singleEmployee = widget.singleEmployee;
 
     // Basic info
-    _employeeNameController.text = singleEmployee.value.employeeName ?? '';
-    _emailIdController.text = singleEmployee.value.email ?? '';
-    _eidController.text = singleEmployee.value.userId?.toString() ?? '';
+    _employeeNameController.text = singleEmployee.value.employeeName;
+    _emailIdController.text = singleEmployee.value.email;
+    _eidController.text = singleEmployee.value.userId.toString();
 
     // Gender
     final incomingGender = singleEmployee.value.gender.trim();
@@ -127,77 +129,63 @@ class _EmployeProfileState extends State<EmployeProfile> {
         : null;
 
     // Contact & other details
-    _contactNumber1.text = singleEmployee.value.homePhone ?? '';
-    _contactNumber2Controller.text = singleEmployee.value.homePhone ?? '';
-    _homeContactNumberController.text = singleEmployee.value.homePhone ?? '';
-    _workPermitNumberController.text =
-        singleEmployee.value.workPermitNumber ?? '';
-    _emiratesIdController.text = singleEmployee.value.emirateId ?? '';
-    _joiningDateController.text = singleEmployee.value.joiningDate ?? '';
-    _contractExpiryController.text =
-        singleEmployee.value.contractExpiryDate ?? '';
-    _birthDateController.text = singleEmployee.value.dateOfBirth ?? '';
-    _salaryController.text = singleEmployee.value.salary?.toString() ?? '';
-    _incrementController.text =
-        singleEmployee.value.incrementAmount?.toString() ?? '';
-    _workingHoursController.text =
-        singleEmployee.value.workingHours?.toString() ?? '';
-    _physicalAddressController.text =
-        singleEmployee.value.physicalAddress ?? '';
-    _noteController.text = singleEmployee.value.extraNote1 ?? '';
+    _contactNumber1.text = singleEmployee.value.homePhone;
+    _contactNumber2Controller.text = singleEmployee.value.homePhone;
+    _homeContactNumberController.text = singleEmployee.value.homePhone;
+    _workPermitNumberController.text = singleEmployee.value.workPermitNumber;
+    _emiratesIdController.text = singleEmployee.value.emirateId;
+    _joiningDateController.text = singleEmployee.value.joiningDate;
+    _contractExpiryController.text = singleEmployee.value.contractExpiryDate;
+    _birthDateController.text = singleEmployee.value.dateOfBirth;
+    _salaryController.text = singleEmployee.value.salary.toString();
+    _incrementController.text = singleEmployee.value.incrementAmount.toString();
+    _workingHoursController.text = singleEmployee.value.workingHours.toString();
+    _physicalAddressController.text = singleEmployee.value.physicalAddress;
+    _noteController.text = singleEmployee.value.extraNote1;
 
-  /*  // Load existing bank account info from API
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadExistingBankAccount();
-    });*/
-  }
-
-/*
-  Future<void> _loadExistingBankAccount() async {
+    // Prefill existing bank account data for this user (if any)
     try {
-      final response = await context
-          .read<UpdateUserBankAccountProvider>()
-          .getUserBankAccount(widget.singleEmployee.value.userId);
+      final List<BankAccount> existingAccounts = singleEmployee.value.allBankAccounts;
+      if (existingAccounts.isNotEmpty) {
+        final BankAccount existing = existingAccounts.first;
 
-      if (response["status"] == "exists") {
-        final account = response["data"];
+        // Validate bank name against available options to avoid invalid selection
+        final List<String> availableBankNames =
+            widget.data?.allBanks.map((b) => b.bankName.trim()).toList() ?? [];
+        final String candidateBankName = existing.bankName.trim();
+        if (availableBankNames.contains(candidateBankName)) {
+          _selectedBank = candidateBankName;
+        } else {
+          _selectedBank = null;
+        }
 
-        setState(() {
-          // Set selected bank in dropdown
-          final allBankNames =
-          widget.data!.allBanks.map((d) => d.bankName.trim()).toList();
-          if (allBankNames.contains(account["bank_name"]?.toString()?.trim())) {
-            _selectedBank = account["bank_name"].toString().trim();
-          }
-
-          // Fill text controllers
-          _titleNameController.text = account["title_name"] ?? '';
-          _bankAccountController.text = account["bank_account_number"] ?? '';
-          _ibanNumberController.text = account["iban_number"] ?? '';
-          _contactNumberController.text = account["contact_number"] ?? '';
-          _emailI2dController.text = account["email_id"] ?? '';
-          _noteController.text = account["additional_note"] ?? '';
-        });
+        _titleNameController.text = existing.titleName;
+        _bankAccountController.text = existing.bankAccountNumber;
+        _ibanNumberController.text = existing.ibanNumber;
+        _contactNumberController.text = existing.contactNumber;
+        _emailI2dController.text = existing.emailId;
+        _noteController.text = existing.additionalNote;
       }
-    } catch (e) {
-      print("Error loading bank account: $e");
-    }
+    } catch (_) {}
+
   }
-*/
+
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Consumer3<
+      child: Consumer4<
         UpdateUserBankAccountProvider,
         CreateUserBankAccountProvider,
-          EmployeeProvider
+          EmployeeProvider,
+          SignupProvider
       >(
         builder: (
           ctx,
           updateUserBankAccountProvider,
           createUserBankAccountProvider,
             employeeProvider,
+            signupProvider,
           _,
         ) {
           return Dialog(
@@ -631,40 +619,100 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           text: "Submit",
                           backgroundColor: Colors.green,
                           onPressed: () async {
-                            //  Navigator.of(context).pop(true);
-                            /*updateUserBankAccountProvider.updateBankAccount(
+                            final String currentUserId = widget.singleEmployee.value.userId;
+                            final String enteredAccountNumber = _bankAccountController.text.trim();
+
+                            // First: update employee profile fields
+                            final profilePayload = <String, dynamic>{
+                              'user_id': currentUserId,
+                              'employee_name': _employeeNameController.text.trim(),
+                              'email': _emailIdController.text.trim(),
+                              'home_phone': _contactNumber1.text.trim(),
+                              'alternate_phone': _contactNumber2Controller.text.trim(),
+                              'personal_phone': _homeContactNumberController.text.trim(),
+                              'work_permit_number': _workPermitNumberController.text.trim(),
+                              'emirate_id': _emiratesIdController.text.trim(),
+                              'joining_date': _joiningDateController.text.trim(),
+                              'contract_expiry_date': _contractExpiryController.text.trim(),
+                              'date_of_birth': _birthDateController.text.trim(),
+                              'physical_address': _physicalAddressController.text.trim(),
+                              'extra_note_1': _noteController.text.trim(),
+                              'gender': selectedGender ?? '',
+                              'emp_designation': selectedJobType ?? '',
+                              'employee_type': employeeTypeSelected ?? '',
+                              'salary': _salaryController.text.trim(),
+                              'increment_amount': _incrementController.text.trim(),
+                              'working_hours': _workingHoursController.text.trim(),
+                            };
+                            print("Payload: $profilePayload");
+                            final profileRes = await signupProvider.updateEmployeeProfile(profilePayload);
+                            if (profileRes['success'] != true) {
+                              _showMessage(context, profileRes['message'] ?? 'Profile update failed');
+                              return;
+                            }
+
+                            // Then: bank account update using current user id
+                            final List<BankAccount> accountsForUser =
+                            (employeeProvider.allUserBankAccounts ?? [])
+                                .where((a) => a.userId == currentUserId)
+                                .toList();
+
+                            if (accountsForUser.isEmpty) {
+                              _showMessage(context, "No existing bank account found to update");
+                              return;
+                            }
+
+                            await updateUserBankAccountProvider.updateBankAccount(
                               UpdateUserBankAccountRequest(
-                                userId: widget.singleEmployee.value.userId,
-                                bankAccountNumber: _bankAccountController.text.trim(),
-                                bankName: "N/A",
-                                branchCode: 'N/A',
-                                bankAddress: 'N/A',
-                                titleName: _titleNameController.text.trim(),
-                                ibanNumber: 'N/A',
-                                contactNumber: 'N/A',
-                                emailId: widget.singleEmployee.value.email,
-                                additionalNote: 'N/A',
-                              ),
-                            );*/
-                            createUserBankAccountProvider.createBankAccount(
-                              CreateUserBankAccountRequest(
-                                userId: widget.singleEmployee.value.userId,
-                                bankName: _selectedBank ?? "N/A", // <-- use selected value here
-                                branchCode:  "N/A",
+                                userId: currentUserId,
+                                bankName: _selectedBank ?? "N/A",
+                                branchCode: "N/A",
                                 bankAddress: "N/A",
                                 titleName: _titleNameController.text.trim(),
-                                bankAccountNumber: _bankAccountController.text.trim(),
+                                bankAccountNumber: enteredAccountNumber,
                                 ibanNumber: _ibanNumberController.text.trim(),
                                 contactNumber: _contactNumberController.text.trim(),
                                 emailId: _emailI2dController.text.trim(),
                                 additionalNote: _noteController.text.trim(),
-                                createdBy: "N/A", // whoever is logged in
                               ),
                             );
-                            Navigator.of(context).pop();
 
+                            if (updateUserBankAccountProvider.state == RequestState.success) {
+                              await employeeProvider.getFullData();
+
+                              // Repopulate profile controllers from server
+                              final updatedEmp = employeeProvider.employees
+                                  ?.firstWhere((e) => e.userId == currentUserId, orElse: () => null as dynamic);
+                              if (updatedEmp != null) {
+                                setState(() {
+                                  _employeeNameController.text = updatedEmp.employeeName;
+                                  _emailIdController.text = updatedEmp.email;
+                                  _contactNumber1.text = updatedEmp.homePhone;
+                                  _contactNumber2Controller.text = updatedEmp.alternatePhone;
+                                  _homeContactNumberController.text = updatedEmp.personalPhone;
+                                  _workPermitNumberController.text = updatedEmp.workPermitNumber;
+                                  _emiratesIdController.text = updatedEmp.emirateId;
+                                  _joiningDateController.text = updatedEmp.joiningDate;
+                                  _contractExpiryController.text = updatedEmp.contractExpiryDate;
+                                  _birthDateController.text = updatedEmp.dateOfBirth;
+                                  _physicalAddressController.text = updatedEmp.physicalAddress;
+                                  _noteController.text = updatedEmp.extraNote1;
+                                  selectedGender = updatedEmp.gender;
+                                  selectedJobType = updatedEmp.empDesignation;
+                                  employeeTypeSelected = updatedEmp.employeeType;
+                                  _salaryController.text = (updatedEmp.salary ?? '').toString();
+                                  _incrementController.text = updatedEmp.incrementAmount;
+                                  _workingHoursController.text = updatedEmp.workingHours;
+                                });
+                              }
+
+                              _showMessage(context, "Profile and bank account updated successfully");
+                            } else {
+                              _showMessage(context, updateUserBankAccountProvider.errorMessage ?? "Update failed");
+                            }
                           },
-                        ),
+                        )
+                        // Removed duplicate Submit button with invalid code
                       ],
                     ),
                   ],

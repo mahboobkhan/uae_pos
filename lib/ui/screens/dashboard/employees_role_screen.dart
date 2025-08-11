@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../employee/AllEmployeeData.dart';
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
 import '../../../providers/desigination_provider.dart';
@@ -292,15 +293,20 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                               _buildActionCell(
                                                 onEdit: () {},
                                                 onDelete: () {},
-                                                onDraft: () {
+                                                onDraft: () async {
                                                   print(singleEmployee);
-                                                  EmployeeProfileDialog(
+                                                  final result = await EmployeeProfileDialog(
                                                     context,
                                                     singleEmployee,
                                                     employeeProvider.data,
-
                                                     //  bankAccount,
                                                   );
+                                                   if (result != null) {
+                                                    // Optionally update UI or local state with returned values
+                                                    // For example, you could show a toast/snackbar or trigger a refresh
+                                                    // setState(() {});
+                                                  }
+                            
                                                 },
                                               ),
                                             ],
@@ -359,7 +365,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
             child: GestureDetector(
               onTap: () {
                 // _showLockUnlockDialog(context);
-                showAccessDialog(context, userName, access!.toJson());
+                showAccessDialog(context, userName,designation, access!.toJson());
               },
               child: Text(
                 text,
@@ -415,7 +421,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   void showAccessDialog(
     BuildContext context,
     String userName,
-    Map<String, dynamic> apiUserAccess,
+      List<Designation> designation,
+      Map<String, dynamic> apiUserAccess,
   ) {
     final cols = _buildDbCols();
     final userAccess = _fillMissing(_normalizeKeys(apiUserAccess), cols);
@@ -445,90 +452,117 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
           (_) => StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
                 title: Text('Manage Access For $userName'),
                 content: SizedBox(
                   width: 420,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: sidebarItemsAccess.length,
-                    itemBuilder: (_, i) {
-                      final item = sidebarItemsAccess[i];
-                      final parentOn = moduleState[item.accessKey] ?? false;
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomDropdownField(
+                        label: "Assign Designation ",
+                        selectedValue: selectedService,
+                        options: designation.map((d) => d.designations).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedService = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: sidebarItemsAccess.length,
+                          itemBuilder: (_, i) {
+                            final item = sidebarItemsAccess[i];
+                            final parentOn = moduleState[item.accessKey] ?? false;
 
-                      return ExpansionTile(
-                        title: Row(
-                          children: [
-                            Icon(item.icon, size: 18),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                item.title,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            return ExpansionTile(
+                              title: Row(
+                                children: [
+                                  Icon(item.icon, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      item.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Transform.scale(
+                                    scale: 0.5,
+                                    child: Switch(
+                                      value: parentOn,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          moduleState[item.accessKey] = val;
+                                          if (!val) {
+                                            for (final k in item.submenuKeys) {
+                                              submenuState[k] = false;
+                                            }
+                                          }
+                                        });
+                                      },
+                                      activeColor: Colors.white,
+                                      activeTrackColor: Colors.green,
+                                      inactiveThumbColor: Colors.white,
+                                      inactiveTrackColor: Colors.red,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Transform.scale(
-                              scale: 0.9,
-                              child: Switch(
-                                value: parentOn,
-                                onChanged: (val) {
-                                  setState(() {
-                                    moduleState[item.accessKey] = val;
-                                    if (!val) {
-                                      for (final k in item.submenuKeys) {
-                                        submenuState[k] = false;
-                                      }
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
+                              children: List.generate(item.submenuKeys.length, (j) {
+                                final subKey = item.submenuKeys[j];
+                                final subOn = submenuState[subKey] ?? false;
+                                return ListTile(
+                                  dense: true,
+                                  contentPadding:
+                                  const EdgeInsets.only(left: 32, right: 8),
+                                  title: Text(item.submenus[j]),
+                                  trailing: Transform.scale(
+                                    scale: 0.5,
+                                    child: Switch(
+                                      value: subOn,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          if (val &&
+                                              !(moduleState[item.accessKey] ?? false)) {
+                                            moduleState[item.accessKey] = true;
+                                          }
+                                          submenuState[subKey] = val;
+                                        });
+                                      },
+                                      activeColor: Colors.white,
+                                      activeTrackColor: Colors.green,
+                                      inactiveThumbColor: Colors.white,
+                                      inactiveTrackColor: Colors.red,
+                                    ),
+                                  ),
+                                );
+                              }),
+                            );
+                          },
                         ),
-                        children: List.generate(item.submenuKeys.length, (j) {
-                          final subKey = item.submenuKeys[j];
-                          final subOn = submenuState[subKey] ?? false;
-                          return ListTile(
-                            dense: true,
-                            contentPadding: const EdgeInsets.only(
-                              left: 32,
-                              right: 8,
-                            ),
-                            title: Text(item.submenus[j]),
-                            trailing: Transform.scale(
-                              scale: 0.9,
-                              child: Switch(
-                                value: subOn,
-                                onChanged: (val) {
-                                  setState(() {
-                                    if (val &&
-                                        !(moduleState[item.accessKey] ??
-                                            false)) {
-                                      moduleState[item.accessKey] = true;
-                                    }
-                                    submenuState[subKey] = val;
-                                  });
-                                },
-                              ),
-                            ),
-                          );
-                        }),
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Close'),
+                    child: const Text('Close', style: TextStyle(color: Colors.grey)),
                   ),
-                  ElevatedButton(
+                  CustomButton(
+                    text: 'Submit',
+                    backgroundColor: Colors.green,
                     onPressed: () async {
-                      // Build full 1/0 payload
                       final payload = <String, dynamic>{
                         for (final c in cols) c: 0,
                       };
@@ -537,25 +571,21 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                         payload[item.accessKey] = pOn ? 1 : 0;
                         for (final k in item.submenuKeys) {
                           final sOn = submenuState[k] ?? false;
-                          payload[k] =
-                              pOn ? (sOn ? 1 : 0) : 0; // parent off -> sub off
+                          payload[k] = pOn ? (sOn ? 1 : 0) : 0;
                         }
                       }
-
-                      // Submit using your provider / API
                       final signup = context.read<SignupProvider>();
                       await signup.updateUserAccess(
                         userId: userId,
                         accessData: payload,
                         context: context,
                       );
-
                       Navigator.pop(context);
                     },
-                    child: const Text('Submit'),
                   ),
                 ],
               );
+
             },
           ),
     );

@@ -17,6 +17,7 @@ import 'package:abc_consultant/ui/create_bank_account_screen..dart';
 import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/sign_screen.dart';
+import 'package:abc_consultant/ui/update_user_bank_account_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
