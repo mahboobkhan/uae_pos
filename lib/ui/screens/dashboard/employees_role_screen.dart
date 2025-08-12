@@ -30,35 +30,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   bool _isHovering = false;
 
   final List<String> categories = ['All', 'Active', 'Blocked'];
-  String? selectedCategory;
+  String? selectedCategory = 'All';
 
-  final List<String> categories1 = [
-    'No Tags',
-    'Tag 001',
-    'Tag 002',
-    'Sample Tag',
-  ];
-  String? selectedCategory1;
-
-  final List<String> categories2 = ['All', 'Pending', 'Paid'];
-  String? selectedCategory2;
-
-  final List<String> categories3 = [
-    'All',
-    'Toady',
-    'Yesterday',
-    'Last 7 Days',
-    'Last 30 Days',
-    'Custom Range',
-  ];
-  String? selectedCategory3;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => Provider.of<EmployeeProvider>(context, listen: false).getFullData(),
-    );
   }
 
   @override
@@ -79,6 +56,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
           if (employeeProvider.data == null) {
             return const Center(child: Text("No data available."));
           }
+
           return Scaffold(
             backgroundColor: Colors.grey.shade100,
             body: SingleChildScrollView(
@@ -237,8 +215,9 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                           children: [
                                             _buildHeader("Name"),
                                             _buildHeader("Desigination"),
-                                            _buildHeader("Role"),
                                             _buildHeader("Access"),
+                                            _buildHeader("Status"),
+                                            _buildHeader("Profile"),
                                           ],
                                         ),
                                         for (var singleEmployee
@@ -282,17 +261,21 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                         .value
                                                         .employeeType
                                                         .isEmpty
-                                                    ? "N/A"
+                                                    ? "Access"
                                                     : "Role",
+                                                singleEmployee.value.empDesignation,
                                                 singleEmployee
                                                     .value
                                                     .employeeName,
                                                 singleEmployee.value.access,
                                               ),
-
-                                              _buildActionCell(
+                                              _buildActionCell2(
                                                 onEdit: () {},
                                                 onDelete: () {},
+                                                employee: singleEmployee.value,
+                                              ),
+
+                                              _buildActionCell(
                                                 onDraft: () async {
                                                   print(singleEmployee);
                                                   final result = await EmployeeProfileDialog(
@@ -336,7 +319,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       height: 40,
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.only(left: 8.0),
+        padding: const EdgeInsets.only(left: 5.0),
         child: Text(
           text,
           style: const TextStyle(
@@ -353,6 +336,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   Widget _buildCell(
     List<Designation> designation,
     String text,
+    String userDesignation,
     String userName,
     UserAccess? access,
   ) {
@@ -365,7 +349,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
             child: GestureDetector(
               onTap: () {
                 // _showLockUnlockDialog(context);
-                showAccessDialog(context, userName,designation, access!.toJson());
+                showAccessDialog(context, userName,userDesignation,designation, access!.toJson());
               },
               child: Text(
                 text,
@@ -401,7 +385,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
               if (copyable)
                 GestureDetector(
                   onTap: () {
-                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    Clipboard.setData(ClipboardData(text: "$text2"));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Copied to clipboard')),
                     );
@@ -419,8 +403,9 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   }
 
   void showAccessDialog(
+
     BuildContext context,
-    String userName,
+    String userName, String userDesignation,
       List<Designation> designation,
       Map<String, dynamic> apiUserAccess,
   ) {
@@ -451,6 +436,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       builder:
           (_) => StatefulBuilder(
             builder: (context, setState) {
+              selectedService = userDesignation;
               return AlertDialog(
                 backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -464,16 +450,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CustomDropdownField(
-                        label: "Assign Designation ",
-                        selectedValue: selectedService,
-                        options: designation.map((d) => d.designations).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedService = value;
-                          });
-                        },
-                      ),
                       const SizedBox(height: 16),
                       Expanded(
                         child: ListView.builder(
@@ -592,27 +568,40 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   }
 
   Widget _buildActionCell({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
     VoidCallback? onDraft,
   }) {
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.block, size: 20, color: Colors.red),
-          onPressed: onEdit ?? () {},
-        ),
-        IconButton(
-          icon: const Icon(Icons.check_circle, size: 20, color: Colors.green),
-          onPressed: onDelete ?? () {},
-        ),
-        IconButton(
-          icon: const Icon(Icons.person, size: 23, color: Colors.blue),
+          icon: const Icon(Icons.people_outline, size: 23, color: Colors.blue),
           onPressed: onDraft ?? () {},
         ),
       ],
     );
   }
+  Widget _buildActionCell2({
+    VoidCallback? onEdit,
+    VoidCallback? onDelete,
+    required Employee employee,
+  }) {
+    return Row(
+      children: [
+        IconButton(
+          icon: Icon(
+            employee.isUserActive == 1 
+                ? Icons.check_circle 
+                : Icons.block,
+            size: 20, 
+            color: employee.isUserActive == 1 
+                ? Colors.green 
+                : Colors.red,
+          ),
+          onPressed: onEdit ?? () {},
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildCell1(String text, {bool copyable = false}) {
     return Padding(
@@ -644,6 +633,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       ),
     );
   }
+
 
   Map<String, dynamic> _normalizeKeys(Map<String, dynamic> raw) {
     final out = <String, dynamic>{};
@@ -679,273 +669,4 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     return s.toList();
   }
 
-  /*void showInstituteManagementDialog2(BuildContext context) {
-    final List<String> institutes = [];
-    final TextEditingController addController = TextEditingController();
-    final TextEditingController editController = TextEditingController();
-    int? editingIndex;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  12,
-                ), // Slightly smaller radius
-              ),
-              contentPadding: const EdgeInsets.all(12), // Reduced padding
-              insetPadding: const EdgeInsets.all(20), // Space around dialog
-              content: SizedBox(
-                width: 363,
-                height: 305,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Compact header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Add Services',
-                          style: TextStyle(
-                            fontSize: 16, // Smaller font
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.close,
-                            size: 25,
-                            color: Colors.red,
-                          ),
-                          // Smaller icon
-                          padding: EdgeInsets.zero,
-                          // Remove default padding
-                          constraints: const BoxConstraints(),
-                          // Remove minimum size
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Compact input field
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start, // align top
-                      children: [
-                        // TextField
-                        Expanded(
-                          child: Container(
-                            height: 40,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            alignment: Alignment.centerLeft,
-                            child: TextField(
-                              controller: addController,
-                              cursorColor: Colors.blue,
-                              style: const TextStyle(fontSize: 14),
-                              decoration: const InputDecoration(
-                                hintText: "Add institute...",
-                                border: InputBorder.none,
-                                // remove double border
-                                isDense: true,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 8),
-
-                        // Add Button
-                        SizedBox(
-                          height: 40,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                            onPressed: () {
-                              if (addController.text.trim().isNotEmpty) {
-                                setState(() {
-                                  institutes.add(addController.text.trim());
-                                  addController.clear();
-                                });
-                              }
-                            },
-                            child: const Text(
-                              "Add",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Compact list
-                    Expanded(
-                      child:
-                          institutes.isEmpty
-                              ? const Center(
-                                child: Text(
-                                  'No institutes',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              )
-                              : ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: institutes.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 4),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: ListTile(
-                                      dense: true,
-                                      // Makes tiles more compact
-                                      visualDensity: VisualDensity.compact,
-                                      // Even more compact
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                          ),
-                                      title: Text(
-                                        institutes[index],
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
-                                      trailing: SizedBox(
-                                        width:
-                                            80, // Constrained width for buttons
-                                        child: Row(
-                                          children: [
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.edit,
-                                                size: 18,
-                                                color: Colors.green,
-                                              ),
-                                              padding: EdgeInsets.zero,
-                                              onPressed:
-                                                  () => _showEditDialog(
-                                                    context,
-                                                    setState,
-                                                    institutes,
-                                                    index,
-                                                    editController,
-                                                  ),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.delete,
-                                                size: 18,
-                                                color: Colors.red,
-                                              ),
-                                              padding: EdgeInsets.zero,
-                                              onPressed: () {
-                                                setState(() {
-                                                  institutes.removeAt(index);
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showEditDialog(
-    BuildContext context,
-    StateSetter setState,
-    List<String> institutes,
-    int index,
-    TextEditingController editController,
-  ) {
-    editController.text = institutes[index];
-    showDialog(
-      context: context,
-      builder: (editContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          contentPadding: const EdgeInsets.all(16),
-          content: SizedBox(
-            width: 250, // Smaller width
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  cursorColor: Colors.blue,
-                  controller: editController,
-                  decoration: const InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5, color: Colors.grey),
-                    ),
-                    labelText: 'Edit institute',
-                    labelStyle: TextStyle(color: Colors.blue),
-                    isDense: true,
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(editContext),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    CustomButton(
-                      backgroundColor: Colors.blue,
-                      onPressed: () {
-                        if (editController.text.trim().isNotEmpty) {
-                          setState(() {
-                            institutes[index] = editController.text.trim();
-                          });
-                          Navigator.pop(editContext);
-                        }
-                      },
-                      text: 'Save',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }*/
 }

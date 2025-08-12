@@ -33,6 +33,7 @@ import '../Model/NavItem.dart';
 import '../Model/SidebarItem.dart';
 import '../dialogs/custom_dialoges.dart';
 import '../dialogs/custom_fields.dart';
+import '../dialogs/profile_dialog.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
 
@@ -143,7 +144,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Material(
-                        elevation: 8,
+                        elevation: 4,
                         borderRadius: BorderRadius.circular(30),
                         child: Container(
                           width: MediaQuery.of(context).size.width * 0.3,
@@ -170,7 +171,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                       ),
                       const SizedBox(width: 8),
                       Material(
-                        elevation: 8,
+                        elevation: 4,
                         borderRadius: BorderRadius.circular(30),
                         child: Container(
                           height: 38,
@@ -191,7 +192,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                     showProfileDialog(context); // This is correct
                   },
                   child: Card(
-                    elevation: 8,
+                    elevation: 4,
                     shape: const CircleBorder(),
                     child: const CircleAvatar(
                       backgroundColor: Colors.red,

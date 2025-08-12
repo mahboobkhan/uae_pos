@@ -1161,14 +1161,12 @@ class _HoverLogoutButtonState extends State<HoverLogoutButton> {
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       child: GestureDetector(
-        onTap:
-            widget.onTap ??
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LogScreen()),
-              );
-            },
+        onTap: widget.onTap ?? () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LogScreen()),
+          );
+        },
         child: Align(
           alignment: Alignment.centerLeft,
           child: Container(

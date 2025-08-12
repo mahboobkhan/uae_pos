@@ -132,7 +132,7 @@ class SignupProvider with ChangeNotifier {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(updateData),
       );
-
+      print("Payload2: $updateData");
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {

@@ -6,8 +6,8 @@ import '../../employee/AllEmployeeData.dart';
 import '../../employee/EmployeeProvider.dart';
 import '../../employee/employee_models.dart';
 import '../../providers/create_bank_account.dart';
-import '../../providers/update_ban_account_provider.dart';
 import '../../providers/signup_provider.dart';
+import '../../providers/update_ban_account_provider.dart';
 import '../../utils/request_state.dart';
 import 'calender.dart';
 import 'custom_dialoges.dart';
@@ -61,6 +61,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _physicalAddressController =
       TextEditingController();
   String? _selectedBank;
+
   // Controllers for additional fields
   final TextEditingController _titleNameController = TextEditingController();
   final TextEditingController _bankAccountController = TextEditingController();
@@ -96,87 +97,22 @@ class _EmployeProfileState extends State<EmployeProfile> {
   void initState() {
     super.initState();
 
-    _selectedBank = null;
+    // Add listener to refresh form when employee data changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final employeeProvider = Provider.of<EmployeeProvider>(
+        context,
+        listen: false,
+      );
+      employeeProvider.addListener(_onEmployeeDataChanged);
+
+      // Ensure we have the latest data when dialog opens
+      _ensureLatestData();
+    });
 
     final singleEmployee = widget.singleEmployee;
 
-    // Basic info
-    _employeeNameController.text = singleEmployee.value.employeeName;
-    _emailIdController.text = singleEmployee.value.email;
-    _eidController.text = singleEmployee.value.userId.toString();
-
-    // Gender
-    final incomingGender = singleEmployee.value.gender.trim();
-    selectedGender =
-        genderOptions.contains(incomingGender)
-            ? incomingGender
-            : genderOptions.first;
-
-    // Employee type
-    final employeeType = singleEmployee.value.employeeType.trim();
-    employeeTypeSelected =
-        singleEmployee.value.allEmployeeTypes
-                .map((d) => d.employeeType)
-                .toList()
-                .contains(employeeType)
-            ? employeeType
-            : null;
-
-    // Job type / designation
-    final incomingPosition = singleEmployee.value.empDesignation.trim();
-    selectedJobType =
-        singleEmployee.value.allDesignations
-                .map((d) => d.designations)
-                .toList()
-                .contains(incomingPosition)
-            ? incomingPosition
-            : null;
-
-    // Contact & other details
-    _contactNumber1.text = singleEmployee.value.homePhone;
-    _contactNumber2Controller.text = singleEmployee.value.homePhone;
-    _homeContactNumberController.text = singleEmployee.value.homePhone;
-    _workPermitNumberController.text = singleEmployee.value.workPermitNumber;
-    _emiratesIdController.text = singleEmployee.value.emirateId;
-    _joiningDateController.text = singleEmployee.value.joiningDate;
-    _contractExpiryController.text = singleEmployee.value.contractExpiryDate;
-    _birthDateController.text = singleEmployee.value.dateOfBirth;
-    _salaryController.text = singleEmployee.value.salary.toString();
-    _incrementController.text = singleEmployee.value.incrementAmount.toString();
-    _workingHoursController.text = singleEmployee.value.workingHours.toString();
-    _physicalAddressController.text = singleEmployee.value.physicalAddress;
-    _noteController.text = singleEmployee.value.extraNote1;
-
-    // singleEmployee.value.salaryCurrentMonth.remainingSalary
-
-    // Prefill existing bank account data for this user (if any)
-    try {
-      final List<BankAccount> existingAccounts =
-          singleEmployee.value.allBankAccounts;
-      if (existingAccounts.isNotEmpty) {
-        final String currentUserId = singleEmployee.value.userId.toString();
-
-        BankAccount? matchedUserAccount = existingAccounts.firstWhere(
-          (account) => account.userId == currentUserId,
-        );
-
-        if (matchedUserAccount != null) {
-          print("Bank Name: ${matchedUserAccount.bankName}");
-          print("IBAN: ${matchedUserAccount.ibanNumber}");
-          print("Branch Code: ${matchedUserAccount.branchCode}");
-          // You can access all other fields here
-        } else {
-          print("No account found for user $currentUserId");
-        }
-
-        _titleNameController.text = matchedUserAccount.titleName;
-        _bankAccountController.text = matchedUserAccount.bankAccountNumber;
-        _ibanNumberController.text = matchedUserAccount.ibanNumber;
-        _contactNumberController.text = matchedUserAccount.contactNumber;
-        _emailI2dController.text = matchedUserAccount.emailId;
-        _noteController.text = matchedUserAccount.additionalNote;
-      }
-    } catch (_) {}
+    // Initialize form with current employee data
+    _initializeFormData();
   }
 
   @override
@@ -232,12 +168,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                     widget.singleEmployee.value.allEmployeeTypes
                                         .map((d) => d.employeeType)
                                         .toList(),
-
                                 selectedValue: employeeTypeSelected,
                                 onChanged: (value) {
                                   setState(() {
                                     employeeTypeSelected = value;
                                   });
+                                  print("Selected Employee Typesss: $value");
                                 },
                               ),
                             ),
@@ -260,13 +196,18 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         // Right: Date and close icon
                         Row(
                           children: [
-                            Text(
-                              DateFormat('dd-MM-yyyy').format(DateTime.now()),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                                fontSize: 14,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _getLastUpdatedText(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(width: 12),
                             IconButton(
@@ -354,7 +295,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 setState(() {
                                   selectedJobType = value;
                                 });
-                                // ✅ Update provider value
+                                print("Selected Employee 2: $value");
                               },
                             ),
                           ],
@@ -481,7 +422,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                               widget.data!.allBanks
                                   .map((d) => d.bankName.trim())
                                   .toList(),
-                          selectedValue: null,
+                          selectedValue: _selectedBank,
                           onChanged: (value) {
                             setState(() {
                               _selectedBank = value;
@@ -520,22 +461,49 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           children: [
                             InfoBox(
                               value: "Remaining Salary",
-                              label: "AED-3000",
+                              label:
+                                  widget
+                                              .singleEmployee
+                                              .value
+                                              .salaryCurrentMonth
+                                              ?.remainingSalary !=
+                                          null
+                                      ? "AED-${widget.singleEmployee.value.salaryCurrentMonth!.remainingSalary}"
+                                      : "AED-0",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
                               value: "Advance Payment",
-                              label: "AED-3000",
+                              label:
+                                  widget
+                                              .singleEmployee
+                                              .value
+                                              .salaryCurrentMonth
+                                              ?.advanceSalary !=
+                                          null
+                                      ? "AED-${widget.singleEmployee.value.salaryCurrentMonth!.advanceSalary}"
+                                      : "AED-0",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
-                              value: "Bonuses",
-                              label: "AED-3000",
+                              value: "Total Salary",
+                              label:
+                                  widget
+                                              .singleEmployee
+                                              .value
+                                              .salaryCurrentMonth
+                                              ?.totalSalary !=
+                                          null
+                                      ? "AED-${widget.singleEmployee.value.salaryCurrentMonth!.totalSalary}"
+                                      : "AED-0",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
-                              value: "Fine Deductions",
-                              label: "AED-3000",
+                              value: "Base Salary",
+                              label:
+                                  widget.singleEmployee.value.salary != null
+                                      ? "AED-${widget.singleEmployee.value.salary}"
+                                      : "AED-0",
                               color: Colors.blue.shade50,
                             ),
                           ],
@@ -545,6 +513,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             SizedBox(height: 10),
+                            /*
                             Wrap(
                               spacing: 10,
                               runSpacing: 10,
@@ -603,6 +572,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 ),
                               ],
                             ),
+*/
                           ],
                         ),
                       ],
@@ -633,7 +603,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
                             // First: update employee profile fields
                             final profilePayload = <String, dynamic>{
-                              'user_id': currentUserId,
+                              'user_id': widget.singleEmployee.value.userId,
                               'employee_name':
                                   _employeeNameController.text.trim(),
                               'email': _emailIdController.text.trim(),
@@ -675,7 +645,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             }
 
                             // Then: bank account update using current user id
-                            final List<BankAccount> accountsForUser =
+                           /* final List<BankAccount> accountsForUser =
                                 (employeeProvider.allUserBankAccounts ?? [])
                                     .where((a) => a.userId == currentUserId)
                                     .toList();
@@ -686,9 +656,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 "No existing bank account found to update",
                               );
                               return;
-                            }
+                            }*/
 
-                            await updateUserBankAccountProvider
+                       /*     await updateUserBankAccountProvider
                                 .updateBankAccount(
                                   UpdateUserBankAccountRequest(
                                     userId: currentUserId,
@@ -705,7 +675,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                     additionalNote: _noteController.text.trim(),
                                   ),
                                 );
-
+*/
                             if (updateUserBankAccountProvider.state ==
                                 RequestState.success) {
                               await employeeProvider.getFullData();
@@ -739,29 +709,113 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                   _physicalAddressController.text =
                                       updatedEmp.physicalAddress;
                                   _noteController.text = updatedEmp.extraNote1;
+
                                   selectedGender = updatedEmp.gender;
-                                  selectedJobType = updatedEmp.empDesignation;
-                                  employeeTypeSelected =
-                                      updatedEmp.employeeType;
-                                  _salaryController.text =
+
+                                  // Update employee type selection
+                                 /* final updatedEmployeeType =
+                                      updatedEmp.employeeType.trim();
+                                  if (updatedEmployeeType.isNotEmpty) {
+                                    final availableTypes =
+                                        updatedEmp.allEmployeeTypes
+                                            .map((d) => d.employeeType)
+                                            .toList();
+
+                                    if (availableTypes.contains(
+                                      updatedEmployeeType,
+                                    )) {
+                                      employeeTypeSelected =
+                                          updatedEmployeeType;
+                                    } else {
+                                      // Try to find a match
+                                      final matchedType = availableTypes
+                                          .firstWhere(
+                                            (type) =>
+                                                type.toLowerCase() ==
+                                                updatedEmployeeType
+                                                    .toLowerCase(),
+                                            orElse:
+                                                () =>
+                                                    availableTypes.isNotEmpty
+                                                        ? availableTypes.first
+                                                        : '',
+                                          );
+                                      employeeTypeSelected =
+                                          matchedType.isNotEmpty
+                                              ? matchedType
+                                              : null;
+                                    }
+                                  } else {
+                                    employeeTypeSelected = null;
+                                  }*/
+
+                                  // Update job type selection
+                                 /* final updatedJobType =
+                                      updatedEmp.empDesignation.trim();
+                                  if (updatedJobType.isNotEmpty) {
+                                    final availableDesignations =
+                                        updatedEmp.allDesignations
+                                            .map((d) => d.designations)
+                                            .toList();
+
+                                    if (availableDesignations.contains(
+                                      updatedJobType,
+                                    )) {
+                                      selectedJobType = updatedJobType;
+                                    } else {
+                                      // Try to find a match
+                                      final matchedDesignation =
+                                          availableDesignations.firstWhere(
+                                            (designation) =>
+                                                designation.toLowerCase() ==
+                                                updatedJobType.toLowerCase(),
+                                            orElse:
+                                                () =>
+                                                    availableDesignations
+                                                            .isNotEmpty
+                                                        ? availableDesignations
+                                                            .first
+                                                        : '',
+                                          );
+                                      selectedJobType =
+                                          matchedDesignation.isNotEmpty
+                                              ? matchedDesignation
+                                              : null;
+                                    }
+                                  } else {
+                                    selectedJobType = null;
+                                  }*/
+                                  /*final updatedEmp = widget.em.firstWhere(
+                                        (emp) => emp.id == currentEmployeeId,
+                                    orElse: () => EmployeeModel.empty(), // your empty model
+                                  );*/
+                                  /*_salaryController.text =
                                       (updatedEmp.salary ?? '').toString();
                                   _incrementController.text =
                                       updatedEmp.incrementAmount;
                                   _workingHoursController.text =
-                                      updatedEmp.workingHours;
+                                      updatedEmp.workingHours;*/
                                 });
                               }
 
-                              _showMessage(
+                              /* _showMessage(
                                 context,
                                 "Profile and bank account updated successfully",
                               );
+                              // Update the last updated date to current time since we just updated the profile
+                              setState(() {
+                                // Trigger a rebuild to show the updated last updated date
+                              });
+                              // Ensure form state is properly updated after successful submission
+                              await _handleFormSubmission();
                             } else {
                               _showMessage(
                                 context,
                                 updateUserBankAccountProvider.errorMessage ??
                                     "Update failed",
                               );
+                            }
+                          },*/
                             }
                           },
                         ),
@@ -782,6 +836,235 @@ class _EmployeProfileState extends State<EmployeProfile> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  void dispose() {
+    final employeeProvider = Provider.of<EmployeeProvider>(
+      context,
+      listen: false,
+    );
+    employeeProvider.removeListener(_onEmployeeDataChanged);
+    super.dispose();
+  }
+
+  void _onEmployeeDataChanged() {
+    if (mounted) {
+      setState(() {
+        _refreshFormData();
+      });
+    }
+  }
+
+  // Method to refresh form when dialog is reopened
+  void _refreshFormOnReopen() {
+    if (mounted) {
+      setState(() {
+        _ensureLatestData();
+      });
+    }
+  }
+
+  // Override didChangeDependencies to refresh form when dependencies change
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh form data when dependencies change (e.g., when dialog is reopened)
+    _refreshFormOnReopen();
+  }
+
+  // Method to handle form submission and ensure proper state update
+  Future<void> _handleFormSubmission() async {
+    // This method will be called after successful form submission
+    // to ensure the form state is properly updated
+    await _ensureLatestData();
+  }
+
+  // Method to get the last updated date text with proper error handling
+  String _getLastUpdatedText() {
+    try {
+      final lastUpdatedDate = widget.singleEmployee.value.lastUpdatedDate;
+      if (lastUpdatedDate.isNotEmpty) {
+        final parsedDate = DateTime.parse(lastUpdatedDate);
+        return "Last Updated: ${DateFormat('dd-MM-yyyy').format(parsedDate)}";
+      } else {
+        return "Last Updated: Not available";
+      }
+    } catch (e) {
+      // If date parsing fails, show the raw string or fallback
+      final lastUpdatedDate = widget.singleEmployee.value.lastUpdatedDate;
+      if (lastUpdatedDate.isNotEmpty) {
+        return "Last Updated: $lastUpdatedDate";
+      } else {
+        return "Last Updated: Not available";
+      }
+    }
+  }
+
+  // Method to get the current editing time
+
+  // Method to refresh form data from the latest server data
+  Future<void> _refreshEmployeeDataFromServer() async {
+    try {
+      final employeeProvider = Provider.of<EmployeeProvider>(
+        context,
+        listen: false,
+      );
+      await employeeProvider.getFullData();
+
+      // After refreshing data, update the form with the latest data
+      if (mounted) {
+        setState(() {
+          _initializeFormData();
+        });
+      }
+    } catch (e) {
+      print('Error refreshing employee data: $e');
+    }
+  }
+
+  // Method to ensure form shows the latest data when dialog is reopened
+  Future<void> _ensureLatestData() async {
+    try {
+      final employeeProvider = Provider.of<EmployeeProvider>(
+        context,
+        listen: false,
+      );
+
+      // Check if we need to refresh the data
+      if (employeeProvider.data == null || employeeProvider.employees == null) {
+        await _refreshEmployeeDataFromServer();
+        return;
+      }
+
+      // Check if the current employee data is up to date
+      final currentEmployee = employeeProvider.employees!.firstWhere(
+        (e) => e.userId == widget.singleEmployee.value.userId,
+        orElse: () => null as dynamic,
+      );
+
+      if (currentEmployee == null) {
+        // Employee not found in current data, refresh
+        await _refreshEmployeeDataFromServer();
+      } else {
+        // Reinitialize the form with the latest data
+        setState(() {
+          _initializeFormData();
+        });
+      }
+    } catch (e) {
+      print('Error ensuring latest data: $e');
+    }
+  }
+
+  void _initializeFormData() {
+    final singleEmployee = widget.singleEmployee;
+
+    // Basic info
+    _employeeNameController.text = singleEmployee.value.employeeName;
+    _emailIdController.text = singleEmployee.value.email;
+    _eidController.text = singleEmployee.value.userId.toString();
+
+    // Gender
+    final incomingGender = singleEmployee.value.gender.trim();
+    selectedGender =
+        genderOptions.contains(incomingGender)
+            ? incomingGender
+            : genderOptions.first;
+
+    // Employee type - ensure we get the latest value and handle empty strings
+    final employeeType = singleEmployee.value.employeeType.trim();
+    if (employeeType.isNotEmpty) {
+      // Check if the employee type exists in the available options
+      final availableTypes =
+          singleEmployee.value.allEmployeeTypes
+              .map((d) => d.employeeType)
+              .toList();
+
+      if (availableTypes.contains(employeeType)) {
+        employeeTypeSelected = employeeType;
+      } else {
+        // If the current type is not in available options, try to find a match
+        final matchedType = availableTypes.firstWhere(
+          (type) => type.toLowerCase() == employeeType.toLowerCase(),
+          orElse: () => availableTypes.isNotEmpty ? availableTypes.first : '',
+        );
+        employeeTypeSelected = matchedType.isNotEmpty ? matchedType : null;
+      }
+    } else {
+      employeeTypeSelected = null;
+    }
+
+    // Job type / designation - ensure we get the latest value and handle empty strings
+    final incomingPosition = singleEmployee.value.empDesignation.trim();
+    if (incomingPosition.isNotEmpty) {
+      // Check if the designation exists in the available options
+      final availableDesignations =
+          singleEmployee.value.allDesignations
+              .map((d) => d.designations)
+              .toList();
+
+      if (availableDesignations.contains(incomingPosition)) {
+        selectedJobType = incomingPosition;
+      } else {
+        // If the current designation is not in available options, try to find a match
+        final matchedDesignation = availableDesignations.firstWhere(
+          (designation) =>
+              designation.toLowerCase() == incomingPosition.toLowerCase(),
+          orElse:
+              () =>
+                  availableDesignations.isNotEmpty
+                      ? availableDesignations.first
+                      : '',
+        );
+        selectedJobType =
+            matchedDesignation.isNotEmpty ? matchedDesignation : null;
+      }
+    } else {
+      selectedJobType = null;
+    }
+
+    // Contact & other details
+    _contactNumber1.text = singleEmployee.value.homePhone;
+    _contactNumber2Controller.text = singleEmployee.value.homePhone;
+    _homeContactNumberController.text = singleEmployee.value.homePhone;
+    _workPermitNumberController.text = singleEmployee.value.workPermitNumber;
+    _emiratesIdController.text = singleEmployee.value.emirateId;
+    _joiningDateController.text = singleEmployee.value.joiningDate;
+    _contractExpiryController.text = singleEmployee.value.contractExpiryDate;
+    _birthDateController.text = singleEmployee.value.dateOfBirth;
+    _salaryController.text = singleEmployee.value.salary.toString();
+    _incrementController.text = singleEmployee.value.incrementAmount.toString();
+    _workingHoursController.text = singleEmployee.value.workingHours.toString();
+    _physicalAddressController.text = singleEmployee.value.physicalAddress;
+    _noteController.text = singleEmployee.value.extraNote1;
+
+    // Prefill existing bank account data for this user (if any)
+    try {
+      final List<BankAccount> existingAccounts =
+          singleEmployee.value.allBankAccounts;
+      if (existingAccounts.isNotEmpty) {
+        final String currentUserId = singleEmployee.value.userId.toString();
+        BankAccount? matchedUserAccount = existingAccounts.firstWhere(
+          (account) => account.userId == currentUserId,
+        );
+
+        if (matchedUserAccount != null) {
+          _titleNameController.text = matchedUserAccount.titleName;
+          _bankAccountController.text = matchedUserAccount.bankAccountNumber;
+          _ibanNumberController.text = matchedUserAccount.ibanNumber;
+          _contactNumberController.text = matchedUserAccount.contactNumber;
+          _emailI2dController.text = matchedUserAccount.emailId;
+          _noteController.text = matchedUserAccount.additionalNote;
+          _selectedBank = matchedUserAccount.bankName;
+        }
+      }
+    } catch (_) {}
+  }
+
+  void _refreshFormData() {
+    // Call the same method as initialization to refresh all data
+    _initializeFormData();
   }
 
   void _pickIssueDate() async {

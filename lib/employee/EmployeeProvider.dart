@@ -87,4 +87,18 @@ class EmployeeProvider extends ChangeNotifier {
   List<Tag>? get allTags => _data?.allTags;
   List<Salary>? get allMonthlySalaries => _data?.allMonthlySalaries;
   List<PaymentMethod>? get allPaymentMethods => _data?.allPaymentMethods;
+
+  // Get employee by user ID
+  Employee? getEmployeeByUserId(String userId) {
+    if (_data?.employees == null) return null;
+    try {
+      return _data!.employees!.firstWhere(
+        (employee) => employee.userId == userId,
+        orElse: () => null as dynamic,
+      );
+    } catch (e) {
+      print('Error finding employee by user ID: $e');
+      return null;
+    }
+  }
 }
