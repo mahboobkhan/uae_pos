@@ -491,6 +491,7 @@ class SignupProvider with ChangeNotifier {
         await prefs.setString('user_id', user['user_id'] ?? '');
         await prefs.setString('name', user['name'] ?? '');
         await prefs.setString('email', user['email'] ?? '');
+        await prefs.setString('password', password); 
         await prefs.setBool('verification', user['verification'] ?? '');
         await prefs.setString('created_at', user['created_at'] ?? '');
         await prefs.setString('pin', user['pin'] ?? '');
@@ -595,6 +596,13 @@ class SignupProvider with ChangeNotifier {
     } catch (e) {
       return 'Error: $e';
     }
+  }
+
+  //////////
+  /// Logout and clear all stored data
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all stored data
   }
 
   //////////

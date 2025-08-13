@@ -13,6 +13,7 @@ import 'package:abc_consultant/providers/designation_list_provider.dart';
 import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:abc_consultant/providers/update_ban_account_provider.dart';
 import 'package:abc_consultant/providers/update_designation.dart';
+import 'package:abc_consultant/providers/update_password_provider.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -49,6 +50,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => EmployeeTypeProvider()),
         ChangeNotifierProvider(create: (_) => BankCreateProvider()),
         ChangeNotifierProvider(create: (_) => DeleteUserBankAccountProvider()),
+        ChangeNotifierProvider(create: (_) => UpdatePasswordProvider()),
       ],
 
       child: const MyApp(),

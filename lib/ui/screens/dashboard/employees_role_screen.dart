@@ -3,13 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../employee/AllEmployeeData.dart';
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
-import '../../../providers/desigination_provider.dart';
-import '../../../providers/update_designation.dart';
 import '../../dialogs/custom_dialoges.dart';
-import '../../dialogs/custom_fields.dart';
 import '../../dialogs/employe_profile.dart';
 import '../../utils/utils.dart';
 
@@ -32,10 +28,46 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   final List<String> categories = ['All', 'Active', 'Blocked'];
   String? selectedCategory = 'All';
 
-
   @override
   void initState() {
     super.initState();
+    Future.microtask(
+      () => Provider.of<EmployeeProvider>(context, listen: false).getFullData(),
+    );
+  }
+
+  // Get filtered employees based on selected filters
+  List<Employee> getFilteredEmployees(EmployeeProvider provider) {
+    if (provider.employees == null || provider.employees!.isEmpty) {
+      return [];
+    }
+
+    return provider.employees!.where((employee) {
+      // Filter by employee status (Active/Blocked)
+      if (selectedCategory == 'Active' && employee.isUserActive != 1) {
+        return false;
+      }
+      if (selectedCategory == 'Blocked' && employee.isUserActive != 0) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
+  List<String> getUniqueDesignations(EmployeeProvider provider) {
+    if (provider.employees == null || provider.employees!.isEmpty) {
+      return ['All'];
+    }
+
+    final designations =
+        provider.employees!
+            .map((e) => e.empDesignation)
+            .where((designation) => designation.isNotEmpty)
+            .toSet()
+            .toList();
+
+    return ['All', ...designations];
   }
 
   @override
@@ -55,6 +87,73 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
 
           if (employeeProvider.data == null) {
             return const Center(child: Text("No data available."));
+          }
+          // Get filtered employees based on selected filters
+          final filteredEmployees = getFilteredEmployees(employeeProvider);
+
+          // Debug: Print filter information
+          print("=== FILTER DEBUG ===");
+          print("Selected Category: $selectedCategory");
+          print("Total Employees: ${employeeProvider.employees?.length ?? 0}");
+          print("Filtered Employees: ${filteredEmployees.length}");
+          print(
+            "Active Employees: ${employeeProvider.employees?.where((e) => e.isUserActive == 1).length ?? 0}",
+          );
+          print(
+            "Blocked Employees: ${employeeProvider.employees?.where((e) => e.isUserActive == 0).length ?? 0}",
+          );
+
+          if (filteredEmployees.isEmpty) {
+            return Scaffold(
+              backgroundColor: Colors.grey.shade100,
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.search_off,
+                      size: 64,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No employees match the selected filters',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Try changing your filter criteria or clear the filter',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          selectedCategory = 'All';
+                        });
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Show All Employees'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           return Scaffold(
@@ -104,8 +203,62 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                         setState(
                                           () => selectedCategory = newValue!,
                                         );
+                                        print("Filter changed to: $newValue");
                                       },
                                     ),
+                                    // Show current filter status and count
+                                    /*  Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade100,
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: Colors.blue.shade300),
+                                      ),
+                                      child: Text(
+                                        "Filter: $selectedCategory (${filteredEmployees.length} employees)",
+                                        style: TextStyle(
+                                          color: Colors.blue.shade800,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    // Clear filter button
+                                    if (selectedCategory != 'All')
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedCategory = 'All';
+                                          });
+                                          print("Filter cleared to: All");
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.orange.shade100,
+                                            borderRadius: BorderRadius.circular(4),
+                                            border: Border.all(color: Colors.orange.shade300),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.clear,
+                                                size: 16,
+                                                color: Colors.orange.shade700,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                "Clear",
+                                                style: TextStyle(
+                                                  color: Colors.orange.shade700,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),*/
                                     /* CustomDropdown(
                                       selectedValue: selectedCategory1,
                                       hintText: "Select Tags",
@@ -171,10 +324,58 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                         ),
                       ),
                     ),
+                    // Filter summary
+                    /*
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.filter_list,
+                            color: Colors.green.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Showing ${filteredEmployees.length} of ${employeeProvider.employees?.length ?? 0} employees",
+                            style: TextStyle(
+                              color: Colors.green.shade800,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Spacer(),
+                          if (selectedCategory != 'All')
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: selectedCategory == 'Active' ? Colors.green.shade100 : Colors.red.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: selectedCategory == 'Active' ? Colors.green.shade300 : Colors.red.shade300,
+                                ),
+                              ),
+                              child: Text(
+                                selectedCategory == 'Active' ? '🟢 Active Users' : '🔴 Blocked Users',
+                                style: TextStyle(
+                                  color: selectedCategory == 'Active' ? Colors.green.shade800 : Colors.red.shade800,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+*/
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: SizedBox(
-                        height: 700,
                         child: ScrollbarTheme(
                           data: ScrollbarThemeData(
                             thumbVisibility: MaterialStateProperty.all(true),
@@ -221,10 +422,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                           ],
                                         ),
                                         for (var singleEmployee
-                                            in (employeeProvider
-                                                        .data
-                                                        ?.employees ??
-                                                    [])
+                                            in filteredEmployees
                                                 .asMap()
                                                 .entries)
                                           TableRow(
@@ -261,9 +459,11 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                         .value
                                                         .employeeType
                                                         .isEmpty
-                                                    ? "Access"
-                                                    : "Role",
-                                                singleEmployee.value.empDesignation,
+                                                    ? "Role"
+                                                    : "Access",
+                                                singleEmployee
+                                                    .value
+                                                    .empDesignation,
                                                 singleEmployee
                                                     .value
                                                     .employeeName,
@@ -278,18 +478,18 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                               _buildActionCell(
                                                 onDraft: () async {
                                                   print(singleEmployee);
-                                                  final result = await EmployeeProfileDialog(
-                                                    context,
-                                                    singleEmployee,
-                                                    employeeProvider.data,
-                                                    //  bankAccount,
-                                                  );
-                                                   if (result != null) {
+                                                  final result =
+                                                      await EmployeeProfileDialog(
+                                                        context,
+                                                        singleEmployee,
+                                                        employeeProvider.data,
+                                                        //  bankAccount,
+                                                      );
+                                                  if (result != null) {
                                                     // Optionally update UI or local state with returned values
                                                     // For example, you could show a toast/snackbar or trigger a refresh
                                                     // setState(() {});
                                                   }
-                            
                                                 },
                                               ),
                                             ],
@@ -349,7 +549,13 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
             child: GestureDetector(
               onTap: () {
                 // _showLockUnlockDialog(context);
-                showAccessDialog(context, userName,userDesignation,designation, access!.toJson());
+                showAccessDialog(
+                  context,
+                  userName,
+                  userDesignation,
+                  designation,
+                  access!.toJson(),
+                );
               },
               child: Text(
                 text,
@@ -403,11 +609,11 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   }
 
   void showAccessDialog(
-
     BuildContext context,
-    String userName, String userDesignation,
-      List<Designation> designation,
-      Map<String, dynamic> apiUserAccess,
+    String userName,
+    String userDesignation,
+    List<Designation> designation,
+    Map<String, dynamic> apiUserAccess,
   ) {
     final cols = _buildDbCols();
     final userAccess = _fillMissing(_normalizeKeys(apiUserAccess), cols);
@@ -442,7 +648,10 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                title: Text('Manage Access For $userName'),
+                title: Text(
+                  'Manage Access For $userName',
+                  style: TextStyle(fontSize: 12, color: Colors.black),
+                ),
                 content: SizedBox(
                   width: 420,
                   child: Column(
@@ -457,7 +666,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                           itemCount: sidebarItemsAccess.length,
                           itemBuilder: (_, i) {
                             final item = sidebarItemsAccess[i];
-                            final parentOn = moduleState[item.accessKey] ?? false;
+                            final parentOn =
+                                moduleState[item.accessKey] ?? false;
 
                             return ExpansionTile(
                               title: Row(
@@ -494,13 +704,17 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                   ),
                                 ],
                               ),
-                              children: List.generate(item.submenuKeys.length, (j) {
+                              children: List.generate(item.submenuKeys.length, (
+                                j,
+                              ) {
                                 final subKey = item.submenuKeys[j];
                                 final subOn = submenuState[subKey] ?? false;
                                 return ListTile(
                                   dense: true,
-                                  contentPadding:
-                                  const EdgeInsets.only(left: 32, right: 8),
+                                  contentPadding: const EdgeInsets.only(
+                                    left: 32,
+                                    right: 8,
+                                  ),
                                   title: Text(item.submenus[j]),
                                   trailing: Transform.scale(
                                     scale: 0.5,
@@ -509,7 +723,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                       onChanged: (val) {
                                         setState(() {
                                           if (val &&
-                                              !(moduleState[item.accessKey] ?? false)) {
+                                              !(moduleState[item.accessKey] ??
+                                                  false)) {
                                             moduleState[item.accessKey] = true;
                                           }
                                           submenuState[subKey] = val;
@@ -533,7 +748,10 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Close', style: TextStyle(color: Colors.grey)),
+                    child: const Text(
+                      'Close',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
                   CustomButton(
                     text: 'Submit',
@@ -561,15 +779,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                   ),
                 ],
               );
-
             },
           ),
     );
   }
 
-  Widget _buildActionCell({
-    VoidCallback? onDraft,
-  }) {
+  Widget _buildActionCell({VoidCallback? onDraft}) {
     return Row(
       children: [
         IconButton(
@@ -579,6 +794,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       ],
     );
   }
+
   Widget _buildActionCell2({
     VoidCallback? onEdit,
     VoidCallback? onDelete,
@@ -588,20 +804,15 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       children: [
         IconButton(
           icon: Icon(
-            employee.isUserActive == 1 
-                ? Icons.check_circle 
-                : Icons.block,
-            size: 20, 
-            color: employee.isUserActive == 1 
-                ? Colors.green 
-                : Colors.red,
+            employee.isUserActive == 1 ? Icons.check_circle : Icons.block,
+            size: 20,
+            color: employee.isUserActive == 1 ? Colors.green : Colors.red,
           ),
           onPressed: onEdit ?? () {},
         ),
       ],
     );
   }
-
 
   Widget _buildCell1(String text, {bool copyable = false}) {
     return Padding(
@@ -633,7 +844,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       ),
     );
   }
-
 
   Map<String, dynamic> _normalizeKeys(Map<String, dynamic> raw) {
     final out = <String, dynamic>{};
@@ -668,5 +878,4 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     }
     return s.toList();
   }
-
 }

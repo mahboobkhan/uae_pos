@@ -56,9 +56,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
   ];
 
-  final List<String> categories = ['All', 'Full time job', 'Half time job', 'Previous'];
-  final List<String> categories1 = ['All', 'Manager', 'Supervisor', 'Employee'];
-  final List<String> categories2 = ['All', 'paid', 'Pending'];
 
   String? selectedCategory ='All';
   String? selectedCategory1= 'All';
@@ -127,7 +124,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final designation = context.watch<DesignationProvider>().getDesignation();
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,

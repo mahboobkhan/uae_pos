@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:provider/provider.dart';
 
 import '../../employee/employee_models.dart';
+import '../../providers/signup_provider.dart';
 import '../screens/login screens/log_screen.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -1161,7 +1163,11 @@ class _HoverLogoutButtonState extends State<HoverLogoutButton> {
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       child: GestureDetector(
-        onTap: widget.onTap ?? () {
+        onTap: widget.onTap ?? () async {
+          // Clear all stored data before logging out
+          final signupProvider = Provider.of<SignupProvider>(context, listen: false);
+          await signupProvider.logout();
+          
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const LogScreen()),
