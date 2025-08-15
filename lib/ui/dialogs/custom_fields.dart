@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import '../../providers/signup_provider.dart';
 import '../screens/login screens/log_screen.dart';
 
 class CustomTextField extends StatefulWidget {
+
   final String label;
   final String hintText;
   final TextEditingController controller;
@@ -16,6 +18,11 @@ class CustomTextField extends StatefulWidget {
   final bool readOnly;
   final bool isPassword;
   final Widget? suffixIcon;
+  // 🔹 new parameters
+  final int? maxLength;
+  final TextInputType keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+
 
   const CustomTextField({
     super.key,
@@ -27,6 +34,9 @@ class CustomTextField extends StatefulWidget {
     this.enabled = true,
     this.isPassword = false,
     this.suffixIcon,
+    this.maxLength,
+    this.keyboardType = TextInputType.text,  // default
+    this.inputFormatters,
   });
 
   @override
@@ -40,11 +50,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.width,
+
       child: TextField(
         cursorColor: Colors.black,
         controller: widget.controller,
         enabled: widget.enabled,
         readOnly: widget.readOnly,
+        maxLength: widget.maxLength,
+        keyboardType: widget.keyboardType,
+        inputFormatters: widget.inputFormatters,
         obscureText: widget.isPassword ? _obscureText : false,
         decoration: InputDecoration(
           labelText: widget.label,
@@ -111,8 +125,9 @@ class CustomDropdownField extends StatelessWidget {
         child: CustomDropdown<String>(
           hintText: label,
           items: options,
-          initialItem: selectedValue,
-          closedHeaderPadding: const EdgeInsets.symmetric(
+          initialItem: (selectedValue != null && options.contains(selectedValue))
+              ? selectedValue
+              : null,          closedHeaderPadding: const EdgeInsets.symmetric(
             horizontal: 12,
             vertical: 11.8,
           ),
@@ -718,12 +733,14 @@ class SmallDropdownField extends StatelessWidget {
   final String label;
   final String? selectedValue;
   final List<String> options;
+  final bool enabled;
   final ValueChanged<String?> onChanged;
   final double width;
 
   const SmallDropdownField({
     super.key,
     required this.label,
+    this.enabled =true,
     required this.selectedValue,
     required this.options,
     required this.onChanged,
@@ -734,24 +751,28 @@ class SmallDropdownField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      child: CustomDropdown<String>(
-        hintText: label, // works like labelText in small mode
-        items: options,
-        initialItem: selectedValue,
-        closedHeaderPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: .8,
+      child: IgnorePointer(
+        ignoring: !enabled,
+        child: CustomDropdown<String>(
+          hintText: label, // works like labelText in small mode
+          items: options,
+          initialItem: (selectedValue != null && options.contains(selectedValue))
+              ? selectedValue
+              : null,          closedHeaderPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: .8,
+          ),
+          decoration: CustomDropdownDecoration(
+            closedBorder: Border.all(color: Colors.grey,width: 00.1),
+            closedBorderRadius: BorderRadius.circular(4),
+            expandedBorder: Border.all(color: Colors.red, width: 1),
+            expandedBorderRadius: BorderRadius.circular(4),
+            closedFillColor: Colors.white,
+            hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+            listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
+          ),
+          onChanged: onChanged,
         ),
-        decoration: CustomDropdownDecoration(
-          closedBorder: Border.all(color: Colors.grey),
-          closedBorderRadius: BorderRadius.circular(4),
-          expandedBorder: Border.all(color: Colors.red, width: 1),
-          expandedBorderRadius: BorderRadius.circular(4),
-          closedFillColor: Colors.white,
-          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
-        ),
-        onChanged: onChanged,
       ),
     );
   }
@@ -920,11 +941,14 @@ class CustomDateField extends StatelessWidget {
   final double width;
   final VoidCallback onTap;
   final bool readOnly;
+  final bool enabled;
+
 
   const CustomDateField({
     Key? key,
     required this.label,
     required this.hintText,
+    this.enabled = true,
     required this.controller,
     required this.onTap,
     this.width = 220,
@@ -939,6 +963,7 @@ class CustomDateField extends StatelessWidget {
         controller: controller,
         readOnly: readOnly,
         onTap: onTap,
+        enabled: enabled,
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,

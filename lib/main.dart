@@ -61,12 +61,19 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    //  return MaterialApp(home: DashboardScrn());
-    return MaterialApp(debugShowCheckedModeBanner: false, home: LogScreen());
-    //home: SidebarLayout()
+    return MaterialApp(
+      theme: ThemeData(
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: Colors.red.withOpacity(0.4),
+          cursorColor: Colors.black,
+          selectionHandleColor: Colors.red,
+        ),
+      ),
+      debugShowCheckedModeBanner: false,
+      home: LogScreen(),
+    );
   }
 }
 
