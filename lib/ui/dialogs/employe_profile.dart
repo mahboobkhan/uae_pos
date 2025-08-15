@@ -219,54 +219,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             IconButton(
                               icon: const Icon(Icons.close, color: Colors.red),
                               onPressed: () async {
-                                /* final shouldClose = await showDialog<bool>(
-                                  context: context,
-                                  builder:
-                                      (context) => AlertDialog(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        backgroundColor: Colors.white,
-                                        title: const Text("Are you sure?"),
-                                        content: const Text(
-                                          "Do you want to close this form? Unsaved changes may be lost.",
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed:
-                                                () => Navigator.of(
-                                                  context,
-                                                ).pop(false),
-                                            child: const Text(
-                                              "Keep Changes ",
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                              ),
-                                            ),
-                                          ),
-                                          TextButton(
-                                            onPressed:
-                                                () => Navigator.of(
-                                                  context,
-                                                ).pop(true),
-                                            child: const Text(
-                                              "Close",
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                );
-
-                                if (shouldClose == true) {
-                                  Navigator.of(
-                                    context,
-                                  ).pop(); // close the dialog
-                                }*/
                                 Navigator.of(context).pop();
                               },
                             ),
@@ -349,7 +301,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         ),
 
                         CustomDateField(
-
                           label: "Date of Joining",
                           hintText: "dd-MM-yyyy",
                           controller: _joiningDateController,
@@ -535,6 +486,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             ),
                           ],
                         ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [SizedBox(height: 10)],
+                        ),
                       ],
                     ),
                     SizedBox(height: 20),
@@ -594,178 +550,189 @@ class _EmployeProfileState extends State<EmployeProfile> {
                               _isSubmitting
                                   ? Colors.grey
                                   : (_isEditing ? Colors.green : Colors.grey),
-                          onPressed:
-                              _isSubmitting || !_isEditing
-                                  ? () {
-                                    Navigator.pop(context);
-                                  }
-                                  : () async {
-                                    // First verify PIN before proceeding with submission
-                                    final isPinVerified =
-                                        await _verifyPinForSubmit();
+                          onPressed: () async {
+                            var request = UpdateUserBankAccountRequest(
+                              userId: widget.singleEmployee.value.userId,
+                              bankName: 'MCB',
+                              branchCode: '',
+                              bankAddress: '',
+                              titleName: 'Mahboob',
+                              bankAccountNumber: '',
+                              ibanNumber: '555555555',
+                              contactNumber: '',
+                              emailId: _emailIdController.text.trim(),
+                              additionalNote: '',
+                            );
 
-                                    if (!isPinVerified) {
-                                      print(
-                                        "PIN verification failed or cancelled - submission aborted",
-                                      );
-                                      return;
-                                    }
-
-                                    print(
-                                      "PIN verification successful - proceeding with submission",
-                                    );
-
-                                    setState(() {
-                                      _isSubmitting = true;
-                                    });
-
-                                    print("=== SUBMIT BUTTON CLICKED ===");
-                                    print("Form submission started...");
-
-                                    // Check if any fields have actually changed
-                                    if (!_hasFormChanges()) {
-                                      print(
-                                        "No form changes detected - closing dialog",
-                                      );
-                                      // No changes, show message and close the dialog
-                                      setState(() {
-                                        _isSubmitting = false;
-                                      });
-                                      _showMessage(
-                                        context,
-                                        "No changes detected. Dialog will close.",
-                                      );
-                                      Navigator.pop(context);
-                                      return;
-                                    }
-
-                                    print(
-                                      "Form changes detected - proceeding with submission",
-                                    );
-
-                                    final String currentUserId =
-                                        widget.singleEmployee.value.userId;
-                                    final String enteredAccountNumber =
-                                        _bankAccountController.text.trim();
-
-                                    // First: update employee profile fields
-                                    final profilePayload = <String, dynamic>{
-                                      'user_id':
-                                          widget.singleEmployee.value.userId,
-                                      'employee_name':
-                                          _employeeNameController.text.trim(),
-                                      'email': _emailIdController.text.trim(),
-                                      'home_phone': _contactNumber1.text.trim(),
-                                      'alternate_phone':
-                                          _contactNumber2Controller.text.trim(),
-                                      'personal_phone':
-                                          _homeContactNumberController.text
-                                              .trim(),
-                                      'work_permit_number':
-                                          _workPermitNumberController.text
-                                              .trim(),
-                                      'emirate_id':
-                                          _emiratesIdController.text.trim(),
-                                      'joining_date': _formatDateForAPI(
-                                        _joiningDateController.text.trim(),
-                                      ),
-                                      'contract_expiry_date': _formatDateForAPI(
-                                        _contractExpiryController.text.trim(),
-                                      ),
-                                      'date_of_birth': _formatDateForAPI(
-                                        _birthDateController.text.trim(),
-                                      ),
-                                      'physical_address':
-                                          _physicalAddressController.text
-                                              .trim(),
-                                      'extra_note_1':
-                                          _noteController.text.trim(),
-                                      'gender': selectedGender ?? '',
-                                      'emp_designation': selectedJobType ?? '',
-                                      'employee_type':
-                                          employeeTypeSelected ?? '',
-                                      'salary': _salaryController.text.trim(),
-                                      'increment_amount':
-                                          _incrementController.text.trim(),
-                                      'working_hours':
-                                          _workingHoursController.text.trim(),
-                                    };
-                                    print(
-                                      "salary 444: '${_salaryController.text.trim()}'",
-                                    );
-
-                                    print("Payload: $profilePayload");
-                                    print(
-                                      "Note being sent: '${_noteController.text.trim()}'",
-                                    );
-                                    final profileRes = await signupProvider
-                                        .updateEmployeeProfile(profilePayload);
-
-                                    // Debug: Print the full response
-                                    print(
-                                      "Profile Update Response: $profileRes",
-                                    );
-
-                                    if (profileRes['success'] != true) {
-                                      _showMessage(
-                                        context,
-                                        profileRes['message'] ??
-                                            'Profile update failed',
-                                      );
-                                      return;
-                                    }
-                                    // Show success message for profile update
-                                    _showMessage(
-                                      context,
-                                      "Profile updated successfully!",
-                                    );
-
-                                    print(
-                                      "=== CHECKING BANK ACCOUNT FIELDS ===",
-                                    );
-                                    print("Selected Bank: '$_selectedBank'");
-                                    print(
-                                      "Title Name: '${_titleNameController.text.trim()}'",
-                                    );
-                                    print(
-                                      "Account Number: '${_bankAccountController.text.trim()}'",
-                                    );
-                                    print(
-                                      "IBAN: '${_ibanNumberController.text.trim()}'",
-                                    );
-                                    print(
-                                      "Contact Number: '${_contactNumberController.text.trim()}'",
-                                    );
-                                    print(
-                                      "Email ID: '${_emailI2dController.text.trim()}'",
-                                    );
-
-                                    Navigator.pop(context);
-
-                                    await employeeProvider.getFullData();
-                                    final updatedEmp = employeeProvider
-                                        .employees
-                                        ?.firstWhere(
-                                          (e) => e.userId == currentUserId,
-                                          orElse: () => null as dynamic,
-                                        );
-                                    if (updatedEmp != null) {
-                                      // Debug: Print the received employee data
-                                      print("Updated Employee Data:");
-                                      print("  ID: ${updatedEmp.userId}");
-                                      print(
-                                        "  Name: ${updatedEmp.employeeName}",
-                                      );
-                                      print(
-                                        "  Note: '${updatedEmp.extraNote1}'",
-                                      );
-
-                                      setState(() {
-                                        _isSubmitting = false;
-                                      });
-                                      return;
-                                    }
-                                  },
+                            updateUserBankAccountProvider.updateBankAccount(
+                              request,
+                            );
+                            print("bank api callled");
+                            // First verify PIN before proceeding with submission
+                            // final isPinVerified =
+                            //     await _verifyPinForSubmit();
+                            //
+                            // if (!isPinVerified) {
+                            //   print(
+                            //     "PIN verification failed or cancelled - submission aborted",
+                            //   );
+                            //   return;
+                            // }
+                            //
+                            // print(
+                            //   "PIN verification successful - proceeding with submission",
+                            // );
+                            //
+                            // setState(() {
+                            //   _isSubmitting = true;
+                            // });
+                            //
+                            // print("=== SUBMIT BUTTON CLICKED ===");
+                            // print("Form submission started...");
+                            //
+                            // // Check if any fields have actually changed
+                            // if (!_hasFormChanges()) {
+                            //   print(
+                            //     "No form changes detected - closing dialog",
+                            //   );
+                            //   // No changes, show message and close the dialog
+                            //   setState(() {
+                            //     _isSubmitting = false;
+                            //   });
+                            //   _showMessage(
+                            //     context,
+                            //     "No changes detected. Dialog will close.",
+                            //   );
+                            //   Navigator.pop(context);
+                            //   return;
+                            // }
+                            //
+                            // print(
+                            //   "Form changes detected - proceeding with submission",
+                            // );
+                            //
+                            // final String currentUserId =
+                            //     widget.singleEmployee.value.userId;
+                            // final String enteredAccountNumber =
+                            //     _bankAccountController.text.trim();
+                            //
+                            // // First: update employee profile fields
+                            // final profilePayload = <String, dynamic>{
+                            //   'user_id':
+                            //       widget.singleEmployee.value.userId,
+                            //   'employee_name':
+                            //       _employeeNameController.text.trim(),
+                            //   'email': _emailIdController.text.trim(),
+                            //   'home_phone': _contactNumber1.text.trim(),
+                            //   'alternate_phone':
+                            //       _contactNumber2Controller.text.trim(),
+                            //   'personal_phone':
+                            //       _homeContactNumberController.text
+                            //           .trim(),
+                            //   'work_permit_number':
+                            //       _workPermitNumberController.text
+                            //           .trim(),
+                            //   'emirate_id':
+                            //       _emiratesIdController.text.trim(),
+                            //   'joining_date': _formatDateForAPI(
+                            //     _joiningDateController.text.trim(),
+                            //   ),
+                            //   'contract_expiry_date': _formatDateForAPI(
+                            //     _contractExpiryController.text.trim(),
+                            //   ),
+                            //   'date_of_birth': _formatDateForAPI(
+                            //     _birthDateController.text.trim(),
+                            //   ),
+                            //   'physical_address':
+                            //       _physicalAddressController.text
+                            //           .trim(),
+                            //   'extra_note_1':
+                            //       _noteController.text.trim(),
+                            //   'gender': selectedGender ?? '',
+                            //   'emp_designation': selectedJobType ?? '',
+                            //   'employee_type':
+                            //       employeeTypeSelected ?? '',
+                            //   'salary': _salaryController.text.trim(),
+                            //   'increment_amount':
+                            //       _incrementController.text.trim(),
+                            //   'working_hours':
+                            //       _workingHoursController.text.trim(),
+                            // };
+                            // print(
+                            //   "salary 444: '${_salaryController.text.trim()}'",
+                            // );
+                            //
+                            // print("Payload: $profilePayload");
+                            // print(
+                            //   "Note being sent: '${_noteController.text.trim()}'",
+                            // );
+                            // final profileRes = await signupProvider
+                            //     .updateEmployeeProfile(profilePayload);
+                            //
+                            // // Debug: Print the full response
+                            // print(
+                            //   "Profile Update Response: $profileRes",
+                            // );
+                            //
+                            // if (profileRes['success'] != true) {
+                            //   _showMessage(
+                            //     context,
+                            //     profileRes['message'] ??
+                            //         'Profile update failed',
+                            //   );
+                            //   return;
+                            // }
+                            // // Show success message for profile update
+                            // _showMessage(
+                            //   context,
+                            //   "Profile updated successfully!",
+                            // );
+                            //
+                            // print(
+                            //   "=== CHECKING BANK ACCOUNT FIELDS ===",
+                            // );
+                            // print("Selected Bank: '$_selectedBank'");
+                            // print(
+                            //   "Title Name: '${_titleNameController.text.trim()}'",
+                            // );
+                            // print(
+                            //   "Account Number: '${_bankAccountController.text.trim()}'",
+                            // );
+                            // print(
+                            //   "IBAN: '${_ibanNumberController.text.trim()}'",
+                            // );
+                            // print(
+                            //   "Contact Number: '${_contactNumberController.text.trim()}'",
+                            // );
+                            // print(
+                            //   "Email ID: '${_emailI2dController.text.trim()}'",
+                            // );
+                            //
+                            // //  Navigator.pop(context);
+                            //
+                            // final updatedEmp = employeeProvider
+                            //     .employees
+                            //     ?.firstWhere(
+                            //       (e) => e.userId == currentUserId,
+                            //       orElse: () => null as dynamic,
+                            //     );
+                            // if (updatedEmp != null) {
+                            //   // Debug: Print the received employee data
+                            //   print("Updated Employee Data:");
+                            //   print("  ID: ${updatedEmp.userId}");
+                            //   print(
+                            //     "  Name: ${updatedEmp.employeeName}",
+                            //   );
+                            //   print(
+                            //     "  Note: '${updatedEmp.extraNote1}'",
+                            //   );
+                            //
+                            //   setState(() {
+                            //     _isSubmitting = false;
+                            //   });
+                            //   return;
+                            // }
+                          },
                         ),
                       ],
                     ),
@@ -1039,6 +1006,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
   // Helper method to check if any form fields have changed
   bool _hasFormChanges() {
     final originalEmployee = widget.singleEmployee.value;
+
     // Check if any employee profile field has changed from the original values
     final hasProfileChanges =
         _employeeNameController.text.trim() != originalEmployee.employeeName ||
@@ -1092,12 +1060,15 @@ class _EmployeProfileState extends State<EmployeProfile> {
     return hasChanges;
   }
 
+  // Helper method to check if any bank account fields have changed
   bool _hasBankAccountChanges() {
     // Get the original bank account data for comparison
     final originalEmployee = widget.singleEmployee.value;
     BankAccount? originalBankAccount;
+
     try {
-      final List<BankAccount> existingAccounts = originalEmployee.allBankAccounts;
+      final List<BankAccount> existingAccounts =
+          originalEmployee.allBankAccounts;
       if (existingAccounts.isNotEmpty) {
         final String currentUserId = originalEmployee.userId.toString();
         originalBankAccount = existingAccounts.firstWhere(
@@ -1108,20 +1079,28 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
     // Check if any bank account field has been modified from original values
     final hasChanges =
-
-        _titleNameController.text.trim() != (originalBankAccount?.titleName ?? '') ||
-        _bankAccountController.text.trim() != (originalBankAccount?.bankAccountNumber ?? '') ||
-        _ibanNumberController.text.trim() != (originalBankAccount?.ibanNumber ?? '') ||
-        _contactNumberController.text.trim() != (originalBankAccount?.contactNumber ?? '') ||
-        _emailI2dController.text.trim() != (originalBankAccount?.emailId ?? '') ||
+        _titleNameController.text.trim() !=
+            (originalBankAccount?.titleName ?? '') ||
+        _bankAccountController.text.trim() !=
+            (originalBankAccount?.bankAccountNumber ?? '') ||
+        _ibanNumberController.text.trim() !=
+            (originalBankAccount?.ibanNumber ?? '') ||
+        _contactNumberController.text.trim() !=
+            (originalBankAccount?.contactNumber ?? '') ||
+        _emailI2dController.text.trim() !=
+            (originalBankAccount?.emailId ?? '') ||
         _selectedBank != (originalBankAccount?.bankName?.trim() ?? '');
 
     // Debug: Print bank account change detection
     print("Bank Account Change Detection:");
-    print("  Original Bank Account: ${originalBankAccount != null ? 'Found' : 'Not found'}");
+    print(
+      "  Original Bank Account: ${originalBankAccount != null ? 'Found' : 'Not found'}",
+    );
     if (originalBankAccount != null) {
       print("  Original Title Name: '${originalBankAccount.titleName}'");
-      print("  Original Account Number: '${originalBankAccount.bankAccountNumber}'");
+      print(
+        "  Original Account Number: '${originalBankAccount.bankAccountNumber}'",
+      );
       print("  Original IBAN: '${originalBankAccount.ibanNumber}'");
       print("  Original Contact: '${originalBankAccount.contactNumber}'");
       print("  Original Email: '${originalBankAccount.emailId}'");

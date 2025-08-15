@@ -40,7 +40,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.width,
-      child: TextField(cursorColor: Colors.black,
+      child: TextField(
+        cursorColor: Colors.black,
         controller: widget.controller,
         enabled: widget.enabled,
         readOnly: widget.readOnly,
@@ -89,8 +90,6 @@ class CustomDropdownField extends StatelessWidget {
   final double height;
   final bool enabled;
 
-
-
   const CustomDropdownField({
     super.key,
     required this.label,
@@ -104,9 +103,7 @@ class CustomDropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return SizedBox(
-
       width: width,
       height: height,
       child: IgnorePointer(
@@ -120,7 +117,6 @@ class CustomDropdownField extends StatelessWidget {
             vertical: 11.8,
           ),
           decoration: CustomDropdownDecoration(
-        
             closedBorder: Border.all(color: Colors.grey),
             closedBorderRadius: BorderRadius.circular(4),
             expandedBorder: Border.all(color: Colors.red, width: 1),
@@ -850,11 +846,11 @@ class _DateTimePickerExampleState extends State<DateTimePickerExample> {
                   ),
                 ),
               ),
-              dialogTheme: DialogTheme(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
+              // dialogTheme: DialogTheme(
+              //   shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.circular(16),
+              //   ),
+              // ),
             ),
             child: child!,
           );
@@ -1176,16 +1172,21 @@ class _HoverLogoutButtonState extends State<HoverLogoutButton> {
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       child: GestureDetector(
-        onTap: widget.onTap ?? () async {
-          // Clear all stored data before logging out
-          final signupProvider = Provider.of<SignupProvider>(context, listen: false);
-          await signupProvider.logout();
-          
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LogScreen()),
-          );
-        },
+        onTap:
+            widget.onTap ??
+            () async {
+              // Clear all stored data before logging out
+              final signupProvider = Provider.of<SignupProvider>(
+                context,
+                listen: false,
+              );
+              await signupProvider.logout();
+
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LogScreen()),
+              );
+            },
         child: Align(
           alignment: Alignment.centerLeft,
           child: Container(
