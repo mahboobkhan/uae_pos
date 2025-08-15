@@ -13,12 +13,14 @@ class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final double width;
   final bool enabled;
+  final bool readOnly;
   final bool isPassword;
   final Widget? suffixIcon;
 
   const CustomTextField({
     super.key,
     required this.label,
+    this.readOnly = false,
     required this.hintText,
     required this.controller,
     this.width = 220,
@@ -41,6 +43,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       child: TextField(cursorColor: Colors.black,
         controller: widget.controller,
         enabled: widget.enabled,
+        readOnly: widget.readOnly,
         obscureText: widget.isPassword ? _obscureText : false,
         decoration: InputDecoration(
           labelText: widget.label,

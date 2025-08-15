@@ -708,7 +708,7 @@ class Employee {
       employeeType: json['employee_type'] ?? '',
       tag: json['tag'] ?? '',
       paymentMethod: json['payment_method'] ?? '',
-      salary: json['salary']?.toString(), // Nullable string
+      salary: json['salary']?.toString()??'',
       createdDate: json['created_date'] ?? '',
       lastUpdatedDate: json['last_updated_date'] ?? '',
       access:

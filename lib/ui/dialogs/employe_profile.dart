@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../employee/AllEmployeeData.dart';
 import '../../employee/EmployeeProvider.dart';
@@ -93,10 +94,15 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
   String? employeeTypeSelected;
   bool _isSubmitting = false;
+  bool _isContractActive = false; // Add this variable to track contract state
+  bool _isEditing = false; // Add this variable to track editing mode
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize editing mode to false (read-only)
+    _isEditing = false;
 
     // Add listener to refresh form when employee data changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -177,10 +183,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                         .toList(),
                                 selectedValue: employeeTypeSelected,
                                 onChanged: (value) {
-                                  setState(() {
-                                    employeeTypeSelected = value;
-                                  });
-                                  print("Selected Employee Typesss: $value");
+                                  if (_isEditing) {
+                                    setState(() {
+                                      employeeTypeSelected = value;
+                                    });
+                                    print("Selected Employee Typesss: $value");
+                                  }
                                 },
                               ),
                             ),
@@ -192,9 +200,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 options: genderOptions, // fixed list
                                 selectedValue: selectedGender,
                                 onChanged: (value) {
-                                  setState(() {
-                                    selectedGender = value;
-                                  });
+                                  if (_isEditing) {
+                                    setState(() {
+                                      selectedGender = value;
+                                    });
+                                  }
                                 },
                               ),
                             ),
@@ -287,6 +297,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           label: "Employee Name",
                           hintText: "xyz",
                           controller: _employeeNameController,
+                          enabled: _isEditing,
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,10 +310,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                       .toList(),
                               selectedValue: selectedJobType,
                               onChanged: (value) {
-                                setState(() {
-                                  selectedJobType = value;
-                                });
-                                print("Selected Employee 2: $value");
+                                if (_isEditing) {
+                                  setState(() {
+                                    selectedJobType = value;
+                                  });
+                                  print("Selected Employee 2: $value");
+                                }
                               },
                             ),
                           ],
@@ -311,31 +324,37 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           label: "Contact Number",
                           hintText: "+971",
                           controller: _contactNumber1,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "Contact No - 2",
                           hintText: "+971",
                           controller: _contactNumber2Controller,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "Home Contact No",
                           hintText: "+971",
                           controller: _homeContactNumberController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "Work Permit No",
                           hintText: "+WP-1234",
                           controller: _workPermitNumberController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "Emirates ID",
                           hintText: "+12345",
                           controller: _emiratesIdController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "Email ID",
                           hintText: "abc@gmail.com",
                           controller: _emailIdController,
+                          readOnly: true,
                         ),
 
                         CustomDateField(
@@ -367,16 +386,19 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           label: 'Salary',
                           hintText: 'AED-1000',
                           controller: _salaryController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: 'Increment',
                           hintText: '10',
                           controller: _incrementController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: 'Working Hours ',
                           hintText: '42',
                           controller: _workingHoursController,
+                          enabled: _isEditing,
                         ),
                         TextButton(
                           onPressed: () {},
@@ -398,6 +420,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             label: "Physical Address",
                             hintText: "Address,house,street,town,post code",
                             controller: _physicalAddressController,
+                            enabled: _isEditing,
                           ),
                         ),
                         SizedBox(
@@ -406,6 +429,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             label: "Note / Extra",
                             controller: _noteController,
                             hintText: 'xxxxx',
+                            enabled: _isEditing,
                           ),
                         ),
                       ],
@@ -428,35 +452,42 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           options: bankList,
                           selectedValue: _selectedBank,
                           onChanged: (value) {
-                            setState(() {
-                              _selectedBank = value;
-                            });
+                            if (_isEditing) {
+                              setState(() {
+                                _selectedBank = value;
+                              });
+                            }
                           },
                         ),
                         CustomTextField(
                           label: "Title Name",
                           hintText: "xxxxxx",
                           controller: _titleNameController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "Bank Account",
                           hintText: "xxxxxxxxxx",
                           controller: _bankAccountController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "IBN Number",
                           hintText: "xxxxxxxxxxx",
                           controller: _ibanNumberController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "Contact Number",
                           hintText: "+971",
                           controller: _contactNumberController,
+                          enabled: _isEditing,
                         ),
                         CustomTextField(
                           label: "Email ID",
                           hintText: "@gmail.com",
                           controller: _emailI2dController,
+                          enabled: _isEditing,
                         ),
                         SizedBox(height: 10),
                         Wrap(
@@ -585,27 +616,80 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     Row(
                       children: [
                         CustomButton(
-                          text: "Stop Contract",
-                          backgroundColor: Colors.red,
-                          onPressed: () {},
+                          text:
+                              _isContractActive
+                                  ? "Stop Contract"
+                                  : "Start Contract",
+                          backgroundColor:
+                              _isContractActive ? Colors.orange : Colors.red,
+                          onPressed: () async {
+                            if (_isContractActive) {
+                              await _stopContract();
+                            } else {
+                              await _showVerificationDialog();
+                            }
+                          },
                         ),
                         const SizedBox(width: 10),
                         CustomButton(
-                          text: "Editing",
-                          backgroundColor: Colors.blue,
-                          onPressed: () {},
+                          text: _isEditing ? "Editing" : "Edit",
+                          backgroundColor:
+                              _isEditing ? Colors.blue : Colors.blue,
+                          onPressed: () {
+                            setState(() {
+                              _isEditing = !_isEditing;
+                            });
+                            if (_isEditing) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Edit mode enabled - You can now modify fields",
+                                  ),
+                                  backgroundColor: Colors.blue,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Edit mode disabled - Fields are now read-only",
+                                  ),
+                                  backgroundColor: Colors.grey,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(width: 10),
                         CustomButton(
                           text: _isSubmitting ? "Updating..." : "Submit",
                           backgroundColor:
-                              _isSubmitting ? Colors.grey : Colors.green,
-                          onPressed:
                               _isSubmitting
+                                  ? Colors.grey
+                                  : (_isEditing ? Colors.green : Colors.grey),
+                          onPressed:
+                              _isSubmitting || !_isEditing
                                   ? () {
                                     Navigator.pop(context);
                                   }
                                   : () async {
+                                    // First verify PIN before proceeding with submission
+                                    final isPinVerified =
+                                        await _verifyPinForSubmit();
+
+                                    if (!isPinVerified) {
+                                      print(
+                                        "PIN verification failed or cancelled - submission aborted",
+                                      );
+                                      return;
+                                    }
+
+                                    print(
+                                      "PIN verification successful - proceeding with submission",
+                                    );
+
                                     setState(() {
                                       _isSubmitting = true;
                                     });
@@ -757,102 +841,38 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                                   .toString();
 
                                           // Check if user has an existing bank account
-                                          final existingBankAccount =
-                                              existingAccounts.firstWhere(
-                                                (account) =>
-                                                    account.userId ==
-                                                    currentUserId,
-                                                orElse: () => null as dynamic,
-                                              );
+                                          final existingBankAccount = existingAccounts
+                                              .cast<BankAccount?>()
+                                              .firstWhere(
+                                                (account) => account?.userId == currentUserId,
+                                            orElse: () => null,
+                                          );
 
                                           if (existingBankAccount != null) {
-                                            print(
-                                              "Existing bank account found, updating...",
+                                            print("Existing bank account found, updating...");
+
+                                            await updateUserBankAccountProvider.updateBankAccount(
+                                              UpdateUserBankAccountRequest(
+                                                bankAccountId: existingBankAccount.id, // Use existing ID
+                                                userId: currentUserId,
+                                                bankName: _selectedBank ??
+                                                    existingBankAccount.bankName ??
+                                                    "N/A",
+                                                branchCode: existingBankAccount.branchCode ?? "N/A",
+                                                bankAddress: existingBankAccount.bankAddress ?? "N/A",
+                                                titleName: _titleNameController.text.trim(),
+                                                bankAccountNumber: _bankAccountController.text.trim(),
+                                                ibanNumber: _ibanNumberController.text.trim(),
+                                                contactNumber: _contactNumberController.text.trim(),
+                                                emailId: _emailI2dController.text.trim(),
+                                                additionalNote: _noteController.text.trim(),
+                                              ),
                                             );
-                                            // Update existing bank account
-                                            await updateUserBankAccountProvider
-                                                .updateBankAccount(
-                                                  UpdateUserBankAccountRequest(
-                                                    bankAccountId:
-                                                        existingBankAccount.id,
-                                                    // Use existing ID
-                                                    userId: currentUserId,
-                                                    bankName:
-                                                        _selectedBank ??
-                                                        existingBankAccount
-                                                            .bankName ??
-                                                        "N/A",
-                                                    branchCode:
-                                                        existingBankAccount
-                                                            .branchCode ??
-                                                        "N/A",
-                                                    bankAddress:
-                                                        existingBankAccount
-                                                            .bankAddress ??
-                                                        "N/A",
-                                                    titleName:
-                                                        _titleNameController
-                                                            .text
-                                                            .trim(),
-                                                    bankAccountNumber:
-                                                        _bankAccountController
-                                                            .text
-                                                            .trim(),
-                                                    ibanNumber:
-                                                        _ibanNumberController
-                                                            .text
-                                                            .trim(),
-                                                    contactNumber:
-                                                        _contactNumberController
-                                                            .text
-                                                            .trim(),
-                                                    emailId:
-                                                        _emailI2dController.text
-                                                            .trim(),
-                                                    additionalNote:
-                                                        _noteController.text
-                                                            .trim(),
-                                                  ),
-                                                );
                                           } else {
-                                            print(
-                                              "No existing bank account found, creating new one...",
-                                            );
-                                            // Create new bank account
-                                            await createUserBankAccountProvider
-                                                .createBankAccount(
-                                                  CreateUserBankAccountRequest(
-                                                    userId: currentUserId,
-                                                    bankName:
-                                                        _selectedBank ?? "N/A",
-                                                    branchCode: "N/A",
-                                                    bankAddress: "N/A",
-                                                    titleName:
-                                                        _titleNameController
-                                                            .text
-                                                            .trim(),
-                                                    bankAccountNumber:
-                                                        _bankAccountController
-                                                            .text
-                                                            .trim(),
-                                                    ibanNumber:
-                                                        _ibanNumberController
-                                                            .text
-                                                            .trim(),
-                                                    contactNumber:
-                                                        _contactNumberController
-                                                            .text
-                                                            .trim(),
-                                                    emailId:
-                                                        _emailI2dController.text
-                                                            .trim(),
-                                                    additionalNote:
-                                                        _noteController.text
-                                                            .trim(),
-                                                    createdBy: currentUserId,
-                                                  ),
-                                                );
+                                            print("No existing bank account found, creating new one...");
+                                            // Add your create logic here
                                           }
+
 
                                           // Wait a bit for the state to update
                                           await Future.delayed(
@@ -992,25 +1012,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
   }
-
-  /*
-  @override
-  void dispose() {
-    final employeeProvider = Provider.of<EmployeeProvider>(
-      context,
-      listen: false,
-    );
-    super.dispose();
-  }
-
-  void _onEmployeeDataChanged() {
-    if (mounted) {
-      setState(() {
-        _refreshFormData();
-      });
-    }
-  }
-*/
 
   // Method to refresh form when dialog is reopened
   void _refreshFormOnReopen() {
@@ -1205,6 +1206,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
     print("Note Controller Value: '${_noteController.text}'");
     print("Employee ID: ${singleEmployee.value.userId}");
     print("Employee Name: ${singleEmployee.value.employeeName}");
+
+    // Load contract state from shared preferences
+    _loadContractState();
 
     // Prefill existing bank account data for this user (if any)
     try {
@@ -1469,6 +1473,354 @@ class _EmployeProfileState extends State<EmployeProfile> {
           'dd-MM-yyyy',
         ).format(pickedDate);
       });
+    }
+  }
+
+  // Add verification dialog method
+  Future<void> _showVerificationDialog() async {
+    final TextEditingController verificationController =
+        TextEditingController();
+    String? verificationCode;
+
+    try {
+      // Get verification code from shared preferences (from signup provider login)
+      final prefs = await SharedPreferences.getInstance();
+      verificationCode = prefs.getString('pin') ?? '1234'; // Default fallback
+
+      print(
+        'Retrieved verification code from signup provider: $verificationCode',
+      );
+    } catch (e) {
+      print('Error retrieving verification code: $e');
+      verificationCode = '1234'; // Fallback code
+    }
+
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Text(
+            "Contract Verification",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          content: SizedBox(
+            width: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Please enter the 4-digit verification code to start the contract",
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: verificationController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 4,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 18, letterSpacing: 8),
+                  decoration: const InputDecoration(
+                    labelText: 'Verification Code',
+                    hintText: '',
+                    border: OutlineInputBorder(),
+                    counterText: '',
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    if (value.length == 4) {
+                      // Auto-verify when 4 digits are entered
+                      if (value == verificationCode) {
+                        Navigator.of(context).pop();
+                        _startContract();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Invalid verification code. Please try again.",
+                            ),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        verificationController.clear();
+                      }
+                    }
+                  },
+                ),
+                /* const SizedBox(height: 10),
+                Text(
+                  "Verification code from login: ${verificationCode ?? 'Not found'}",
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                ),*/
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              onPressed: () {
+                final enteredCode = verificationController.text.trim();
+                if (enteredCode == verificationCode) {
+                  Navigator.of(context).pop();
+                  _startContract();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Invalid verification code. Please try again.",
+                      ),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  verificationController.clear();
+                }
+              },
+              child: const Text(
+                'Verify',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // PIN verification method for Submit button
+  Future<bool> _verifyPinForSubmit() async {
+    final TextEditingController verificationController =
+        TextEditingController();
+    String? verificationCode;
+
+    try {
+      // Get verification code from shared preferences (from signup provider login)
+      final prefs = await SharedPreferences.getInstance();
+      verificationCode = prefs.getString('pin') ?? '1234'; // Default fallback
+
+      print('Retrieved verification code for submit: $verificationCode');
+    } catch (e) {
+      print('Error retrieving verification code for submit: $e');
+      verificationCode = '1234'; // Fallback code
+    }
+
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              title: const Text(
+                "Submit Verification",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              content: SizedBox(
+                width: 300,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Please enter your PIN to confirm form submission",
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: verificationController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 4,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 18, letterSpacing: 8),
+                      decoration: const InputDecoration(
+                        labelText: 'Verification Code',
+                        hintText: '',
+                        border: OutlineInputBorder(),
+                        counterText: '',
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        if (value.length == 4) {
+                          // Auto-verify when 4 digits are entered
+                          if (value == verificationCode) {
+                            Navigator.of(
+                              context,
+                            ).pop(true); // Return true for success
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Invalid verification code. Please try again.",
+                                ),
+                                backgroundColor: Colors.red,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            verificationController.clear();
+                          }
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  // Return false for cancel
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  onPressed: () {
+                    final enteredCode = verificationController.text.trim();
+                    if (enteredCode == verificationCode) {
+                      Navigator.of(
+                        context,
+                      ).pop(true); // Return true for success
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Invalid verification code. Please try again.",
+                          ),
+                          backgroundColor: Colors.red,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      verificationController.clear();
+                    }
+                  },
+                  child: const Text(
+                    'Verify & Submit',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Return false if dialog is dismissed
+  }
+
+  Future<void> _startContract() async {
+    setState(() {
+      _isContractActive = true;
+    });
+
+    // Save contract state to shared preferences
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(
+        'is_contract_active_${widget.singleEmployee.value.userId}',
+        true,
+      );
+      print(
+        'Contract state saved: active for user ID: ${widget.singleEmployee.value.userId}',
+      );
+    } catch (e) {
+      print('Error saving contract state: $e');
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Contract started successfully!"),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _stopContract() async {
+    setState(() {
+      _isContractActive = false;
+    });
+
+    // Save contract state to shared preferences
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(
+        'is_contract_active_${widget.singleEmployee.value.userId}',
+        false,
+      );
+      print(
+        'Contract state saved: inactive for user ID: ${widget.singleEmployee.value.userId}',
+      );
+    } catch (e) {
+      print('Error saving contract state: $e');
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Contract stopped successfully!"),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // Method to load contract state from shared preferences
+  Future<void> _loadContractState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final isContractActive =
+          prefs.getBool(
+            'is_contract_active_${widget.singleEmployee.value.userId}',
+          ) ??
+          false;
+      setState(() {
+        _isContractActive = isContractActive;
+      });
+      print(
+        'Loaded contract state: $_isContractActive for user ID: ${widget.singleEmployee.value.userId}',
+      );
+    } catch (e) {
+      print('Error loading contract state: $e');
     }
   }
 }
