@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../employee/AllEmployeeData.dart';
 import '../../employee/EmployeeProvider.dart';
 import '../../employee/employee_models.dart';
-import '../../providers/create_bank_account.dart';
 import '../../providers/signup_provider.dart';
 import '../../providers/update_ban_account_provider.dart';
 import '../../utils/request_state.dart';
@@ -94,8 +93,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
   String? employeeTypeSelected;
   bool _isSubmitting = false;
-  bool _isContractActive = false; // Add this variable to track contract state
-  bool _isEditing = false; // Add this variable to track editing mode
+  bool _isContractActive = false;
+  bool _isEditing = false;
 
   @override
   void initState() {
@@ -131,16 +130,14 @@ class _EmployeProfileState extends State<EmployeProfile> {
     final bankList =
         widget.data!.allBanks.map((d) => d.bankName.trim()).toList();
     return SafeArea(
-      child: Consumer4<
+      child: Consumer3<
         UpdateUserBankAccountProvider,
-        CreateUserBankAccountProvider,
         EmployeeProvider,
         SignupProvider
       >(
         builder: (
           ctx,
           updateUserBankAccountProvider,
-          createUserBankAccountProvider,
           employeeProvider,
           signupProvider,
           _,
@@ -815,127 +812,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                       "Email ID: '${_emailI2dController.text.trim()}'",
                                     );
 
-                                    // Now create the bank account if there are bank details
-                                    final hasBankChanges =
-                                        _hasBankAccountChanges();
-                                    print(
-                                      "_hasBankAccountChanges() returned: $hasBankChanges",
-                                    );
-
-                                    if (hasBankChanges) {
-                                      print(
-                                        "Bank account changes detected, proceeding with creation...",
-                                      );
-                                      try {
-                                        // Get the existing bank account for this user
-                                        final existingAccounts =
-                                            widget
-                                                .singleEmployee
-                                                .value
-                                                .allBankAccounts ??
-                                            [];
-
-                                        if (existingAccounts.isNotEmpty) {
-                                          final String currentUserId =
-                                              widget.singleEmployee.value.userId
-                                                  .toString();
-
-                                          // Check if user has an existing bank account
-                                          final existingBankAccount = existingAccounts
-                                              .cast<BankAccount?>()
-                                              .firstWhere(
-                                                (account) => account?.userId == currentUserId,
-                                            orElse: () => null,
-                                          );
-
-                                          if (existingBankAccount != null) {
-                                            print("Existing bank account found, updating...");
-
-                                            await updateUserBankAccountProvider.updateBankAccount(
-                                              UpdateUserBankAccountRequest(
-                                                bankAccountId: existingBankAccount.id, // Use existing ID
-                                                userId: currentUserId,
-                                                bankName: _selectedBank ??
-                                                    existingBankAccount.bankName ??
-                                                    "N/A",
-                                                branchCode: existingBankAccount.branchCode ?? "N/A",
-                                                bankAddress: existingBankAccount.bankAddress ?? "N/A",
-                                                titleName: _titleNameController.text.trim(),
-                                                bankAccountNumber: _bankAccountController.text.trim(),
-                                                ibanNumber: _ibanNumberController.text.trim(),
-                                                contactNumber: _contactNumberController.text.trim(),
-                                                emailId: _emailI2dController.text.trim(),
-                                                additionalNote: _noteController.text.trim(),
-                                              ),
-                                            );
-                                          } else {
-                                            print("No existing bank account found, creating new one...");
-                                            // Add your create logic here
-                                          }
-
-
-                                          // Wait a bit for the state to update
-                                          await Future.delayed(
-                                            Duration(milliseconds: 100),
-                                          );
-
-                                          // Check the appropriate provider state based on what we did
-                                          if (existingBankAccount != null) {
-                                            // We updated an existing account
-                                            print(
-                                              "Bank account update completed. State: ${updateUserBankAccountProvider.state}",
-                                            );
-                                            print(
-                                              "Error message: ${updateUserBankAccountProvider.errorMessage}",
-                                            );
-
-                                            if (updateUserBankAccountProvider
-                                                    .state ==
-                                                RequestState.success) {
-                                              _showMessage(
-                                                context,
-                                                "Profile and bank account updated successfully!",
-                                              );
-                                            } else {
-                                              _showMessage(
-                                                context,
-                                                "Profile updated but bank account update failed: ${updateUserBankAccountProvider.errorMessage ?? 'Unknown error'}",
-                                              );
-                                            }
-                                          } else {
-                                            // We created a new account
-                                            print(
-                                              "Bank account creation completed. State: ${createUserBankAccountProvider.state}",
-                                            );
-                                            print(
-                                              "Error message: ${createUserBankAccountProvider.errorMessage}",
-                                            );
-
-                                            if (createUserBankAccountProvider
-                                                    .state ==
-                                                RequestState.success) {
-                                              _showMessage(
-                                                context,
-                                                "Profile and bank account created successfully!",
-                                              );
-                                            } else {
-                                              _showMessage(
-                                                context,
-                                                "Profile updated but bank account creation failed: ${createUserBankAccountProvider.errorMessage ?? 'Unknown error'}",
-                                              );
-                                            }
-                                          }
-                                        }
-                                      } catch (e) {
-                                        print("Bank account update error: $e");
-                                        _showMessage(
-                                          context,
-                                          "Profile updated but bank account update failed: $e",
-                                        );
-                                      }
-                                    }
-
-                                    // Close dialog after all updates
                                     Navigator.pop(context);
 
                                     // Refresh employee data
@@ -959,39 +835,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                       );
 
                                       setState(() {
-                                        _employeeNameController.text =
-                                            updatedEmp.employeeName;
-                                        _emailIdController.text =
-                                            updatedEmp.email;
-                                        _contactNumber1.text =
-                                            updatedEmp.homePhone;
-                                        _contactNumber2Controller.text =
-                                            updatedEmp.alternatePhone;
-                                        _homeContactNumberController.text =
-                                            updatedEmp.personalPhone;
-                                        _workPermitNumberController.text =
-                                            updatedEmp.workPermitNumber;
-                                        _emiratesIdController.text =
-                                            updatedEmp.emirateId;
-                                        _joiningDateController.text =
-                                            updatedEmp.joiningDate;
-                                        _contractExpiryController.text =
-                                            updatedEmp.contractExpiryDate;
-                                        _birthDateController.text =
-                                            updatedEmp.dateOfBirth;
-                                        _physicalAddressController.text =
-                                            updatedEmp.physicalAddress;
-                                        _noteController.text =
-                                            updatedEmp.extraNote1;
-
-                                        print(
-                                          "Received Note (extraNote1): '${updatedEmp.extraNote1}'",
-                                        );
-                                        print(
-                                          "Note Controller Value after update: '${_noteController.text}'",
-                                        );
-                                        selectedGender = updatedEmp.gender;
+                                        _isSubmitting = false;
                                       });
+                                      return;
                                     }
                                   },
                         ),
@@ -1270,8 +1116,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
   bool _hasFormChanges() {
     final originalEmployee = widget.singleEmployee.value;
 
-    // Check if any field has changed from the original values
-    final hasChanges =
+    // Check if any employee profile field has changed from the original values
+    final hasProfileChanges =
         _employeeNameController.text.trim() != originalEmployee.employeeName ||
         _emailIdController.text.trim() != originalEmployee.email ||
         _contactNumber1.text.trim() != (originalEmployee.homePhone ?? '') ||
@@ -1302,11 +1148,22 @@ class _EmployeProfileState extends State<EmployeProfile> {
         _workingHoursController.text.trim() !=
             (originalEmployee.workingHours?.toString() ?? '');
 
+    // Check if any bank account fields have changed
+    final hasBankChanges = _hasBankAccountChanges();
+
+    // Combined check - if either profile or bank details have changed
+    final hasChanges = hasProfileChanges || hasBankChanges;
+
     // Debug: Print what changes were detected
     if (!hasChanges) {
       print("No form changes detected - all fields match original values");
     } else {
-      print("Form changes detected - some fields have been modified");
+      if (hasProfileChanges) {
+        print("Form changes detected - employee profile fields have been modified");
+      }
+      if (hasBankChanges) {
+        print("Form changes detected - bank account fields have been modified");
+      }
     }
 
     return hasChanges;
@@ -1314,33 +1171,46 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
   // Helper method to check if any bank account fields have changed
   bool _hasBankAccountChanges() {
-    // Check if any bank account field has been modified
+    // Get the original bank account data for comparison
+    final originalEmployee = widget.singleEmployee.value;
+    BankAccount? originalBankAccount;
+    
+    try {
+      final List<BankAccount> existingAccounts = originalEmployee.allBankAccounts;
+      if (existingAccounts.isNotEmpty) {
+        final String currentUserId = originalEmployee.userId.toString();
+        originalBankAccount = existingAccounts.firstWhere(
+          (account) => account.userId == currentUserId,
+        );
+      }
+    } catch (_) {}
+
+    // Check if any bank account field has been modified from original values
     final hasChanges =
-        _titleNameController.text.trim().isNotEmpty ||
-        _bankAccountController.text.trim().isNotEmpty ||
-        _ibanNumberController.text.trim().isNotEmpty ||
-        _contactNumberController.text.trim().isNotEmpty ||
-        _emailI2dController.text.trim().isNotEmpty ||
-        _selectedBank != null;
+        _titleNameController.text.trim() != (originalBankAccount?.titleName ?? '') ||
+        _bankAccountController.text.trim() != (originalBankAccount?.bankAccountNumber ?? '') ||
+        _ibanNumberController.text.trim() != (originalBankAccount?.ibanNumber ?? '') ||
+        _contactNumberController.text.trim() != (originalBankAccount?.contactNumber ?? '') ||
+        _emailI2dController.text.trim() != (originalBankAccount?.emailId ?? '') ||
+        _selectedBank != (originalBankAccount?.bankName?.trim() ?? '');
 
     // Debug: Print bank account change detection
     print("Bank Account Change Detection:");
-    print(
-      "  Title Name: '${_titleNameController.text.trim()}' (${_titleNameController.text.trim().isNotEmpty})",
-    );
-    print(
-      "  Account Number: '${_bankAccountController.text.trim()}' (${_bankAccountController.text.trim().isNotEmpty})",
-    );
-    print(
-      "  IBAN: '${_ibanNumberController.text.trim()}' (${_ibanNumberController.text.trim().isNotEmpty})",
-    );
-    print(
-      "  Contact: '${_contactNumberController.text.trim()}' (${_contactNumberController.text.trim().isNotEmpty})",
-    );
-    print(
-      "  Email: '${_emailI2dController.text.trim()}' (${_emailI2dController.text.trim().isNotEmpty})",
-    );
-    print("  Selected Bank: '$_selectedBank' (${_selectedBank != null})");
+    print("  Original Bank Account: ${originalBankAccount != null ? 'Found' : 'Not found'}");
+    if (originalBankAccount != null) {
+      print("  Original Title Name: '${originalBankAccount.titleName}'");
+      print("  Original Account Number: '${originalBankAccount.bankAccountNumber}'");
+      print("  Original IBAN: '${originalBankAccount.ibanNumber}'");
+      print("  Original Contact: '${originalBankAccount.contactNumber}'");
+      print("  Original Email: '${originalBankAccount.emailId}'");
+      print("  Original Bank: '${originalBankAccount.bankName}'");
+    }
+    print("  Current Title Name: '${_titleNameController.text.trim()}'");
+    print("  Current Account Number: '${_bankAccountController.text.trim()}'");
+    print("  Current IBAN: '${_ibanNumberController.text.trim()}'");
+    print("  Current Contact: '${_contactNumberController.text.trim()}'");
+    print("  Current Email: '${_emailI2dController.text.trim()}'");
+    print("  Current Selected Bank: '$_selectedBank'");
     print("  Has Changes: $hasChanges");
 
     return hasChanges;
