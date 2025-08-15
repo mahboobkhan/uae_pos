@@ -100,17 +100,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
   void initState() {
     super.initState();
 
-    // Initialize editing mode to false (read-only)
     _isEditing = false;
 
-    // Add listener to refresh form when employee data changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      /*   final employeeProvider = Provider.of<EmployeeProvider>(
-        context,
-        listen: false,
-      );
-      employeeProvider.addListener(_onEmployeeDataChanged);
-     */
 
       // Ensure we have the latest data when dialog opens
       _ensureLatestData();
@@ -301,6 +293,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           children: [
                             CustomDropdownField(
                               label: "Job Position",
+                              enabled: _isEditing,
                               options:
                                   widget.singleEmployee.value.allDesignations
                                       .map((d) => d.designations)
@@ -352,9 +345,11 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           hintText: "abc@gmail.com",
                           controller: _emailIdController,
                           readOnly: true,
+                          enabled: _isEditing,
                         ),
 
                         CustomDateField(
+
                           label: "Date of Joining",
                           hintText: "dd-MM-yyyy",
                           controller: _joiningDateController,
@@ -469,7 +464,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           enabled: _isEditing,
                         ),
                         CustomTextField(
-                          label: "IBN Number",
+                          label: "IBAN Number",
                           hintText: "xxxxxxxxxxx",
                           controller: _ibanNumberController,
                           enabled: _isEditing,

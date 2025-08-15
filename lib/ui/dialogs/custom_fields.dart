@@ -87,10 +87,14 @@ class CustomDropdownField extends StatelessWidget {
   final ValueChanged<String?> onChanged;
   final double width;
   final double height;
+  final bool enabled;
+
+
 
   const CustomDropdownField({
     super.key,
     required this.label,
+    this.enabled = true,
     required this.selectedValue,
     required this.options,
     required this.onChanged,
@@ -100,27 +104,33 @@ class CustomDropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return SizedBox(
+
       width: width,
       height: height,
-      child: CustomDropdown<String>(
-        hintText: label,
-        items: options,
-        initialItem: selectedValue,
-        closedHeaderPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 11.8,
+      child: IgnorePointer(
+        ignoring: !enabled, // disable taps when false
+        child: CustomDropdown<String>(
+          hintText: label,
+          items: options,
+          initialItem: selectedValue,
+          closedHeaderPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 11.8,
+          ),
+          decoration: CustomDropdownDecoration(
+        
+            closedBorder: Border.all(color: Colors.grey),
+            closedBorderRadius: BorderRadius.circular(4),
+            expandedBorder: Border.all(color: Colors.red, width: 1),
+            expandedBorderRadius: BorderRadius.circular(4),
+            hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+            listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
+            closedFillColor: Colors.white,
+          ),
+          onChanged: (value) => onChanged(value),
         ),
-        decoration: CustomDropdownDecoration(
-          closedBorder: Border.all(color: Colors.grey),
-          closedBorderRadius: BorderRadius.circular(4),
-          expandedBorder: Border.all(color: Colors.red, width: 1),
-          expandedBorderRadius: BorderRadius.circular(4),
-          hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          listItemStyle: const TextStyle(fontSize: 16, color: Colors.black),
-          closedFillColor: Colors.white,
-        ),
-        onChanged: (value) => onChanged(value),
       ),
     );
   }
