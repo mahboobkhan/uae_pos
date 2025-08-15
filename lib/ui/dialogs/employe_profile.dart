@@ -535,73 +535,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             ),
                           ],
                         ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            SizedBox(height: 10),
-                            /*
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: [
-                                CustomCompactTextField(
-                                  label: 'Doc Name',
-                                  hintText: '',
-                                  controller: _docNameController,
-                                ),
-                                CustomDateNotificationField(
-                                  label: "Issue Date Notifications",
-                                  controller: _issueDateController,
-                                  readOnly: true,
-                                  hintText: "dd-MM-yyyy HH:mm",
-                                  onTap: _pickIssueDate,
-                                ),
-                                CustomDateNotificationField(
-                                  label: "Expiry Date Notifications",
-                                  controller: _expiryDateController,
-                                  readOnly: true,
-                                  hintText: "dd-MM-yyyy HH:mm",
-                                  onTap: _pickExpiryDate,
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    minimumSize: const Size(150, 38),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        4,
-                                      ), // Optional: slight rounding
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: const [
-                                      Icon(
-                                        Icons.upload_file,
-                                        size: 16,
-                                        color: Colors.white,
-                                      ), //
-                                      SizedBox(width: 6),
-                                      Text(
-                                        'Upload File',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                        ), //
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-*/
-                          ],
-                        ),
                       ],
                     ),
                     SizedBox(height: 20),
@@ -809,9 +742,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
                                     Navigator.pop(context);
 
-                                    // Refresh employee data
                                     await employeeProvider.getFullData();
-                                    // Repopulate profile controllers from server
                                     final updatedEmp = employeeProvider
                                         .employees
                                         ?.firstWhere(
@@ -871,10 +802,8 @@ class _EmployeProfileState extends State<EmployeProfile> {
     _refreshFormOnReopen();
   }
 
-  // Method to handle form submission and ensure proper state update
   Future<void> _handleFormSubmission() async {
-    // This method will be called after successful form submission
-    // to ensure the form state is properly updated
+
     await _ensureLatestData();
   }
 
@@ -1110,7 +1039,6 @@ class _EmployeProfileState extends State<EmployeProfile> {
   // Helper method to check if any form fields have changed
   bool _hasFormChanges() {
     final originalEmployee = widget.singleEmployee.value;
-
     // Check if any employee profile field has changed from the original values
     final hasProfileChanges =
         _employeeNameController.text.trim() != originalEmployee.employeeName ||
@@ -1164,12 +1092,10 @@ class _EmployeProfileState extends State<EmployeProfile> {
     return hasChanges;
   }
 
-  // Helper method to check if any bank account fields have changed
   bool _hasBankAccountChanges() {
     // Get the original bank account data for comparison
     final originalEmployee = widget.singleEmployee.value;
     BankAccount? originalBankAccount;
-    
     try {
       final List<BankAccount> existingAccounts = originalEmployee.allBankAccounts;
       if (existingAccounts.isNotEmpty) {
@@ -1182,6 +1108,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
 
     // Check if any bank account field has been modified from original values
     final hasChanges =
+
         _titleNameController.text.trim() != (originalBankAccount?.titleName ?? '') ||
         _bankAccountController.text.trim() != (originalBankAccount?.bankAccountNumber ?? '') ||
         _ibanNumberController.text.trim() != (originalBankAccount?.ibanNumber ?? '') ||
