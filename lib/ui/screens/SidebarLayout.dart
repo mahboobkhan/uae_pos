@@ -30,24 +30,19 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Model/NavItem.dart';
-import '../Model/SidebarItem.dart';
-import '../dialogs/custom_dialoges.dart';
 import '../dialogs/custom_fields.dart';
 import '../dialogs/profile_dialog.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
 
 class SidebarLayout extends StatefulWidget {
-
   SidebarLayout({super.key});
 
   @override
   State<SidebarLayout> createState() => _SidebarLayoutState();
-
 }
 
 class _SidebarLayoutState extends State<SidebarLayout> {
-
   int screen = 0;
 
   bool isExpanded = true;
@@ -67,9 +62,11 @@ class _SidebarLayoutState extends State<SidebarLayout> {
     final prefs = await SharedPreferences.getInstance();
     final storedUserId = prefs.getString('user_id');
 
-
     if (storedUserId != null && storedUserId.isNotEmpty) {
-      final accessProvider = Provider.of<SignupProvider>(context, listen: false);
+      final accessProvider = Provider.of<SignupProvider>(
+        context,
+        listen: false,
+      );
 
       await accessProvider.fetchUserAccess(storedUserId);
 
@@ -81,17 +78,14 @@ class _SidebarLayoutState extends State<SidebarLayout> {
     }
   }
 
-
   void updateSidebarAccess(Map<String, bool> accessMap) {
     for (final item in sidebarItems) {
       item.isLocked = !(accessMap[item.accessKey] ?? false);
 
-      item.submenuLockStates = item.submenuKeys
-          .map((key) => !(accessMap[key] ?? false))
-          .toList();
+      item.submenuLockStates =
+          item.submenuKeys.map((key) => !(accessMap[key] ?? false)).toList();
     }
   }
-
 
   void loadAccessFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -102,13 +96,11 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       print('Access object: $access');
 
       // Example: print specific keys if it's a Map
-      if (access is Map<String, dynamic>) {
-      }
+      if (access is Map<String, dynamic>) {}
     } else {
       print('No access key found in SharedPreferences');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -306,7 +298,11 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                   ),
                                                 // Show lock only if locked
                                                 if (item.isLocked == true)
-                                                  const Icon(Icons.lock, size: 16, color: Colors.red),
+                                                  const Icon(
+                                                    Icons.lock,
+                                                    size: 16,
+                                                    color: Colors.red,
+                                                  ),
                                               ],
                                             ],
                                           ),
@@ -319,9 +315,14 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                           final submenu = item.submenus[i];
                                           final submenuSelected =
                                               _selectedSubmenuIndex == i;
-                                          final isSubmenuLocked = item.submenuLockStates != null && item.submenuLockStates!.length > i
-                                              ? item.submenuLockStates![i]
-                                              : false;
+                                          final isSubmenuLocked =
+                                              item.submenuLockStates != null &&
+                                                      item
+                                                              .submenuLockStates!
+                                                              .length >
+                                                          i
+                                                  ? item.submenuLockStates![i]
+                                                  : false;
 
                                           return Padding(
                                             padding: const EdgeInsets.only(
@@ -366,7 +367,11 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                     // Lock icon aligned to far right
                                                     // Lock icon for submenu
                                                     if (isSubmenuLocked)
-                                                      const Icon(Icons.lock, size: 16, color: Colors.red),
+                                                      const Icon(
+                                                        Icons.lock,
+                                                        size: 16,
+                                                        color: Colors.red,
+                                                      ),
                                                   ],
                                                 ),
                                               ),
@@ -388,9 +393,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                       iconSize: 25,
                       defaultColor: Colors.green,
                       hoverColor: Colors.red,
-                      onTap: () {
-
-                      },
+                      onTap: () {},
                     ),
                   ],
                 ),
@@ -405,17 +408,17 @@ class _SidebarLayoutState extends State<SidebarLayout> {
           ),
 
           // Bottom Footer
-
         ],
       ),
     );
   }
 
-  Widget _buildScreenFor(NavItem item)  {
-
+  Widget _buildScreenFor(NavItem item) {
     if (_selectedSubmenuIndex != -1) {
       final submenu = sidebarItems[item.index].submenus[_selectedSubmenuIndex];
-      final isLocked = sidebarItems[item.index].submenuLockStates?[_selectedSubmenuIndex] ?? true;
+      final isLocked =
+          sidebarItems[item.index].submenuLockStates?[_selectedSubmenuIndex] ??
+          true;
 
       if (isLocked) {
         return const AbcScreen();
@@ -432,7 +435,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
 
     switch (item) {
       case NavItem.dashboard:
-        return  Center(child: DashboardScreen());
+        return Center(child: DashboardScreen());
       case NavItem.projects:
         return Center(
           child: ProjectScreen(
