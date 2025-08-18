@@ -178,6 +178,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                     setState(() {
                                       employeeTypeSelected = value;
                                     });
+                                    print("Selected Employee Typesss: $value");
                                   }
                                 },
                               ),
@@ -233,7 +234,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                     // Fields
                     Wrap(
                       spacing: 10,
-                      runSpacing: 15,
+                      runSpacing: 10,
                       children: [
                         CustomTextField(
                           label: "Employee Name",
@@ -257,6 +258,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                   setState(() {
                                     selectedJobType = value;
                                   });
+                                  print("Selected Employee 2: $value");
                                 }
                               },
                             ),
@@ -632,7 +634,89 @@ class _EmployeProfileState extends State<EmployeProfile> {
                               if (mounted) {
                                 _initializeFormData();
                               }
+                            if (_isSubmitting) return;
 
+
+                            // Step 2: Verify PIN before any update
+                            final isPinVerified = await _verifyPinForSubmit();
+                            if (!isPinVerified) {
+                              Navigator.pop(context);
+                              print("PIN verification failed or cancelled - submission aborted");
+                              return;
+                            }
+                            print("PIN verification successful - proceeding with submission");
+
+                            setState(() {
+                              _isSubmitting = true;
+                            });
+
+                            try {
+                              // Step 3: Update Bank Account
+                              var bankRequest = UpdateUserBankAccountRequest(
+                                userId: widget.singleEmployee.value.userId,
+                                bankName: _selectedBank ?? '',
+                                branchCode: '',
+                                bankAddress: '',
+                                titleName: _titleNameController.text.trim(),
+                                bankAccountNumber: _bankAccountController.text.trim(),
+                                ibanNumber: _ibanNumberController.text.trim(),
+                                contactNumber: _contactNumberController.text.trim(),
+                                emailId: _emailI2dController.text.trim(),
+                                additionalNote: '',
+                              );
+                              await updateUserBankAccountProvider.updateBankAccount(bankRequest);
+                              print("Bank account updated successfully");
+
+                              // Step 4: Update Profile
+                              final profilePayload = <String, dynamic>{
+                                'user_id': widget.singleEmployee.value.userId,
+                                'employee_name': _employeeNameController.text.trim(),
+                                'email': _emailIdController.text.trim(),
+                                'home_phone': _contactNumber1.text.trim(),
+                                'alternate_phone': _contactNumber2Controller.text.trim(),
+                                'personal_phone': _homeContactNumberController.text.trim(),
+                                'work_permit_number': _workPermitNumberController.text.trim(),
+                                'emirate_id': _emiratesIdController.text.trim(),
+                                'joining_date': _formatDateForAPI(_joiningDateController.text.trim()),
+                                'contract_expiry_date': _formatDateForAPI(_contractExpiryController.text.trim()),
+                                'date_of_birth': _formatDateForAPI(_birthDateController.text.trim()),
+                                'physical_address': _physicalAddressController.text.trim(),
+                                'extra_note_1': _noteController.text.trim(),
+                                'gender': selectedGender ?? '',
+                                'emp_designation': selectedJobType ?? '',
+                                'employee_type': employeeTypeSelected ?? '',
+                                'salary': _salaryController.text.trim(),
+                                'increment_amount': _incrementController.text.trim(),
+                                'working_hours': _workingHoursController.text.trim(),
+                              };
+
+                              final profileRes = await signupProvider.updateEmployeeProfile(profilePayload);
+                              if (profileRes['success'] != true) {
+                                _showMessage(context, profileRes['message'] ?? 'Profile update failed');
+                                return;
+                              }
+                              print("Profile updated successfully");
+
+                              // Step 5: Refresh data
+                              await employeeProvider.getFullData();
+                              if (mounted) {
+                                _initializeFormData();
+                              }
+
+                              _showMessage(context, "Profile & Bank details updated successfully!");
+
+                              // Step 6: Close dialog automatically
+                              Navigator.pop(context);
+
+                            } catch (e) {
+                              print("Error during update: $e");
+                              _showMessage(context, "Failed to update profile/bank details.");
+                            } finally {
+                              setState(() {
+                                _isSubmitting = false;
+                                _isEditing = false;
+                              });
+                            }
                               Navigator.pop(context);
 
                             } catch (e) {
@@ -935,6 +1019,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
             (originalEmployee.incrementAmount?.toString() ?? '') ||
         _workingHoursController.text.trim() !=
             (originalEmployee.workingHours?.toString() ?? '');
+
+
+
   }
 */
 
@@ -1131,10 +1218,12 @@ class _EmployeProfileState extends State<EmployeProfile> {
   Future<void> _showVerificationDialog() async {
     final TextEditingController verificationController =
         TextEditingController();
-    
+
     // 🔹 Load the saved PIN from SharedPreferences (same key as used in _verifyPinForSubmit)
     final prefs = await SharedPreferences.getInstance();
     final savedVerificationCode = prefs.getString('pin') ?? '1234'; // Use 'pin' key with fallback
+
+    String? verificationCode;
 
     return showDialog(
       context: context,
@@ -1236,7 +1325,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
   Future<void> _showVerificationDialogForStop() async {
     final TextEditingController verificationController =
         TextEditingController();
-    
+
     // 🔹 Load the saved PIN from SharedPreferences (same key as used in _verifyPinForSubmit)
     final prefs = await SharedPreferences.getInstance();
     final savedVerificationCode = prefs.getString('pin') ?? '1234'; // Use 'pin' key with fallback
