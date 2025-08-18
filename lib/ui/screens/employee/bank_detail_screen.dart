@@ -158,91 +158,11 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return SafeArea(
       child: Consumer<EmployeeProvider>(
         builder: (ctx, employeeProvider, _) {
-          if (employeeProvider.isLoading) {
-            return Scaffold(
-              backgroundColor: Colors.grey.shade100,
-              body: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('Loading bank details...'),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          if (employeeProvider.error != null) {
-            print('🏗️ Showing error state: ${employeeProvider.error}');
-            return Scaffold(
-              backgroundColor: Colors.grey.shade100,
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Error: ${employeeProvider.error}',
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => employeeProvider.getFullData(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          if (employeeProvider.employees == null ||
-              employeeProvider.employees!.isEmpty) {
-            return Scaffold(
-              backgroundColor: Colors.grey.shade100,
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet_outlined,
-                      size: 64,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'No employee data found',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Please check your connection and try again',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => employeeProvider.getFullData(),
-                      child: const Text('Refresh Data'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          // Get filtered employees based on selected filters
           final filteredEmployees = getFilteredEmployees(employeeProvider);
-
           return Scaffold(
             backgroundColor: Colors.grey.shade100,
             body: SingleChildScrollView(
@@ -250,100 +170,6 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Page Title
-                  /*
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'My Bank Details',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.red.shade700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'View and manage your bank account information',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () => employeeProvider.getFullData(),
-                              icon: const Icon(Icons.refresh),
-                              tooltip: 'Refresh Data',
-                            ),
-                          ],
-                        ),
-                        // Debug Information (remove in production)
-                        if (true) // Set to false to hide debug info
-                          Container(
-                            margin: const EdgeInsets.only(top: 16),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              border: Border.all(color: Colors.blue.shade200),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Debug Info:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue.shade700,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Current User ID: ${_currentUserId ?? "Not set"}',
-                                ),
-                                Text(
-                                  'Total Employees: ${employeeProvider.employees?.length ?? 0}',
-                                ),
-                                Text(
-                                  'Filtered Employees: ${filteredEmployees.length}',
-                                ),
-                                Text('Selected Category: $selectedCategory'),
-                                Text('Selected Category1: $selectedCategory1'),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-*/
-                  // Filters Section
                   MouseRegion(
                     onEnter: (_) => setState(() => _isHovering = true),
                     onExit: (_) => setState(() => _isHovering = false),
@@ -378,9 +204,8 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                   CustomDropdown(
                                     selectedValue: selectedCategory,
                                     hintText: "Employee Type",
-                                    items: getUniqueEmployeeTypes(
-                                      employeeProvider,
-                                    ),
+                                    items: getUniqueEmployeeTypes(employeeProvider),
+
                                     onChanged: (newValue) {
                                       setState(
                                         () => selectedCategory = newValue!,
@@ -472,7 +297,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                   child: Table(
                                     defaultVerticalAlignment:
                                         TableCellVerticalAlignment.middle,
-                                    columnWidths: const {
+                                    columnWidths:  {
                                       0: FlexColumnWidth(1.0),
                                       // Date & Time
                                       1: FlexColumnWidth(1.2),
@@ -504,106 +329,59 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                           _buildHeader("Actions"),
                                         ],
                                       ),
-                                      ...filteredEmployees.expand((employee) {
-                                        final index = filteredEmployees.indexOf(
-                                          employee,
-                                        );
 
-                                        // If employee has no bank accounts, show one row with N/A
-                                        if (employee.allBankAccounts.isEmpty) {
-                                          return [
-                                            TableRow(
+                                      // Data Rows
+                                      ...() {
+                                        int rowIndex = 0; // ✅ global counter for even/odd rows
+                                        return filteredEmployees.expand((employee) {
+                                          return employee.allBankAccounts.map((bankAccount) {
+                                            final currentIndex = rowIndex++; // har row ka unique index
+
+                                            return TableRow(
                                               decoration: BoxDecoration(
-                                                color:
-                                                    index.isEven
-                                                        ? Colors.grey.shade200
-                                                        : Colors.grey.shade100,
+                                                color: currentIndex.isEven
+                                                    ? Colors.grey.shade200
+                                                    : Colors.grey.shade100,
                                               ),
                                               children: [
                                                 _buildCell2(
-                                                  _formatDateForDisplay(
-                                                    employee.lastUpdatedDate,
-                                                  ),
+                                                  _formatDateForDisplay(employee.lastUpdatedDate),
                                                   '',
                                                   centerText2: true,
                                                 ),
-                                                _buildCell("N/A"),
-                                                _buildCell("N/A"),
-                                                _buildCell("No Bank Account"),
-                                                _buildCell3("N/A", "N/A"),
-                                                _buildCell("N/A"),
-                                                _buildActionCell(
-                                                  onEdit: () {},
-                                                  onDelete: () {},
+                                                _buildCell(
+                                                  bankAccount.titleName.isNotEmpty
+                                                      ? bankAccount.titleName
+                                                      : "N/A",
                                                 ),
+                                                _buildCell(bankAccount.bankName),
+                                                _buildCell(
+                                                  bankAccount.bankAccountNumber.isNotEmpty
+                                                      ? bankAccount.bankAccountNumber
+                                                      : bankAccount.ibanNumber.isNotEmpty
+                                                      ? bankAccount.ibanNumber
+                                                      : "N/A",
+                                                  copyable: true,
+                                                ),
+                                                _buildCell3(
+                                                  bankAccount.contactNumber.isNotEmpty
+                                                      ? bankAccount.contactNumber
+                                                      : "N/A",
+                                                  bankAccount.emailId.isNotEmpty
+                                                      ? bankAccount.emailId
+                                                      : "N/A",
+                                                ),
+                                                _buildCell(
+                                                  bankAccount.additionalNote.isNotEmpty
+                                                      ? bankAccount.additionalNote
+                                                      : "N/A",
+                                                ),
+                                                _buildActionCell(onEdit: () {}, onDelete: () {}),
                                               ],
-                                            ),
-                                          ];
-                                        }
-                                        // Show one row for each bank account
-                                        return employee.allBankAccounts.map((
-                                          bankAccount,
-                                        ) {
-                                          return TableRow(
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  index.isEven
-                                                      ? Colors.grey.shade200
-                                                      : Colors.grey.shade100,
-                                            ),
-                                            children: [
-                                              _buildCell2(
-                                                _formatDateForDisplay(
-                                                  employee.lastUpdatedDate,
-                                                ),
-                                                '',
-                                                centerText2: true,
-                                              ),
-                                              _buildCell(
-                                                bankAccount.titleName.isNotEmpty
-                                                    ? bankAccount.titleName
-                                                    : "N/A",
-                                              ),
-                                              _buildCell(bankAccount.bankName),
-                                              _buildCell(
-                                                bankAccount
-                                                        .bankAccountNumber
-                                                        .isNotEmpty
-                                                    ? bankAccount
-                                                        .bankAccountNumber
-                                                    : bankAccount
-                                                        .ibanNumber
-                                                        .isNotEmpty
-                                                    ? bankAccount.ibanNumber
-                                                    : "N/A",
-                                                copyable: true,
-                                              ),
-
-                                              _buildCell3(
-                                                bankAccount
-                                                        .contactNumber
-                                                        .isNotEmpty
-                                                    ? bankAccount.contactNumber
-                                                    : "N/A",
-                                                bankAccount.emailId.isNotEmpty
-                                                    ? bankAccount.emailId
-                                                    : "N/A",
-                                              ),
-                                              _buildCell(
-                                                bankAccount
-                                                        .bankAddress
-                                                        .isNotEmpty
-                                                    ? bankAccount.bankAddress
-                                                    : "N/A",
-                                              ),
-                                              _buildActionCell(
-                                                onEdit: () {},
-                                                onDelete: () {},
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                      }),
+                                            );
+                                          });
+                                        }).toList();
+                                      }(),
                                     ],
                                   ),
                                 ),
