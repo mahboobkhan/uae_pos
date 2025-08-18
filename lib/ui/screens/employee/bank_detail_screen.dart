@@ -23,23 +23,42 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
 
-  final List<String> categories = [
-    'All',
-    'Full time job',
-    'Half time job',
-    'Previous employee',
-  ];
-  final List<String> categories1 = [
-    'All',
-    'Name 1 - Manager',
-    'Name 1 - Manager',
-    'Name 1 - Manager',
-  ];
   String? selectedCategory = 'All';
   String? selectedCategory1 = 'All';
   String? selectedCategory2;
   bool _isHovering = false;
   String? _currentUserId;
+
+  // Get unique employee types from the data
+  List<String> getUniqueEmployeeTypes(EmployeeProvider provider) {
+    if (provider.employees == null || provider.employees!.isEmpty) {
+      return ['All'];
+    }
+
+    final types =
+        provider.employees!
+            .map((e) => e.employeeType)
+            .where((type) => type.isNotEmpty)
+            .toSet()
+            .toList();
+
+    return ['All', ...types];
+  }
+
+  List<String> getUniqueDesignations(EmployeeProvider provider) {
+    if (provider.employees == null || provider.employees!.isEmpty) {
+      return ['All'];
+    }
+
+    final designations =
+        provider.employees!
+            .map((e) => e.empDesignation)
+            .where((designation) => designation.isNotEmpty)
+            .toSet()
+            .toList();
+
+    return ['All', ...designations];
+  }
 
   @override
   void initState() {
@@ -48,10 +67,8 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
   }
 
   Future<void> _loadCurrentUserId() async {
-    print('🔑 _loadCurrentUserId called');
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('user_id');
-    print('🔑 Retrieved user_id from SharedPreferences: $userId');
 
     setState(() {
       _currentUserId = userId;
@@ -60,9 +77,6 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
     // Use post-frame callback to ensure the widget is fully built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (userId != null && userId.isNotEmpty) {
-        print(
-          '🔑 Post-frame callback: Fetching employee data for user: $userId',
-        );
         final employeeProvider = Provider.of<EmployeeProvider>(
           context,
           listen: false,
@@ -86,29 +100,13 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
     }
   }
 
-  String _formatTimeForDisplay(String apiDate) {
-    try {
-      if (apiDate.isEmpty) return 'N/A';
-      final parsedDate = DateTime.parse(apiDate);
-      return DateFormat('HH:mm:ss').format(parsedDate);
-    } catch (e) {
-      return 'N/A';
-    }
-  }
-
   List<Employee> getFilteredEmployees(EmployeeProvider provider) {
-    print('🔍 getFilteredEmployees called');
-    print('🔍 Provider employees: ${provider.employees?.length ?? 0}');
-    print('🔍 Current User ID: $_currentUserId');
-
     if (provider.employees == null || provider.employees!.isEmpty) {
-      print('🔍 No employees data available');
       return [];
     }
 
     // If no current user ID, show all employees (for admin view)
     if (_currentUserId == null || _currentUserId!.isEmpty) {
-      print('🔍 No current user ID, showing all employees');
       return provider.employees!.where((employee) {
         // Apply filters if needed
         if (selectedCategory != 'All' &&
@@ -120,13 +118,11 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
             employee.empDesignation != selectedCategory1) {
           return false;
         }
-
         return true;
       }).toList();
     }
 
     // Filter by current user ID and other filters
-    print('🔍 Filtering by current user ID: $_currentUserId');
     final filtered =
         provider.employees!.where((employee) {
           print(
@@ -146,45 +142,26 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
           // Then apply other filters if needed
           if (selectedCategory != 'All' &&
               employee.employeeType != selectedCategory) {
-            print(
-              '🔍 Employee ${employee.employeeName} category mismatch: ${employee.employeeType} != $selectedCategory',
-            );
             return false;
           }
 
           if (selectedCategory1 != 'All' &&
               employee.empDesignation != selectedCategory1) {
-            print(
-              '🔍 Employee ${employee.employeeName} designation mismatch: ${employee.empDesignation} != $selectedCategory1',
-            );
             return false;
           }
 
-          print('🔍 Employee ${employee.employeeName} passed all filters');
           return true;
         }).toList();
 
-    print('🔍 Final filtered count: ${filtered.length}');
     return filtered;
   }
 
   @override
   Widget build(BuildContext context) {
-    print('🏗️ BankDetailScreen build method called');
-    print('🏗️ Current User ID: $_currentUserId');
-
     return SafeArea(
       child: Consumer<EmployeeProvider>(
         builder: (ctx, employeeProvider, _) {
-          print('🏗️ Consumer builder called');
-          print('🏗️ Provider loading: ${employeeProvider.isLoading}');
-          print('🏗️ Provider error: ${employeeProvider.error}');
-          print(
-            '🏗️ Provider employees count: ${employeeProvider.employees?.length ?? 0}',
-          );
-
           if (employeeProvider.isLoading) {
-            print('🏗️ Showing loading state');
             return Scaffold(
               backgroundColor: Colors.grey.shade100,
               body: const Center(
@@ -228,7 +205,6 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
 
           if (employeeProvider.employees == null ||
               employeeProvider.employees!.isEmpty) {
-            print('🏗️ Showing no employees state');
             return Scaffold(
               backgroundColor: Colors.grey.shade100,
               body: Center(
@@ -266,183 +242,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
 
           // Get filtered employees based on selected filters
           final filteredEmployees = getFilteredEmployees(employeeProvider);
-          print('🏗️ Filtered employees count: ${filteredEmployees.length}');
 
-          if (filteredEmployees.isEmpty) {
-            print('🏗️ Showing no filtered results state');
-            return Scaffold(
-              backgroundColor: Colors.grey.shade100,
-              body: Column(
-                children: [
-                  // Page Title
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'My Bank Details',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.red.shade700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'View and manage your bank account information',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Filters Section
-                  MouseRegion(
-                    onEnter: (_) => setState(() => _isHovering = true),
-                    onExit: (_) => setState(() => _isHovering = false),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      height: 45,
-                      width: MediaQuery.of(context).size.width,
-                      margin: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        border: Border.all(color: Colors.grey, width: 1),
-                        borderRadius: BorderRadius.circular(2),
-                        boxShadow:
-                            _isHovering
-                                ? [
-                                  BoxShadow(
-                                    color: Colors.blue,
-                                    blurRadius: 4,
-                                    spreadRadius: 0.1,
-                                    offset: Offset(0, 1),
-                                  ),
-                                ]
-                                : [],
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  CustomDropdown(
-                                    selectedValue: selectedCategory,
-                                    hintText: "Employee Type",
-                                    items: categories,
-                                    onChanged: (newValue) {
-                                      setState(
-                                        () => selectedCategory = newValue!,
-                                      );
-                                    },
-                                  ),
-                                  CustomDropdown(
-                                    selectedValue: selectedCategory1,
-                                    hintText: "Designation",
-                                    items: categories1,
-                                    onChanged: (newValue) {
-                                      setState(
-                                        () => selectedCategory1 = newValue!,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Card(
-                                elevation: 8,
-                                color: Colors.blue,
-                                shape: const CircleBorder(),
-                                child: Builder(
-                                  builder:
-                                      (context) => Tooltip(
-                                        message: 'Add New Bank Account',
-                                        waitDuration: const Duration(
-                                          milliseconds: 2,
-                                        ),
-                                        child: Container(
-                                          width: 30,
-                                          height: 30,
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Center(
-                                            child: Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // No Results Message
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search_off, size: 64, color: Colors.grey),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'No results found',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Try adjusting your filters or refresh the data',
-                            style: TextStyle(fontSize: 14, color: Colors.grey),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () => employeeProvider.getFullData(),
-                            child: const Text('Refresh Data'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          print('🏗️ Showing table with ${filteredEmployees.length} employees');
           return Scaffold(
             backgroundColor: Colors.grey.shade100,
             body: SingleChildScrollView(
@@ -451,6 +251,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Page Title
+                  /*
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
@@ -541,6 +342,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                       ],
                     ),
                   ),
+*/
                   // Filters Section
                   MouseRegion(
                     onEnter: (_) => setState(() => _isHovering = true),
@@ -576,7 +378,9 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                   CustomDropdown(
                                     selectedValue: selectedCategory,
                                     hintText: "Employee Type",
-                                    items: categories,
+                                    items: getUniqueEmployeeTypes(
+                                      employeeProvider,
+                                    ),
                                     onChanged: (newValue) {
                                       setState(
                                         () => selectedCategory = newValue!,
@@ -586,7 +390,9 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                   CustomDropdown(
                                     selectedValue: selectedCategory1,
                                     hintText: "Designation",
-                                    items: categories1,
+                                    items: getUniqueDesignations(
+                                      employeeProvider,
+                                    ),
                                     onChanged: (newValue) {
                                       setState(
                                         () => selectedCategory1 = newValue!,
@@ -660,7 +466,9 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                 scrollDirection: Axis.vertical,
                                 controller: _verticalController,
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(minWidth: 1200),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 1200,
+                                  ),
                                   child: Table(
                                     defaultVerticalAlignment:
                                         TableCellVerticalAlignment.middle,
@@ -687,7 +495,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                           color: Colors.red.shade50,
                                         ),
                                         children: [
-                                          _buildHeader("Date & Time"),
+                                          _buildHeader("Date"),
                                           _buildHeader("Account Title"),
                                           _buildHeader("Bank Name"),
                                           _buildHeader("Account Detail"),
@@ -716,9 +524,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                                   _formatDateForDisplay(
                                                     employee.lastUpdatedDate,
                                                   ),
-                                                  _formatTimeForDisplay(
-                                                    employee.lastUpdatedDate,
-                                                  ),
+                                                  '',
                                                   centerText2: true,
                                                 ),
                                                 _buildCell("N/A"),
@@ -750,9 +556,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                                 _formatDateForDisplay(
                                                   employee.lastUpdatedDate,
                                                 ),
-                                                _formatTimeForDisplay(
-                                                  employee.lastUpdatedDate,
-                                                ),
+                                                '',
                                                 centerText2: true,
                                               ),
                                               _buildCell(
