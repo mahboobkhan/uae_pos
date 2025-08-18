@@ -393,7 +393,11 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                       iconSize: 25,
                       defaultColor: Colors.green,
                       hoverColor: Colors.red,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LogScreen()),
+                        );                      },
                     ),
                   ],
                 ),

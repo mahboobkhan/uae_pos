@@ -1190,6 +1190,7 @@ class HoverLogoutButton extends StatefulWidget {
 
 class _HoverLogoutButtonState extends State<HoverLogoutButton> {
   bool isHovered = false;
+  bool isPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1197,27 +1198,62 @@ class _HoverLogoutButtonState extends State<HoverLogoutButton> {
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       child: GestureDetector(
-        onTap:
-            widget.onTap ??
-            () async {
-              // Clear all stored data before logging out
-              final signupProvider = Provider.of<SignupProvider>(
-                context,
-                listen: false,
-              );
-              await signupProvider.logout();
+        behavior: HitTestBehavior.translucent,
+        onTapDown: (_) => setState(() => isPressed = true),
+        onTapUp: (_) => setState(() => isPressed = false),
+        onTapCancel: () => setState(() => isPressed = false),
+        onTap: widget.onTap ?? () async {
+          print('🔌 Power button TAP DETECTED!');
+          try {
+            print('🔌 Power button clicked - starting logout process');
+            
+            final signupProvider = Provider.of<SignupProvider>(
+              context,
+              listen: false,
+            );
+            
+            print('🔌 Calling signupProvider.logout()');
+            await signupProvider.logout();
+            print('🔌 Logout completed successfully');
 
+            print('🔌 Navigating to LogScreen');
+            if (context.mounted) {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const LogScreen()),
               );
-            },
-        child: Align(
-          alignment: Alignment.centerLeft,
+            }
+            print('🔌 Navigation completed');
+          } catch (e) {
+            print('❌ Error during logout: $e');
+            // Show error message to user
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Logout failed: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
+        child: Tooltip(
+          message: 'Logout',
           child: Container(
             width: widget.width,
             height: widget.height,
             alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: isPressed 
+                  ? Colors.grey.shade200 
+                  : isHovered 
+                      ? Colors.grey.shade100 
+                      : Colors.transparent,
+              border: isHovered || isPressed 
+                  ? Border.all(color: Colors.grey.shade300, width: 1) 
+                  : null,
+            ),
             child: Icon(
               Icons.power_settings_new,
               color: isHovered ? widget.hoverColor : widget.defaultColor,
