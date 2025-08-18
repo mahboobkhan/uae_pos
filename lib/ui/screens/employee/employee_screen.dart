@@ -323,38 +323,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     ),
   );
 
-  Widget _buildCell3(String text1, String text2, {bool copyable = false}) =>
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(text1, style: const TextStyle(fontSize: 12)),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(text2,
-                    style: const TextStyle(fontSize: 10, color: Colors.black54)),
-                if (copyable)
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Copied to clipboard')),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      );
-
   Widget _buildCell2(String text1, String text2,
       {bool copyable = false, bool centerText2 = false}) =>
       Padding(
