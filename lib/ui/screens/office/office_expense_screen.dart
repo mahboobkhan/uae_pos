@@ -220,6 +220,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                         ),
                       ),
                     ),
+/*
                     Row(
                       children: [
                         GestureDetector(
@@ -309,6 +310,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                         const SizedBox(width: 5),
                       ],
                     )
+*/
                   ],
                 ),
               ),

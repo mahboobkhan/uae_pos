@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import 'dialogues/dialogue_miscellaneous.dart';
 
 class OfficeMiscellaneous extends StatefulWidget {
   const OfficeMiscellaneous({super.key});
@@ -159,12 +160,8 @@ class _OfficeMiscellaneousState extends State<OfficeMiscellaneous> {
                             child: GestureDetector(
                               key: _plusKey,
                               onTap: () async {
-                                final RenderBox renderBox =
-                                _plusKey.currentContext!
-                                    .findRenderObject()
-                                as RenderBox;
-                                final Offset offset = renderBox
-                                    .localToGlobal(Offset.zero);
+                              showMiscellaneousDialogue(context);
+
                               },
                               child: Container(
                                 width: 30,

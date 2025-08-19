@@ -61,6 +61,31 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
 
     return ['All', ...designations];
   }
+/*
+  List<Employee> getFilteredEmployees(EmployeeProvider provider) {
+    if (provider.employees == null || provider.employees!.isEmpty) {
+      return [];
+    }
+
+    // ✅ Always use all employees (ignore current user id)
+    return provider.employees!.where((employee) {
+      // Apply Employee Type filter
+      if (selectedCategory != 'All' &&
+          employee.employeeType != selectedCategory) {
+        return false;
+      }
+
+      // Apply Designation filter
+      if (selectedCategory1 != 'All' &&
+          employee.empDesignation != selectedCategory1) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+*/
+
 
   @override
   void initState() {
@@ -75,23 +100,6 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
     setState(() {
       _currentUserId = userId;
     });
-
-    // Use post-frame callback to ensure the widget is fully built
-/*
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (userId != null && userId.isNotEmpty) {
-        final employeeProvider = Provider.of<EmployeeProvider>(
-          context,
-          listen: false,
-        );
-        employeeProvider.getFullData();
-      } else {
-        print(
-          '🔑 Post-frame callback: No user ID available, skipping data fetch',
-        );
-      }
-    });
-*/
   }
 
   String _formatDateForDisplay(String apiDate) {

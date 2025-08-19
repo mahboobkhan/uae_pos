@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import 'dialogues/dialogue_fixed_office_expense.dart';
 
 class FixedOfficeExpense extends StatefulWidget {
   const FixedOfficeExpense({super.key});
@@ -132,12 +133,9 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                 child: GestureDetector(
                                   key: _plusKey,
                                   onTap: () async {
-                                    final RenderBox renderBox =
-                                        _plusKey.currentContext!
-                                                .findRenderObject()
-                                            as RenderBox;
-                                    final Offset offset = renderBox
-                                        .localToGlobal(Offset.zero);
+
+                                   showFixedOfficeExpanseDialogue(context);
+
                                   },
                                   child: Container(
                                     width: 30,

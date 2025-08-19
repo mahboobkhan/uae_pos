@@ -50,7 +50,6 @@ class _DialogueMaintainanceOfficeExpenseState
         DateTime selectedDate = DateTime.now();
 
         return AlertDialog(
-          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           content: CustomCupertinoCalendar(
             onDateTimeChanged: (date) {
@@ -82,6 +81,8 @@ class _DialogueMaintainanceOfficeExpenseState
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.white,
+
       insetPadding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ConstrainedBox(

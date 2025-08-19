@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import 'dialogues/dialogue_dynamic_attribute.dart';
 
 class DynamicAttributeAddition extends StatefulWidget {
   const DynamicAttributeAddition({super.key});
@@ -159,12 +160,9 @@ class _DynamicAttributeAdditionState extends State<DynamicAttributeAddition> {
                             child: GestureDetector(
                               key: _plusKey,
                               onTap: () async {
-                                final RenderBox renderBox =
-                                _plusKey.currentContext!
-                                    .findRenderObject()
-                                as RenderBox;
-                                final Offset offset = renderBox
-                                    .localToGlobal(Offset.zero);
+
+                                showDynamicAttributeDialogue(context);
+
                               },
                               child: Container(
                                 width: 30,

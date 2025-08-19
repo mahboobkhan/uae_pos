@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import 'dialogues/dialogue_maintainance.dart';
 
 class MaintainanceOfficeExpense extends StatefulWidget {
   const MaintainanceOfficeExpense({super.key});
@@ -161,12 +162,8 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
                                 child: GestureDetector(
                                   key: _plusKey,
                                   onTap: () async {
-                                    final RenderBox renderBox =
-                                        _plusKey.currentContext!
-                                                .findRenderObject()
-                                            as RenderBox;
-                                    final Offset offset = renderBox
-                                        .localToGlobal(Offset.zero);
+                                       showOfficeMaintainanceExpanseDialogue(context);
+
                                   },
                                   child: Container(
                                     width: 30,
