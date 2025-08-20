@@ -118,6 +118,23 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
     }
   }
 
+  // Helper method to show "N/A" for empty values
+  String _getDisplayValue(String? value) {
+    if (value == null || value.isEmpty || value.trim().isEmpty) {
+      return 'N/A';
+    }
+    return value;
+  }
+
+  // Helper method to check if a bank account has any meaningful data
+  bool _hasBankAccountData(BankAccount bankAccount) {
+    return bankAccount.bankName.isNotEmpty ||
+        bankAccount.bankAccountNumber.isNotEmpty ||
+        bankAccount.titleName.isNotEmpty ||
+        bankAccount.contactNumber.isNotEmpty ||
+        bankAccount.emailId.isNotEmpty;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -369,113 +386,171 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                       );
                     }
 
-                    return ScrollbarTheme(
-                      data: ScrollbarThemeData(
-                        thumbVisibility: MaterialStateProperty.all(true),
-                        thumbColor: MaterialStateProperty.all(Colors.grey),
-                        thickness: MaterialStateProperty.all(8),
-                        radius: const Radius.circular(4),
-                      ),
-                      child: Scrollbar(
-                        controller: _verticalController,
-                        thumbVisibility: true,
-                        child: Scrollbar(
-                          controller: _horizontalController,
-                          thumbVisibility: true,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            controller: _horizontalController,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
+                    // Check if all bank accounts have empty data
+                    final hasAnyData = filteredBankAccounts.any(
+                      (account) => _hasBankAccountData(account),
+                    );
+                    if (!hasAnyData) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.account_balance_outlined,
+                              size: 48,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Bank accounts found but no data',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Bank accounts exist but all fields are empty.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: ScrollbarTheme(
+                            data: ScrollbarThemeData(
+                              thumbVisibility: MaterialStateProperty.all(true),
+                              thumbColor: MaterialStateProperty.all(
+                                Colors.grey,
+                              ),
+                              thickness: MaterialStateProperty.all(8),
+                              radius: const Radius.circular(4),
+                            ),
+                            child: Scrollbar(
                               controller: _verticalController,
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  minWidth: 1200,
-                                ),
-                                child: Table(
-                                  defaultVerticalAlignment:
-                                      TableCellVerticalAlignment.middle,
-                                  columnWidths: const {
-                                    0: FlexColumnWidth(0.8),
-                                    1: FlexColumnWidth(1.2),
-                                    2: FlexColumnWidth(0.8),
-                                    3: FlexColumnWidth(1),
-                                    4: FlexColumnWidth(1.2),
-                                    5: FlexColumnWidth(1.3),
-                                    6: FlexColumnWidth(1.3),
-                                  },
-                                  children: [
-                                    // Header Row
-                                    TableRow(
-                                      decoration: BoxDecoration(
-                                        color: Colors.red.shade50,
+                              thumbVisibility: true,
+                              child: Scrollbar(
+                                controller: _horizontalController,
+                                thumbVisibility: true,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  controller: _horizontalController,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.vertical,
+                                    controller: _verticalController,
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        minWidth: 1200,
                                       ),
-                                      children: [
-                                        _buildHeader("Date "),
-                                        _buildHeader("Title Name"),
-                                        _buildHeader("Bank Name"),
-                                        _buildHeader("Account Detail "),
-                                        _buildHeader("Contact Detail"),
-                                        _buildHeader("Note"),
-                                        _buildHeader("Other Action"),
-                                      ],
-                                    ),
-                                    // Bank Account Rows
-                                    for (
-                                      int i = 0;
-                                      i < filteredBankAccounts.length;
-                                      i++
-                                    )
-                                      TableRow(
-                                        decoration: BoxDecoration(
-                                          color:
-                                              i.isEven
-                                                  ? Colors.grey.shade200
-                                                  : Colors.grey.shade100,
-                                        ),
+                                      child: Table(
+                                        defaultVerticalAlignment:
+                                            TableCellVerticalAlignment.middle,
+                                        columnWidths: const {
+                                          0: FlexColumnWidth(0.8),
+                                          1: FlexColumnWidth(1.2),
+                                          2: FlexColumnWidth(0.8),
+                                          3: FlexColumnWidth(1),
+                                          4: FlexColumnWidth(1.2),
+                                          5: FlexColumnWidth(1.3),
+                                          6: FlexColumnWidth(1.3),
+                                        },
                                         children: [
-                                          _buildCell2(
-                                            _formatDateForDisplay(
-                                              filteredBankAccounts[i]
-                                                  .createdDate,
+                                          // Header Row
+                                          TableRow(
+                                            decoration: BoxDecoration(
+                                              color: Colors.red.shade50,
                                             ),
-                                            "",
-                                            centerText2: true,
+                                            children: [
+                                              _buildHeader("Date "),
+                                              _buildHeader("Title Name"),
+                                              _buildHeader("Bank Name"),
+                                              _buildHeader("Account Detail "),
+                                              _buildHeader("Contact Detail"),
+                                              _buildHeader("Note"),
+                                              _buildHeader("Other Action"),
+                                            ],
                                           ),
-                                          _buildCell(
-                                            filteredBankAccounts[i].titleName,
-                                          ),
-                                          _buildCell(
-                                            filteredBankAccounts[i].bankName,
-                                          ),
-                                          _buildCell(
-                                            filteredBankAccounts[i]
-                                                .bankAccountNumber,
-                                            copyable: true,
-                                          ),
-                                          _buildCell3(
-                                            filteredBankAccounts[i]
-                                                .contactNumber,
-                                            filteredBankAccounts[i].emailId,
-                                          ),
-                                          _buildCell(
-                                            filteredBankAccounts[i]
-                                                .additionalNote,
-                                            copyable: true,
-                                          ),
-                                          _buildActionCell(
-                                            onEdit: () {},
-                                            onShare: () {},
-                                          ),
+                                          // Bank Account Rows
+                                          for (
+                                            int i = 0;
+                                            i < filteredBankAccounts.length;
+                                            i++
+                                          )
+                                            TableRow(
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    i.isEven
+                                                        ? Colors.grey.shade200
+                                                        : Colors.grey.shade100,
+                                              ),
+                                              children: [
+                                                _buildCell2(
+                                                  _formatDateForDisplay(
+                                                    filteredBankAccounts[i]
+                                                        .createdDate,
+                                                  ),
+                                                  "Created",
+                                                  centerText2: true,
+                                                ),
+                                                _buildCell(
+                                                  _getDisplayValue(
+                                                    filteredBankAccounts[i]
+                                                        .titleName,
+                                                  ),
+                                                ),
+                                                _buildCell(
+                                                  _getDisplayValue(
+                                                    filteredBankAccounts[i]
+                                                        .bankName,
+                                                  ),
+                                                ),
+                                                _buildCell(
+                                                  _getDisplayValue(
+                                                    filteredBankAccounts[i]
+                                                        .bankAccountNumber,
+                                                  ),
+                                                  copyable: true,
+                                                ),
+                                                _buildCell3(
+                                                  _getDisplayValue(
+                                                    filteredBankAccounts[i]
+                                                        .contactNumber,
+                                                  ),
+                                                  _getDisplayValue(
+                                                    filteredBankAccounts[i]
+                                                        .emailId,
+                                                  ),
+                                                ),
+                                                _buildCell(
+                                                  _getDisplayValue(
+                                                    filteredBankAccounts[i]
+                                                        .additionalNote,
+                                                  ),
+                                                ),
+                                                _buildActionCell(
+                                                  onEdit: () {},
+                                                  onShare: () {},
+                                                ),
+                                              ],
+                                            ),
                                         ],
                                       ),
-                                  ],
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     );
                   },
                 ),
@@ -535,8 +610,16 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(text1, style: const TextStyle(fontSize: 12)),
-              if (copyable)
+              Text(
+                text1,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: text1 == 'N/A' ? Colors.grey.shade500 : Colors.black87,
+                  fontStyle:
+                      text1 == 'N/A' ? FontStyle.italic : FontStyle.normal,
+                ),
+              ),
+              if (copyable && text1 != 'N/A')
                 GestureDetector(
                   onTap: () {
                     ClipboardUtils.copyToClipboard(
@@ -558,9 +641,14 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
             children: [
               Text(
                 text2,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: text2 == 'N/A' ? Colors.grey.shade400 : Colors.black54,
+                  fontStyle:
+                      text2 == 'N/A' ? FontStyle.italic : FontStyle.normal,
+                ),
               ),
-              if (copyable)
+              if (copyable && text2 != 'N/A')
                 GestureDetector(
                   onTap: () {
                     ClipboardUtils.copyToClipboard(
@@ -582,6 +670,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
   }
 
   Widget _buildCell(String text, {bool copyable = false}) {
+    final isNA = text == 'N/A';
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -590,11 +679,15 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
           Flexible(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 12),
+              style: TextStyle(
+                fontSize: 12,
+                color: isNA ? Colors.grey.shade500 : Colors.black87,
+                fontStyle: isNA ? FontStyle.italic : FontStyle.normal,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (copyable)
+          if (copyable && !isNA)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
