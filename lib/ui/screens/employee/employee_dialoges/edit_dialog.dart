@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../employee/employee_models.dart';
-import '../../../../providers/designation_delete_provider.dart';
-import '../../../../providers/update_ban_account_provider.dart';
 
 class BankAccountEditDialog extends StatefulWidget {
   final BankAccount bankAccount;
-  final Employee employee;
   final Function(BankAccount) onSave;
 
   const BankAccountEditDialog({
     Key? key,
     required this.bankAccount,
-    required this.employee,
     required this.onSave,
   }) : super(key: key);
 
@@ -81,7 +76,7 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
     super.dispose();
   }
 
-  void _saveChanges() async {
+  void _saveChanges() {
     if (_formKey.currentState!.validate()) {
       // Create updated bank account
       final updatedBankAccount = BankAccount(
@@ -97,12 +92,11 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
         bankAddress: _bankAddressController.text.trim(),
         additionalNote: _additionalNoteController.text.trim(),
         createdBy: widget.bankAccount.createdBy,
-        // Keep existing created by
         createdDate: widget.bankAccount.createdDate,
       );
 
       // Call the onSave callback
-      await widget.onSave(updatedBankAccount);
+      widget.onSave(updatedBankAccount);
     }
   }
 
@@ -111,7 +105,7 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.8,
+        width: MediaQuery.of(context).size.width * 0.6,
         constraints: const BoxConstraints(maxWidth: 800),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -120,7 +114,7 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: Colors.blue.shade50,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -128,69 +122,15 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
               ),
               child: Row(
                 children: [
-                  Consumer<UpdateUserBankAccountProvider>(
-                    builder: (context, provider, child) {
-                      final isLoading = provider.state == RequestState.loading;
-
-                      return Icon(
-                        isLoading ? Icons.hourglass_empty : Icons.edit,
-                        color:
-                            isLoading
-                                ? Colors.orange.shade700
-                                : Colors.red.shade700,
-                        size: 24,
-                      );
-                    },
-                  ),
+                  Icon(Icons.edit, color: Colors.blue.shade700, size: 24),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Consumer<UpdateUserBankAccountProvider>(
-                          builder: (context, provider, child) {
-                            final isLoading =
-                                provider.state == RequestState.loading;
-                            return Text(
-                              isLoading
-                                  ? 'Updating Bank Account...'
-                                  : 'Edit Bank Account',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    isLoading
-                                        ? Colors.orange.shade700
-                                        : Colors.red.shade700,
-                              ),
-                            );
-                          },
-                        ),
-                        Text(
-                          'Employee: ${widget.employee.employeeName}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    'Edit Bank Account',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade800,
                     ),
-                  ),
-                  Consumer<UpdateUserBankAccountProvider>(
-                    builder: (context, provider, child) {
-                      final isLoading = provider.state == RequestState.loading;
-
-                      return IconButton(
-                        onPressed:
-                            isLoading
-                                ? null
-                                : () => Navigator.of(context).pop(),
-                        icon: Icon(
-                          Icons.close,
-                          color: isLoading ? Colors.grey : null,
-                        ),
-                      );
-                    },
                   ),
                 ],
               ),
@@ -204,115 +144,100 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // First row
+                      // First Row
                       Row(
                         children: [
                           Expanded(
                             child: _buildTextField(
-                              controller: _titleNameController,
-                              label: 'Account Title',
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Account title is required';
-                                }
-                                return null;
-                              },
+                              'Title Name',
+                              _titleNameController,
+                              Icons.person,
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: _buildTextField(
-                              controller: _bankNameController,
-                              label: 'Bank Name',
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Bank name is required';
-                                }
-                                return null;
-                              },
+                              'Bank Name',
+                              _bankNameController,
+                              Icons.account_balance,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
 
-                      // Second row
+                      // Second Row
                       Row(
                         children: [
                           Expanded(
                             child: _buildTextField(
-                              controller: _branchCodeController,
-                              label: 'Branch Code',
+                              'Branch Code',
+                              _branchCodeController,
+                              Icons.location_on,
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: _buildTextField(
-                              controller: _bankAccountNumberController,
-                              label: 'Account Number',
+                              'Account Number',
+                              _bankAccountNumberController,
+                              Icons.credit_card,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
 
-                      // Third row
+                      // Third Row
                       Row(
                         children: [
                           Expanded(
                             child: _buildTextField(
-                              controller: _ibanNumberController,
-                              label: 'IBAN Number',
+                              'IBAN Number',
+                              _ibanNumberController,
+                              Icons.account_balance_wallet,
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: _buildTextField(
-                              controller: _contactNumberController,
-                              label: 'Contact Number',
+                              'Contact Number',
+                              _contactNumberController,
+                              Icons.phone,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
 
-                      // Fourth row
+                      // Fourth Row
                       Row(
                         children: [
                           Expanded(
                             child: _buildTextField(
-                              controller: _emailIdController,
-                              label: 'Email ID',
-                              keyboardType: TextInputType.emailAddress,
+                              'Email ID',
+                              _emailIdController,
+                              Icons.email,
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Container(), // Empty container for spacing
+                            child: _buildTextField(
+                              'Bank Address',
+                              _bankAddressController,
+                              Icons.location_city,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
-                      // Fifth row
+
+                      // Additional Note
                       _buildTextField(
-                        controller: _bankAddressController,
-                        label: 'Bank Address',
-                        maxLines: 2,
-                      ),
-                      const SizedBox(height: 16),
-                      // Sixth row
-                      _buildTextField(
-                        controller: _additionalNoteController,
-                        label: 'Additional Note',
+                        'Additional Note',
+                        _additionalNoteController,
+                        Icons.note,
                         maxLines: 3,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Fourth row
-                      _buildTextField(
-                        controller: _bankAddressController,
-                        label: 'Bank Address',
-                        maxLines: 2,
                       ),
                     ],
                   ),
@@ -320,7 +245,7 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
               ),
             ),
 
-            // Footer with buttons
+            // Action Buttons
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -333,58 +258,18 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Consumer<UpdateUserBankAccountProvider>(
-                    builder: (context, provider, child) {
-                      final isLoading = provider.state == RequestState.loading;
-
-                      return TextButton(
-                        onPressed:
-                            isLoading
-                                ? null
-                                : () => Navigator.of(context).pop(),
-                        child: Text(
-                          isLoading ? 'Please wait...' : 'Cancel',
-                          style: TextStyle(
-                            color: isLoading ? Colors.grey : null,
-                          ),
-                        ),
-                      );
-                    },
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
                   ),
-                  const SizedBox(width: 12),
-                  Consumer<UpdateUserBankAccountProvider>(
-                    builder: (context, provider, child) {
-                      final isLoading = provider.state == RequestState.loading;
-
-                      return ElevatedButton(
-                        onPressed: isLoading ? null : _saveChanges,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade600,
-                          foregroundColor: Colors.white,
-                        ),
-                        child:
-                            isLoading
-                                ? Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Text('Updating...'),
-                                  ],
-                                )
-                                : const Text('Save Changes'),
-                      );
-                    },
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: _saveChanges,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade600,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Save Changes'),
                   ),
                 ],
               ),
@@ -395,35 +280,22 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    TextInputType? keyboardType,
-    int maxLines = 1,
-    String? Function(String?)? validator,
-  }) {
-    return Consumer<UpdateUserBankAccountProvider>(
-      builder: (context, provider, child) {
-        final isLoading = provider.state == RequestState.loading;
-
-        return TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          validator: validator,
-          enabled: !isLoading,
-          decoration: InputDecoration(
-            labelText: label,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            filled: isLoading,
-            fillColor: isLoading ? Colors.grey.shade100 : null,
-          ),
-        );
-      },
+  Widget _buildTextField(
+      String label,
+      TextEditingController controller,
+      IconData icon, {
+        int maxLines = 1,
+      }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Colors.grey.shade600),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+      ),
     );
   }
 }

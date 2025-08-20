@@ -5,8 +5,11 @@ import 'package:provider/provider.dart';
 
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
+import '../../../providers/update_ban_account_provider.dart';
 import '../../../utils/clipboard_utils.dart';
+import '../../../utils/request_state.dart';
 import '../../dialogs/custom_dialoges.dart';
+import 'employee_dialoges/edit_dialog.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -133,6 +136,99 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
         bankAccount.titleName.isNotEmpty ||
         bankAccount.contactNumber.isNotEmpty ||
         bankAccount.emailId.isNotEmpty;
+  }
+
+  // Show edit bank account dialog
+  void _showEditBankAccountDialog(
+    BuildContext context,
+    BankAccount bankAccount,
+    EmployeeProvider employeeProvider,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BankAccountEditDialog(
+          bankAccount: bankAccount,
+          onSave: (updatedBankAccount) async {
+            // Close the dialog
+            Navigator.of(context).pop();
+
+            // Show loading indicator
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 16),
+                    Text('Updating bank account...'),
+                  ],
+                ),
+                duration: Duration(seconds: 2),
+              ),
+            );
+
+            try {
+              // Update the bank account using the provider
+              final updateProvider = Provider.of<UpdateUserBankAccountProvider>(
+                context,
+                listen: false,
+              );
+
+              final request = UpdateUserBankAccountRequest(
+                bankAccountId: updatedBankAccount.id,
+                userId: updatedBankAccount.userId,
+                bankName: updatedBankAccount.bankName,
+                branchCode: updatedBankAccount.branchCode,
+                bankAddress: updatedBankAccount.bankAddress,
+                titleName: updatedBankAccount.titleName,
+                bankAccountNumber: updatedBankAccount.bankAccountNumber,
+                ibanNumber: updatedBankAccount.ibanNumber,
+                contactNumber: updatedBankAccount.contactNumber,
+                emailId: updatedBankAccount.emailId,
+                additionalNote: updatedBankAccount.additionalNote,
+              );
+
+              await updateProvider.updateBankAccount(request);
+
+              if (updateProvider.state == RequestState.success) {
+                // Refresh the employee data to get updated bank accounts
+                await employeeProvider.getFullData();
+
+                // Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Bank account updated successfully!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else {
+                // Show error message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Error: ${updateProvider.errorMessage ?? 'Unknown error'}',
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            } catch (e) {
+              // Show error message
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -492,13 +588,11 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                                         : Colors.grey.shade100,
                                               ),
                                               children: [
-                                                _buildCell2(
+                                                _buildCell(
                                                   _formatDateForDisplay(
                                                     filteredBankAccounts[i]
                                                         .createdDate,
                                                   ),
-                                                  "Created",
-                                                  centerText2: true,
                                                 ),
                                                 _buildCell(
                                                   _getDisplayValue(
@@ -536,7 +630,13 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                                   ),
                                                 ),
                                                 _buildActionCell(
-                                                  onEdit: () {},
+                                                  onEdit: () {
+                                                    _showEditBankAccountDialog(
+                                                      context,
+                                                      filteredBankAccounts[i],
+                                                      employeeProvider,
+                                                    );
+                                                  },
                                                   onShare: () {},
                                                 ),
                                               ],
