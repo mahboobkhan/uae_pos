@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
 import '../../../utils/clipboard_utils.dart';
 import '../../dialogs/custom_dialoges.dart';
-import '../../../providers/update_ban_account_provider.dart';
-import '../../../utils/request_state.dart';
-import 'employee_dialoges/edit_dialog.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -26,26 +22,15 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
 
-  final List<String> categories = [
-    'All',
-    'Full time job',
-    'Half time job',
-    'Previous employee',
-  ];
-  final List<String> categories1 = [
-    'All',
-    'Name 1 - Manager',
-    'Name 1 - Manager',
-    'Name 1 - Manager',
-  ];
-  final List<String> categories2 = ['All', 'paid', 'Pending'];
-  String? selectedCategory;
-  String? selectedCategory1;
+  String? selectedCategory = 'All';
+  String? selectedCategory1 = 'All';
   bool _isHovering = false;
 
   // Get unique employee types from the data
   List<String> getUniqueEmployeeTypes(EmployeeProvider provider) {
     if (provider.employees == null || provider.employees!.isEmpty) {
+      print('List of types ${'getUniqueEmployeeTypes'}');
+
       return ['All'];
     }
 
@@ -55,6 +40,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
             .where((type) => type.isNotEmpty)
             .toSet()
             .toList();
+    print("Employee Types: $types");
 
     return ['All', ...types];
   }
@@ -70,15 +56,15 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
             .where((designation) => designation.isNotEmpty)
             .toSet()
             .toList();
-
+    print("designations: $designations");
     return ['All', ...designations];
   }
+
   List<Employee> getFilteredEmployees(EmployeeProvider provider) {
     if (provider.employees == null || provider.employees!.isEmpty) {
       return [];
     }
 
-    // ✅ Always use all employees (ignore current user id)
     return provider.employees!.where((employee) {
       // Apply Employee Type filter
       if (selectedCategory != 'All' &&
@@ -96,12 +82,50 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
     }).toList();
   }
 
+  // Get filtered bank accounts based on selected filters
+  List<BankAccount> getFilteredBankAccounts(EmployeeProvider provider) {
+    if (provider.allUserBankAccounts == null ||
+        provider.allUserBankAccounts!.isEmpty) {
+      return [];
+    }
+
+    // Get filtered employee IDs first
+    final filteredEmployeeIds =
+        getFilteredEmployees(provider).map((e) => e.userId).toSet();
+
+    // Filter bank accounts based on employee IDs
+    return provider.allUserBankAccounts!.where((bankAccount) {
+      return filteredEmployeeIds.contains(bankAccount.userId);
+    }).toList();
+  }
+
+  // Get employee details for a bank account
+  Employee? getEmployeeForBankAccount(
+    EmployeeProvider provider,
+    BankAccount bankAccount,
+  ) {
+    if (provider.employees == null || provider.employees!.isEmpty) {
+      return null;
+    }
+
+    try {
+      return provider.employees!.firstWhere(
+        (employee) => employee.userId == bankAccount.userId,
+        orElse: () => null as dynamic,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    // Load employee data when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<EmployeeProvider>(context, listen: false).getFullData();
+    });
   }
-
 
   String _formatDateForDisplay(String apiDate) {
     try {
@@ -112,7 +136,6 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
       return 'N/A';
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -147,158 +170,314 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                           ]
                           : [],
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            CustomDropdown(
-                              selectedValue: selectedCategory,
-                              hintText: "Employee Type",
-                              items: categories,
-                              onChanged: (newValue) {
-                                setState(() => selectedCategory = newValue!);
-                              },
-                            ),
-                            CustomDropdown(
-                              selectedValue: selectedCategory1,
-                              hintText: "Designation",
-                              items: categories1,
-                              onChanged: (newValue) {
-                                setState(() => selectedCategory1 = newValue!);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Row(
+                child: Consumer<EmployeeProvider>(
+                  builder: (context, employeeProvider, child) {
+                    return Row(
                       children: [
-                        Card(
-                          elevation: 8,
-                          color: Colors.blue,
-                          shape: const CircleBorder(),
-                          child: Builder(
-                            builder:
-                                (context) => Tooltip(
-                                  message: 'Show menu',
-                                  waitDuration: const Duration(milliseconds: 2),
-                                  child: Container(
-                                    width: 30,
-                                    height: 30,
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Container(
-                height: 400,
-                child: ScrollbarTheme(
-                  data: ScrollbarThemeData(
-                    thumbVisibility: MaterialStateProperty.all(true),
-                    thumbColor: MaterialStateProperty.all(Colors.grey),
-                    thickness: MaterialStateProperty.all(8),
-                    radius: const Radius.circular(4),
-                  ),
-                  child: Scrollbar(
-                    controller: _verticalController,
-                    thumbVisibility: true,
-                    child: Scrollbar(
-                      controller: _horizontalController,
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        controller: _horizontalController,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          controller: _verticalController,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 1200),
-                            child: Table(
-                              defaultVerticalAlignment:
-                                  TableCellVerticalAlignment.middle,
-                              columnWidths: const {
-                                0: FlexColumnWidth(0.8),
-                                1: FlexColumnWidth(0.8),
-                                2: FlexColumnWidth(1),
-                                3: FlexColumnWidth(1),
-                                4: FlexColumnWidth(1.2),
-                                5: FlexColumnWidth(1.3),
-                              },
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
                               children: [
-                                // Header Row
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.shade50,
+                                CustomDropdown(
+                                  selectedValue: selectedCategory,
+                                  hintText: "Employee Type",
+                                  items: getUniqueEmployeeTypes(
+                                    employeeProvider,
                                   ),
-                                  children: [
-                                    _buildHeader("Date "),
-                                    _buildHeader("Select Bank"),
-                                    _buildHeader("Account Detail "),
-                                    _buildHeader("Contact Detail"),
-                                    _buildHeader("Title Name"),
-                                    _buildHeader("Other Action"),
-                                  ],
+                                  onChanged: (newValue) {
+                                    setState(
+                                      () => selectedCategory = newValue!,
+                                    );
+                                  },
                                 ),
-                                // Sample Row
-                                for (int i = 0; i < 20; i++)
-                                  TableRow(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          i.isEven
-                                              ? Colors.grey.shade200
-                                              : Colors.grey.shade100,
-                                    ),
-                                    children: [
-                                      _buildCell2(
-                                        "12-02-2025",
-                                        "02:59 pm",
-                                        centerText2: true,
-                                      ),
-                                      _buildCell("UBL"),
-                                      _buildCell(
-                                        "444*********45",
-                                        copyable: true,
-                                      ),
-                                      _buildCell3("+9728888888", "@gmail.comx"),
-                                      _buildCell("Imran"),
-                                      _buildActionCell(
-                                        onEdit: () {},
-                                        onDelete: () {},
-
-                                        // onDraft: () {} ),
-                                      ),
-                                    ],
+                                CustomDropdown(
+                                  selectedValue: selectedCategory1,
+                                  hintText: "Designation",
+                                  items: getUniqueDesignations(
+                                    employeeProvider,
                                   ),
+                                  onChanged: (newValue) {
+                                    setState(
+                                      () => selectedCategory1 = newValue!,
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                           ),
                         ),
+                        Row(
+                          children: [
+                            Card(
+                              elevation: 8,
+                              color: Colors.blue,
+                              shape: const CircleBorder(),
+                              child: Builder(
+                                builder:
+                                    (context) => Tooltip(
+                                      message: 'Show menu',
+                                      waitDuration: const Duration(
+                                        milliseconds: 2,
+                                      ),
+                                      child: Container(
+                                        width: 30,
+                                        height: 30,
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                        ),
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.add,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+            // Summary Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Container(
+                height: 400,
+                child: Consumer<EmployeeProvider>(
+                  builder: (context, employeeProvider, child) {
+                    if (employeeProvider.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (employeeProvider.error != null) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 48,
+                              color: Colors.red.shade300,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Error loading data',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.red.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              employeeProvider.error!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                employeeProvider.getFullData();
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    if (employeeProvider.allUserBankAccounts == null ||
+                        employeeProvider.allUserBankAccounts!.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.account_balance_outlined,
+                              size: 48,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No bank accounts found',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'There are no bank accounts in the system yet.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    // Get filtered bank accounts based on selected filters
+                    final filteredBankAccounts = getFilteredBankAccounts(
+                      employeeProvider,
+                    );
+                    if (filteredBankAccounts.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.filter_list_outlined,
+                              size: 48,
+                              color: Colors.orange.shade300,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No matching bank accounts',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.orange.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Try adjusting your filters to see more results.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbVisibility: MaterialStateProperty.all(true),
+                        thumbColor: MaterialStateProperty.all(Colors.grey),
+                        thickness: MaterialStateProperty.all(8),
+                        radius: const Radius.circular(4),
                       ),
-                    ),
-                  ),
+                      child: Scrollbar(
+                        controller: _verticalController,
+                        thumbVisibility: true,
+                        child: Scrollbar(
+                          controller: _horizontalController,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            controller: _horizontalController,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: _verticalController,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minWidth: 1200,
+                                ),
+                                child: Table(
+                                  defaultVerticalAlignment:
+                                      TableCellVerticalAlignment.middle,
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(0.8),
+                                    1: FlexColumnWidth(1.2),
+                                    2: FlexColumnWidth(0.8),
+                                    3: FlexColumnWidth(1),
+                                    4: FlexColumnWidth(1.2),
+                                    5: FlexColumnWidth(1.3),
+                                    6: FlexColumnWidth(1.3),
+                                  },
+                                  children: [
+                                    // Header Row
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                      ),
+                                      children: [
+                                        _buildHeader("Date "),
+                                        _buildHeader("Title Name"),
+                                        _buildHeader("Bank Name"),
+                                        _buildHeader("Account Detail "),
+                                        _buildHeader("Contact Detail"),
+                                        _buildHeader("Note"),
+                                        _buildHeader("Other Action"),
+                                      ],
+                                    ),
+                                    // Bank Account Rows
+                                    for (
+                                      int i = 0;
+                                      i < filteredBankAccounts.length;
+                                      i++
+                                    )
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              i.isEven
+                                                  ? Colors.grey.shade200
+                                                  : Colors.grey.shade100,
+                                        ),
+                                        children: [
+                                          _buildCell2(
+                                            _formatDateForDisplay(
+                                              filteredBankAccounts[i]
+                                                  .createdDate,
+                                            ),
+                                            "",
+                                            centerText2: true,
+                                          ),
+                                          _buildCell(
+                                            filteredBankAccounts[i].titleName,
+                                          ),
+                                          _buildCell(
+                                            filteredBankAccounts[i].bankName,
+                                          ),
+                                          _buildCell(
+                                            filteredBankAccounts[i]
+                                                .bankAccountNumber,
+                                            copyable: true,
+                                          ),
+                                          _buildCell3(
+                                            filteredBankAccounts[i]
+                                                .contactNumber,
+                                            filteredBankAccounts[i].emailId,
+                                          ),
+                                          _buildCell(
+                                            filteredBankAccounts[i]
+                                                .additionalNote,
+                                            copyable: true,
+                                          ),
+                                          _buildActionCell(
+                                            onEdit: () {},
+                                            onShare: () {},
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -327,6 +506,25 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
     );
   }
 
+  Widget _buildEmployeeCell(Employee? employee) {
+    if (employee == null) {
+      return _buildCell("N/A");
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            employee.employeeName,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildCell3(String text1, String text2, {bool copyable = false}) {
     return Padding(
@@ -341,7 +539,11 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
               if (copyable)
                 GestureDetector(
                   onTap: () {
-                    ClipboardUtils.copyToClipboard(text1, context, message: 'Text 1 copied');
+                    ClipboardUtils.copyToClipboard(
+                      text1,
+                      context,
+                      message: 'Text 1 copied',
+                    );
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -361,7 +563,11 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
               if (copyable)
                 GestureDetector(
                   onTap: () {
-                    ClipboardUtils.copyToClipboard(text2, context, message: 'Text 2 copied');
+                    ClipboardUtils.copyToClipboard(
+                      text2,
+                      context,
+                      message: 'Text 2 copied',
+                    );
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -406,29 +612,19 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
     );
   }
 
-  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onShare}) {
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
         ),
         IconButton(
           icon: const Icon(Icons.share, size: 20, color: Colors.blue),
           tooltip: 'Share',
-          onPressed: onDelete ?? () {},
+          onPressed: onShare ?? () {},
         ),
-        /*IconButton(
-          icon: Image.asset(
-            'assets/icons/img_3.png',
-            width: 20,
-            height: 20,
-            color: Colors.red,
-          ),
-          tooltip: 'Draft',
-          onPressed: onDraft ?? () {},
-        ),*/
       ],
     );
   }
@@ -466,9 +662,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                           ClipboardData(text: "$text1\n$text2"),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Copied to clipboard'),
-                          ),
+                          const SnackBar(content: Text('Copied to clipboard')),
                         );
                       },
                       child: Padding(
