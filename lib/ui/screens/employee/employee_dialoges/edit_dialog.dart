@@ -281,11 +281,11 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
   }
 
   Widget _buildTextField(
-      String label,
-      TextEditingController controller,
-      IconData icon, {
-        int maxLines = 1,
-      }) {
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    int maxLines = 1,
+  }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
