@@ -115,7 +115,7 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
       clipBehavior: Clip.antiAlias, // 👈 yeh line add karo
       child: Container(
         width: MediaQuery.of(context).size.width * 0.6,
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 450),
+        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 400),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -151,12 +151,14 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
                       children: [
                         // First Row
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start, // Align items to the top
                           children: [
                             Expanded(
                               child: CustomTextField(
                                 label: 'Title Name',
                                 hintText: '',
                                 controller: _titleNameController,
+
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -179,23 +181,23 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
                           children: [
                             Expanded(
                               child: CustomTextField(
-                                label: 'Branch Code',
-                                controller: _branchCodeController,
+                                label: 'Account Number',
+                                controller: _bankAccountNumberController,
                                 hintText: '',
                               ),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: CustomTextField(
-                                label: 'Account Number',
-                                controller: _bankAccountNumberController,
+                                label: 'Email ID',
+                                controller: _emailIdController,
                                 hintText: '',
                               ),
                             ),
+
                           ],
                         ),
                         const SizedBox(height: 10),
-
                         // Third Row
                         Row(
                           children: [
@@ -211,26 +213,6 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
                               child: CustomTextField(
                                 label: 'Contact Number',
                                 controller: _contactNumberController,
-                                hintText: '',
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomTextField(
-                                label: 'Email ID',
-                                controller: _emailIdController,
-                                hintText: '',
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: CustomTextField(
-                                label: 'Bank Address',
-                                controller: _bankAddressController,
                                 hintText: '',
                               ),
                             ),
