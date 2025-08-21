@@ -148,12 +148,11 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
       context: context,
       builder: (BuildContext context) {
         return BankAccountEditDialog(
+          data: employeeProvider.data,
           bankAccount: bankAccount,
           onSave: (updatedBankAccount) async {
             // Close the dialog
             Navigator.of(context).pop();
-
-            // Show loading indicator
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Row(

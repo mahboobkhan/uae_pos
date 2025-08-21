@@ -1,15 +1,22 @@
+import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
+import 'package:abc_consultant/ui/dialogs/custom_fields.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../employee/AllEmployeeData.dart';
 import '../../../../employee/employee_models.dart';
 
 class BankAccountEditDialog extends StatefulWidget {
   final BankAccount bankAccount;
   final Function(BankAccount) onSave;
+  final AllEmployeeData? data;
+
 
   const BankAccountEditDialog({
     Key? key,
     required this.bankAccount,
     required this.onSave,
+    required this.data,
+
   }) : super(key: key);
 
   @override
@@ -18,9 +25,10 @@ class BankAccountEditDialog extends StatefulWidget {
 
 class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
   final _formKey = GlobalKey<FormState>();
+  String? _selectedBank;
+
 
   late TextEditingController _titleNameController;
-  late TextEditingController _bankNameController;
   late TextEditingController _branchCodeController;
   late TextEditingController _bankAccountNumberController;
   late TextEditingController _ibanNumberController;
@@ -32,12 +40,13 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
   @override
   void initState() {
     super.initState();
+    // Set the selected bank if not already set
+    if (_selectedBank == null && widget.bankAccount.bankName.isNotEmpty) {
+      _selectedBank = widget.bankAccount.bankName.trim();
+    }
     // Initialize controllers with current values
     _titleNameController = TextEditingController(
       text: widget.bankAccount.titleName,
-    );
-    _bankNameController = TextEditingController(
-      text: widget.bankAccount.bankName,
     );
     _branchCodeController = TextEditingController(
       text: widget.bankAccount.branchCode,
@@ -65,7 +74,6 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
   @override
   void dispose() {
     _titleNameController.dispose();
-    _bankNameController.dispose();
     _branchCodeController.dispose();
     _bankAccountNumberController.dispose();
     _ibanNumberController.dispose();
@@ -83,7 +91,7 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
         id: widget.bankAccount.id,
         userId: widget.bankAccount.userId,
         titleName: _titleNameController.text.trim(),
-        bankName: _bankNameController.text.trim(),
+        bankName: _selectedBank ?? '', // Use the selected bank from dropdown
         branchCode: _branchCodeController.text.trim(),
         bankAccountNumber: _bankAccountNumberController.text.trim(),
         ibanNumber: _ibanNumberController.text.trim(),
@@ -94,207 +102,179 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
         createdBy: widget.bankAccount.createdBy,
         createdDate: widget.bankAccount.createdDate,
       );
-
-      // Call the onSave callback
       widget.onSave(updatedBankAccount);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bankList =
+    widget.data!.allBanks.map((d) => d.bankName.trim()).toList();
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      clipBehavior: Clip.antiAlias, // 👈 yeh line add karo
       child: Container(
         width: MediaQuery.of(context).size.width * 0.6,
-        constraints: const BoxConstraints(maxWidth: 800),
+        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 450),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
+                color: Colors.blue,
               ),
               child: Row(
                 children: [
-                  Icon(Icons.edit, color: Colors.blue.shade700, size: 24),
+                  const Icon(Icons.edit, color: Colors.white, size: 26),
                   const SizedBox(width: 12),
                   Text(
                     'Edit Bank Account',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade800,
+                      color: Colors.white,
                     ),
                   ),
                 ],
               ),
             ),
+            Expanded(
+              child: Container(
+                color: Colors.white,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // First Row
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Title Name',
+                                hintText: '',
+                                controller: _titleNameController,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child:   CustomDropdownField(
+                                label: "Select Bank",
+                                options: bankList,
+                                selectedValue: _selectedBank,
+                                onChanged: (value) {
+                                    setState(() {
+                                      _selectedBank = value;
+                                    });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Branch Code',
+                                controller: _branchCodeController,
+                                hintText: '',
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Account Number',
+                                controller: _bankAccountNumberController,
+                                hintText: '',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
 
-            // Form
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      // First Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildTextField(
-                              'Title Name',
-                              _titleNameController,
-                              Icons.person,
+                        // Third Row
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'IBAN Number',
+                                hintText: '',
+                                controller: _ibanNumberController,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildTextField(
-                              'Bank Name',
-                              _bankNameController,
-                              Icons.account_balance,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Contact Number',
+                                controller: _contactNumberController,
+                                hintText: '',
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Second Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildTextField(
-                              'Branch Code',
-                              _branchCodeController,
-                              Icons.location_on,
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Email ID',
+                                controller: _emailIdController,
+                                hintText: '',
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildTextField(
-                              'Account Number',
-                              _bankAccountNumberController,
-                              Icons.credit_card,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Bank Address',
+                                controller: _bankAddressController,
+                                hintText: '',
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Third Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildTextField(
-                              'IBAN Number',
-                              _ibanNumberController,
-                              Icons.account_balance_wallet,
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Additional Note',
+                                controller: _additionalNoteController,
+                                hintText: '',
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildTextField(
-                              'Contact Number',
-                              _contactNumberController,
-                              Icons.phone,
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(color: Colors.grey),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Fourth Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildTextField(
-                              'Email ID',
-                              _emailIdController,
-                              Icons.email,
+                            SizedBox(width: 10),
+                            CustomButton(
+                              text: 'Save Changes',
+                              onPressed: _saveChanges,
+                              backgroundColor: Colors.blue,
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildTextField(
-                              'Bank Address',
-                              _bankAddressController,
-                              Icons.location_city,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Additional Note
-                      _buildTextField(
-                        'Additional Note',
-                        _additionalNoteController,
-                        Icons.note,
-                        maxLines: 3,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Action Buttons
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: _saveChanges,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade600,
-                      foregroundColor: Colors.white,
+                          ],
+                        ),
+                      ],
                     ),
-                    child: const Text('Save Changes'),
                   ),
-                ],
+                ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
-    int maxLines = 1,
-  }) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: Colors.grey.shade600),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        filled: true,
-        fillColor: Colors.grey.shade50,
       ),
     );
   }

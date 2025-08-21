@@ -35,7 +35,7 @@ Future<Map<String, dynamic>?> EmployeeProfileDialog(
 
 class EmployeProfile extends StatefulWidget {
   final MapEntry<int, Employee>
-  singleEmployee; // Add any other parameters you need
+  singleEmployee;
   final AllEmployeeData? data;
 
   const EmployeProfile({
