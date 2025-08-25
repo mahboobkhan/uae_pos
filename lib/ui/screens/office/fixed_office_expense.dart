@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../../dialogs/custom_dialoges.dart';
+import 'package:abc_consultant/expense/expense_create_provider.dart';
+import 'package:abc_consultant/utils/request_state.dart';
 import 'dialogues/dialogue_fixed_office_expense.dart';
 
 class FixedOfficeExpense extends StatefulWidget {
@@ -93,14 +96,14 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
-                              CustomDropdown(
+                            /*  CustomDropdown(
                                 hintText: "Customer Type",
                                 selectedValue: selectedCategory,
                                 items: categories,
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory = newValue!);
                                 },
-                              ),
+                              ),*/
                               CustomDropdown(
                                 hintText: "Select Tags",
                                 selectedValue: selectedCategory1,

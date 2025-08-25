@@ -1,7 +1,10 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../expense/expense_create_provider.dart';
+import '../../../../utils/request_state.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_fields.dart';
 
@@ -20,6 +23,9 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
   late TextEditingController _expanseValueController;
   late TextEditingController _customNoteController;
   late TextEditingController _allocateBalanceController;
+  late TextEditingController _expanseNameController;
+  late TextEditingController _payByController;
+  late TextEditingController _receivedByController;
   final TextEditingController _issueDateController = TextEditingController();
 
 
@@ -30,6 +36,9 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
     _expanseValueController = TextEditingController();
     _customNoteController = TextEditingController();
     _allocateBalanceController = TextEditingController();
+    _payByController = TextEditingController();
+    _receivedByController = TextEditingController();
+    _expanseNameController = TextEditingController();
   }
 
   @override
@@ -38,6 +47,9 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
     _expanseValueController.dispose();
     _customNoteController.dispose();
     _allocateBalanceController.dispose();
+    _payByController.dispose();
+    _receivedByController.dispose();
+    _expanseNameController.dispose();
     super.dispose();
   }
 
@@ -80,7 +92,9 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
+    return Consumer<ExpenseProvider>(
+      builder: (context, provider, child) {
+        return Dialog(
       backgroundColor: Colors.white,
       insetPadding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -141,29 +155,53 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: [
-                  _buildDateTimeField(),
-                  CustomTextField(label: "TID",hintText: 'xxxxxxxx',controller:  _pasteTIDController),
-                  CustomTextField(label: "Expanse Value",controller:  _expanseValueController,hintText: '500-AED',),
-                  CustomDropdownField(
-                    label:
-                    "Select Expense Type",
-                    selectedValue: selectedExpense,options:    ["Hostel Rent Personal","Other Rents"],
-                    onChanged: (value) {
-                      setState(() {
-                        selectedExpense = value;
-                      });
-                    },
-                  ),
-                  CustomTextField(
-                    label:
-                    "Allocate Balance",
-                    controller:
-                    _allocateBalanceController,hintText: '500',
-                  ),
-                  _buildTextField("Note", _customNoteController, width: 450),
-                ],
+                  children: [
+                    CustomTextField(
+                      label: "Expense Name",
+                      hintText: '',
+                      controller: _expanseNameController,
+                    ),
+                    CustomTextField(
+                      label: "Pay By",
+                      controller: _payByController,
+                      hintText: '500',
+                    ),
+                    CustomTextField(
+                      label: "Received By",
+                      controller: _receivedByController,
+                      hintText: '500',
+                    ),
+                    CustomTextField(
+                      label: "Expanse Value",
+                      controller: _expanseValueController,
+                      hintText: '500-AED',
+                    ),
+                    CustomTextField(
+                      label: "Allocate Balance",
+                      controller: _allocateBalanceController,
+                      hintText: '500',
+                    ),
+                    _buildTextField("Note", _customNoteController, width: 450),
+                  ],
               ),
+
+              const SizedBox(height: 20),
+
+              // Show loading and error states
+              if (provider.state == RequestState.loading)
+                const LinearProgressIndicator(),
+
+              if (provider.state == RequestState.error)
+                Text(
+                  provider.errorMessage ?? "Something went wrong",
+                  style: const TextStyle(color: Colors.red),
+                ),
+
+              if (provider.state == RequestState.success)
+                Text(
+                  provider.response?.message ?? "Expense Created!",
+                  style: const TextStyle(color: Colors.green),
+                ),
 
               const SizedBox(height: 20),
 
@@ -183,9 +221,42 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
                   ),
                   const SizedBox(width: 10),
                   CustomButton(
-                    text: "Submit",
+                    text: provider.state == RequestState.loading
+                        ? "Submitting..."
+                        : "Submit",
                     backgroundColor: Colors.green,
-                    onPressed: () {},
+                    onPressed: provider.state == RequestState.loading
+                        ? () {} // Empty function when loading
+                        : () {
+                      final expense = ExpenseRequest(
+                        expenseType: "Miscellaneous Office Expense",
+                        expenseName: _expanseNameController.text.trim(),
+                        expenseAmount: double.tryParse(
+                            _expanseValueController.text.trim()) ?? 0,
+                        allocatedAmount: double.tryParse(
+                            _allocateBalanceController.text.trim()) ?? 0,
+                        note: _customNoteController.text.trim(),
+                        tag: "office",
+                        payByManager: _payByController.text.trim(),
+                        receivedByPerson: _receivedByController.text.trim(),
+                        editBy: "Admin",
+                        paymentStatus: "pending",
+                        expenseDate: DateFormat("yyyy-MM-dd HH:mm:ss").format(selectedDateTime),
+                      );
+
+                      provider.createExpense(expense).then((_) {
+                        if (provider.state == RequestState.success) {
+                          Navigator.pop(context); // auto-close
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(provider.response?.message ??
+                                  "Expense Created!"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      });
+                    },
                   ),
                   const Spacer(),
                   Material(
@@ -216,6 +287,8 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 

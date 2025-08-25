@@ -122,14 +122,14 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
-                              CustomDropdown(
+                             /* CustomDropdown(
                                 hintText: "Customer Type",
                                 selectedValue: selectedCategory,
                                 items: categories,
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory = newValue!);
                                 },
-                              ),
+                              ),*/
                               CustomDropdown(
                                 hintText: "Select Tags",
                                 selectedValue: selectedCategory1,

@@ -1,3 +1,4 @@
+import 'package:abc_consultant/expense/expense_create_provider.dart';
 import 'package:abc_consultant/providers/create_bank_account.dart';
 import 'package:abc_consultant/providers/create_bank_provider.dart';
 import 'package:abc_consultant/providers/create_employee_type_provider.dart';
@@ -51,6 +52,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => BankCreateProvider()),
         ChangeNotifierProvider(create: (_) => DeleteUserBankAccountProvider()),
         ChangeNotifierProvider(create: (_) => UpdatePasswordProvider()),
+        ChangeNotifierProvider(create: (_) => ExpenseProvider()),
       ],
 
       child: const MyApp(),
