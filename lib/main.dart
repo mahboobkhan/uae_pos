@@ -23,6 +23,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'employee/EmployeeProvider.dart';
 
 import 'employee/EmployeeProvider.dart';
+import 'expense/delete_expense_provider.dart';
 import 'expense/expense_provider.dart';
 import 'expense/update_expense_provider.dart';
 
@@ -57,6 +58,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
         ChangeNotifierProvider(create: (_) => ExpensesProvider()),
         ChangeNotifierProvider(create: (_) => UpdateExpenseProvider()),
+        ChangeNotifierProvider(create: (_) => DeleteExpenseProvider()),
       ],
 
       child: const MyApp(),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../expense/delete_expense_provider.dart';
+import '../../../expense/expense_create_provider.dart';
 import '../../../expense/expense_provider.dart';
 import '../../../utils/request_state.dart';
 import '../../dialogs/custom_dialoges.dart';
@@ -66,7 +68,9 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ChangeNotifierProvider(
+      create: (_) => ExpensesProvider()..fetchExpenses(),
+      child: Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
         child: Padding(
@@ -225,6 +229,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                       3: FlexColumnWidth(1),
                                       4: FlexColumnWidth(1),
                                       5: FlexColumnWidth(1),
+                                      6: FlexColumnWidth(1),
                                     },
                                     children: [
                                       // Header Row
@@ -236,8 +241,9 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                           _buildHeader("TID"),
                                           _buildHeader("Expenses Value"),
                                           _buildHeader("Drop Down Tag"),
+                                          _buildHeader("Payment Status"),
                                           _buildHeader(
-                                            "Allocate/Remaining Balance",
+                                            "Allocate",
                                           ),
                                           _buildHeader("Note"),
                                           _buildHeader("Other"),
@@ -263,11 +269,34 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                               copyable: true,
                                             ),
                                             _buildCell(e.expenseAmount),
+                                            _buildCell('nil'),
                                             _buildCell(e.paymentStatus),
-                                            _buildCell(e.expenseDate),
+                                            _buildCell(e.allocatedAmount),
                                             _buildCell(e.note),
                                             _buildActionCell(
-                                              onDelete: () {},
+                                              onDelete: () async {
+                                                final deleteProvider = Provider.of<DeleteExpenseProvider>(context, listen: false);
+                                                final expenseProvider = Provider.of<ExpensesProvider>(context, listen: false);
+
+                                                // Reset before new delete
+                                                deleteProvider.reset();
+
+                                                await deleteProvider.deleteExpense(e.tid);
+
+                                                if (deleteProvider.state == RequestState.success) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text(deleteProvider.response?.message ?? "Expense deleted successfully")),
+                                                  );
+
+                                                  // Refresh list
+                                                  expenseProvider.fetchExpenses();
+
+                                                } else if (deleteProvider.state == RequestState.error) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text(deleteProvider.response?.message ?? "Delete failed")),
+                                                  );
+                                                }
+                                              },
                                               onEdit: () async {
                                                 final result = await showDialog(
                                                   context: context,
@@ -283,11 +312,11 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                                 );
 
                                                 if (result == true) {
-                                                  // refresh the list after update
                                                   Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses();
                                                 }
                                               },
                                             ),
+
 
                                           ],
                                         );
@@ -308,7 +337,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildCell(String text, {bool copyable = false}) {

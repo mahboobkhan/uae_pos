@@ -80,6 +80,7 @@ class Expense {
   final String tag;
   final String paymentStatus;
   final String expenseDate;
+  final String allocatedAmount;
 
   Expense({
     required this.id,
@@ -91,6 +92,7 @@ class Expense {
     required this.tag,
     required this.paymentStatus,
     required this.expenseDate,
+    required this.allocatedAmount,
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
@@ -104,6 +106,7 @@ class Expense {
       tag: json['tag'] ?? '',
       paymentStatus: json['payment_status'] ?? '',
       expenseDate: json['expense_date'] ?? '',
+      allocatedAmount: json['allocated_amount']?.toString() ?? '',
     );
   }
 }
