@@ -21,6 +21,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
     _horizontalController.dispose();
     super.dispose();
   }
+
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
   DateTime selectedDateTime = DateTime.now();
@@ -102,16 +103,16 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(2),
                     boxShadow:
-                    _isHovering
-                        ? [
-                      BoxShadow(
-                        color: Colors.blue,
-                        blurRadius: 4,
-                        spreadRadius: 0.2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ]
-                        : [],
+                        _isHovering
+                            ? [
+                              BoxShadow(
+                                color: Colors.blue,
+                                blurRadius: 4,
+                                spreadRadius: 0.2,
+                                offset: const Offset(0, 1),
+                              ),
+                            ]
+                            : [],
                   ),
                   child: Row(
                     children: [
@@ -120,7 +121,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
-                             /* CustomDropdown(
+                              /* CustomDropdown(
                                 hintText: "Customer Type",
                                 selectedValue: selectedCategory,
                                 items: categories,
@@ -155,33 +156,32 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                         child: Builder(
                           builder:
                               (context) => Tooltip(
-                            message: 'Show menu',
-                            waitDuration: Duration(milliseconds: 2),
-                            child: GestureDetector(
-                              key: _plusKey,
-                              onTap: () async {
-                                 showOfficeSuppliesDialogue(context);
-
-                              },
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Colors.white,
-                                    size: 20,
+                                message: 'Show menu',
+                                waitDuration: Duration(milliseconds: 2),
+                                child: GestureDetector(
+                                  key: _plusKey,
+                                  onTap: () async {
+                                    showOfficeSuppliesDialogue(context);
+                                  },
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
                         ),
                       ),
                     ],
@@ -215,13 +215,14 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                               controller: _verticalController,
                               child: Table(
                                 defaultVerticalAlignment:
-                                TableCellVerticalAlignment.middle,
+                                    TableCellVerticalAlignment.middle,
                                 columnWidths: const {
                                   0: FlexColumnWidth(1),
                                   1: FlexColumnWidth(1),
                                   2: FlexColumnWidth(1),
                                   3: FlexColumnWidth(1),
                                   4: FlexColumnWidth(1),
+                                  5: FlexColumnWidth(1),
                                 },
                                 children: [
                                   TableRow(
@@ -236,15 +237,16 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                         "Allocate/Remaining Balance",
                                       ),
                                       _buildHeader("Note"),
+                                      _buildHeader("Others"),
                                     ],
                                   ),
                                   for (int i = 0; i < 20; i++)
                                     TableRow(
                                       decoration: BoxDecoration(
                                         color:
-                                        i.isEven
-                                            ? Colors.grey.shade200
-                                            : Colors.grey.shade100,
+                                            i.isEven
+                                                ? Colors.grey.shade200
+                                                : Colors.grey.shade100,
                                       ),
                                       children: [
                                         _buildCell2(
@@ -256,6 +258,10 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                         _buildCell("Sample"),
                                         _buildCell("100000"),
                                         _buildCell("Sample Note"),
+                                        _buildActionCell(
+                                          onDelete: () {},
+                                          onEdit: () {},
+                                        ),
                                       ],
                                     ),
                                 ],
@@ -307,11 +313,11 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
   }
 
   Widget _buildCell2(
-      String text1,
-      String text2, {
-        bool copyable = false,
-        bool centerText2 = false,
-      }) {
+    String text1,
+    String text2, {
+    bool copyable = false,
+    bool centerText2 = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -320,73 +326,73 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
           Text(text1, style: const TextStyle(fontSize: 12)),
           centerText2
               ? Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-                if (copyable)
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(text: "$text1\n$text2"),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied to clipboard'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    if (copyable)
+                      GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(
+                            ClipboardData(text: "$text1\n$text2"),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Copied to clipboard'),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.copy,
+                            size: 14,
+                            color: Colors.blue[700],
+                          ),
                         ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(
-                        Icons.copy,
-                        size: 14,
-                        color: Colors.blue[700],
+                      ),
+                  ],
+                ),
+              )
+              : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
                       ),
                     ),
                   ),
-              ],
-            ),
-          )
-              : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-              ),
-              if (copyable)
-                GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(
-                      ClipboardData(text: "$text1\n$text2"),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: Icon(
-                      Icons.copy,
-                      size: 8,
-                      color: Colors.blue[700],
+                  if (copyable)
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied to clipboard')),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.copy,
+                          size: 8,
+                          color: Colors.blue[700],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-            ],
-          ),
+                ],
+              ),
         ],
       ),
     );
@@ -408,6 +414,23 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
           textAlign: TextAlign.center,
         ),
       ),
+    );
+  }
+
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
+          tooltip: 'Edit',
+          onPressed: onEdit ?? () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete, size: 20, color: Colors.blue),
+          tooltip: 'delete',
+          onPressed: onDelete ?? () {},
+        ),
+      ],
     );
   }
 }

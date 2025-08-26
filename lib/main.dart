@@ -23,6 +23,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'employee/EmployeeProvider.dart';
 
 import 'employee/EmployeeProvider.dart';
+import 'expense/expense_provider.dart';
+import 'expense/update_expense_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +55,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => DeleteUserBankAccountProvider()),
         ChangeNotifierProvider(create: (_) => UpdatePasswordProvider()),
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
+        ChangeNotifierProvider(create: (_) => ExpensesProvider()),
+        ChangeNotifierProvider(create: (_) => UpdateExpenseProvider()),
       ],
 
       child: const MyApp(),

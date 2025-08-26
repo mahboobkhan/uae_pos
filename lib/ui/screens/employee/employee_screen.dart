@@ -311,7 +311,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  /// Reusable Table Widgets
   Widget _buildHeader(String text) => Container(
     height: 40,
     alignment: Alignment.centerLeft,

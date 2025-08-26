@@ -224,6 +224,7 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
                                   2: FlexColumnWidth(1),
                                   3: FlexColumnWidth(1),
                                   4: FlexColumnWidth(1),
+                                  5: FlexColumnWidth(1),
                                 },
                                 children: [
                                   TableRow(
@@ -238,6 +239,7 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
                                         "Allocate/Remaining Balance",
                                       ),
                                       _buildHeader("Note"),
+                                      _buildHeader("Others"),
                                     ],
                                   ),
                                   for (int i = 0; i < 20; i++)
@@ -257,7 +259,11 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
                                         _buildCell("50000"),
                                         _buildCell("Sample"),
                                         _buildCell("100000"),
-                                        _buildCell("Sample Note"),
+                                        _buildCell("Sample Note")
+                                        ,_buildActionCell(
+                                          onDelete: () {},
+                                          onEdit: () {},
+                                        ),
                                       ],
                                     ),
                                 ],
@@ -391,6 +397,23 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
               ),
         ],
       ),
+    );
+
+  }
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
+          tooltip: 'Edit',
+          onPressed: onEdit ?? () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete, size: 20, color: Colors.blue),
+          tooltip: 'delete',
+          onPressed: onDelete ?? () {},
+        ),
+      ],
     );
   }
 
