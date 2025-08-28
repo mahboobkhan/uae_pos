@@ -161,7 +161,6 @@ class _DialogueDynamicAdditionState extends State<DialogueDynamicAddition> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
                   // Input Fields
                   Wrap(
                     spacing: 10,
@@ -321,30 +320,6 @@ class _DialogueDynamicAdditionState extends State<DialogueDynamicAddition> {
     );
   }
 
-  Widget _buildDateTimeField() {
-    return SizedBox(
-      width: 220,
-      child: GestureDetector(
-        onTap: _selectedDateTime,
-        child: InputDecorator(
-          decoration: const InputDecoration(
-            labelText: "Date and Time ",
-            labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-            border: OutlineInputBorder(),
-            suffixIcon: Icon(
-              Icons.calendar_month_outlined,
-              color: Colors.red,
-              size: 22,
-            ),
-          ),
-          child: Text(
-            DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime),
-            style: const TextStyle(fontSize: 14),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 Widget _buildTextField(

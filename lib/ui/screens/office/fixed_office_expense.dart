@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../expense/delete_expense_provider.dart';
-import '../../../expense/expense_create_provider.dart';
 import '../../../expense/expense_provider.dart';
 import '../../../utils/request_state.dart';
+import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_dialoges.dart';
 import 'dialogues/dialogue_edit_expense.dart';
 import 'dialogues/dialogue_fixed_office_expense.dart';
@@ -32,7 +32,10 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses();
+      Provider.of<ExpensesProvider>(
+        context,
+        listen: false,
+      ).fetchExpenses(expenseType: 'Fixed Office Expense');
     });
   }
 
@@ -68,9 +71,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ExpensesProvider()..fetchExpenses(),
-      child: Scaffold(
+    return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
         child: Padding(
@@ -110,13 +111,13 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                           child: Row(
                             children: [
                               /*  CustomDropdown(
-                                hintText: "Customer Type",
-                                selectedValue: selectedCategory,
-                                items: categories,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory = newValue!);
-                                },
-                              ),*/
+                              hintText: "Customer Type",
+                              selectedValue: selectedCategory,
+                              items: categories,
+                              onChanged: (newValue) {
+                                setState(() => selectedCategory = newValue!);
+                              },
+                            ),*/
                               CustomDropdown(
                                 hintText: "Select Tags",
                                 selectedValue: selectedCategory1,
@@ -242,9 +243,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                           _buildHeader("Expenses Value"),
                                           _buildHeader("Drop Down Tag"),
                                           _buildHeader("Payment Status"),
-                                          _buildHeader(
-                                            "Allocate",
-                                          ),
+                                          _buildHeader("Allocate"),
                                           _buildHeader("Note"),
                                           _buildHeader("Other"),
                                         ],
@@ -275,49 +274,91 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                             _buildCell(e.note),
                                             _buildActionCell(
                                               onDelete: () async {
-                                                final deleteProvider = Provider.of<DeleteExpenseProvider>(context, listen: false);
-                                                final expenseProvider = Provider.of<ExpensesProvider>(context, listen: false);
+                                                final deleteProvider =
+                                                    Provider.of<
+                                                      DeleteExpenseProvider
+                                                    >(context, listen: false);
+                                                showLoadingDialog(context);
+                                                hideLoadingDialog(context);
+                                                final expenseProvider =
+                                                    Provider.of<
+                                                      ExpensesProvider
+                                                    >(context, listen: false);
 
                                                 // Reset before new delete
                                                 deleteProvider.reset();
 
-                                                await deleteProvider.deleteExpense(e.tid);
+                                                await deleteProvider
+                                                    .deleteExpense(e.tid);
 
-                                                if (deleteProvider.state == RequestState.success) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text(deleteProvider.response?.message ?? "Expense deleted successfully")),
+                                                if (deleteProvider.state ==
+                                                    RequestState.success) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        deleteProvider
+                                                                .response
+                                                                ?.message ??
+                                                            "Expense deleted successfully",
+                                                      ),
+                                                    ),
                                                   );
 
                                                   // Refresh list
-                                                  expenseProvider.fetchExpenses();
-
-                                                } else if (deleteProvider.state == RequestState.error) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text(deleteProvider.response?.message ?? "Delete failed")),
+                                                  expenseProvider
+                                                      .fetchExpenses();
+                                                } else if (deleteProvider
+                                                        .state ==
+                                                    RequestState.error) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        deleteProvider
+                                                                .response
+                                                                ?.message ??
+                                                            "Delete failed",
+                                                      ),
+                                                    ),
                                                   );
                                                 }
                                               },
                                               onEdit: () async {
                                                 final result = await showDialog(
                                                   context: context,
-                                                  builder: (_) => DialogueEditOfficeExpense(expenseData: {
-                                                    "tid": e.tid,
-                                                    "expense_type": e.expenseType,
-                                                    "expense_name": e.expenseName,
-                                                    "expense_amount": e.expenseAmount,
-                                                    "note": e.note,
-                                                    "tag": e.tag,
-                                                    "payment_status": e.paymentStatus,
-                                                  }),
+                                                  builder:
+                                                      (
+                                                        _,
+                                                      ) => DialogueEditOfficeExpense(
+                                                        expenseData: {
+                                                          "tid": e.tid,
+                                                          "expense_type":
+                                                              e.expenseType,
+                                                          "expense_name":
+                                                              e.expenseName,
+                                                          "expense_amount":
+                                                              e.expenseAmount,
+                                                          "note": e.note,
+                                                          "tag": e.tag,
+                                                          "payment_status":
+                                                              e.paymentStatus,
+                                                          "allocated_amount": e.allocatedAmount, // 👈 ye add karna hai
+
+                                                        },
+                                                      ),
                                                 );
 
                                                 if (result == true) {
-                                                  Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses();
+                                                  Provider.of<ExpensesProvider>(
+                                                    context,
+                                                    listen: false,
+                                                  ).fetchExpenses();
                                                 }
                                               },
                                             ),
-
-
                                           ],
                                         );
                                       }).toList(),
@@ -337,7 +378,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
           ),
         ),
       ),
-    ));
+    );
   }
 
   Widget _buildCell(String text, {bool copyable = false}) {

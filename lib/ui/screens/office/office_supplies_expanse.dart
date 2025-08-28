@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../../../expense/delete_expense_provider.dart';
+import '../../../expense/expense_provider.dart';
+import '../../../providers/designation_delete_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
+import 'dialogues/dialogue_edit_expense.dart';
 import 'dialogues/dialogue_supplies_office.dart';
 
 class OfficeSuppliesExpanse extends StatefulWidget {
@@ -21,11 +26,19 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
     _horizontalController.dispose();
     super.dispose();
   }
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses(expenseType: 'Office Supplies Expense');
+    });
+  }
 
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
   DateTime selectedDateTime = DateTime.now();
 
+/*
   Future<void> _pickDateTime(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -53,6 +66,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
       }
     }
   }
+*/
 
   final List<String> categories = [
     'All',
@@ -192,85 +206,193 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Container(
                   height: 370,
-                  child: ScrollbarTheme(
-                    data: ScrollbarThemeData(
-                      thumbVisibility: MaterialStateProperty.all(true),
-                      thumbColor: MaterialStateProperty.all(Colors.grey),
-                      thickness: MaterialStateProperty.all(8),
-                      radius: const Radius.circular(4),
-                    ),
-                    child: Scrollbar(
-                      controller: _verticalController,
-                      thumbVisibility: true,
-                      child: Scrollbar(
-                        controller: _horizontalController,
-                        thumbVisibility: true,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          controller: _horizontalController,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 1150),
+                  child: Consumer<ExpensesProvider>(
+                    builder: (context, provider, child) {
+                      if (provider.state == RequestState.loading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (provider.state == RequestState.error) {
+                        return Center(
+                          child: Text(provider.errorMessage ?? "Error"),
+                        );
+                      }
+
+                      if (provider.expenses.isEmpty) {
+                        return const Center(child: Text("No expenses found"));
+                      }
+
+                      return ScrollbarTheme(
+                        data: ScrollbarThemeData(
+                          thumbVisibility: MaterialStateProperty.all(true),
+                          thumbColor: MaterialStateProperty.all(Colors.grey),
+                          thickness: MaterialStateProperty.all(8),
+                          radius: const Radius.circular(4),
+                        ),
+                        child: Scrollbar(
+                          controller: _verticalController,
+                          thumbVisibility: true,
+                          child: Scrollbar(
+                            controller: _horizontalController,
+                            thumbVisibility: true,
                             child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              controller: _verticalController,
-                              child: Table(
-                                defaultVerticalAlignment:
-                                    TableCellVerticalAlignment.middle,
-                                columnWidths: const {
-                                  0: FlexColumnWidth(1),
-                                  1: FlexColumnWidth(1),
-                                  2: FlexColumnWidth(1),
-                                  3: FlexColumnWidth(1),
-                                  4: FlexColumnWidth(1),
-                                  5: FlexColumnWidth(1),
-                                },
-                                children: [
-                                  TableRow(
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade50,
-                                    ),
-                                    children: [
-                                      _buildHeader("TID"),
-                                      _buildHeader("Expenses Value"),
-                                      _buildHeader("Drop Down Tag"),
-                                      _buildHeader(
-                                        "Allocate/Remaining Balance",
-                                      ),
-                                      _buildHeader("Note"),
-                                      _buildHeader("Others"),
-                                    ],
+                              scrollDirection: Axis.horizontal,
+                              controller: _horizontalController,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                controller: _verticalController,
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    minWidth: 1150,
                                   ),
-                                  for (int i = 0; i < 20; i++)
-                                    TableRow(
-                                      decoration: BoxDecoration(
-                                        color:
-                                            i.isEven
+                                  child: Table(
+                                    defaultVerticalAlignment:
+                                    TableCellVerticalAlignment.middle,
+                                    columnWidths: const {
+                                      0: FlexColumnWidth(1),
+                                      1: FlexColumnWidth(1),
+                                      2: FlexColumnWidth(1),
+                                      3: FlexColumnWidth(1),
+                                      4: FlexColumnWidth(1),
+                                      5: FlexColumnWidth(1),
+                                      6: FlexColumnWidth(1),
+                                    },
+                                    children: [
+                                      // Header Row
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.shade50,
+                                        ),
+                                        children: [
+                                          _buildHeader("TID"),
+                                          _buildHeader("Expenses Value"),
+                                          _buildHeader("Drop Down Tag"),
+                                          _buildHeader("Payment Status"),
+                                          _buildHeader("Allocate"),
+                                          _buildHeader("Note"),
+                                          _buildHeader("Other"),
+                                        ],
+                                      ),
+                                      // Dynamic Rows
+                                      ...provider.expenses.asMap().entries.map((
+                                          entry,
+                                          ) {
+                                        final index = entry.key;
+                                        final e = entry.value;
+                                        return TableRow(
+                                          decoration: BoxDecoration(
+                                            color:
+                                            index.isEven
                                                 ? Colors.grey.shade200
                                                 : Colors.grey.shade100,
-                                      ),
-                                      children: [
-                                        _buildCell2(
-                                          "Sample Customer",
-                                          "xxxxxxx345",
-                                          copyable: true,
-                                        ),
-                                        _buildCell("50000"),
-                                        _buildCell("Sample"),
-                                        _buildCell("100000"),
-                                        _buildCell("Sample Note"),
-                                        _buildActionCell(
-                                          onDelete: () {},
-                                          onEdit: () {},
-                                        ),
-                                      ],
-                                    ),
-                                ],
+                                          ),
+                                          children: [
+                                            _buildCell2(
+                                              e.expenseType,
+                                              e.tid,
+                                              copyable: true,
+                                            ),
+                                            _buildCell(e.expenseAmount),
+                                            _buildCell('nil'),
+                                            _buildCell(e.paymentStatus),
+                                            _buildCell(e.allocatedAmount),
+                                            _buildCell(e.note),
+                                            _buildActionCell(
+                                              onDelete: () async {
+                                                final deleteProvider =
+                                                Provider.of<
+                                                    DeleteExpenseProvider
+                                                >(context, listen: false);
+                                                final expenseProvider =
+                                                Provider.of<
+                                                    ExpensesProvider
+                                                >(context, listen: false);
+
+                                                // Reset before new delete
+                                                deleteProvider.reset();
+
+                                                await deleteProvider
+                                                    .deleteExpense(e.tid);
+
+                                                if (deleteProvider.state ==
+                                                    RequestState.success) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        deleteProvider
+                                                            .response
+                                                            ?.message ??
+                                                            "Expense deleted successfully",
+                                                      ),
+                                                    ),
+                                                  );
+
+                                                  // Refresh list
+                                                  expenseProvider
+                                                      .fetchExpenses();
+                                                } else if (deleteProvider
+                                                    .state ==
+                                                    RequestState.error) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        deleteProvider
+                                                            .response
+                                                            ?.message ??
+                                                            "Delete failed",
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              onEdit: () async {
+                                                final result = await showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (
+                                                      _,
+                                                      ) => DialogueEditOfficeExpense(
+                                                    expenseData: {
+                                                      "tid": e.tid,
+                                                      "expense_type":
+                                                      e.expenseType,
+                                                      "expense_name":
+                                                      e.expenseName,
+                                                      "expense_amount":
+                                                      e.expenseAmount,
+                                                      "note": e.note,
+                                                      "tag": e.tag,
+                                                      "payment_status":
+                                                      e.paymentStatus,
+                                                      "allocated_amount": e.allocatedAmount,
+                                                    },
+                                                  ),
+                                                );
+
+                                                if (result == true) {
+                                                  Provider.of<ExpensesProvider>(
+                                                    context,
+                                                    listen: false,
+                                                  ).fetchExpenses();
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),

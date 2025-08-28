@@ -14,6 +14,7 @@ class ExpensesProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  /// ✅ Fetch Expenses API
   Future<void> fetchExpenses({
     String expenseType = "all",
     String paymentStatus = "pending",
@@ -44,16 +45,16 @@ class ExpensesProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print("Step 3: Response Body -> ${response.body}");
-        if (data is Map && data["data"] is List) {
-          final list = data["data"] as List;
-          _expenses = list.map((e) => Expense.fromJson(e)).toList();
+
+        try {
+          final parsed = ExpensesResponse.fromJson(data);
+          _expenses = parsed.data;
           print("Step 4: Expenses Parsed -> ${_expenses.length}");
           _setState(RequestState.success);
-        } else {
-          _errorMessage = "Unexpected data format!";
+        } catch (e) {
+          _errorMessage = "Parsing error: $e";
           _setState(RequestState.error);
         }
-
       } else {
         _errorMessage = "Error Code: ${response.statusCode}";
         _setState(RequestState.error);
@@ -64,12 +65,41 @@ class ExpensesProvider extends ChangeNotifier {
     }
   }
 
+  /// ✅ Private function to update state
   void _setState(RequestState state) {
     _state = state;
     notifyListeners();
   }
 }
 
+//
+// 🔹 API Response Model
+//
+class ExpensesResponse {
+  final String status;
+  final int count;
+  final List<Expense> data;
+
+  ExpensesResponse({
+    required this.status,
+    required this.count,
+    required this.data,
+  });
+
+  factory ExpensesResponse.fromJson(Map<String, dynamic> json) {
+    return ExpensesResponse(
+      status: json["status"] ?? "error",
+      count: json["count"] ?? 0,
+      data: (json["data"] as List)
+          .map((e) => Expense.fromJson(e))
+          .toList(),
+    );
+  }
+}
+
+//
+// 🔹 Expense Model
+//
 class Expense {
   final String id;
   final String tid;
@@ -81,6 +111,13 @@ class Expense {
   final String paymentStatus;
   final String expenseDate;
   final String allocatedAmount;
+  final String remainsAmount;
+  final String payByManager;
+  final String receivedByPerson;
+  final String editBy;
+  final String lastUpdate;
+  final String createdAt;
+  final String updatedAt;
 
   Expense({
     required this.id,
@@ -93,6 +130,13 @@ class Expense {
     required this.paymentStatus,
     required this.expenseDate,
     required this.allocatedAmount,
+    required this.remainsAmount,
+    required this.payByManager,
+    required this.receivedByPerson,
+    required this.editBy,
+    required this.lastUpdate,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
@@ -107,6 +151,13 @@ class Expense {
       paymentStatus: json['payment_status'] ?? '',
       expenseDate: json['expense_date'] ?? '',
       allocatedAmount: json['allocated_amount']?.toString() ?? '',
+      remainsAmount: json['remains_amount']?.toString() ?? '',
+      payByManager: json['pay_by_manager'] ?? '',
+      receivedByPerson: json['received_by_person'] ?? '',
+      editBy: json['edit_by'] ?? '',
+      lastUpdate: json['last_update'] ?? '',
+      createdAt: json['created_at'] ?? '',
+      updatedAt: json['updated_at'] ?? '',
     );
   }
 }
