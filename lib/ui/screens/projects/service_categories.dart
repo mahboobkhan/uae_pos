@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/service_category_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 
@@ -14,6 +16,9 @@ class ServiceCategories extends StatefulWidget {
 class _ServiceCategoriesState extends State<ServiceCategories> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
+  final List<String> categories2 = ['All', 'Pending', 'Paid'];
+  String? selectedCategory2;
+  bool _isHovering = false;
 
   @override
   void dispose() {
@@ -22,235 +27,463 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
     super.dispose();
   }
 
-  final List<String> categories2 = ['All', 'Pending', 'Paid'];
-  String? selectedCategory2;
-  final List<String> categories3 = [
-    'All',
-    'Toady',
-    'Yesterday',
-    'Last 7 Days',
-    'Last 30 Days',
-    'Custom Range',
-  ];
-  String? selectedCategory3;
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () =>
+          Provider.of<ServiceCategoryProvider>(
+            context,
+            listen: false,
+          ).getServiceCategories(),
+    );
+  }
 
-  final List<String> categories4 = ['Services Project', 'Short Services'];
-  String selectedCategory4 = '';
-  final GlobalKey _plusKey = GlobalKey();
-  bool _isHovering = false;
+  void _showAddServiceCategoryDialog(
+    BuildContext context, {
+    Map<String, dynamic>? editData,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        String serviceName = editData?['service_name'] ?? '';
+        String quotation = editData?['quotation'] ?? '';
+        String? serviceProviderName = editData?['service_provider_name'];
+        String? refId = editData?['ref_id'];
+
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          actionsAlignment: MainAxisAlignment.start,
+
+          content: SizedBox(
+            width: 340,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 6.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        editData == null
+                            ? "Add Service Category"
+                            : "Edit Service Category",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      CustomTextField1(
+                        label: 'Category Name',
+                        text: serviceName,
+                        onChanged: (val) => serviceName = val,
+                      ),
+                      const SizedBox(height: 12),
+
+                      CustomTextField1(
+                        label: 'Quotation',
+                        text: quotation,
+                        keyboardType: TextInputType.number,
+                        onChanged: (val) => quotation = val,
+                      ),
+                      const SizedBox(height: 12),
+
+                      CustomTextField1(
+                        label: 'Service Provider',
+                        text: serviceProviderName,
+                        onChanged: (val) => serviceProviderName = val,
+                      ),
+
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (editData == null) {
+                              await Provider.of<ServiceCategoryProvider>(
+                                context,
+                                listen: false,
+                              ).addServiceCategory(
+                                serviceName: serviceName,
+                                quotation: quotation,
+                                serviceProviderName: serviceProviderName,
+                                date: DateTime.now().toIso8601String(),
+                              );
+                            } else {
+                              await Provider.of<ServiceCategoryProvider>(
+                                context,
+                                listen: false,
+                              ).updateServiceCategory(
+                                refId: refId!,
+                                serviceName: serviceName,
+                                quotation: quotation,
+                                serviceProviderName: serviceProviderName,
+                                date: DateTime.now().toIso8601String(),
+
+                              );
+                            }
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            editData == null ? 'Create' : 'Update',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Cross icon top right
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '00-00-0000';
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('dd-MM-yyyy').format(dateTime);
+    } catch (e) {
+      return '00-00-0000';
+    }
+  }
+
+  String _formatTime(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '00-00';
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('hh:mm a').format(dateTime);
+    } catch (e) {
+      return '00-00';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ServiceCategoryProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              MouseRegion(
-                onEnter: (_) => setState(() => _isHovering = true),
-                onExit: (_) => setState(() => _isHovering = false),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 45,
-                  width: MediaQuery.of(context).size.width,
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.grey, width: 1),
-                    borderRadius: BorderRadius.circular(2),
-                    boxShadow:
-                        _isHovering
-                            ? [
-                              BoxShadow(
-                                color: Colors.blue,
-                                blurRadius: 4,
-                                spreadRadius: 0.1,
-                                offset: Offset(0, 1),
-                              ),
-                            ]
-                            : [],
-                  ),
-                  child: Row(
+      body:
+          provider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
+                      const SizedBox(height: 10),
+                      MouseRegion(
+                        onEnter: (_) => setState(() => _isHovering = true),
+                        onExit: (_) => setState(() => _isHovering = false),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 45,
+                          width: MediaQuery.of(context).size.width,
+                          margin: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            border: Border.all(color: Colors.grey, width: 1),
+                            borderRadius: BorderRadius.circular(2),
+                            boxShadow:
+                                _isHovering
+                                    ? [
+                                      const BoxShadow(
+                                        color: Colors.blue,
+                                        blurRadius: 4,
+                                        spreadRadius: 0.1,
+                                        offset: Offset(0, 1),
+                                      ),
+                                    ]
+                                    : [],
+                          ),
                           child: Row(
                             children: [
-                              CustomDropdown(
-                                selectedValue: selectedCategory2,
-                                hintText: "Institutes ",
-                                items: categories2,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory2 = newValue!);
-                                },
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      CustomDropdown(
+                                        selectedValue: selectedCategory2,
+                                        hintText: "Institutes",
+                                        items: categories2,
+                                        onChanged: (newValue) {
+                                          setState(
+                                            () => selectedCategory2 = newValue!,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Card(
+                                    elevation: 4,
+                                    color: Colors.blue,
+                                    shape: const CircleBorder(),
+                                    child: Builder(
+                                      builder:
+                                          (context) => Tooltip(
+                                            message: 'Add Service Category',
+                                            waitDuration: const Duration(
+                                              milliseconds: 2,
+                                            ),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                _showAddServiceCategoryDialog(
+                                                  context,
+                                                );
+                                              },
+                                              child: Container(
+                                                width: 30,
+                                                height: 30,
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                    ),
+                                                decoration: const BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Center(
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          Card(
-                            elevation: 4,
-                            color: Colors.blue,
-                            shape: CircleBorder(),
-                            child: Builder(
-                              builder:
-                                  (context) => Tooltip(
-                                    message: 'Show menu',
-                                    waitDuration: Duration(milliseconds: 2),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        showShortServicesPopup(context);
-                                      },
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Container(
+                          child: ScrollbarTheme(
+                            data: ScrollbarThemeData(
+                              thumbVisibility: MaterialStateProperty.all(true),
+                              thumbColor: MaterialStateProperty.all(
+                                Colors.grey,
+                              ),
+                              thickness: MaterialStateProperty.all(8),
+                              radius: const Radius.circular(4),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Container(
-                  height: 400,
-                  child: ScrollbarTheme(
-                    data: ScrollbarThemeData(
-                      thumbVisibility: MaterialStateProperty.all(true),
-                      thumbColor: MaterialStateProperty.all(Colors.grey),
-                      thickness: MaterialStateProperty.all(8),
-                      radius: const Radius.circular(4),
-                    ),
-                    child: Scrollbar(
-                      controller: _verticalController,
-                      thumbVisibility: true,
-                      child: Scrollbar(
-                        controller: _horizontalController,
-                        thumbVisibility: true,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          controller: _horizontalController,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            controller: _verticalController,
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(minWidth: 1150),
-                              child: Table(
-                                defaultVerticalAlignment:
-                                    TableCellVerticalAlignment.middle,
-                                columnWidths: const {
-                                  0: FlexColumnWidth(1),
-                                  1: FlexColumnWidth(1),
-                                  2: FlexColumnWidth(1),
-                                  3: FlexColumnWidth(1),
-                                  4: FlexColumnWidth(1),
-                                  5: FlexColumnWidth(1),
-                                },
-                                children: [
-                                  TableRow(
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade50,
-                                    ),
-                                    children: [
-                                      _buildHeader("Date"),
-                                      _buildHeader("Service Beneficiary "),
-                                      _buildHeader("Service "),
-                                      _buildHeader("Quotation "),
-                                      _buildHeader("Ref Id"),
-                                      _buildHeader("More Actions"),
-                                    ],
-                                  ),
-                                  for (int i = 0; i < 20; i++)
-                                    TableRow(
-                                      decoration: BoxDecoration(
-                                        color:
-                                            i.isEven
-                                                ? Colors.grey.shade200
-                                                : Colors.grey.shade100,
+                            child: Scrollbar(
+                              controller: _verticalController,
+                              thumbVisibility: true,
+                              child: Scrollbar(
+                                controller: _horizontalController,
+                                thumbVisibility: true,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  controller: _horizontalController,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.vertical,
+                                    controller: _verticalController,
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        minWidth: 1150,
                                       ),
-                                      children: [
-                                        _buildCell2(
-                                          "12-02-2025",
-                                          "02:59 pm",
-                                          centerText2: true,
-                                        ),
-                                        _buildCell3(
-                                          "User ",
-                                          "xxxxxxxxx245",
-                                          copyable: true,
-                                        ),
-                                        _buildCell("Reparing"),
-
-                                        _buildPriceWithAdd("AED-", "300"),
-                                        _buildCell(
-                                          "xxxxxxxxx245",
-                                          copyable: true,
-                                        ),
-                                        _buildActionCell(
-                                          onEdit: () {},
-                                          onDelete: () {
-                                            final shouldDelete = showDialog<
-                                              bool
-                                            >(
-                                              context: context,
-                                              builder:
-                                                  (
-                                                    context,
-                                                  ) => const ConfirmationDialog(
-                                                    title: 'Confirm Deletion',
-                                                    content:
-                                                        'Are you sure you want to delete this?',
-                                                    cancelText: 'Cancel',
-                                                    confirmText: 'Delete',
+                                      child: Table(
+                                        defaultVerticalAlignment:
+                                            TableCellVerticalAlignment.middle,
+                                        columnWidths: const {
+                                          0: FlexColumnWidth(1),
+                                          1: FlexColumnWidth(1),
+                                          2: FlexColumnWidth(1),
+                                          3: FlexColumnWidth(1),
+                                          4: FlexColumnWidth(1),
+                                          5: FlexColumnWidth(1),
+                                        },
+                                        children: [
+                                          TableRow(
+                                            decoration: BoxDecoration(
+                                              color: Colors.red.shade50,
+                                            ),
+                                            children: [
+                                              _buildHeader("Date"),
+                                              _buildHeader(
+                                                "Service Beneficiary",
+                                              ),
+                                              _buildHeader("Service"),
+                                              _buildHeader("Quotation"),
+                                              _buildHeader("Ref Id"),
+                                              _buildHeader("More Actions"),
+                                            ],
+                                          ),
+                                          if (provider
+                                              .serviceCategories
+                                              .isEmpty)
+                                            TableRow(
+                                              children: [
+                                                for (int i = 0; i < 6; i++)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          12.0,
+                                                        ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        i == 2
+                                                            ? 'No data available'
+                                                            : '',
+                                                        style: const TextStyle(
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ),
-                                            );
-                                            if (shouldDelete == true) {
-                                              print("Item deleted");
-                                            }
-                                          },
-                                          onDraft: () {},
-                                        ),
-                                      ],
+                                              ],
+                                            )
+                                          else
+                                            for (
+                                              int i = 0;
+                                              i <
+                                                  provider
+                                                      .serviceCategories
+                                                      .length;
+                                              i++
+                                            )
+                                              TableRow(
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      i.isEven
+                                                          ? Colors.grey.shade200
+                                                          : Colors
+                                                              .grey
+                                                              .shade100,
+                                                ),
+                                                children: [
+                                                  _buildCell2(
+                                                    _formatDate(
+                                                      provider
+                                                          .serviceCategories[i]['date'],
+                                                    ),
+                                                    _formatTime(
+                                                      provider
+                                                          .serviceCategories[i]['date'],
+                                                    ),
+                                                    centerText2: true,
+                                                  ),
+                                                  _buildCell3(
+                                                    provider.serviceCategories[i]['service_provider_name'] ??
+                                                        '',
+                                                    provider.serviceCategories[i]['ref_id'] ??
+                                                        '',
+                                                    copyable: true,
+                                                  ),
+                                                  _buildCell(
+                                                    provider
+                                                        .serviceCategories[i]['service_name'],
+                                                  ),
+                                                  _buildPriceWithAdd(
+                                                    "AED-",
+                                                    provider.serviceCategories[i]['quotation'] ??
+                                                        '',
+                                                  ),
+                                                  _buildCell(
+                                                    provider.serviceCategories[i]['ref_id'] ??
+                                                        '',
+                                                    copyable: true,
+                                                  ),
+                                                  _buildActionCell(
+                                                    onEdit: () {
+                                                      _showAddServiceCategoryDialog(
+                                                        context,
+                                                        editData:
+                                                            provider
+                                                                .serviceCategories[i],
+                                                      );
+                                                    },
+                                                    onDelete: () async {
+                                                      final shouldDelete = await showDialog<
+                                                        bool
+                                                      >(
+                                                        context: context,
+                                                        builder:
+                                                            (
+                                                              context,
+                                                            ) => const ConfirmationDialog(
+                                                              title:
+                                                                  'Confirm Deletion',
+                                                              content:
+                                                                  'Are you sure you want to delete this?',
+                                                              cancelText:
+                                                                  'Cancel',
+                                                              confirmText:
+                                                                  'Delete',
+                                                            ),
+                                                      );
+                                                      if (shouldDelete ==
+                                                          true) {
+                                                        provider.deleteServiceCategory(
+                                                          refId:
+                                                              provider
+                                                                  .serviceCategories[i]['ref_id'],
+                                                        );
+                                                      }
+                                                    },
+                                                    onDraft: () {
+                                                      // Additional draft functionality
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                        ],
+                                      ),
                                     ),
-                                ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -273,7 +506,11 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
     );
   }
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(
+    String curr,
+    String price, {
+    bool showPlus = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
@@ -282,7 +519,14 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
             curr,
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          Text(
+            price,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const Spacer(),
           if (showPlus)
             Container(
@@ -426,7 +670,6 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
   }) {
     return Row(
       children: [
-
         IconButton(
           icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Delete',
@@ -436,16 +679,6 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
           icon: const Icon(Icons.edit, size: 20, color: Colors.green),
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
-        ),
-        IconButton(
-          icon: Image.asset(
-            'assets/icons/img_3.png',
-            width: 20,
-            height: 20,
-            color: Colors.blue,
-          ),
-          tooltip: 'Draft',
-          onPressed: onDraft ?? () {},
         ),
       ],
     );

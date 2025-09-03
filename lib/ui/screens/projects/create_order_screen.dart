@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import 'package:provider/provider.dart';
+import '../../../providers/project_stage_provider.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
@@ -27,7 +28,9 @@ class DropdownItem {
 }
 
 class CreateOrderScreen extends StatefulWidget {
-  const CreateOrderScreen({super.key});
+  final Map<String, dynamic>? projectData;
+  
+  const CreateOrderScreen({super.key, this.projectData});
 
   @override
   State<CreateOrderScreen> createState() => _CreateOrderScreenState();
@@ -55,6 +58,55 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   ];
 
   DateTime selectedDateTime = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeFormData();
+    _loadProjectStages();
+  }
+
+  void _loadProjectStages() {
+    if (widget.projectData != null && widget.projectData!['project_ref_id'] != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final projectStageProvider = context.read<ProjectStageProvider>();
+          projectStageProvider.getStagesByProject(
+            projectRefId: widget.projectData!['project_ref_id'],
+          );
+        }
+      });
+    }
+  }
+
+  void _initializeFormData() {
+    if (widget.projectData != null) {
+      final project = widget.projectData!;
+      
+      // Pre-fill form fields with project data
+      _beneficiaryController.text = project['client_name'] ?? '';
+      _fundsController.text = project['quotation'] ?? '';
+      _recordPaymentController.text = project['pending_payment'] ?? '';
+      
+      // Set order type
+      selectedOrderType = project['order_type'] ?? '';
+      
+      // Set service project
+      selectedServiceProject = project['service_category_id']?['service_name'] ?? '';
+      
+      // Set employee
+      selectedEmployee = project['user_id']?['name'] ?? '';
+      
+      // Set date if available
+      if (project['created_at'] != null) {
+        try {
+          selectedDateTime = DateTime.parse(project['created_at']);
+        } catch (e) {
+          selectedDateTime = DateTime.now();
+        }
+      }
+    }
+  }
 
   void _selectedDateTime() {
     showDialog(
@@ -117,8 +169,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
+                          children: [
+                            const Text(
                               "Project Details",
                               style: TextStyle(
                                 fontSize: 20,
@@ -126,7 +178,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 color: Colors.red,
                               ),
                             ),
-                            Text("ORN. 00001–0000001"),
+                            Text("Ref ID: ${widget.projectData?['project_ref_id'] ?? 'N/A'}"),
                           ],
                         ),
                         IconButton(
@@ -224,17 +276,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
 
                         InfoBox(
-                          label: 'Muhammad Imran',
+                          label: widget.projectData?['user_id']?['name'] ?? 'N/A',
                           value: 'Assign Employee',
                           color: Colors.blue.shade200, // light blue fill
                         ),
                         InfoBox(
-                          label: '500',
+                          label: widget.projectData?['quotation'] ?? '0',
                           value: 'Received Funds',
                           color: Colors.blue.shade200, // light blue fill
                         ),
                         InfoBox(
-                          label: 'xxxxxxxx',
+                          label: widget.projectData?['project_ref_id'] ?? 'N/A',
                           value: 'Transaction Id',
                           color: Colors.yellow.shade100, // light blue fill
                         ),
@@ -297,38 +349,48 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top Title
-                    Row(
+            Consumer<ProjectStageProvider>(
+              builder: (context, projectStageProvider, child) {
+                return Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Stage – 01",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Text("SID–10000001"),
-                        Spacer(),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.red),
-                          onPressed: () async {
-                            final shouldClose = await showDialog<bool>(
-                              context: context,
-                              builder:
-                                  (context) => AlertDialog(
+                        // Top Title with Add Stage Button
+                        Row(
+                          children: [
+                            Text(
+                              "Project Stages (${projectStageProvider.projectStages.length})",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                              ),
+                            ),
+                            Spacer(),
+                            if (widget.projectData != null)
+                              ElevatedButton.icon(
+                                onPressed: () => _showAddStageDialog(context),
+                                icon: Icon(Icons.add, size: 16),
+                                label: Text("Add Stage"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            SizedBox(width: 10),
+                            IconButton(
+                              icon: const Icon(Icons.close, color: Colors.red),
+                              onPressed: () async {
+                                final shouldClose = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -339,19 +401,14 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                     ),
                                     actions: [
                                       TextButton(
-                                        onPressed:
-                                            () => Navigator.of(
-                                              context,
-                                            ).pop(false),
+                                        onPressed: () => Navigator.of(context).pop(false),
                                         child: const Text(
                                           "Keep Changes ",
                                           style: TextStyle(color: Colors.blue),
                                         ),
                                       ),
                                       TextButton(
-                                        onPressed:
-                                            () =>
-                                                Navigator.of(context).pop(true),
+                                        onPressed: () => Navigator.of(context).pop(true),
                                         child: const Text(
                                           "Close",
                                           style: TextStyle(color: Colors.red),
@@ -359,241 +416,127 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                       ),
                                     ],
                                   ),
-                            );
-
-                            if (shouldClose == true) {
-                              Navigator.of(context).pop(); // close the dialog
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        _buildDateTimeField(),
-                        _buildDateTimeField(),
-                        InfoBoxNoColor(
-                          label: "FBR",
-                          value: 'Services Department ',
-                        ),
-                        SizedBox(
-                          width: 220,
-                          // child: CustomDropdownWithRightAdd(
-                          //   label: "Services Status ",
-                          //   value: selectedService,
-                          //   items: serviceOptions,
-                          //   onChanged: (val) => selectedService = val,
-                          //   onAddPressed: () {
-                          //     showInstituteManagementDialog2(context);
-                          //   },
-                          // ),
-                        ),
-                        SizedBox(
-                          width: 220,
-                          // child: CustomDropdownWithRightAdd(
-                          //   label: "Local Status ",
-                          //   value: selectedService,
-                          //   items: serviceOptions,
-                          //   onChanged: (val) => selectedService = val,
-                          //   onAddPressed: () {
-                          //     showInstituteManagementDialog2(context);
-                          //   },
-                          // ),
-                        ),
-                        SizedBox(
-                          width: 220,
-                          // child: CustomDropdownWithRightAdd(
-                          //   label: "Tracking Status ",
-                          //   value: selectedService,
-                          //   items: serviceOptions,
-                          //   onChanged: (val) => selectedService = val,
-                          //   onAddPressed: () {
-                          //     showInstituteManagementDialog2(context);
-                          //   },
-                          // ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5.0),
-                          child: TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              'Add more',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        SizedBox(
-                          width: 195,
-                          child: CustomTextField(
-                            label: "Application I’D-1",
-                            hintText: "",
-                            controller: _applicationController,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 195,
-                          child: CustomTextField(
-                            label: "Application I’D-2 ",
-                            hintText: "",
-                            controller: _applicationController,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 195,
-                          child: CustomTextField(
-                            label: "Application I’D-3",
-                            hintText: "",
-                            controller: _applicationController,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 195,
-                          child: CustomTextField(
-                            label: "Application I’D-4",
-                            hintText: "",
-                            controller: _applicationController,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5.0),
-                          child: TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              'Add more',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        InfoBoxNoColor(value: "Step Cost", label: "500"),
-                        CustomTextField(
-                          label: "Additional Profit",
-                          hintText: "50",
-                          controller: _additionalProfit,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        InfoBox(
-                          label: "500",
-                          value: "Total Received Funds",
-                          color: Colors.blue.shade200, // light blue fill
-                        ),
-                        InfoBox(
-                          label: "300",
-                          value: "Pending Funds",
-                          color: Colors.blue.shade200, // light blue fill
-                          // light blue fill
-                        ),
-                        InfoBox(
-                          value: "Project Cost",
-                          label: "400",
-                          color: Colors.blue.shade200, // light blue fill
-                        ),
-                        InfoBox(
-                          value: "Received Funds",
-                          label: "300",
-                          color: Colors.blue.shade200, // light blue fill
-                        ),
-                        InfoBox(
-                          value: "Record Payment I’D ",
-                          label: "xxxxxxxxx",
-                          color: Colors.yellow.shade100,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    // Action Buttons
-                    Row(
-                      children: [
-                        CustomButton(
-                          text: "Close Project",
-                          backgroundColor: Colors.red,
-                          icon: Icons.lock_open_outlined,
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 10),
-                        CustomButton(
-                          text: "Editing",
-                          backgroundColor: Colors.blue,
-                          icon: Icons.lock_open,
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 10),
-                        CustomButton(
-                          text: "Next Step",
-                          backgroundColor: Colors.blue.shade200,
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 10),
-                        CustomButton(
-                          text: "Submit",
-                          backgroundColor: Colors.green,
-                          onPressed: () {},
-                        ),
-                        const Spacer(), // Pushes the icon to the right
-                        Material(
-                          elevation: 8,
-                          color: Colors.blue,
-                          shape: const CircleBorder(),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(shape: BoxShape.circle),
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.print,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Printed"),
-                                    duration: Duration(seconds: 2),
-                                    backgroundColor: Colors.black87,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
                                 );
-                                // Handle print action
+
+                                if (shouldClose == true) {
+                                  Navigator.of(context).pop();
+                                }
                               },
                             ),
-                          ),
+                          ],
                         ),
+                        const SizedBox(height: 20),
+
+                        // Success banner (independent of list)
+                        if (projectStageProvider.successMessage != null)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              border: Border.all(color: Colors.green),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.green),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    projectStageProvider.successMessage!,
+                                    style: const TextStyle(color: Colors.green),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.green),
+                                  onPressed: () => projectStageProvider.clearMessages(),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Error banner (independent of list)
+                        if (projectStageProvider.errorMessage != null)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              border: Border.all(color: Colors.red),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.error_outline, color: Colors.red),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    projectStageProvider.errorMessage!,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.red),
+                                  onPressed: () => projectStageProvider.clearMessages(),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // CONTENT AREA
+                        if (projectStageProvider.isLoading)
+                          SizedBox(
+                            height: 100,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 16),
+                                  Text('Loading project stages...'),
+                                ],
+                              ),
+                            ),
+                          )
+                        else if (projectStageProvider.projectStages.isNotEmpty)
+                          ...projectStageProvider.projectStages.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final stage = entry.value;
+                            final isLastStage = projectStageProvider.isLastStage(stage['project_stage_ref_id']);
+                            final isStageEnded = projectStageProvider.isStageEnded(stage);
+
+                            return _buildStageCard(
+                              context,
+                              stage,
+                              index + 1,
+                              isLastStage,
+                              isStageEnded,
+                              projectStageProvider,
+                            );
+                          }).toList()
+                        else
+                          SizedBox(
+                            height: 200,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.assignment_outlined, size: 64, color: Colors.grey.shade400),
+                                  const SizedBox(height: 16),
+                                  Text('No project stages available',
+                                      style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
+                                  const SizedBox(height: 8),
+                                  Text('Add the first stage to get started',
+                                      style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                                ],
+                              ),
+                            ),
+                          ),
                       ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -988,5 +931,518 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         );
       },
     );
+  }
+
+  /// Build individual stage card
+  Widget _buildStageCard(
+    BuildContext context,
+    Map<String, dynamic> stage,
+    int stageNumber,
+    bool isLastStage,
+    bool isStageEnded,
+    ProjectStageProvider provider,
+  ) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+        color: isStageEnded ? Colors.grey.shade50 : Colors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Stage Header
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isStageEnded ? Colors.grey : Colors.red,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  "Stage $stageNumber",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
+              Text(
+                "SID: ${stage['project_stage_ref_id'] ?? 'N/A'}",
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+              Spacer(),
+              if (!isStageEnded)
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, size: 18, color: Colors.blue),
+                      onPressed: () => _showEditStageDialog(context, stage),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete, size: 18, color: Colors.red),
+                      onPressed: () => _deleteStage(context, stage, provider),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          SizedBox(height: 16),
+
+          // Stage Content
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _buildDateTimeField(),
+              _buildDateTimeField(),
+              InfoBoxNoColor(
+                label: stage['service_department'] ?? 'N/A',
+                value: 'Services Department',
+              ),
+              SizedBox(width: 220), // Placeholder for status dropdowns
+              SizedBox(width: 220),
+              SizedBox(width: 220),
+            ],
+          ),
+          SizedBox(height: 10),
+
+          // Application IDs
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              if (stage['application_ids'] != null && stage['application_ids'] is List)
+                ...(stage['application_ids'] as List).asMap().entries.map((entry) {
+                  final appIndex = entry.key;
+                  final appId = entry.value.toString();
+                  return SizedBox(
+                    width: 195,
+                    child: CustomTextField(
+                      label: "Application ID-${appIndex + 1}",
+                      hintText: appId,
+                      controller: TextEditingController(text: appId),
+                      enabled: !isStageEnded,
+                    ),
+                  );
+                }).toList(),
+              if (!isStageEnded)
+                Padding(
+                  padding: const EdgeInsets.only(top: 5.0),
+                  child: TextButton(
+                    onPressed: () => _showAddApplicationDialog(context, stage, provider),
+                    child: Text(
+                      'Add more',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: 10),
+
+          // Cost and Profit
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              InfoBoxNoColor(
+                value: "Step Cost",
+                label: stage['step_cost'] ?? "0",
+              ),
+              CustomTextField(
+                label: "Additional Profit",
+                hintText: stage['additional_profit'] ?? "0",
+                controller: TextEditingController(text: stage['additional_profit'] ?? "0"),
+                enabled: !isStageEnded,
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+
+          // Summary Info Boxes
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              InfoBox(
+                label: stage['step_cost'] ?? "0",
+                value: "Total Step Cost",
+                color: Colors.blue.shade200,
+              ),
+              InfoBox(
+                label: stage['additional_profit'] ?? "0",
+                value: "Additional Profit",
+                color: Colors.blue.shade200,
+              ),
+              InfoBox(
+                value: "Stage Status",
+                label: isStageEnded ? "Completed" : "In Progress",
+                color: isStageEnded ? Colors.green.shade200 : Colors.orange.shade200,
+              ),
+              InfoBox(
+                value: "End Date",
+                label: stage['end_at'] ?? "Not Ended",
+                color: Colors.yellow.shade100,
+              ),
+            ],
+          ),
+
+          // Action Buttons (show on any stage that is not ended)
+          if (!isStageEnded) ...[
+            SizedBox(height: 20),
+            Row(
+              children: [
+                // Show End Stage button for any non-ended stage
+                CustomButton(
+                  text: "End Stage",
+                  backgroundColor: Colors.red,
+                  icon: Icons.lock_open_outlined,
+                  onPressed: () => _endStage(context, stage, provider),
+                ),
+                const SizedBox(width: 10),
+                
+                // Show Edit Stage button for any non-ended stage
+                CustomButton(
+                  text: "Edit Stage",
+                  backgroundColor: Colors.blue,
+                  icon: Icons.lock_open,
+                  onPressed: () => _showEditStageDialog(context, stage),
+                ),
+                const SizedBox(width: 10),
+                
+                // Show Add Next Stage button only on last stage
+                if (isLastStage)
+                  CustomButton(
+                    text: "Add Next Stage",
+                    backgroundColor: Colors.green,
+                    onPressed: () => _showAddStageDialog(context),
+                  ),
+                if (isLastStage) const SizedBox(width: 10),
+                
+                const Spacer(),
+                Material(
+                  elevation: 8,
+                  color: Colors.blue,
+                  shape: const CircleBorder(),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(shape: BoxShape.circle),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.print,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Stage printed"),
+                            duration: Duration(seconds: 2),
+                            backgroundColor: Colors.black87,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Show add stage dialog
+  void _showAddStageDialog(BuildContext context) {
+    final serviceDepartmentController = TextEditingController();
+    final stepCostController = TextEditingController();
+    final additionalProfitController = TextEditingController();
+    final applicationIdsController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text("Add New Stage"),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomTextField(
+                label: "Service Department",
+                controller: serviceDepartmentController,
+                hintText: "e.g., Installation, Testing",
+              ),
+              SizedBox(height: 16),
+              CustomTextField(
+                label: "Step Cost",
+                controller: stepCostController,
+                hintText: "5000.00",
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 16),
+              CustomTextField(
+                label: "Additional Profit",
+                controller: additionalProfitController,
+                hintText: "1200.00",
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 16),
+              CustomTextField(
+                label: "Application IDs (comma separated)",
+                controller: applicationIdsController,
+                hintText: "APP-1, APP-2, APP-3",
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          CustomButton(
+            text: "Add Stage",
+            backgroundColor: Colors.green,
+            onPressed: () async {
+              if (serviceDepartmentController.text.trim().isEmpty ||
+                  stepCostController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Please fill required fields")),
+                );
+                return;
+              }
+
+              final applicationIds = applicationIdsController.text
+                  .split(',')
+                  .map((id) => id.trim())
+                  .where((id) => id.isNotEmpty)
+                  .toList();
+
+              final provider = context.read<ProjectStageProvider>();
+              await provider.addProjectStage(
+                projectRefId: widget.projectData!['project_ref_id'],
+                serviceDepartment: serviceDepartmentController.text.trim(),
+                applicationIds: applicationIds,
+                stepCost: stepCostController.text.trim(),
+                additionalProfit: additionalProfitController.text.trim().isEmpty
+                    ? null
+                    : additionalProfitController.text.trim(),
+              );
+
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show edit stage dialog
+  void _showEditStageDialog(BuildContext context, Map<String, dynamic> stage) {
+    final stepCostController = TextEditingController(text: stage['step_cost'] ?? '');
+    final additionalProfitController = TextEditingController(text: stage['additional_profit'] ?? '');
+    final applicationIdsController = TextEditingController(
+      text: stage['application_ids'] != null
+          ? (stage['application_ids'] as List).join(', ')
+          : '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text("Edit Stage"),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InfoBoxNoColor(
+                label: stage['service_department'] ?? 'N/A',
+                value: 'Service Department (Read Only)',
+              ),
+              SizedBox(height: 16),
+              CustomTextField(
+                label: "Step Cost",
+                controller: stepCostController,
+                hintText: "5000.00",
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 16),
+              CustomTextField(
+                label: "Additional Profit",
+                controller: additionalProfitController,
+                hintText: "1200.00",
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 16),
+              CustomTextField(
+                label: "Application IDs (comma separated)",
+                controller: applicationIdsController,
+                hintText: "APP-1, APP-2, APP-3",
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          CustomButton(
+            text: "Update Stage",
+            backgroundColor: Colors.blue,
+            onPressed: () async {
+              final applicationIds = applicationIdsController.text
+                  .split(',')
+                  .map((id) => id.trim())
+                  .where((id) => id.isNotEmpty)
+                  .toList();
+
+              final provider = context.read<ProjectStageProvider>();
+              await provider.updateProjectStage(
+                projectStageRefId: stage['project_stage_ref_id'],
+                stepCost: stepCostController.text.trim().isEmpty
+                    ? null
+                    : stepCostController.text.trim(),
+                additionalProfit: additionalProfitController.text.trim().isEmpty
+                    ? null
+                    : additionalProfitController.text.trim(),
+                applicationIds: applicationIds.isEmpty ? null : applicationIds,
+              );
+
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show add application dialog
+  void _showAddApplicationDialog(BuildContext context, Map<String, dynamic> stage, ProjectStageProvider provider) {
+    final applicationIdController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text("Add Application ID"),
+        content: SizedBox(
+          width: 300,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomTextField(
+                label: "Application ID",
+                controller: applicationIdController,
+                hintText: "APP-4",
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          CustomButton(
+            text: "Add",
+            backgroundColor: Colors.green,
+            onPressed: () async {
+              if (applicationIdController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Please enter application ID")),
+                );
+                return;
+              }
+
+              final currentIds = List<String>.from(stage['application_ids'] ?? []);
+              currentIds.add(applicationIdController.text.trim());
+
+              await provider.updateProjectStage(
+                projectStageRefId: stage['project_stage_ref_id'],
+                applicationIds: currentIds,
+              );
+
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// End stage
+  void _endStage(BuildContext context, Map<String, dynamic> stage, ProjectStageProvider provider) async {
+    final shouldEnd = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text("End Stage?"),
+        content: Text("Are you sure you want to end this stage? This action cannot be undone."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("End Stage", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldEnd == true) {
+      final endTime = DateTime.now().toIso8601String().replaceAll('T', ' ').substring(0, 19);
+      await provider.updateProjectStage(
+        projectStageRefId: stage['project_stage_ref_id'],
+        endAt: endTime,
+      );
+    }
+  }
+
+  /// Delete stage
+  void _deleteStage(BuildContext context, Map<String, dynamic> stage, ProjectStageProvider provider) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text("Delete Stage?"),
+        content: Text("Are you sure you want to delete this stage? This action cannot be undone."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      await provider.deleteProjectStage(
+        projectStageRefId: stage['project_stage_ref_id'],
+      );
+    }
   }
 }

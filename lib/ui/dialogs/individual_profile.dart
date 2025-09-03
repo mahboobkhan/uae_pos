@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../providers/client_profile_provider.dart';
 
 import 'calender.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
-void showIndividualProfileDialog(BuildContext context) {
+Future<void> showIndividualProfileDialog(BuildContext context, {Map<String, dynamic>? clientData}) async {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -13,16 +15,18 @@ void showIndividualProfileDialog(BuildContext context) {
       return Dialog(
         backgroundColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        child: IndividualProfileDialog(),
+        child: IndividualProfileDialog(clientData: clientData),
       );
     },
   );
 }
 
 class IndividualProfileDialog extends StatefulWidget {
+  final Map<String, dynamic>? clientData;
+  const IndividualProfileDialog({super.key, this.clientData});
+
   @override
-  State<IndividualProfileDialog> createState() =>
-      _IndividualProfileDialogState();
+  State<IndividualProfileDialog> createState() => _IndividualProfileDialogState();
 }
 
 class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
@@ -83,6 +87,24 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? selectedJobType2;
+
+  @override
+  void initState() {
+    super.initState();
+    final data = widget.clientData;
+    if (data != null) {
+      clientNameController.text = (data['name'] ?? '').toString();
+      emailId.text = (data['email'] ?? '').toString();
+      contactNumber.text = (data['phone1'] ?? '').toString();
+      contactNumber2.text = (data['phone2'] ?? '').toString();
+      _physicalAddressController.text = (data['physical_address'] ?? '').toString();
+      _noteController.text = (data['extra_note'] ?? '').toString();
+      channelNameController.text = (data['echannel_name'] ?? '').toString();
+      channelLoginController.text = (data['echannel_id'] ?? '').toString();
+      channelPasswordController.text = (data['echannel_password'] ?? '').toString();
+      selectedJobType3 = (data['client_work'] ?? 'Regular').toString();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -354,7 +376,52 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                       CustomButton(
                         text: "Submit",
                         backgroundColor: Colors.green,
-                        onPressed: () {},
+                        onPressed: () async {
+                          final provider = context.read<ClientProfileProvider>();
+                          final isEdit = widget.clientData != null && (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
+
+                          if (isEdit) {
+                            await provider.updateClient(
+                              clientRefId: widget.clientData!['client_ref_id'].toString(),
+                              name: clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : null,
+                              email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : null,
+                              phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : null,
+                              phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
+                              clientType: 'individual',
+                              clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
+                              physicalAddress: _physicalAddressController.text.trim().isNotEmpty ? _physicalAddressController.text.trim() : null,
+                              echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                              echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                              echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
+                              extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+                            );
+                          } else {
+                            await provider.addClient(
+                              name: clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : 'N/A',
+                              clientType: 'individual',
+                              clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
+                              email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : 'no-email@example.com',
+                              phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : '+000000000',
+                              phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
+                              physicalAddress: _physicalAddressController.text.trim().isNotEmpty ? _physicalAddressController.text.trim() : null,
+                              echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                              echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                              echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
+                              extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+                            );
+                          }
+
+                          if (provider.errorMessage == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'))),
+                            );
+                            Navigator.of(context).pop();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),

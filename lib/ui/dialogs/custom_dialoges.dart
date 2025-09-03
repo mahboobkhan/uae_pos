@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../employee/employee_models.dart';
+import '../../providers/short_services_provider.dart';
 import 'custom_fields.dart';
 
 
@@ -17,12 +18,6 @@ void showShortServicesPopup(BuildContext context) {
       String serviceName = '';
       String? selectedInstitute;
       String cost = '';
-
-      final List<String> instituteOptions = [
-        'Institute A',
-        'Institute B',
-        'Institute C',
-      ];
 
       return AlertDialog(
         backgroundColor: Colors.white,
@@ -126,21 +121,25 @@ void showServicesProjectPopup(BuildContext context) {
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      String customer = '';
-      String? selectedService;
-      String charges = '';
+      String clientName = '';
+      String? selectedServiceCategory;
+      String cost = '';
+      String managerName = '';
 
       final List<String> serviceOptions = [
         'Cleaning',
         'Consulting',
         'Repairing',
+        'Printing',
+        'Maintenance',
+        'Installation',
       ];
 
       return AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         content: SizedBox(
-          width: 340,
+          width: 400,
           child: Stack(
             children: [
               Padding(
@@ -150,63 +149,118 @@ void showServicesProjectPopup(BuildContext context) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      "SHORT SERVICES",
+                      "ADD SHORT SERVICE",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
-                    const Text(
-                      "SID-01100011",
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
                     const SizedBox(height: 20),
                     CustomTextField1(
-                      label: 'CUSTOMER',
-                      onChanged: (val) => customer = val,
+                      label: 'CLIENT NAME',
+                      onChanged: (val) => clientName = val,
                     ),
                     const SizedBox(height: 12),
 
-                    // CustomDropdownWithRightAdd(
-                    //   label: 'SERVICES',
-                    //   value: selectedService,
-                    //   items: serviceOptions,
-                    //   onChanged: (val) => selectedService = val,
-                    //   onAddPressed: () {
-                    //     showInstituteManagementDialog1(context);
-                    //   },
-                    // ),
+                    CustomDropdownWithRightAdd(
+                      label: 'SERVICE CATEGORY',
+                      value: selectedServiceCategory,
+                      items: serviceOptions,
+                      onChanged: (val) => selectedServiceCategory = val,
+                      onAddPressed: () {
+                        // TODO: Show service category management dialog
+                        print('Add new service category');
+                      },
+                    ),
                     const SizedBox(height: 12),
 
                     CustomTextField1(
-                      label: 'CHARGES',
+                      label: 'Cost (AED)',
                       keyboardType: TextInputType.number,
-                      onChanged: (val) => charges = val,
+                      onChanged: (val) => cost = val,
+                    ),
+                    const SizedBox(height: 12),
+
+                    CustomTextField1(
+                      label: 'MANAGER NAME',
+                      onChanged: (val) => managerName = val,
                     ),
                     const SizedBox(height: 20),
 
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 10,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
+                          onPressed: () async {
+                            if (clientName.isNotEmpty && 
+                                selectedServiceCategory != null &&
+                                cost.isNotEmpty &&
+                                managerName.isNotEmpty) {
+                              
+                              try {
+                                final provider = context.read<ShortServicesProvider>();
+                                await provider.addShortService(
+                                  clientName: clientName,
+                                  serviceCategoryName: selectedServiceCategory!,
+                                  cost: cost,
+                                  managerName: managerName,
+                                );
+                                
+                                if (provider.errorMessage == null) {
+                                  Navigator.of(context).pop();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(provider.successMessage ?? 'Service added successfully'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(provider.errorMessage!),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please fill all fields'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text(
+                            'Submit',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text(
-                          'Submit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),

@@ -58,7 +58,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
         readOnly: widget.readOnly,
         maxLength: widget.maxLength,
         keyboardType: widget.keyboardType,
-        inputFormatters: widget.inputFormatters,
+        inputFormatters: [
+          if (widget.keyboardType == TextInputType.number) FilteringTextInputFormatter.digitsOnly
+        ] ,
         obscureText: widget.isPassword ? _obscureText : false,
         decoration: InputDecoration(
           labelText: widget.label,
@@ -223,7 +225,7 @@ class CustomDropdownWithSearch extends StatelessWidget {
 class CustomDropdownWithRightAdd extends StatelessWidget {
   final String label;
   final String? value;
-  final List<Designation> items;
+  final List<String> items;
   final ValueChanged<String?> onChanged;
   final VoidCallback onAddPressed;
   final double? width;
@@ -257,7 +259,7 @@ class CustomDropdownWithRightAdd extends StatelessWidget {
                     ? CustomDropdown.search(
                       hintText: label,
                       initialItem: value,
-                      items: items.map((e) => e.designations).toList(),
+                      items: items.map((e) => e).toList(),
                       closedHeaderPadding: const EdgeInsets.symmetric(
                         horizontal: 5,
                         vertical: 11.8,
@@ -282,7 +284,7 @@ class CustomDropdownWithRightAdd extends StatelessWidget {
                     : CustomDropdown<String>(
                       hintText: label,
                       initialItem: value,
-                      items: items.map((e) => e.designations).toList(),
+                      items: items.map((e) => e).toList(),
                       closedHeaderPadding: const EdgeInsets.symmetric(
                         horizontal: 5,
                         vertical: 11.8,
@@ -331,6 +333,7 @@ class CustomTextField1 extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final TextInputType keyboardType;
   final double? width;
+  final String? text;
 
   const CustomTextField1({
     super.key,
@@ -338,6 +341,7 @@ class CustomTextField1 extends StatelessWidget {
     required this.onChanged,
     this.keyboardType = TextInputType.text,
     this.width,
+    this.text = '',
   });
 
   @override
@@ -361,7 +365,11 @@ class CustomTextField1 extends StatelessWidget {
             vertical: 14,
           ),
         ),
+        controller: TextEditingController(text: text),
         keyboardType: keyboardType,
+        inputFormatters: [
+          if (keyboardType == TextInputType.number) FilteringTextInputFormatter.digitsOnly
+        ],
         style: const TextStyle(fontSize: 16, color: Colors.black),
         onChanged: onChanged,
       ),

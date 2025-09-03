@@ -2,6 +2,8 @@ import 'package:abc_consultant/widgets/half_color_border.dart';
 import 'package:abc_consultant/widgets/issue_date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/client_profile_provider.dart';
 
 class AddCompanyProfile extends StatefulWidget {
   const AddCompanyProfile({super.key});
@@ -26,6 +28,20 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
     "Other Records",
   ];
   final List<String> partnerPositionDropDown = ["Dropdown", "Save"];
+
+  // API fields
+  String? _name;
+  String? _tradeLicenseNo;
+  String? _companyCode;
+  String? _establishmentNo;
+  String? _email;
+  String? _phone1;
+  String? _phone2;
+  String? _physicalAddress;
+  String? _extraNote;
+  String? _echannelName;
+  String? _echannelId;
+  String? _echannelPassword;
 
   Future<void> _selectDateTime() async {
     final DateTime? picked = await showDatePicker(
@@ -215,6 +231,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _name = v.trim(),
                           ),
                         ),
                       ],
@@ -252,6 +269,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _tradeLicenseNo = v.trim(),
                           ),
                         ),
                       ],
@@ -289,6 +307,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _companyCode = v.trim(),
                           ),
                         ),
                       ],
@@ -326,6 +345,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _establishmentNo = v.trim(),
                           ),
                         ),
                       ],
@@ -363,6 +383,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _extraNote = v.trim(),
                           ),
                         ),
                       ],
@@ -408,6 +429,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _email = v.trim(),
                           ),
                         ),
                       ],
@@ -445,6 +467,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _phone1 = v.trim(),
                           ),
                         ),
                       ],
@@ -482,6 +505,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _phone2 = v.trim(),
                           ),
                         ),
                       ],
@@ -521,6 +545,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _physicalAddress = v.trim(),
                           ),
                         ),
                       ],
@@ -568,6 +593,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _echannelName = v.trim(),
                           ),
                         ),
                       ],
@@ -607,6 +633,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               border: InputBorder.none,
                               fillColor: Colors.transparent,
                             ),
+                            onChanged: (v) => _echannelId = v.trim(),
                           ),
                         ),
                       ],
@@ -645,6 +672,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (v) => _echannelPassword = v.trim(),
                           ),
                         ),
                       ],
@@ -1357,8 +1385,35 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                     SizedBox(width: width * 0.04),
                     MaterialButton(
                       minWidth: width * 0.09,
-                      onPressed: () {
-                        Navigator.pop(context);
+                      onPressed: () async {
+                        final provider = context.read<ClientProfileProvider>();
+                        await provider.addClient(
+                          name: _name?.trim().isNotEmpty == true ? _name!.trim() : 'N/A',
+                          clientType: 'organization',
+                          clientWork: (companyDropDownType ?? 'Regular').toLowerCase(),
+                          email: _email?.trim().isNotEmpty == true ? _email!.trim() : 'no-email@example.com',
+                          phone1: _phone1?.trim().isNotEmpty == true ? _phone1!.trim() : '+000000000',
+                          phone2: _phone2?.trim().isNotEmpty == true ? _phone2!.trim() : null,
+                          tags: null,
+                          tradeLicenseNo: _tradeLicenseNo,
+                          companyCode: _companyCode,
+                          establishmentNo: _establishmentNo,
+                          physicalAddress: _physicalAddress,
+                          echannelName: _echannelName,
+                          echannelId: _echannelId,
+                          echannelPassword: _echannelPassword,
+                          extraNote: _extraNote,
+                        );
+                        if (provider.errorMessage == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(provider.successMessage ?? 'Client created')),
+                          );
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
+                          );
+                        }
                       },
                       color: Colors.blue.shade900,
                       child: Text(

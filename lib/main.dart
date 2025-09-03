@@ -1,4 +1,5 @@
 import 'package:abc_consultant/expense/expense_create_provider.dart';
+import 'package:abc_consultant/providers/client_profile_provider.dart';
 import 'package:abc_consultant/providers/create_bank_account.dart';
 import 'package:abc_consultant/providers/create_bank_provider.dart';
 import 'package:abc_consultant/providers/create_employee_type_provider.dart';
@@ -11,6 +12,10 @@ import 'package:abc_consultant/providers/delete_bank_account.dart';
 import 'package:abc_consultant/providers/desigination_provider.dart';
 import 'package:abc_consultant/providers/designation_delete_provider.dart';
 import 'package:abc_consultant/providers/designation_list_provider.dart';
+import 'package:abc_consultant/providers/project_stage_provider.dart';
+import 'package:abc_consultant/providers/projects_provider.dart';
+import 'package:abc_consultant/providers/service_category_provider.dart';
+import 'package:abc_consultant/providers/short_services_provider.dart';
 import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:abc_consultant/providers/update_ban_account_provider.dart';
 import 'package:abc_consultant/providers/update_designation.dart';
@@ -59,6 +64,12 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ExpensesProvider()),
         ChangeNotifierProvider(create: (_) => UpdateExpenseProvider()),
         ChangeNotifierProvider(create: (_) => DeleteExpenseProvider()),
+        ChangeNotifierProvider(create: (_) => ServiceCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => ShortServicesProvider()),
+        ChangeNotifierProvider(create: (_) => ProjectsProvider()),
+        ChangeNotifierProvider(create: (_) => ProjectStageProvider()),
+        ChangeNotifierProvider(create: (_) => ClientProfileProvider()),
+
       ],
 
       child: const MyApp(),
