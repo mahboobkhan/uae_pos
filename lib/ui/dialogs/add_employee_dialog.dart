@@ -1,0 +1,277 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/client_organization_employee_provider.dart';
+import 'custom_dialoges.dart';
+import 'custom_fields.dart';
+
+Future<void> showAddEmployeeDialog(BuildContext context, {required String clientRefId, Map<String, dynamic>? employeeData}) async {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder:
+        (context) => Dialog(
+          backgroundColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: AddEmployeeDialog(clientRefId: clientRefId, employeeData: employeeData),
+        ),
+  );
+}
+
+class AddEmployeeDialog extends StatefulWidget {
+  final String clientRefId;
+  final Map<String, dynamic>? employeeData;
+
+  const AddEmployeeDialog({super.key, required this.clientRefId, this.employeeData});
+
+  @override
+  State<AddEmployeeDialog> createState() => _AddEmployeeDialogState();
+}
+
+class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emirateIdController = TextEditingController();
+  final TextEditingController _workPermitController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _contactController = TextEditingController();
+
+  String? _selectedType;
+  final List<String> _employeeTypes = ['Employee', 'Partner', 'Other'];
+
+  @override
+  void initState() {
+    super.initState();
+    // Prefill data if editing
+    if (widget.employeeData != null) {
+      _nameController.text = (widget.employeeData!['name'] ?? '').toString();
+      _emirateIdController.text = (widget.employeeData!['emirate_id'] ?? '').toString();
+      _workPermitController.text = (widget.employeeData!['work_permit_no'] ?? '').toString();
+      _emailController.text = (widget.employeeData!['email'] ?? '').toString();
+      _contactController.text = (widget.employeeData!['contact_no'] ?? '').toString();
+      _selectedType = (widget.employeeData!['type'] ?? '').toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emirateIdController.dispose();
+    _workPermitController.dispose();
+    _emailController.dispose();
+    _contactController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEdit = widget.employeeData != null;
+
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: SizedBox(
+        width: 600,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    isEdit ? 'Edit Employee' : 'Add Employee',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.red),
+                    onPressed: () async {
+                      final shouldClose = await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              backgroundColor: Colors.white,
+                              title: const Text("Are you sure?"),
+                              content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: const Text("Keep Changes", style: TextStyle(color: Colors.blue)),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  child: const Text("Close", style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                      );
+
+                      if (shouldClose == true) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Form Fields
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomDropdownField(
+                    label: "Employee Type",
+                    options: _employeeTypes,
+                    selectedValue: _selectedType,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedType = value;
+                      });
+                    },
+                  ),
+                  CustomTextField(label: "Name", controller: _nameController, hintText: "Enter employee name"),
+                  CustomTextField(label: "Emirates ID", controller: _emirateIdController, hintText: "784-XXXX-XXXXXXX-X"),
+                  CustomTextField(label: "Work Permit No", controller: _workPermitController, hintText: "WP-998877"),
+                  CustomTextField(label: "Email", controller: _emailController, hintText: "john@example.com"),
+                  CustomTextField(label: "Contact No", controller: _contactController, hintText: "+971501234567"),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Error/Success Messages
+              Consumer<ClientOrganizationEmployeeProvider>(
+                builder: (context, provider, child) {
+                  if (provider.errorMessage != null) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        border: Border.all(color: Colors.red),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, color: Colors.red),
+                          SizedBox(width: 8),
+                          Expanded(child: Text(provider.errorMessage!, style: TextStyle(color: Colors.red))),
+                          IconButton(onPressed: () => provider.clearMessages(), icon: Icon(Icons.close, color: Colors.red)),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (provider.successMessage != null) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        border: Border.all(color: Colors.green),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green),
+                          SizedBox(width: 8),
+                          Expanded(child: Text(provider.successMessage!, style: TextStyle(color: Colors.green))),
+                          IconButton(onPressed: () => provider.clearMessages(), icon: Icon(Icons.close, color: Colors.green)),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
+
+              // Action Buttons
+              Row(
+                children: [
+                  CustomButton(text: "Cancel", backgroundColor: Colors.grey, onPressed: () => Navigator.of(context).pop()),
+                  const SizedBox(width: 10),
+                  Consumer<ClientOrganizationEmployeeProvider>(
+                    builder: (context, provider, child) {
+                      return CustomButton(
+                        text: isEdit ? "Update" : "Add Employee",
+                        backgroundColor: Colors.green,
+                        onPressed:
+                            provider.isLoading
+                                ?() async  { }
+                                : () async {
+                                  if (_validateForm()) {
+                                    if (isEdit) {
+                                      await provider.updateEmployee(
+                                        employeeRefId: widget.employeeData!['employee_ref_id'],
+                                        type: _selectedType,
+                                        name:_nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null ,
+                                        emirateId: _emirateIdController.text.trim().isNotEmpty ? _emirateIdController.text.trim() : null,
+                                        workPermitNo: _workPermitController.text.trim().isNotEmpty ? _workPermitController.text.trim() : null,
+                                        email: _emailController.text.trim().isNotEmpty ? _emailController.text.trim() : null,
+                                        contactNo: _contactController.text.trim().isNotEmpty ? _contactController.text.trim() : null,
+                                      );
+                                    } else {
+                                      await provider.addEmployee(
+                                        clientRefId: widget.clientRefId,
+                                        type: _selectedType!,
+                                        name:  _nameController.text.trim(),
+                                        emirateId: _emirateIdController.text.trim(),
+                                        workPermitNo: _workPermitController.text.trim(),
+                                        email: _emailController.text.trim(),
+                                        contactNo: _contactController.text.trim(),
+                                      );
+                                    }
+
+                                    if (provider.errorMessage == null) {
+                                      Navigator.of(context).pop();
+                                    }
+                                  }
+                                },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _validateForm() {
+    // if (!isEdit) {
+      if (_selectedType == null || _selectedType!.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select employee type')));
+        return false;
+      }
+    // }
+
+    if (_emirateIdController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter Emirates ID')));
+      return false;
+    }
+
+    if (_workPermitController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter Work Permit Number')));
+      return false;
+    }
+
+    if (_emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter email')));
+      return false;
+    }
+
+    if (_contactController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter contact number')));
+      return false;
+    }
+
+    return true;
+  }
+}

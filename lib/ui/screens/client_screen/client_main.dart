@@ -9,7 +9,9 @@ import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
 import '../../dialogs/individual_profile.dart';
 import '../../dialogs/tags_class.dart';
+import '../../dialogs/employee_list_dialog.dart';
 import '../../../providers/client_profile_provider.dart';
+import '../../../providers/client_organization_employee_provider.dart';
 
 class ClientMain extends StatefulWidget {
   const ClientMain({super.key});
@@ -75,6 +77,12 @@ class _ClientMainState extends State<ClientMain> {
     {'label': 'Delivered', 'value': '150'},
     {'label': 'Complaints', 'value': '5'},
   ];
+
+  bool _isOrganization(String? type) {
+    final t = (type ?? '').toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
+    // handles "Organization", "Organisation", "Company", "Org", etc.
+    return t == 'organization' || t == 'organisation' || t == 'company' || t == 'org';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -393,8 +401,9 @@ class _ClientMainState extends State<ClientMain> {
                                             copyable: true,
                                           ),
                                           TagsCellWidget(initialTags: tagsForWidget.isNotEmpty ? tagsForWidget : currentTags),
-                                          _buildCell((client['phone1'] ?? client['email'] ?? 'N/A').toString()),
-                                          _buildCell('—'),
+                                          _buildCell3(client['phone1']?.toString() ?? 'N/A', client['email']?.toString() ?? 'N/A', copyable: true),
+                                          // _buildCell((client['phone1'] ?? client['email'] ?? 'N/A').toString()),
+                                          _buildCell('—————'),
                                           _buildPriceWithAdd('AED-', '0'),
                                           _buildPriceWithAdd('AED-', '0'),
                                           _buildActionCell(
@@ -426,6 +435,20 @@ class _ClientMainState extends State<ClientMain> {
                                                 }
                                               }
                                             },
+                                            onAddEmployee:
+                                                _isOrganization(client['client_type']?.toString())
+                                                    ? () async {
+                                                      final clientRefId = client['client_ref_id']?.toString() ?? '';
+                                                      final clientName = client['name']?.toString() ?? 'Unknown';
+                                                      if (clientRefId.isNotEmpty) {
+                                                        await showEmployeeListDialog(context, clientRefId: clientRefId, clientName: clientName);
+                                                      } else {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(content: Text('Client reference ID not found'), backgroundColor: Colors.red),
+                                                        );
+                                                      }
+                                                    }
+                                                    : null, // not org -> hide button
                                           ),
                                         ],
                                       );
@@ -531,7 +554,7 @@ class _ClientMainState extends State<ClientMain> {
               if (copyable)
                 GestureDetector(
                   onTap: () {
-                    Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                    Clipboard.setData(ClipboardData(text: text2));
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                   },
                   child: Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.copy, size: 12, color: Colors.blue[700])),
@@ -574,21 +597,17 @@ class _ClientMainState extends State<ClientMain> {
     );
   }
 
-  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onAddEmployee}) {
     return Row(
       children: [
         IconButton(icon: const Icon(Icons.edit, size: 20, color: Colors.blue), tooltip: 'Edit', onPressed: onEdit ?? () {}),
         IconButton(icon: const Icon(Icons.delete, size: 20, color: Colors.red), tooltip: 'Delete', onPressed: onDelete ?? () {}),
-        /*IconButton(
-          icon: Image.asset(
-            'assets/icons/img_3.png',
-            width: 20,
-            height: 20,
-            color: Colors.red,
+        if (onAddEmployee != null)
+          IconButton(
+            icon: Icon(Icons.people, color: Colors.green),
+            tooltip: 'Add Employee',
+            onPressed: onAddEmployee, // no fallback empty closure
           ),
-          tooltip: 'Draft',
-          onPressed: onDraft ?? () {},
-        ),*/
       ],
     );
   }

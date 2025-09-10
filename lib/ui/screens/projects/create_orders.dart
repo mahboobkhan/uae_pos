@@ -411,8 +411,8 @@ class _CreateOrdersState extends State<CreateOrders> {
                                             centerText2: true,
                                           ),
                                           _buildCell3(
-                                            project['client_name'] ?? project['client_id'] ?? 'N/A',
-                                            project['client_id'] ?? 'N/A',
+                                            project['client_id']?['name'] ?? 'N/A',
+                                            project['client_id']?['client_ref_id'] ?? 'N/A',
                                             copyable: true,
                                           ),
                                           TagsCellWidget(initialTags: currentTags),
@@ -597,11 +597,11 @@ class _CreateOrdersState extends State<CreateOrders> {
       children: [
         IconButton(icon: const Icon(Icons.delete, size: 20, color: Colors.red), tooltip: 'Delete', onPressed: onDelete ?? () {}),
         IconButton(icon: const Icon(Icons.edit, size: 20, color: Colors.green), tooltip: 'Edit', onPressed: onEdit ?? () {}),
-        IconButton(
+        /*IconButton(
           icon: Image.asset('assets/icons/img_3.png', width: 20, height: 20, color: Colors.blue),
           tooltip: 'Draft',
           onPressed: onDraft ?? () {},
-        ),
+        ),*/
       ],
     );
   }
@@ -609,12 +609,7 @@ class _CreateOrdersState extends State<CreateOrders> {
   /// Edit project
   void _editProject(BuildContext context, Map<String, dynamic> project) {
     // Navigate to CreateOrderScreen with project data
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CreateOrderScreen(projectData: project),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => CreateOrderScreen(projectData: project)));
   }
 
   /// Delete project
