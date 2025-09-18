@@ -156,6 +156,7 @@ class CustomDropdownWithSearch extends StatelessWidget {
   final ValueChanged<String?> onChanged;
   final double width;
   final double height;
+  final bool enabled;
 
   const CustomDropdownWithSearch({
     super.key,
@@ -165,6 +166,7 @@ class CustomDropdownWithSearch extends StatelessWidget {
     required this.onChanged,
     this.width = 220,
     this.height = 41,
+    this.enabled = true,
   });
 
   @override
@@ -172,9 +174,10 @@ class CustomDropdownWithSearch extends StatelessWidget {
     return SizedBox(
       width: width,
       height: height,
-      child:
-          options.length > 4
-              ? CustomDropdown.search(
+      child: IgnorePointer(
+        ignoring: !enabled,
+        child: options.length > 4
+            ? CustomDropdown.search(
                 hintText: label,
                 items: options,
                 initialItem: selectedValue,
@@ -185,18 +188,18 @@ class CustomDropdownWithSearch extends StatelessWidget {
                 decoration: CustomDropdownDecoration(
                   closedBorder: Border.all(color: Colors.grey),
                   closedBorderRadius: BorderRadius.circular(4),
-                  expandedBorder: Border.all(color: Colors.red, width: 1),
+                  expandedBorder: Border.all(color: Colors.red),
                   expandedBorderRadius: BorderRadius.circular(4),
-                  hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+                  hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
                   listItemStyle: const TextStyle(
                     fontSize: 16,
                     color: Colors.black,
                   ),
                   closedFillColor: Colors.white,
                 ),
-                onChanged: (value) => onChanged(value),
+                onChanged: enabled ? (value) => onChanged(value as String?) : null,
               )
-              : CustomDropdown<String>(
+            : CustomDropdown<String>(
                 hintText: label,
                 items: options,
                 initialItem: selectedValue,
@@ -205,19 +208,20 @@ class CustomDropdownWithSearch extends StatelessWidget {
                   vertical: 11.8,
                 ),
                 decoration: CustomDropdownDecoration(
-                  closedBorder: Border.all(color: Colors.grey),
+                  closedBorder: Border.all(color:Colors.grey),
                   closedBorderRadius: BorderRadius.circular(4),
-                  expandedBorder: Border.all(color: Colors.red, width: 1),
+                  expandedBorder: Border.all(color: Colors.red , width: 1),
                   expandedBorderRadius: BorderRadius.circular(4),
-                  hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+                  hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
                   listItemStyle: const TextStyle(
                     fontSize: 16,
                     color: Colors.black,
                   ),
                   closedFillColor: Colors.white,
                 ),
-                onChanged: (value) => onChanged(value),
+                onChanged: enabled ? (value) => onChanged(value) : null,
               ),
+      ),
     );
   }
 }

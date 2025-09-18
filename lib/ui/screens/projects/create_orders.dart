@@ -59,13 +59,16 @@ class _CreateOrdersState extends State<CreateOrders> {
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
   ];
 
-  final List<String> categories = ['All', 'New', 'In Progress', 'Completed', 'Stop'];
-  String? selectedCategory;
-
-  // Use dynamic lists from API instead of hardcoded values
-  String? selectedCategory1;
-  String? selectedCategory2;
-  String? selectedCategory3;
+  // Filter options
+  final List<String> statusOptions = ['All', 'New', 'In Progress', 'Completed', 'Stop'];
+  final List<String> paymentStatusOptions = ['All', 'Paid', 'Pending'];
+  final List<String> dateOptions = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
+  
+  // Selected filter values
+  String? selectedStatus;
+  String? selectedTags;
+  String? selectedPaymentStatus;
+  String? selectedDateRange;
 
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
@@ -100,6 +103,85 @@ class _CreateOrdersState extends State<CreateOrders> {
     } catch (e) {
       return '00-00';
     }
+  }
+
+  // Apply filters to the projects
+  void _applyFilters() {
+    final projectsProvider = context.read<ProjectsProvider>();
+    
+    // Convert UI filter values to API parameters
+    String? statusFilter;
+    String? serviceCategoryIdFilter;
+    String? startDateFilter;
+    String? endDateFilter;
+    
+    // Status filter
+    if (selectedStatus != null && selectedStatus != 'All') {
+      statusFilter = selectedStatus!.toLowerCase().replaceAll(' ', '-');
+    }
+    
+    // Tags filter (using service category)
+    if (selectedTags != null && selectedTags != 'All') {
+      final serviceCategoryProvider = context.read<ServiceCategoryProvider>();
+      final selectedService = serviceCategoryProvider.serviceCategories.firstWhere(
+        (service) => service['service_name'] == selectedTags,
+        orElse: () => {},
+      );
+      if (selectedService.isNotEmpty) {
+        serviceCategoryIdFilter = selectedService['id']?.toString();
+      }
+    }
+    
+    // Date filter
+    if (selectedDateRange != null && selectedDateRange != 'All') {
+      final now = DateTime.now();
+      switch (selectedDateRange) {
+        case 'Today':
+          startDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          break;
+        case 'Yesterday':
+          final yesterday = now.subtract(Duration(days: 1));
+          startDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
+          break;
+        case 'Last 7 Days':
+          final weekAgo = now.subtract(Duration(days: 7));
+          startDateFilter = DateFormat('yyyy-MM-dd').format(weekAgo);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          break;
+        case 'Last 30 Days':
+          final monthAgo = now.subtract(Duration(days: 30));
+          startDateFilter = DateFormat('yyyy-MM-dd').format(monthAgo);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          break;
+      }
+    }
+    
+    // Apply filters to provider
+    projectsProvider.setFilters(
+      status: statusFilter,
+      serviceCategoryId: serviceCategoryIdFilter,
+      startDate: startDateFilter,
+      endDate: endDateFilter,
+    );
+    
+    // Refresh projects with filters
+    projectsProvider.getAllProjects();
+  }
+
+  // Clear all filters
+  void _clearFilters() {
+    setState(() {
+      selectedStatus = null;
+      selectedTags = null;
+      selectedPaymentStatus = null;
+      selectedDateRange = null;
+    });
+    
+    final projectsProvider = context.read<ProjectsProvider>();
+    projectsProvider.clearFilters();
+    projectsProvider.getAllProjects();
   }
 
   @override
@@ -152,48 +234,46 @@ class _CreateOrdersState extends State<CreateOrders> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
+                              // Status Filter
                               CustomDropdown(
-                                selectedValue: selectedCategory,
+                                selectedValue: selectedStatus,
                                 hintText: "Status",
-                                items: categories,
+                                items: statusOptions,
                                 onChanged: (newValue) {
-                                  setState(() => selectedCategory = newValue!);
+                                  setState(() => selectedStatus = newValue!);
+                                  _applyFilters();
                                 },
                               ),
-                              Consumer<ServiceCategoryProvider>(
+                              // Tags Filter
+                              /*Consumer<ServiceCategoryProvider>(
                                 builder: (context, serviceProvider, child) {
                                   return CustomDropdown(
-                                    selectedValue: selectedCategory1,
+                                    selectedValue: selectedTags,
                                     hintText: "Select Tags",
-                                    items:
-                                        ['All'] +
-                                        serviceProvider.serviceCategories.map((service) => service['service_name'].toString() ?? '').toList(),
+                                    items: ['All'] + serviceProvider.serviceCategories.map((service) => service['service_name'].toString() ?? '').toList(),
                                     onChanged: (newValue) {
-                                      setState(() => selectedCategory1 = newValue!);
+                                      setState(() => selectedTags = newValue!);
+                                      _applyFilters();
                                     },
                                   );
                                 },
-                              ),
-                              Consumer<ServiceCategoryProvider>(
-                                builder: (context, serviceProvider, child) {
-                                  return CustomDropdown(
-                                    selectedValue: selectedCategory2,
-                                    hintText: "Payment Status",
-                                    items:
-                                        ['All', 'Pending', 'Paid'] +
-                                        serviceProvider.serviceCategories
-                                            .map((service) => service['service_provider_name'].toString() ?? '')
-                                            .toList(),
-                                    onChanged: (newValue) {
-                                      setState(() => selectedCategory2 = newValue!);
-                                    },
-                                  );
-                                },
-                              ),
+                              ),*/
+                              // Payment Status Filter
                               CustomDropdown(
-                                selectedValue: selectedCategory3,
+                                selectedValue: selectedPaymentStatus,
+                                hintText: "Payment Status",
+                                items: paymentStatusOptions,
+                                onChanged: (newValue) {
+                                  setState(() => selectedPaymentStatus = newValue!);
+                                  // Note: Payment status filtering would need to be implemented in the backend
+                                  // For now, we'll just update the UI state
+                                },
+                              ),
+                              // Date Filter
+                              CustomDropdown(
+                                selectedValue: selectedDateRange,
                                 hintText: "Dates",
-                                items: ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'],
+                                items: dateOptions,
                                 onChanged: (newValue) async {
                                   if (newValue == 'Custom Range') {
                                     final selectedRange = await showDateRangePickerDialog(context);
@@ -205,11 +285,20 @@ class _CreateOrdersState extends State<CreateOrders> {
                                       final formattedRange = '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
 
                                       setState(() {
-                                        selectedCategory3 = formattedRange;
+                                        selectedDateRange = formattedRange;
                                       });
+                                      
+                                      // Apply custom date range filter
+                                      final projectsProvider = context.read<ProjectsProvider>();
+                                      projectsProvider.setFilters(
+                                        startDate: DateFormat('yyyy-MM-dd').format(start),
+                                        endDate: DateFormat('yyyy-MM-dd').format(end),
+                                      );
+                                      projectsProvider.getAllProjects();
                                     }
                                   } else {
-                                    setState(() => selectedCategory3 = newValue!);
+                                    setState(() => selectedDateRange = newValue!);
+                                    _applyFilters();
                                   }
                                 },
                                 icon: const Icon(Icons.calendar_month, size: 18),
@@ -220,6 +309,28 @@ class _CreateOrdersState extends State<CreateOrders> {
                       ),
                       Row(
                         children: [
+                          // Clear Filters Button
+                          Card(
+                            elevation: 4,
+                            color: Colors.orange,
+                            shape: CircleBorder(),
+                            child: Tooltip(
+                              message: 'Clear Filters',
+                              waitDuration: Duration(milliseconds: 2),
+                              child: GestureDetector(
+                                onTap: () {
+                                  _clearFilters();
+                                },
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                                ),
+                              ),
+                            ),
+                          ),
                           // Refresh Button
                           Card(
                             elevation: 4,
@@ -236,7 +347,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                                 child: Container(
                                   width: 30,
                                   height: 30,
-                                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
                                   decoration: const BoxDecoration(shape: BoxShape.circle),
                                   child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
                                 ),

@@ -103,6 +103,13 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     return service['quotation']?.toString();
   }
 
+  String? _getCategoryForService(String? serviceName) {
+    if (serviceName == null) return null;
+    final provider = context.read<ServiceCategoryProvider>();
+    final service = provider.serviceCategories.firstWhere((service) => service['service_name'] == serviceName, orElse: () => {});
+    return service['ref_id']?.toString();
+  }
+
   // Get service provider for selected service
   String? _getServiceProviderForService(String? serviceName) {
     if (serviceName == null) return null;
@@ -163,7 +170,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
             (_selectedClient?['client_ref_id'] ?? _selectedClient?['client_id'] ?? searchClient) // falls back to name
                 ?.toString(),
         orderType: selectedOrderType,
-        serviceCategoryId: selectedServiceProject,
+        serviceCategoryId: _getCategoryForService(selectedServiceProject),
         userId: sharePref.getString('user_id'),
         status: 'Draft',
         // Default status for new projects

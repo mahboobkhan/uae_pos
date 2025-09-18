@@ -11,6 +11,15 @@ class ProjectsProvider extends ChangeNotifier {
   String? errorMessage;
   String? successMessage;
   List<Map<String, dynamic>> projects = [];
+  
+  // Filter parameters
+  String? statusFilter;
+  String? serviceCategoryIdFilter;
+  String? userIdFilter;
+  String? clientIdFilter;
+  String? stageIdFilter;
+  String? startDateFilter;
+  String? endDateFilter;
 
   /// ✅ Get All Projects
   Future<void> getAllProjects() async {
@@ -18,7 +27,31 @@ class ProjectsProvider extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    final url = Uri.parse("$baseUrl/get_all_projects.php");
+    // Build query parameters for filtering
+    final Map<String, String> queryParams = {};
+    if (statusFilter != null && statusFilter!.isNotEmpty && statusFilter != 'All') {
+      queryParams['status'] = statusFilter!;
+    }
+    if (serviceCategoryIdFilter != null && serviceCategoryIdFilter!.isNotEmpty && serviceCategoryIdFilter != 'All') {
+      queryParams['service_category_id'] = serviceCategoryIdFilter!;
+    }
+    if (userIdFilter != null && userIdFilter!.isNotEmpty && userIdFilter != 'All') {
+      queryParams['user_id'] = userIdFilter!;
+    }
+    if (clientIdFilter != null && clientIdFilter!.isNotEmpty && clientIdFilter != 'All') {
+      queryParams['client_id'] = clientIdFilter!;
+    }
+    if (stageIdFilter != null && stageIdFilter!.isNotEmpty && stageIdFilter != 'All') {
+      queryParams['stage_id'] = stageIdFilter!;
+    }
+    if (startDateFilter != null && startDateFilter!.isNotEmpty) {
+      queryParams['start_date'] = startDateFilter!;
+    }
+    if (endDateFilter != null && endDateFilter!.isNotEmpty) {
+      queryParams['end_date'] = endDateFilter!;
+    }
+
+    final url = Uri.parse("$baseUrl/get_all_projects.php").replace(queryParameters: queryParams);
 
     try {
       if (kDebugMode) {
@@ -257,6 +290,38 @@ class ProjectsProvider extends ChangeNotifier {
     }
 
     isLoading = false;
+    notifyListeners();
+  }
+
+  /// Set filters
+  void setFilters({
+    String? status,
+    String? serviceCategoryId,
+    String? userId,
+    String? clientId,
+    String? stageId,
+    String? startDate,
+    String? endDate,
+  }) {
+    statusFilter = status;
+    serviceCategoryIdFilter = serviceCategoryId;
+    userIdFilter = userId;
+    clientIdFilter = clientId;
+    stageIdFilter = stageId;
+    startDateFilter = startDate;
+    endDateFilter = endDate;
+    notifyListeners();
+  }
+
+  /// Clear all filters
+  void clearFilters() {
+    statusFilter = null;
+    serviceCategoryIdFilter = null;
+    userIdFilter = null;
+    clientIdFilter = null;
+    stageIdFilter = null;
+    startDateFilter = null;
+    endDateFilter = null;
     notifyListeners();
   }
 
