@@ -164,7 +164,7 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
                           ),
                         ),
                       ),
-                      Card(
+                      /*Card(
                         elevation: 8,
                         color: Colors.blue,
                         shape: CircleBorder(),
@@ -199,7 +199,7 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
                                 ),
                               ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),
@@ -294,10 +294,10 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
                                               e.tid,
                                               copyable: true,
                                             ),
-                                            _buildCell(e.expenseAmount),
+                                            _buildCell(e.expenseAmount.toString()),
                                             _buildCell('nil'),
                                             _buildCell(e.paymentStatus),
-                                            _buildCell(e.allocatedAmount),
+                                            _buildCell(e.allocatedAmount.toString()),
                                             _buildCell(e.note),
                                             _buildActionCell(
                                               onDelete: () async {

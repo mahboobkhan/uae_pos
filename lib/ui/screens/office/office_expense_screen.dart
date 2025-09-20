@@ -52,32 +52,13 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
 
   DateTime selectedDateTime = DateTime.now();
 
-
-  final List<String> categories = [
-    'All',
-    'New',
-    'Pending',
-    'Completed',
-    'Stop',
-  ];
+  final List<String> categories = ['All', 'New', 'Pending', 'Completed', 'Stop'];
   String? selectedCategory;
-  final List<String> categories1 = [
-    'No Tags',
-    'Tag 001',
-    'Tag 002',
-    'Sample Tag',
-  ];
+  final List<String> categories1 = ['No Tags', 'Tag 001', 'Tag 002', 'Sample Tag'];
   String? selectedCategory1;
   final List<String> categories2 = ['All', 'Pending', 'Paid'];
   String? selectedCategory2;
-  final List<String> categories3 = [
-    'All',
-    'Toady',
-    'Yesterday',
-    'Last 7 Days',
-    'Last 30 Days',
-    'Custom Range',
-  ];
+  final List<String> categories3 = ['All', 'Toady', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
 
   @override
   Widget build(BuildContext context) {
@@ -107,9 +88,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                         stats.map((stat) {
                           return Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
                               child: Material(
                                 elevation: 12,
                                 borderRadius: BorderRadius.circular(12),
@@ -117,10 +96,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                 shadowColor: Colors.black,
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                                  decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -136,15 +112,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                         ),
                                       ),
                                       const SizedBox(height: 8),
-                                      FittedBox(
-                                        child: Text(
-                                          stat['label'],
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
+                                      FittedBox(child: Text(stat['label'], style: const TextStyle(fontSize: 14, color: Colors.white))),
                                     ],
                                   ),
                                 ),
@@ -168,17 +136,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                       color: Colors.red.shade50,
                       border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(2),
-                      boxShadow:
-                          _isHovering
-                              ? [
-                                BoxShadow(
-                                  color: Colors.blue,
-                                  blurRadius: 4,
-                                  spreadRadius: 0.2,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ]
-                              : [],
+                      boxShadow: _isHovering ? [BoxShadow(color: Colors.blue, blurRadius: 4, spreadRadius: 0.2, offset: const Offset(0, 1))] : [],
                     ),
                     child: Row(
                       children: [
@@ -192,9 +150,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   selectedValue: selectedCategory,
                                   items: categories,
                                   onChanged: (newValue) {
-                                    setState(
-                                      () => selectedCategory = newValue!,
-                                    );
+                                    setState(() => selectedCategory = newValue!);
                                   },
                                 ),
                                 CustomDropdown(
@@ -202,9 +158,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   selectedValue: selectedCategory1,
                                   items: categories1,
                                   onChanged: (newValue) {
-                                    setState(
-                                      () => selectedCategory1 = newValue!,
-                                    );
+                                    setState(() => selectedCategory1 = newValue!);
                                   },
                                 ),
                                 CustomDropdown(
@@ -212,9 +166,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   selectedValue: selectedCategory2,
                                   items: categories2,
                                   onChanged: (newValue) {
-                                    setState(
-                                      () => selectedCategory2 = newValue!,
-                                    );
+                                    setState(() => selectedCategory2 = newValue!);
                                   },
                                 ),
                               ],
@@ -247,17 +199,13 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                               controller: _horizontalController,
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(
-                                  minWidth:
-                                      MediaQuery.of(
-                                        context,
-                                      ).size.width, // dynamic width
+                                  minWidth: MediaQuery.of(context).size.width, // dynamic width
                                 ),
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.vertical,
                                   controller: _verticalController,
                                   child: Table(
-                                    defaultVerticalAlignment:
-                                        TableCellVerticalAlignment.middle,
+                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                     columnWidths: const {
                                       0: FlexColumnWidth(0.8),
                                       1: FlexColumnWidth(1.5),
@@ -271,14 +219,12 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                     children: [
                                       // Header Row
                                       TableRow(
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.shade50,
-                                        ),
+                                        decoration: BoxDecoration(color: Colors.red.shade50),
                                         children: [
                                           _buildHeader("Date"),
-                                          _buildHeader("Expance Type"),
-                                          _buildHeader("Expense Limit"),
-                                          _buildHeader("Expenses"),
+                                          _buildHeader("Name"),
+                                          _buildHeader("Amount"),
+                                          _buildHeader("Type"),
                                           _buildHeader("Note"),
                                           _buildHeader("Tags"),
                                           _buildHeader("Manage"),
@@ -286,121 +232,70 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                         ],
                                       ),
                                       // Sample Data Rows
-                                      ...expensesProvider.expenses
-                                          .asMap()
-                                          .entries
-                                          .map((entry) {
-                                            final index = entry.key;
-                                            final e = entry.value;
-                                            return TableRow(
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    index.isEven
-                                                        ? Colors.grey.shade200
-                                                        : Colors.grey.shade100,
-                                              ),
-                                              children: [
-                                                _buildCell2(e.lastUpdate, ''),
-                                                _buildCell(e.expenseName),
-                                                _buildCell(e.expenseAmount),
-                                                _buildCell(
-                                                  e.expenseType,
-                                                ),
-                                                _buildCell(e.note),
-                                                TagsCellWidget(
-                                                  initialTags: currentTags,
-                                                ),
-                                                _buildCell(e.editBy),
-                                                _buildActionCell(
-                                                  onEdit: () async {
-                                                    final result = await showDialog(
-                                                      context: context,
-                                                      builder:
-                                                          (
-                                                          _,
-                                                          ) => DialogueEditOfficeExpense(
+                                      ...expensesProvider.expenses.asMap().entries.map((entry) {
+                                        final index = entry.key;
+                                        final e = entry.value;
+                                        return TableRow(
+                                          decoration: BoxDecoration(color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100),
+                                          children: [
+                                            _buildCell2(e.updatedAt, ''),
+                                            _buildCell(e.expenseName),
+                                            _buildCell(e.expenseAmount.toString()),
+                                            _buildCell(e.expenseType),
+                                            _buildCell(e.note),
+                                            TagsCellWidget(initialTags: currentTags),
+                                            _buildCell(e.editBy),
+                                            _buildActionCell(
+                                              onEdit: () async {
+                                                final result = await showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (_) => DialogueEditOfficeExpense(
                                                         expenseData: {
                                                           "tid": e.tid,
-                                                          "expense_type":
-                                                          e.expenseType,
-                                                          "expense_name":
-                                                          e.expenseName,
-                                                          "expense_amount":
-                                                          e.expenseAmount,
+                                                          "expense_type": e.expenseType,
+                                                          "expense_name": e.expenseName,
+                                                          "expense_amount": e.expenseAmount,
                                                           "note": e.note,
                                                           "tag": e.tag,
-                                                          "payment_status":
-                                                          e.paymentStatus,                                                          "allocated_amount": e.allocatedAmount, // 👈 ye add karna hai
+                                                          "payment_status": e.paymentStatus,
                                                           "allocated_amount": e.allocatedAmount, // 👈 ye add karna hai
-
+                                                          "allocated_amount": e.allocatedAmount, // 👈 ye add karna hai
                                                         },
                                                       ),
-                                                    );
+                                                );
 
-                                                    if (result == true) {
-                                                      Provider.of<ExpensesProvider>(
-                                                        context,
-                                                        listen: false,
-                                                      ).fetchExpenses();
-                                                    }
-                                                  },
-                                                  onDelete: () async {
+                                                if (result == true) {
+                                                  Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses();
+                                                }
+                                              },
+                                              onDelete: () async {
+                                                final deleteProvider = Provider.of<DeleteExpenseProvider>(context, listen: false);
 
-                                                    final deleteProvider =
-                                                    Provider.of<
-                                                        DeleteExpenseProvider
-                                                    >(context, listen: false);
+                                                final expenseProvider = Provider.of<ExpensesProvider>(context, listen: false);
 
-                                                    final expenseProvider =
-                                                    Provider.of<
-                                                        ExpensesProvider
-                                                    >(context, listen: false);
+                                                // Reset before new delete
+                                                deleteProvider.reset();
 
-                                                    // Reset before new delete
-                                                    deleteProvider.reset();
+                                                await deleteProvider.deleteExpense(e.tid);
 
-                                                    await deleteProvider
-                                                        .deleteExpense(e.tid);
+                                                if (deleteProvider.state == RequestState.success) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text(deleteProvider.response?.message ?? "Expense deleted successfully")),
+                                                  );
 
-                                                    if (deleteProvider.state ==
-                                                        RequestState.success) {
-                                                      ScaffoldMessenger.of(
-                                                        context,
-                                                      ).showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            deleteProvider
-                                                                .response
-                                                                ?.message ??
-                                                                "Expense deleted successfully",
-                                                          ),
-                                                        ),
-                                                      );
-
-                                                      // Refresh list
-                                                      expenseProvider
-                                                          .fetchExpenses();
-                                                    } else if (deleteProvider
-                                                        .state ==
-                                                        RequestState.error) {
-                                                      ScaffoldMessenger.of(
-                                                        context,
-                                                      ).showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            deleteProvider
-                                                                .response
-                                                                ?.message ??
-                                                                "Delete failed",
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          }),
+                                                  // Refresh list
+                                                  expenseProvider.fetchExpenses();
+                                                } else if (deleteProvider.state == RequestState.error) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(SnackBar(content: Text(deleteProvider.response?.message ?? "Delete failed")));
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      }),
                                     ],
                                   ),
                                 ),
@@ -426,25 +321,14 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Icon(Icons.copy, size: 12, color: Colors.blue[700]),
-              ),
+              child: Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.copy, size: 12, color: Colors.blue[700])),
             ),
         ],
       ),
@@ -454,16 +338,8 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
   Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
     return Row(
       children: [
-        IconButton(
-          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
-          tooltip: 'Edit',
-          onPressed: onEdit ?? () {},
-        ),
-        IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-          tooltip: 'Delete',
-          onPressed: onDelete ?? () {},
-        ),
+        IconButton(icon: const Icon(Icons.edit, size: 20, color: Colors.blue), tooltip: 'Edit', onPressed: onEdit ?? () {}),
+        IconButton(icon: const Icon(Icons.delete, size: 20, color: Colors.red), tooltip: 'Delete', onPressed: onDelete ?? () {}),
         /* IconButton(
           icon: Image.asset(
             'assets/icons/img_3.png',
@@ -484,25 +360,12 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
       alignment: Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.only(left: 4.0),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-          textAlign: TextAlign.center,
-        ),
+        child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12), textAlign: TextAlign.center),
       ),
     );
   }
 
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -513,67 +376,28 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
               ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
+                  Padding(padding: const EdgeInsets.only(left: 8.0), child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54))),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 14,
-                          color: Colors.blue[700],
-                        ),
-                      ),
+                      child: Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.copy, size: 14, color: Colors.blue[700])),
                     ),
                 ],
               )
               : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
+                  Flexible(child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54))),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 8,
-                          color: Colors.blue[700],
-                        ),
-                      ),
+                      child: Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.copy, size: 8, color: Colors.blue[700])),
                     ),
                 ],
               ),
@@ -588,12 +412,7 @@ class _HoverableTag extends StatefulWidget {
   final Color color;
   final VoidCallback onDelete;
 
-  const _HoverableTag({
-    Key? key,
-    required this.tag,
-    required this.color,
-    required this.onDelete,
-  }) : super(key: key);
+  const _HoverableTag({Key? key, required this.tag, required this.color, required this.onDelete}) : super(key: key);
 
   @override
   State<_HoverableTag> createState() => _HoverableTagState();
@@ -613,29 +432,14 @@ class _HoverableTagState extends State<_HoverableTag> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             margin: const EdgeInsets.only(top: 6, right: 2),
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              widget.tag,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
-            ),
+            decoration: BoxDecoration(color: widget.color, borderRadius: BorderRadius.circular(12)),
+            child: Text(widget.tag, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 12)),
           ),
           if (_hovering)
             Positioned(
               top: 5,
               right: 5,
-              child: GestureDetector(
-                onTap: widget.onDelete,
-                child: Container(
-                  child: const Icon(Icons.close, size: 12, color: Colors.black),
-                ),
-              ),
+              child: GestureDetector(onTap: widget.onDelete, child: Container(child: const Icon(Icons.close, size: 12, color: Colors.black))),
             ),
         ],
       ),

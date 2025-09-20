@@ -138,7 +138,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                           ),
                         ),
                       ),
-                      Card(
+                      /*Card(
                         elevation: 8,
                         color: Colors.blue,
                         shape: CircleBorder(),
@@ -172,7 +172,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                 ),
                               ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),
@@ -267,10 +267,10 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                               e.tid,
                                               copyable: true,
                                             ),
-                                            _buildCell(e.expenseAmount),
+                                            _buildCell(e.expenseAmount.toString()),
                                             _buildCell('nil'),
                                             _buildCell(e.paymentStatus),
-                                            _buildCell(e.allocatedAmount),
+                                            _buildCell(e.allocatedAmount.toString()),
                                             _buildCell(e.note),
                                             _buildActionCell(
                                               onDelete: () async {

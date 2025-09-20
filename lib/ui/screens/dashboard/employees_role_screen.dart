@@ -406,7 +406,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                         0: FlexColumnWidth(2),
                                         1: FlexColumnWidth(2),
                                         2: FlexColumnWidth(2),
-                                        3: FlexColumnWidth(2),
+                                        // 3: FlexColumnWidth(2),
                                       },
                                       children: [
                                         TableRow(
@@ -418,7 +418,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                             _buildHeader("Desigination"),
                                             _buildHeader("Access"),
                                             _buildHeader("Status"),
-                                            _buildHeader("Profile"),
+                                            // _buildHeader("Profile"),
                                           ],
                                         ),
                                         for (var singleEmployee in filteredEmployees.asMap().entries)
@@ -472,7 +472,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                 employee: singleEmployee.value,
                                               ),
 
-                                              _buildActionCell(
+                                              /*_buildActionCell(
                                                 onDraft: () async {
                                                   print(singleEmployee);
                                                   final result =
@@ -488,7 +488,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                                     // setState(() {});
                                                   }
                                                 },
-                                              ),
+                                              ),*/
                                             ],
                                           ),
                                       ],

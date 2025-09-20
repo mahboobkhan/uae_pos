@@ -163,7 +163,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                           ),
                         ),
                       ),
-                      Card(
+                      /*Card(
                         elevation: 8,
                         color: Colors.blue,
                         shape: CircleBorder(),
@@ -197,7 +197,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                 ),
                               ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),
@@ -292,10 +292,10 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                               e.tid,
                                               copyable: true,
                                             ),
-                                            _buildCell(e.expenseAmount),
+                                            _buildCell(e.expenseAmount.toString()),
                                             _buildCell('nil'),
                                             _buildCell(e.paymentStatus),
-                                            _buildCell(e.allocatedAmount),
+                                            _buildCell(e.allocatedAmount.toString()),
                                             _buildCell(e.note),
                                             _buildActionCell(
                                               onDelete: () async {

@@ -158,21 +158,16 @@ class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
                               if (_formKey.currentState!.validate()) {
                                 final body = {
                                   "tid": widget.expenseData["tid"],
-                                  "expense_type":
-                                      widget.expenseData["expense_type"],
+                                  "expense_type": widget.expenseData["expense_type"],
                                   "expense_name": expenseNameController.text,
-                                  "expense_amount":
-                                      expenseAmountController.text.trim(),
+                                  "expense_amount": expenseAmountController.text.trim(),
                                   "allocated_amount": allocatedAmount.text.trim(),
                                   "note": noteController.text,
                                   "tag": widget.expenseData["tag"],
-                                  "pay_by_manager":
-                                      widget.expenseData["pay_by_manager"],
-                                  "received_by_person":
-                                      widget.expenseData["received_by_person"],
+                                  "pay_by_manager": widget.expenseData["pay_by_manager"],
+                                  "received_by_person": widget.expenseData["received_by_person"],
                                   "edit_by": "Admin",
-                                  "payment_status":
-                                      widget.expenseData["payment_status"],
+                                  "payment_status": widget.expenseData["payment_status"],
                                 };
 
                                 await provider.updateExpense(body);

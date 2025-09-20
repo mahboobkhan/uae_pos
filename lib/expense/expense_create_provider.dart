@@ -1,30 +1,45 @@
 // providers/expense_provider.dart
 import 'dart:convert';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../utils/request_state.dart';
 
 class ExpenseProvider extends ChangeNotifier {
   RequestState _state = RequestState.idle;
+
   RequestState get state => _state;
 
   String? _errorMessage;
+
   String? get errorMessage => _errorMessage;
 
   ExpenseResponse? _response;
+
   ExpenseResponse? get response => _response;
 
   // For fetching expenses list
   List<ExpenseData> _expenses = [];
+
   List<ExpenseData> get expenses => _expenses;
 
   RequestState _fetchState = RequestState.idle;
+
   RequestState get fetchState => _fetchState;
 
   String? _fetchErrorMessage;
+
   String? get fetchErrorMessage => _fetchErrorMessage;
+
+  // Reset state method
+  void resetState() {
+    _state = RequestState.idle;
+    _errorMessage = null;
+    _response = null;
+    notifyListeners();
+  }
 
   Future<void> createExpense(ExpenseRequest request) async {
     print("🔄 Step 1: Checking Internet...");
@@ -43,11 +58,7 @@ class ExpenseProvider extends ChangeNotifier {
       print("⏳ Step 2: Sending request to API...");
 
       final url = Uri.parse("https://abcwebservices.com/api/expenses/create_expense.php");
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(request.toJson()),
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: jsonEncode(request.toJson()));
 
       print("📥 Step 3: Response received with status ${response.statusCode}");
 
@@ -56,14 +67,14 @@ class ExpenseProvider extends ChangeNotifier {
         _response = ExpenseResponse.fromJson(data);
         _state = RequestState.success;
         print("✅ Step 4: Success - ${_response!.message}");
-        
+
         // Refresh the expenses list after creating new expense
         await fetchFixedOfficeExpenses();
       } else {
         _state = RequestState.error;
         _errorMessage = "Server error: ${response.statusCode}";
         print("❌ Step 4 Failed: Server error");
-        
+
         // Add to local list when API fails
         addUserCreatedExpense(request);
       }
@@ -71,7 +82,7 @@ class ExpenseProvider extends ChangeNotifier {
       _state = RequestState.error;
       _errorMessage = e.toString();
       print("⚠️ Step 5 Exception: $e");
-      
+
       // Add to local list when there's an exception
       addUserCreatedExpense(request);
     }
@@ -102,9 +113,7 @@ class ExpenseProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
-          _expenses = (data['expenses'] as List)
-              .map((json) => ExpenseData.fromJson(json))
-              .toList();
+          _expenses = (data['expenses'] as List).map((json) => ExpenseData.fromJson(json)).toList();
           _fetchState = RequestState.success;
           print("✅ Fetched ${_expenses.length} expenses");
         } else {
@@ -125,7 +134,7 @@ class ExpenseProvider extends ChangeNotifier {
   Future<void> _tryFallbackEndpoint() async {
     try {
       print("🔄 Trying fallback endpoint...");
-      
+
       // Try to get expenses from the create expense endpoint or a general expenses endpoint
       final fallbackUrl = Uri.parse("https://abcwebservices.com/api/expenses/get_expenses.php");
       final response = await http.get(fallbackUrl);
@@ -134,15 +143,13 @@ class ExpenseProvider extends ChangeNotifier {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
           // Filter for office expenses only
-          final allExpenses = (data['expenses'] as List)
-              .map((json) => ExpenseData.fromJson(json))
-              .toList();
-          
-          _expenses = allExpenses.where((expense) => 
-            expense.tag.toLowerCase().contains('office') || 
-            expense.expenseType.toLowerCase().contains('office')
-          ).toList();
-          
+          final allExpenses = (data['expenses'] as List).map((json) => ExpenseData.fromJson(json)).toList();
+
+          _expenses =
+              allExpenses
+                  .where((expense) => expense.tag.toLowerCase().contains('office') || expense.expenseType.toLowerCase().contains('office'))
+                  .toList();
+
           _fetchState = RequestState.success;
           print("✅ Fetched ${_expenses.length} office expenses from fallback");
         } else {
@@ -168,6 +175,7 @@ class ExpenseProvider extends ChangeNotifier {
   void addUserCreatedExpense(ExpenseRequest request) {
     final userExpense = ExpenseData(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
+      tid: "",
       expenseType: request.expenseType,
       expenseName: request.expenseName,
       expenseAmount: request.expenseAmount,
@@ -179,18 +187,24 @@ class ExpenseProvider extends ChangeNotifier {
       editBy: request.editBy,
       paymentStatus: request.paymentStatus,
       expenseDate: request.expenseDate,
+      paymentType: request.paymentType ?? "",
+      bankRefId: request.bankRefId ?? "",
+      serviceTid: request.serviceTid ?? "",
       createdAt: DateTime.now().toIso8601String(),
+      updatedAt: DateTime.now().toIso8601String(),
     );
-    
+
     _expenses.insert(0, userExpense);
     notifyListeners();
     print("✅ Added user-created expense: ${userExpense.expenseName}");
   }
 }
+
 // models/expense_model.dart
 class ExpenseRequest {
-  final String expenseType;
   final String expenseName;
+  final String expenseType;
+  final String expenseDate;
   final double expenseAmount;
   final double allocatedAmount;
   final String note;
@@ -199,11 +213,14 @@ class ExpenseRequest {
   final String receivedByPerson;
   final String editBy;
   final String paymentStatus;
-  final String expenseDate;
+  final String? paymentType;
+  final String? bankRefId;
+  final String? serviceTid;
 
   ExpenseRequest({
-    required this.expenseType,
     required this.expenseName,
+    required this.expenseType,
+    required this.expenseDate,
     required this.expenseAmount,
     required this.allocatedAmount,
     required this.note,
@@ -212,13 +229,16 @@ class ExpenseRequest {
     required this.receivedByPerson,
     required this.editBy,
     required this.paymentStatus,
-    required this.expenseDate,
+    this.paymentType,
+    this.bankRefId,
+    this.serviceTid,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      "expense_type": expenseType,
       "expense_name": expenseName,
+      "expense_type": expenseType,
+      "expense_date": expenseDate,
       "expense_amount": expenseAmount,
       "allocated_amount": allocatedAmount,
       "note": note,
@@ -227,7 +247,9 @@ class ExpenseRequest {
       "received_by_person": receivedByPerson,
       "edit_by": editBy,
       "payment_status": paymentStatus,
-      "expense_date": expenseDate,
+      "payment_type": paymentType ?? "",
+      "bank_ref_id": bankRefId ?? "",
+      "service_tid": serviceTid ?? "",
     };
   }
 }
@@ -236,21 +258,16 @@ class ExpenseResponse {
   final bool success;
   final String message;
 
-  ExpenseResponse({
-    required this.success,
-    required this.message,
-  });
+  ExpenseResponse({required this.success, required this.message});
 
   factory ExpenseResponse.fromJson(Map<String, dynamic> json) {
-    return ExpenseResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? "Unknown response",
-    );
+    return ExpenseResponse(success: json['success'] ?? false, message: json['message'] ?? "Unknown response");
   }
 }
 
 class ExpenseData {
   final String id;
+  final String tid;
   final String expenseType;
   final String expenseName;
   final double expenseAmount;
@@ -261,11 +278,16 @@ class ExpenseData {
   final String receivedByPerson;
   final String editBy;
   final String paymentStatus;
+  final String paymentType;
+  final String bankRefId;
+  final String serviceTid;
   final String expenseDate;
   final String createdAt;
+  final String updatedAt;
 
   ExpenseData({
     required this.id,
+    required this.tid,
     required this.expenseType,
     required this.expenseName,
     required this.expenseAmount,
@@ -276,13 +298,18 @@ class ExpenseData {
     required this.receivedByPerson,
     required this.editBy,
     required this.paymentStatus,
+    required this.paymentType,
+    required this.bankRefId,
+    required this.serviceTid,
     required this.expenseDate,
     required this.createdAt,
+    required this.updatedAt,
   });
 
   factory ExpenseData.fromJson(Map<String, dynamic> json) {
     return ExpenseData(
       id: json['id']?.toString() ?? '',
+      tid: json['tid'] ?? '',
       expenseType: json['expense_type'] ?? '',
       expenseName: json['expense_name'] ?? '',
       expenseAmount: double.tryParse(json['expense_amount']?.toString() ?? '0') ?? 0,
@@ -293,8 +320,12 @@ class ExpenseData {
       receivedByPerson: json['received_by_person'] ?? '',
       editBy: json['edit_by'] ?? '',
       paymentStatus: json['payment_status'] ?? '',
+      paymentType: json['payment_type'] ?? '',
+      bankRefId: json['bank_ref_id'] ?? '',
+      serviceTid: json['service_tid'] ?? '',
       expenseDate: json['expense_date'] ?? '',
       createdAt: json['created_at'] ?? '',
+      updatedAt: json['updated_at'] ?? '',
     );
   }
 }

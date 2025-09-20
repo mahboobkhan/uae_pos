@@ -6,6 +6,7 @@ import '../office/dialogues/dialogue_fixed_office_expense.dart';
 import 'banking_dialoges/client_transaction.dart';
 import 'banking_dialoges/employe_type_dialog.dart';
 import 'banking_dialoges/office_expance_dialog.dart';
+import 'banking_dialoges/unified_office_expense_dialog.dart';
 
 class BankingScreen extends StatefulWidget {
   const BankingScreen({super.key});
@@ -196,9 +197,9 @@ class _BankingScreenState extends State<BankingScreen> {
                       ),
                       const SizedBox(width: 20),
                       GestureDetector(
-                        onTap: () => showOfficeExpanceDialog(context),
+                        onTap: () => showUnifiedOfficeExpenseDialog(context),
                         child: Tooltip(
-                          message: 'Office expanse',
+                          message: 'Office Expense Management',
                           child: Container(
                             width: 30,
                             height: 30,
