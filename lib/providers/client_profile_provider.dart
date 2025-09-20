@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -72,6 +71,7 @@ class ClientProfileProvider extends ChangeNotifier {
     String? echannelId,
     String? echannelPassword,
     String? extraNote,
+    List<String>? documents,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -80,13 +80,7 @@ class ClientProfileProvider extends ChangeNotifier {
 
     final url = Uri.parse("$baseUrl/add_client_profile.php");
 
-    final Map<String, dynamic> bodyData = {
-      "name": name,
-      "client_type": clientType,
-      "client_work": clientWork,
-      "email": email,
-      "phone1": phone1,
-    };
+    final Map<String, dynamic> bodyData = {"name": name, "client_type": clientType, "client_work": clientWork, "email": email, "phone1": phone1,"documents": documents ?? []};
     if (phone2 != null && phone2.isNotEmpty) bodyData["phone2"] = phone2;
     if (tags != null) bodyData["tags"] = tags;
     if (tradeLicenseNo != null && tradeLicenseNo.isNotEmpty) bodyData["trade_license_no"] = tradeLicenseNo;
@@ -106,11 +100,7 @@ class ClientProfileProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: body,
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -151,6 +141,7 @@ class ClientProfileProvider extends ChangeNotifier {
     String? echannelId,
     String? echannelPassword,
     String? extraNote,
+    List<String>? documents,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -175,6 +166,7 @@ class ClientProfileProvider extends ChangeNotifier {
     if (echannelId != null && echannelId.isNotEmpty) bodyData["echannel_id"] = echannelId;
     if (echannelPassword != null && echannelPassword.isNotEmpty) bodyData["echannel_password"] = echannelPassword;
     if (extraNote != null && extraNote.isNotEmpty) bodyData["extra_note"] = extraNote;
+    if (documents != null) bodyData["documents"] = documents;
 
     final body = json.encode(bodyData);
 
@@ -184,11 +176,7 @@ class ClientProfileProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.put(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: body,
-      );
+      final response = await http.put(url, headers: {"Content-Type": "application/json"}, body: body);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -225,11 +213,7 @@ class ClientProfileProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.delete(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: body,
-      );
+      final response = await http.delete(url, headers: {"Content-Type": "application/json"}, body: body);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');

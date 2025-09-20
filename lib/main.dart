@@ -1,18 +1,16 @@
 import 'package:abc_consultant/expense/expense_create_provider.dart';
-import 'package:abc_consultant/providers/client_profile_provider.dart';
 import 'package:abc_consultant/providers/client_organization_employee_provider.dart';
+import 'package:abc_consultant/providers/client_profile_provider.dart';
 import 'package:abc_consultant/providers/create_bank_account.dart';
 import 'package:abc_consultant/providers/create_bank_provider.dart';
 import 'package:abc_consultant/providers/create_employee_type_provider.dart';
-import 'package:abc_consultant/providers/create_payment_method_provider.dart';
-import 'package:abc_consultant/providers/create_salary_provider.dart';
-import 'package:abc_consultant/providers/create_bank_account.dart';
 import 'package:abc_consultant/providers/create_payment_method_provider.dart';
 import 'package:abc_consultant/providers/create_salary_provider.dart';
 import 'package:abc_consultant/providers/delete_bank_account.dart';
 import 'package:abc_consultant/providers/desigination_provider.dart';
 import 'package:abc_consultant/providers/designation_delete_provider.dart';
 import 'package:abc_consultant/providers/designation_list_provider.dart';
+import 'package:abc_consultant/providers/documents_provider.dart';
 import 'package:abc_consultant/providers/project_stage_provider.dart';
 import 'package:abc_consultant/providers/projects_provider.dart';
 import 'package:abc_consultant/providers/service_category_provider.dart';
@@ -25,8 +23,6 @@ import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'employee/EmployeeProvider.dart';
 
 import 'employee/EmployeeProvider.dart';
 import 'expense/delete_expense_provider.dart';
@@ -71,7 +67,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ProjectStageProvider()),
         ChangeNotifierProvider(create: (_) => ClientProfileProvider()),
         ChangeNotifierProvider(create: (_) => ClientOrganizationEmployeeProvider()),
-
+        ChangeNotifierProvider(create: (_) => DocumentsProvider()),
       ],
 
       child: const MyApp(),

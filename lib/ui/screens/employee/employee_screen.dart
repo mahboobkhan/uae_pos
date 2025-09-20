@@ -7,6 +7,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/employe_profile.dart';
 import '../../dialogs/tags_class.dart';
 
 class EmployeeScreen extends StatefulWidget {
@@ -246,6 +247,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                       6: FlexColumnWidth(1.3),
                                       7: FlexColumnWidth(1),
                                       8: FlexColumnWidth(1.5),
+                                      9: FlexColumnWidth(1.5),
                                     },
                                     children: [
                                       // Header Row
@@ -262,11 +264,16 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                           _buildHeader("Salary"),
                                           _buildHeader("Advance"),
                                           _buildHeader("Phone Number"),
+                                          _buildHeader("Edit"),
+
+
                                         ],
                                       ),
                                       // Dynamic Data Rows
-                                      ...filteredEmployees.map((employee) {
-                                        final index = filteredEmployees.indexOf(employee);
+                                      ...filteredEmployees.asMap().entries.map((entry){
+                                        final index = entry.key;
+                                        final employee = entry.value;
+                                        // final index = filteredEmployees.indexOf(employee);
                                         return TableRow(
                                           decoration: BoxDecoration(
                                             color: index.isEven
@@ -289,6 +296,23 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                               employee.salaryCurrentMonth?.advanceSalary ?? "0"
                                             ),
                                             _buildCell(employee.emirateId.isEmpty ? "N/A" : employee.emirateId),
+                                            _buildActionCell(
+                                              onDraft: () async {
+                                                print(entry);
+                                                final result =
+                                                await EmployeeProfileDialog(
+                                                  context,
+                                                  entry,
+                                                  employeeProvider.data,
+                                                  //  bankAccount,
+                                                );
+                                                if (result != null) {
+                                                  // Optionally update UI or local state with returned values
+                                                  // For example, you could show a toast/snackbar or trigger a refresh
+                                                  // setState(() {});
+                                                }
+                                              },
+                                            ),
                                           ],
                                         );
                                       }).toList(),
@@ -308,6 +332,16 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           ),
         ),
       ),
+    );
+  }
+  Widget _buildActionCell({VoidCallback? onDraft}) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.edit, size: 23, color: Colors.blue),
+          onPressed: onDraft ?? () {},
+        ),
+      ],
     );
   }
 

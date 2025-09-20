@@ -421,10 +421,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                             _buildHeader("Profile"),
                                           ],
                                         ),
-                                        for (var singleEmployee
-                                            in filteredEmployees
-                                                .asMap()
-                                                .entries)
+                                        for (var singleEmployee in filteredEmployees.asMap().entries)
                                           TableRow(
                                             decoration: BoxDecoration(
                                               color:
