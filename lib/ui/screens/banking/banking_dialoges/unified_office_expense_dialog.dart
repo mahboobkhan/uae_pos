@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../expense/expense_create_provider.dart';
+import '../../../../expense/expense_provider.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_fields.dart';
@@ -69,9 +69,13 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
     final data = widget.expenseData!;
     setState(() {
       selectedExpenseType = data['expense_type'] ?? '';
-      selectedBank = data['bank'] ?? '';
+      selectedBank = data['bank_ref_id'] ?? data['bank'] ?? '';
       selectedPaymentType = data['payment_type'] ?? '';
-      selectedDateTime = data['expense_date'] != null ? DateTime.parse(data['expense_date']) : DateTime.now();
+      selectedDateTime = data['expense_date'] != null ? 
+        (data['expense_date'] is String ? 
+          DateTime.tryParse(data['expense_date']) ?? DateTime.now() : 
+          data['expense_date']) : 
+        DateTime.now();
     });
 
     _expenseNameController.text = data['expense_name'] ?? '';
@@ -176,7 +180,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                           );
 
                           if (shouldClose == true) {
-                            Navigator.of(context).pop();
+                            Navigator.of(context).pop(false);
                           }
                         },
                       ),
@@ -540,41 +544,71 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       return;
     }
 
-    final expense = ExpenseRequest(
-      expenseType: selectedExpenseType!,
-      serviceTid: _serviceTIDController.text.trim(),
-      expenseName: _expenseNameController.text.trim(),
-      expenseAmount: double.tryParse(_expenseAmountController.text.trim()) ?? 0,
-      allocatedAmount: double.tryParse(_allocateBalanceController.text.trim()) ?? 0,
-      note: _noteController.text.trim(),
-      tag: "office",
-      payByManager: _payByController.text.trim(),
-      receivedByPerson: _receivedByController.text.trim(),
-      editBy: "Admin",
-      paymentStatus: "paid",
-      paymentType: selectedPaymentType,
-      bankRefId: selectedBank,
-      expenseDate: DateFormat("yyyy-MM-dd HH:mm:ss").format(selectedDateTime),
-    );
+    if (widget.isEditMode) {
+      // Update existing expense
+      final updateBody = {
+        "tid": widget.expenseData!["tid"],
+        "expense_type": selectedExpenseType!,
+        "expense_name": _expenseNameController.text.trim(),
+        "expense_amount": _expenseAmountController.text.trim(),
+        "allocated_amount": _allocateBalanceController.text.trim(),
+        "note": _noteController.text.trim(),
+        "tag": widget.expenseData!["tag"] ?? "office",
+        "pay_by_manager": _payByController.text.trim(),
+        "received_by_person": _receivedByController.text.trim(),
+        "edit_by": "Admin",
+        "payment_status": widget.expenseData!["payment_status"] ?? "paid",
+        "payment_type": selectedPaymentType ?? "",
+        "bank_ref_id": selectedBank ?? "",
+        "service_tid": _serviceTIDController.text.trim(),
+        "expense_date": DateFormat("yyyy-MM-dd HH:mm:ss").format(selectedDateTime),
+      };
 
-    provider.createExpense(expense).then((_) {
-      if (provider.state == RequestState.success) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(provider.response?.message ?? "Expense Created!"), backgroundColor: Colors.green));
-        // Close dialog after successful submission
-        Navigator.of(context).pop();
-      }
-    });
+      provider.updateExpense(updateBody).then((_) {
+        if (provider.state == RequestState.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(provider.updateResponse?.message ?? "Expense Updated!"), backgroundColor: Colors.green)
+          );
+          Navigator.of(context).pop(true); // Return success
+        }
+      });
+    } else {
+      // Create new expense
+      final expense = ExpenseRequest(
+        expenseType: selectedExpenseType!,
+        serviceTid: _serviceTIDController.text.trim(),
+        expenseName: _expenseNameController.text.trim(),
+        expenseAmount: double.tryParse(_expenseAmountController.text.trim()) ?? 0,
+        allocatedAmount: double.tryParse(_allocateBalanceController.text.trim()) ?? 0,
+        note: _noteController.text.trim(),
+        tag: "office",
+        payByManager: _payByController.text.trim(),
+        receivedByPerson: _receivedByController.text.trim(),
+        editBy: "Admin",
+        paymentStatus: "paid",
+        paymentType: selectedPaymentType,
+        bankRefId: selectedBank,
+        expenseDate: DateFormat("yyyy-MM-dd HH:mm:ss").format(selectedDateTime),
+      );
+
+      provider.createExpense(expense).then((_) {
+        if (provider.state == RequestState.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(provider.response?.message ?? "Expense Created!"), backgroundColor: Colors.green)
+          );
+          Navigator.of(context).pop(false);
+        }
+      });
+    }
   }
 }
 
-void showUnifiedOfficeExpenseDialog(BuildContext context, {Map<String, dynamic>? expenseData, bool isEditMode = false}) {
+Future<bool?> showUnifiedOfficeExpenseDialog(BuildContext context, {Map<String, dynamic>? expenseData, bool isEditMode = false}) {
   // Reset provider state before showing dialog
   final provider = Provider.of<ExpenseProvider>(context, listen: false);
   provider.resetState();
 
-  showDialog(
+  return showDialog<bool>(
     context: context,
     barrierDismissible: false,
     builder: (context) => UnifiedOfficeExpenseDialog(expenseData: expenseData, isEditMode: isEditMode),

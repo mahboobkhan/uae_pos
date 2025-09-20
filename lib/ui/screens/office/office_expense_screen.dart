@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../expense/delete_expense_provider.dart';
 import '../../../expense/expense_provider.dart';
 import '../../../utils/request_state.dart' show RequestState;
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/tags_class.dart';
-import 'dialogues/dialogue_edit_expense.dart';
+import '../banking/banking_dialoges/unified_office_expense_dialog.dart';
 
 class OfficeExpenseScreen extends StatefulWidget {
   const OfficeExpenseScreen({super.key});
@@ -29,8 +28,9 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
 
   @override
   void initState() {
+    Provider.of<ExpenseProvider>(context, listen: false).resetState();
     Future.microtask(() {
-      Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses();
+      Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
     });
     super.initState();
   }
@@ -62,7 +62,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ExpensesProvider>(
+    return Consumer<ExpenseProvider>(
       builder: (context, expensesProvider, child) {
         if (expensesProvider.state == RequestState.loading) {
           return const Center(child: CircularProgressIndicator());
@@ -247,49 +247,50 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                             _buildCell(e.editBy),
                                             _buildActionCell(
                                               onEdit: () async {
-                                                final result = await showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (_) => DialogueEditOfficeExpense(
-                                                        expenseData: {
-                                                          "tid": e.tid,
-                                                          "expense_type": e.expenseType,
-                                                          "expense_name": e.expenseName,
-                                                          "expense_amount": e.expenseAmount,
-                                                          "note": e.note,
-                                                          "tag": e.tag,
-                                                          "payment_status": e.paymentStatus,
-                                                          "allocated_amount": e.allocatedAmount, // 👈 ye add karna hai
-                                                          "allocated_amount": e.allocatedAmount, // 👈 ye add karna hai
-                                                        },
-                                                      ),
+                                                final result = await showUnifiedOfficeExpenseDialog(
+                                                  context,
+                                                  expenseData: {
+                                                    "tid": e.tid,
+                                                    "expense_type": e.expenseType,
+                                                    "expense_name": e.expenseName,
+                                                    "expense_amount": e.expenseAmount,
+                                                    "note": e.note,
+                                                    "tag": e.tag,
+                                                    "payment_status": e.paymentStatus,
+                                                    "allocated_amount": e.allocatedAmount,
+                                                    "pay_by_manager": e.payByManager,
+                                                    "received_by_person": e.receivedByPerson,
+                                                    "service_tid": e.serviceTid,
+                                                    "payment_type": e.paymentType,
+                                                    "bank_ref_id": e.bankRefId,
+                                                    "expense_date": e.expenseDate,
+                                                  },
+                                                  isEditMode: true,
                                                 );
 
                                                 if (result == true) {
-                                                  Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses();
+                                                  Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
                                                 }
                                               },
                                               onDelete: () async {
-                                                final deleteProvider = Provider.of<DeleteExpenseProvider>(context, listen: false);
-
-                                                final expenseProvider = Provider.of<ExpensesProvider>(context, listen: false);
+                                                final expenseProvider = Provider.of<ExpenseProvider>(context, listen: false);
 
                                                 // Reset before new delete
-                                                deleteProvider.reset();
+                                                expenseProvider.resetState();
 
-                                                await deleteProvider.deleteExpense(e.tid);
+                                                await expenseProvider.deleteExpense(e.tid);
 
-                                                if (deleteProvider.state == RequestState.success) {
+                                                if (expenseProvider.state == RequestState.success) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text(deleteProvider.response?.message ?? "Expense deleted successfully")),
+                                                    SnackBar(content: Text(expenseProvider.deleteResponse?.message ?? "Expense deleted successfully")),
                                                   );
 
                                                   // Refresh list
                                                   expenseProvider.fetchExpenses();
-                                                } else if (deleteProvider.state == RequestState.error) {
+                                                } else if (expenseProvider.state == RequestState.error) {
                                                   ScaffoldMessenger.of(
                                                     context,
-                                                  ).showSnackBar(SnackBar(content: Text(deleteProvider.response?.message ?? "Delete failed")));
+                                                  ).showSnackBar(SnackBar(content: Text(expenseProvider.errorMessage ?? "Delete failed")));
                                                 }
                                               },
                                             ),

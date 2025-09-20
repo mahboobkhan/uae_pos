@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../expense/delete_expense_provider.dart';
 import '../../../expense/expense_provider.dart';
 import '../../../providers/designation_delete_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
-import 'dialogues/dialogue_edit_expense.dart';
+import '../banking/banking_dialoges/unified_office_expense_dialog.dart';
 
 class DynamicAttributeAddition extends StatefulWidget {
   const DynamicAttributeAddition({super.key});
@@ -29,7 +28,7 @@ class _DynamicAttributeAdditionState extends State<DynamicAttributeAddition> {
   @override
   void initState() {
     Future.microtask(() {
-      Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses(expenseType: 'Dynamic Attribute Office Expense');
+      Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses(expenseType: 'Dynamic Attribute Office Expense');
     });
     super.initState();
   }
@@ -169,7 +168,7 @@ class _DynamicAttributeAdditionState extends State<DynamicAttributeAddition> {
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Container(
                   height: 370,
-                  child: Consumer<ExpensesProvider>(
+                  child: Consumer<ExpenseProvider>(
                     builder: (context, provider, child) {
                       if (provider.state == RequestState.loading) {
                         return const Center(child: CircularProgressIndicator());
@@ -244,47 +243,50 @@ class _DynamicAttributeAdditionState extends State<DynamicAttributeAddition> {
                                             _buildCell(e.note),
                                             _buildActionCell(
                                               onDelete: () async {
-                                                final deleteProvider = Provider.of<DeleteExpenseProvider>(context, listen: false);
-                                                final expenseProvider = Provider.of<ExpensesProvider>(context, listen: false);
+                                                final expenseProvider = Provider.of<ExpenseProvider>(context, listen: false);
 
                                                 // Reset before new delete
-                                                deleteProvider.reset();
+                                                expenseProvider.resetState();
 
-                                                await deleteProvider.deleteExpense(e.tid);
+                                                await expenseProvider.deleteExpense(e.tid);
 
-                                                if (deleteProvider.state == RequestState.success) {
+                                                if (expenseProvider.state == RequestState.success) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text(deleteProvider.response?.message ?? "Expense deleted successfully")),
+                                                    SnackBar(content: Text(expenseProvider.response?.message ?? "Expense deleted successfully")),
                                                   );
 
                                                   // Refresh list
-                                                  expenseProvider.fetchExpenses();
-                                                } else if (deleteProvider.state == RequestState.error) {
+                                                  expenseProvider.fetchExpenses(expenseType: 'Dynamic Attribute Office Expense');
+                                                } else if (expenseProvider.state == RequestState.error) {
                                                   ScaffoldMessenger.of(
                                                     context,
-                                                  ).showSnackBar(SnackBar(content: Text(deleteProvider.response?.message ?? "Delete failed")));
+                                                  ).showSnackBar(SnackBar(content: Text(expenseProvider.response?.message ?? "Delete failed")));
                                                 }
                                               },
                                               onEdit: () async {
-                                                final result = await showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (_) => DialogueEditOfficeExpense(
-                                                        expenseData: {
-                                                          "tid": e.tid,
-                                                          "expense_type": e.expenseType,
-                                                          "expense_name": e.expenseName,
-                                                          "expense_amount": e.expenseAmount,
-                                                          "note": e.note,
-                                                          "tag": e.tag,
-                                                          "payment_status": e.paymentStatus,
-                                                          "allocated_amount": e.allocatedAmount, // 👈 ye add karna hai
-                                                        },
-                                                      ),
+                                                final result = await showUnifiedOfficeExpenseDialog(
+                                                  context,
+                                                  expenseData: {
+                                                    "tid": e.tid,
+                                                    "expense_type": e.expenseType,
+                                                    "expense_name": e.expenseName,
+                                                    "expense_amount": e.expenseAmount,
+                                                    "note": e.note,
+                                                    "tag": e.tag,
+                                                    "payment_status": e.paymentStatus,
+                                                    "allocated_amount": e.allocatedAmount,
+                                                    "pay_by_manager": e.payByManager,
+                                                    "received_by_person": e.receivedByPerson,
+                                                    "service_tid": e.serviceTid,
+                                                    "payment_type": e.paymentType,
+                                                    "bank_ref_id": e.bankRefId,
+                                                    "expense_date": e.expenseDate,
+                                                  },
+                                                  isEditMode: true,
                                                 );
 
                                                 if (result == true) {
-                                                  Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses();
+                                                  Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses(expenseType: 'Dynamic Attribute Office Expense');
                                                 }
                                               },
                                             ),

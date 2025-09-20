@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../expense/delete_expense_provider.dart';
 import '../../../expense/expense_provider.dart';
 import '../../../providers/designation_delete_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
-import 'dialogues/dialogue_edit_expense.dart';
+import '../banking/banking_dialoges/unified_office_expense_dialog.dart';
 import 'dialogues/dialogue_supplies_office.dart';
 
 class OfficeSuppliesExpanse extends StatefulWidget {
@@ -30,7 +29,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      Provider.of<ExpensesProvider>(context, listen: false).fetchExpenses(expenseType: 'Office Supplies Expense');
+      Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses(expenseType: 'Office Supplies Expense');
     });
   }
 
@@ -206,15 +205,15 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Container(
                   height: 370,
-                  child: Consumer<ExpensesProvider>(
+                  child: Consumer<ExpenseProvider>(
                     builder: (context, provider, child) {
-                      if (provider.state == RequestState.loading) {
+                      if (provider.fetchState == RequestState.loading) {
                         return const Center(child: CircularProgressIndicator());
                       }
 
-                      if (provider.state == RequestState.error) {
+                      if (provider.fetchState == RequestState.error) {
                         return Center(
-                          child: Text(provider.errorMessage ?? "Error"),
+                          child: Text(provider.fetchErrorMessage ?? "Error"),
                         );
                       }
 
@@ -299,30 +298,26 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                             _buildCell(e.note),
                                             _buildActionCell(
                                               onDelete: () async {
-                                                final deleteProvider =
-                                                Provider.of<
-                                                    DeleteExpenseProvider
-                                                >(context, listen: false);
                                                 final expenseProvider =
                                                 Provider.of<
-                                                    ExpensesProvider
+                                                    ExpenseProvider
                                                 >(context, listen: false);
 
                                                 // Reset before new delete
-                                                deleteProvider.reset();
+                                                expenseProvider.resetState();
 
-                                                await deleteProvider
+                                                await expenseProvider
                                                     .deleteExpense(e.tid);
 
-                                                if (deleteProvider.state ==
+                                                if (expenseProvider.state ==
                                                     RequestState.success) {
                                                   ScaffoldMessenger.of(
                                                     context,
                                                   ).showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                        deleteProvider
-                                                            .response
+                                                        expenseProvider
+                                                            .deleteResponse
                                                             ?.message ??
                                                             "Expense deleted successfully",
                                                       ),
@@ -331,8 +326,8 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
 
                                                   // Refresh list
                                                   expenseProvider
-                                                      .fetchExpenses();
-                                                } else if (deleteProvider
+                                                      .fetchExpenses(expenseType: 'Office Supplies Expense');
+                                                } else if (expenseProvider
                                                     .state ==
                                                     RequestState.error) {
                                                   ScaffoldMessenger.of(
@@ -340,9 +335,8 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                                   ).showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                        deleteProvider
-                                                            .response
-                                                            ?.message ??
+                                                        expenseProvider
+                                                            .errorMessage ??
                                                             "Delete failed",
                                                       ),
                                                     ),
@@ -350,34 +344,32 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                                 }
                                               },
                                               onEdit: () async {
-                                                final result = await showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (
-                                                      _,
-                                                      ) => DialogueEditOfficeExpense(
-                                                    expenseData: {
-                                                      "tid": e.tid,
-                                                      "expense_type":
-                                                      e.expenseType,
-                                                      "expense_name":
-                                                      e.expenseName,
-                                                      "expense_amount":
-                                                      e.expenseAmount,
-                                                      "note": e.note,
-                                                      "tag": e.tag,
-                                                      "payment_status":
-                                                      e.paymentStatus,
-                                                      "allocated_amount": e.allocatedAmount,
-                                                    },
-                                                  ),
+                                                final result = await showUnifiedOfficeExpenseDialog(
+                                                  context,
+                                                  expenseData: {
+                                                    "tid": e.tid,
+                                                    "expense_type": e.expenseType,
+                                                    "expense_name": e.expenseName,
+                                                    "expense_amount": e.expenseAmount,
+                                                    "note": e.note,
+                                                    "tag": e.tag,
+                                                    "payment_status": e.paymentStatus,
+                                                    "allocated_amount": e.allocatedAmount,
+                                                    "pay_by_manager": e.payByManager,
+                                                    "received_by_person": e.receivedByPerson,
+                                                    "service_tid": e.serviceTid,
+                                                    "payment_type": e.paymentType,
+                                                    "bank_ref_id": e.bankRefId,
+                                                    "expense_date": e.expenseDate,
+                                                  },
+                                                  isEditMode: true,
                                                 );
 
                                                 if (result == true) {
-                                                  Provider.of<ExpensesProvider>(
+                                                  Provider.of<ExpenseProvider>(
                                                     context,
                                                     listen: false,
-                                                  ).fetchExpenses();
+                                                  ).fetchExpenses(expenseType: 'Office Supplies Expense');
                                                 }
                                               },
                                             ),

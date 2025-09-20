@@ -3,7 +3,7 @@ import 'package:abc_consultant/ui/dialogs/custom_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../expense/update_expense_provider.dart';
+import '../../../../expense/expense_provider.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/custom_dialoges.dart';
 
@@ -140,7 +140,7 @@ class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Consumer<UpdateExpenseProvider>(
+                  Consumer<ExpenseProvider>(
                     builder: (context, provider, _) {
                       if (provider.state == RequestState.loading) {
                         return const CircularProgressIndicator();
