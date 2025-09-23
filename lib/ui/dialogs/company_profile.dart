@@ -365,259 +365,75 @@ class CompanyProfileState extends State<CompanyProfile> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
+
+              SizedBox(height: 20),
+              Row(
                 children: [
-                  Text(
-                    "Partner / Employee Records",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
+                  CustomButton(
+                    text: "Editing",
+                    backgroundColor: Colors.blue,
+                    onPressed: () {},
                   ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  CustomDropdownField(
-                    label: "Employee",
-                    options: ['Partner', 'Employee', 'Other Records'],
-                    selectedValue: selectedJobType4,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedJobType4 = value;
-                      });
+                  const SizedBox(width: 10),
+                  CustomButton(
+                    text: "Submit",
+                    backgroundColor: Colors.green,
+                    onPressed: () async {
+                      final provider = context.read<ClientProfileProvider>();
+                      final isEdit = widget.clientData != null && (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
+
+                      if (isEdit) {
+                        await provider.updateClient(
+                          clientRefId: widget.clientData!['client_ref_id'].toString(),
+                          name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : null,
+                          email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : null,
+                          phone1: contactNumberController.text.trim().isNotEmpty ? contactNumberController.text.trim() : null,
+                          phone2: contactNumber2Controller.text.trim().isNotEmpty ? contactNumber2Controller.text.trim() : null,
+                          clientType: 'organization',
+                          clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
+                          tradeLicenseNo: tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
+                          companyCode: companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
+                          establishmentNo: establishmentNumberController.text.trim().isNotEmpty ? establishmentNumberController.text.trim() : null,
+                          physicalAddress: physicalAddressController.text.trim().isNotEmpty ? physicalAddressController.text.trim() : null,
+                          echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                          echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                          echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
+                          extraNote: extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
+                        );
+                      } else {
+                        await provider.addClient(
+                          name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
+                          clientType: 'organization',
+                          clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
+                          email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : 'no-email@example.com',
+                          phone1: contactNumberController.text.trim().isNotEmpty ? contactNumberController.text.trim() : '+000000000',
+                          phone2: contactNumber2Controller.text.trim().isNotEmpty ? contactNumber2Controller.text.trim() : null,
+                          tradeLicenseNo: tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
+                          companyCode: companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
+                          establishmentNo: establishmentNumberController.text.trim().isNotEmpty ? establishmentNumberController.text.trim() : null,
+                          physicalAddress: physicalAddressController.text.trim().isNotEmpty ? physicalAddressController.text.trim() : null,
+                          echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                          echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                          echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
+                          extraNote: extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
+                        );
+                      }
+
+                      if (provider.errorMessage == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'))),
+                        );
+                        Navigator.of(context).pop();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
+                        );
+                      }
                     },
                   ),
-                  SizedBox(
-                    width: 220,
-                    // child: CustomDropdownWithRightAdd(
-                    //   label: "Select Platform",
-                    //   value: selectedPlatform,
-                    //   items: platformList,
-                    //   onChanged: (newValue) {
-                    //     // Update selectedPlatform state in parent
-                    //   },
-                    //   onAddPressed: () {
-                    //     showInstituteManagementDialog(context);
-                    //   },
-                    // ),
-                  ),
-                  CustomTextField(
-                    label: " Name",
-                    controller: nameController,
-                    hintText: "Imran Khan",
-                  ),
-                  CustomTextField(
-                    label: "Emirates IDs",
-                    controller: emiratesIdController,
-                    hintText: "S.E.C.P",
-                  ),
-                  CustomTextField(
-                    label: "Work Permit No",
-                    controller: workPermitNumberController,
-                    hintText: "xxxxxxx",
-                  ),
-                  CustomTextField(
-                    label: "Email I'd",
-                    controller: emailId1Controller,
-                    hintText: "xxxxxxx",
-                  ),
-                  CustomTextField(
-                    label: "Contact No",
-                    controller: contactNumber3Controller,
-                    hintText: "xxxxxxx",
-                  ),
-                  CustomTextField(
-                    label: "Advance Payment TID",
-                    controller: advancePayment,
-                    hintText: "*****",
-                  ),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      InfoBox(
-                        value: "Pending Payment",
-                        label: "AED-3000",
-                        color: Colors.blue.shade50,
-                      ),
-                      InfoBox(
-                        value: "Advance Payment",
-                        label: "AED-3000",
-                        color: Colors.blue.shade50,
-                      ),
-                    ],
-                  ),
-
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 10),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: [
-                          CustomCompactTextField(
-                            label: 'Doc Name',
-                            hintText: '',
-                            controller: docName2,
-                          ),
-                          CustomDateNotificationField(
-                            label: "Issue Date Notifications",
-                            controller: _issueDateController,
-                            readOnly: true,
-                            hintText: "dd-MM-yyyy HH:mm",
-                            onTap: _pickDateTime,
-                          ),
-                          CustomDateNotificationField(
-                            label: "Expiry Date Notifications",
-                            controller: _expiryDateController,
-                            readOnly: true,
-                            hintText: "dd-MM-yyyy HH:mm",
-                            onTap: _pickDateTime,
-                          ),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              minimumSize: const Size(150, 38),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  4,
-                                ), // Optional: slight rounding
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Icon(
-                                  Icons.upload_file,
-                                  size: 16,
-                                  color: Colors.white,
-                                ), //
-                                SizedBox(width: 6),
-                                Text(
-                                  'Upload File',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ), //
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  /*     Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        "Add 2 more",
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    ),
-                  ),
                 ],
               ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Add More Employee",
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),*/
-                  SizedBox(height: 10),
-                  Row(
-                    children: [
-                      CustomButton(
-                        text: "Editing",
-                        backgroundColor: Colors.blue,
-                        onPressed: () {},
-                      ),
-                      const SizedBox(width: 10),
-                      CustomButton(
-                        text: "Submit",
-                        backgroundColor: Colors.green,
-                        onPressed: () async {
-                          final provider = context.read<ClientProfileProvider>();
-                          final isEdit = widget.clientData != null && (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
 
-                          if (isEdit) {
-                            await provider.updateClient(
-                              clientRefId: widget.clientData!['client_ref_id'].toString(),
-                              name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : null,
-                              email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : null,
-                              phone1: contactNumberController.text.trim().isNotEmpty ? contactNumberController.text.trim() : null,
-                              phone2: contactNumber2Controller.text.trim().isNotEmpty ? contactNumber2Controller.text.trim() : null,
-                              clientType: 'organization',
-                              clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
-                              tradeLicenseNo: tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
-                              companyCode: companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
-                              establishmentNo: establishmentNumberController.text.trim().isNotEmpty ? establishmentNumberController.text.trim() : null,
-                              physicalAddress: physicalAddressController.text.trim().isNotEmpty ? physicalAddressController.text.trim() : null,
-                              echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
-                              echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
-                              echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
-                              extraNote: extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
-                            );
-                          } else {
-                            await provider.addClient(
-                              name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
-                              clientType: 'organization',
-                              clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
-                              email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : 'no-email@example.com',
-                              phone1: contactNumberController.text.trim().isNotEmpty ? contactNumberController.text.trim() : '+000000000',
-                              phone2: contactNumber2Controller.text.trim().isNotEmpty ? contactNumber2Controller.text.trim() : null,
-                              tradeLicenseNo: tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
-                              companyCode: companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
-                              establishmentNo: establishmentNumberController.text.trim().isNotEmpty ? establishmentNumberController.text.trim() : null,
-                              physicalAddress: physicalAddressController.text.trim().isNotEmpty ? physicalAddressController.text.trim() : null,
-                              echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
-                              echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
-                              echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
-                              extraNote: extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
-                            );
-                          }
-
-                          if (provider.errorMessage == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'))),
-                            );
-                            Navigator.of(context).pop();
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ],
           ),
         ),

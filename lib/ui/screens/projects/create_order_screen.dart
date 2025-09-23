@@ -98,6 +98,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     });
   }
 
+  /// Calculate remaining payment
+  String calculateRemaining(String? quotation, String? paidPayment) {
+    final double q = double.tryParse(quotation ?? '0') ?? 0;
+    final double p = double.tryParse(paidPayment ?? '0') ?? 0;
+    final double remaining = q - p;
+
+    return remaining.toStringAsFixed(2); // Always 2 decimal places
+  }
+
   void _initializeFormData() {
     if (widget.projectData != null) {
       final project = widget.projectData!;
@@ -105,7 +114,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       // Pre-fill form fields with project data
       _beneficiaryController.text = project['client_name'] ?? '';
       _fundsController.text = project['quotation'] ?? '';
-      _recordPaymentController.text = project['pending_payment'] ?? '';
+      _recordPaymentController.text = calculateRemaining(project['quotation'], project['paid_payment']).toString();
 
       // Set order type
       selectedOrderType = project['order_type'] ?? '';
@@ -661,8 +670,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           },
                         ),
                         CustomTextField(label: "Service Beneficiary", controller: _beneficiaryController, hintText: "xyz", enabled: _isEditMode),
-                        CustomTextField(label: "Order Quote Price", controller: _fundsController, hintText: '500', enabled: _isEditMode),
-                        CustomTextField(label: "Pending Payment", controller: _recordPaymentController, hintText: '0', enabled: _isEditMode),
+                        CustomTextField(label: "Order Quote Price", controller: _fundsController, hintText: '500', enabled: false),
+                        CustomTextField(label: "Pending Payment", controller: _recordPaymentController, hintText: '0', enabled: false),
 
                         InfoBox(
                           label: widget.projectData?['user_id']?['name'] ?? 'N/A',
@@ -670,15 +679,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           color: Colors.blue.shade200, // light blue fill
                         ),
                         InfoBox(
-                          label: widget.projectData?['quotation'] ?? '0',
+                          label: widget.projectData?['paid_payment'] ?? '0',
                           value: 'Received Funds',
                           color: Colors.blue.shade200, // light blue fill
                         ),
-                        InfoBox(
+                        /*InfoBox(
                           label: widget.projectData?['project_ref_id'] ?? 'N/A',
                           value: 'Transaction Id',
                           color: Colors.yellow.shade100, // light blue fill
-                        ),
+                        ),*/
                       ],
                     ),
 

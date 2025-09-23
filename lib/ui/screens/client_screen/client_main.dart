@@ -266,21 +266,6 @@ class _ClientMainState extends State<ClientMain> {
                                   ),
                             ),
                           ),
-                          Material(
-                            elevation: 8,
-                            shadowColor: Colors.grey.shade900,
-                            shape: CircleBorder(),
-                            color: Colors.blue,
-                            child: Tooltip(
-                              message: 'Create orders',
-                              waitDuration: Duration(milliseconds: 2),
-                              child: SizedBox(
-                                height: 30,
-                                width: 30,
-                                child: const Center(child: Icon(Icons.edit_outlined, color: Colors.white, size: 16)),
-                              ),
-                            ),
-                          ),
                           SizedBox(width: 10),
                         ],
                       ),

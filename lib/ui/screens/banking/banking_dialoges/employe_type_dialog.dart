@@ -1,12 +1,18 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../providers/banking_payment_method_provider.dart';
+import '../../../../providers/banking_payments_provider.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_fields.dart';
 
 class DialogEmployeType extends StatefulWidget {
-  const DialogEmployeType({super.key});
+  final Map<String, dynamic>? paymentData;
+  final bool isEditMode;
+  
+  const DialogEmployeType({super.key, this.paymentData, this.isEditMode = false});
 
   @override
   State<DialogEmployeType> createState() => _DialogEmployeTypeState();
@@ -16,6 +22,10 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
   DateTime selectedDateTime = DateTime.now();
   String? selectedBank;
   String? selectedPaymentType;
+  String? selectedPaymentMethod; // Cash, Cheque, Bank
+
+  // Payment types similar to unified office expense dialog
+  final List<String> paymentTypes = ['Cash', 'Cheque', 'Bank'];
 
   late TextEditingController _amountController;
   late TextEditingController _paymentByController;
@@ -27,13 +37,44 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController();
-    _paymentByController = TextEditingController(text: "Auto Fill: John Doe");
-    _receivedByController = TextEditingController(
-      text: "Auto Fill: Jane Smith",
-    );
-    _serviceTIDController = TextEditingController();
-    _noteController = TextEditingController();
+    
+    if (widget.isEditMode && widget.paymentData != null) {
+      // Edit mode - populate with existing data
+      _amountController = TextEditingController(text: widget.paymentData!['total_amount']?.toString() ?? '');
+      _paymentByController = TextEditingController(text: widget.paymentData!['pay_by']?.toString() ?? '');
+      _receivedByController = TextEditingController(text: widget.paymentData!['received_by']?.toString() ?? '');
+      _serviceTIDController = TextEditingController(text: widget.paymentData!['transaction_id']?.toString() ?? '');
+      _noteController = TextEditingController(text: widget.paymentData!['note']?.toString() ?? '');
+      
+      // Set initial values
+      selectedPaymentType = widget.paymentData!['payment_type']?.toString().toLowerCase();
+      selectedPaymentMethod = widget.paymentData!['payment_method']?.toString().toLowerCase();
+      selectedBank = widget.paymentData!['bank_ref_id']?.toString();
+      
+      // Parse date if available
+      if (widget.paymentData!['created_at'] != null) {
+        try {
+          selectedDateTime = DateTime.parse(widget.paymentData!['created_at']);
+        } catch (e) {
+          selectedDateTime = DateTime.now();
+        }
+      }
+    } else {
+      // Add mode - default values
+      _amountController = TextEditingController();
+      _paymentByController = TextEditingController(text: "Auto Fill: John Doe");
+      _receivedByController = TextEditingController(text: "Auto Fill: Jane Smith");
+      _serviceTIDController = TextEditingController();
+      _noteController = TextEditingController();
+    }
+    
+    // Load data when dialog opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final paymentMethodProvider = context.read<BankingPaymentMethodProvider>();
+        paymentMethodProvider.getAllPaymentMethods();
+      }
+    });
   }
 
   @override
@@ -67,17 +108,22 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        "Employee Transactions",
-                        style: TextStyle(
+                        widget.isEditMode ? "Edit Banking Payment" : "Employee Transactions",
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.red,
                         ),
                       ),
-                      SizedBox(height: 2),
-                      Text("TID. 00001-292382", style: TextStyle(fontSize: 12)),
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.isEditMode 
+                          ? "Ref: ${widget.paymentData?['payment_ref_id'] ?? 'N/A'}"
+                          : "TID. 00001-292382", 
+                        style: const TextStyle(fontSize: 12)
+                      ),
                     ],
                   ),
                   Row(
@@ -144,11 +190,21 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                 runSpacing: 10,
                 children: [
                   _buildDateTimeField(),
+                  // Payment Type Selection
                   CustomDropdownField(
-                    label: "Select Bank",
-                    selectedValue: selectedBank,
-                    options: ["Cash","Cheque","HBL", "UBL", "MCB"],
-                    onChanged: (val) => setState(() => selectedBank = val),
+                    label: "Payment Type",
+                    selectedValue: selectedPaymentMethod,
+                    options: paymentTypes,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedPaymentMethod = value;
+                        // Reset bank and service TID when changing payment type
+                        if (value != 'Bank') {
+                          selectedBank = null;
+                          _serviceTIDController.clear();
+                        }
+                      });
+                    },
                   ),
                   CustomDropdownField(
                     label: "Payment",
@@ -172,11 +228,45 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                     controller: _receivedByController,
                     hintText: 'Smith',
                   ),
-                  CustomTextField(
-                    label: "Service TID",
-                    controller: _serviceTIDController,
-                    hintText: 'xxxxxx',
-                  ),
+                  
+                  // Bank and Service TID (only show when payment type is Bank)
+                  if (selectedPaymentMethod == 'Bank') ...[
+                    Consumer<BankingPaymentMethodProvider>(
+                      builder: (context, paymentMethodProvider, child) {
+                        final banks = paymentMethodProvider.paymentMethods
+                            .map((pm) => pm['bank_name']?.toString() ?? '')
+                            .where((name) => name.isNotEmpty)
+                            .toSet()
+                            .toList();
+                        
+                        return CustomDropdownField(
+                          label: 'Select Bank',
+                          selectedValue: selectedBank,
+                          options: ['Select Bank', ...banks],
+                          onChanged: (value) {
+                            setState(() {
+                              selectedBank = value == 'Select Bank' ? null : value;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                    CustomTextField(
+                      label: "Service TID",
+                      controller: _serviceTIDController,
+                      hintText: 'Bank Transaction ID',
+                    ),
+                  ],
+                  
+                  // Cheque No (only show when payment type is Cheque)
+                  if (selectedPaymentMethod == 'Cheque') ...[
+                    CustomTextField(
+                      label: "Cheque No",
+                      controller: _serviceTIDController,
+                      hintText: 'Cheque No',
+                    ),
+                  ],
+                  
                   CustomTextField(
                     label: "Note",
                     controller: _noteController,
@@ -190,15 +280,25 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   CustomButton(
-                    onPressed: () {},
-                    text: "Editing",
+                    onPressed: () {
+                      _clearForm();
+                    },
+                    text: "Clear",
                     backgroundColor: Colors.blue,
                   ),
                   const SizedBox(width: 10),
-                  CustomButton(
-                    onPressed: () {},
-                    text: "Submit",
-                    backgroundColor: Colors.green,
+                  Consumer<BankingPaymentsProvider>(
+                    builder: (context, bankingProvider, child) {
+                      return CustomButton(
+                        onPressed: bankingProvider.isLoading ? (){} : () {
+                          widget.isEditMode ? _updatePayment() : _submitForm();
+                        },
+                        text: bankingProvider.isLoading 
+                          ? (widget.isEditMode ? "Updating..." : "Submitting...") 
+                          : (widget.isEditMode ? "Update" : "Submit"),
+                        backgroundColor: Colors.green,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -263,6 +363,9 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
             ),
             TextButton(
               onPressed: () {
+                setState(() {
+                  selectedDateTime = selectedDate;
+                });
                 _issueDateController.text =
                 "${selectedDate.day}-${selectedDate.month}-${selectedDate.year} "
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
@@ -274,6 +377,150 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
         );
       },
     );
+  }
+
+  void _clearForm() {
+    setState(() {
+      selectedBank = null;
+      selectedPaymentType = null;
+      selectedPaymentMethod = null;
+      selectedDateTime = DateTime.now();
+      _amountController.clear();
+      _paymentByController.clear();
+      _receivedByController.clear();
+      _serviceTIDController.clear();
+      _noteController.clear();
+      _issueDateController.clear();
+    });
+  }
+
+  void _submitForm() async {
+    // Validate required fields
+    if (selectedPaymentMethod == null || selectedPaymentType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+
+    // Validate bank selection if payment method is Bank
+    if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a bank for bank payment')),
+      );
+      return;
+    }
+
+    if (_amountController.text.isEmpty || _paymentByController.text.isEmpty || _receivedByController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid amount')),
+      );
+      return;
+    }
+
+    // Submit the form
+    final bankingProvider = context.read<BankingPaymentsProvider>();
+    
+    await bankingProvider.addBankingPayment(
+      type: 'employee',
+      typeRef: 'employee_transaction', // Default type reference for employee transactions
+      clientRef: '', // No client reference for employee transactions
+      paymentType: selectedPaymentType!.toLowerCase(),
+      payBy: _paymentByController.text,
+      receivedBy: _receivedByController.text,
+      totalAmount: amount,
+      paidAmount: amount,
+      status: 'completed',
+      paymentMethod: selectedPaymentMethod!.toLowerCase(),
+      transactionId: _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+      bankRefId: selectedBank,
+      chequeNo: selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+      createdAt: selectedDateTime.toIso8601String(),
+    );
+
+    // Check if submission was successful
+    if (bankingProvider.successMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(bankingProvider.successMessage!)),
+      );
+      _clearForm();
+      Navigator.of(context).pop();
+    } else if (bankingProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(bankingProvider.errorMessage!)),
+      );
+    }
+  }
+
+  void _updatePayment() async {
+    // Validate required fields
+    if (selectedPaymentMethod == null || selectedPaymentType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+
+    // Validate bank selection if payment method is Bank
+    if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a bank for bank payment')),
+      );
+      return;
+    }
+
+    if (_amountController.text.isEmpty || _paymentByController.text.isEmpty || _receivedByController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid amount')),
+      );
+      return;
+    }
+
+    // Update the payment
+    final bankingProvider = context.read<BankingPaymentsProvider>();
+    
+    await bankingProvider.updateBankingPayment(
+      id: widget.paymentData!['id']?.toString(),
+      paymentRefId: widget.paymentData!['payment_ref_id']?.toString(),
+      paymentType: selectedPaymentType!.toLowerCase(),
+      payBy: _paymentByController.text,
+      receivedBy: _receivedByController.text,
+      totalAmount: amount,
+      paidAmount: amount,
+      status: 'completed',
+      paymentMethod: selectedPaymentMethod!.toLowerCase(),
+      transactionId: _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+      bankRefId: selectedBank,
+      chequeNo: selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+    );
+
+    // Check if update was successful
+    if (bankingProvider.successMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(bankingProvider.successMessage!)),
+      );
+      Navigator.of(context).pop();
+    } else if (bankingProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(bankingProvider.errorMessage!)),
+      );
+    }
   }
 }
 

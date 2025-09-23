@@ -183,6 +183,28 @@ class _CreateOrdersState extends State<CreateOrders> {
     projectsProvider.clearFilters();
     projectsProvider.getAllProjects();
   }
+  String getDaysDifference(String? createdAt) {
+    if (createdAt == null || createdAt.isEmpty) return '0-days';
+
+    try {
+      // Parse created_at from API (assuming format "YYYY-MM-DD HH:MM:SS")
+      final createdDate = DateTime.parse(createdAt);
+      final now = DateTime.now();
+
+      final difference = now.difference(createdDate).inDays;
+      return '$difference-days';
+    } catch (e) {
+      return '0-days'; // fallback if parsing fails
+    }
+  }
+  /// Calculate remaining payment
+  String calculateRemaining(String? quotation, String? paidPayment) {
+    final double q = double.tryParse(quotation ?? '0') ?? 0;
+    final double p = double.tryParse(paidPayment ?? '0') ?? 0;
+    final double remaining = q - p;
+
+    return remaining.toStringAsFixed(2); // Always 2 decimal places
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -244,20 +266,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                                   _applyFilters();
                                 },
                               ),
-                              // Tags Filter
-                              /*Consumer<ServiceCategoryProvider>(
-                                builder: (context, serviceProvider, child) {
-                                  return CustomDropdown(
-                                    selectedValue: selectedTags,
-                                    hintText: "Select Tags",
-                                    items: ['All'] + serviceProvider.serviceCategories.map((service) => service['service_name'].toString() ?? '').toList(),
-                                    onChanged: (newValue) {
-                                      setState(() => selectedTags = newValue!);
-                                      _applyFilters();
-                                    },
-                                  );
-                                },
-                              ),*/
+
                               // Payment Status Filter
                               CustomDropdown(
                                 selectedValue: selectedPaymentStatus,
@@ -528,8 +537,8 @@ class _CreateOrdersState extends State<CreateOrders> {
                                           ),
                                           TagsCellWidget(initialTags: currentTags),
                                           _buildCell(project['status'] ?? 'N/A'),
-                                          _buildCell2(project['stage_name'] ?? project['stage_id'] ?? 'N/A', "23-days"),
-                                          _buildPriceWithAdd("AED-", project['pending_payment'] ?? '0'),
+                                          _buildCell2(project['stage_name'] ?? project['stage_id'] ?? 'N/A', calculateRemaining(project['quotation'], project['paid_payment'])),
+                                          _buildPriceWithAdd("AED-",((double.tryParse(project['quotation'] ?? '0') ?? 0) - (double.tryParse(project['paid_payment'] ?? '0') ?? 0)).toStringAsFixed(2) ?? '0'),
                                           _buildPriceWithAdd("AED-", project['quotation'] ?? '0'),
                                           _buildCell(project['user_id']?['name'] ?? 'N/A'),
                                           _buildCell(project['project_ref_id'] ?? 'N/A', copyable: true),

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class BankingPaymentsProvider extends ChangeNotifier {
-  final String baseUrl = "https://abcwebservices.com/public_html/api/banking/payments";
+  final String baseUrl = "https://abcwebservices.com/api/banking/payments";
 
   bool isLoading = false;
   String? errorMessage;
@@ -266,7 +266,7 @@ class BankingPaymentsProvider extends ChangeNotifier {
     if (paymentMethod != null && paymentMethod.isNotEmpty) bodyData["payment_method"] = paymentMethod;
     if (chequeNo != null && chequeNo.isNotEmpty) bodyData["cheque_no"] = chequeNo;
     if (transactionId != null && transactionId.isNotEmpty) bodyData["transaction_id"] = transactionId;
-    if (bankRefId != null && bankRefId.isNotEmpty) bodyData["bank_ref_if"] = bankRefId;
+    if (bankRefId != null && bankRefId.isNotEmpty) bodyData["bank_ref_id"] = bankRefId;
     if (createdAt != null && createdAt.isNotEmpty) bodyData["created_at"] = createdAt;
     if (updatedAt != null && updatedAt.isNotEmpty) bodyData["updated_at"] = updatedAt;
 
