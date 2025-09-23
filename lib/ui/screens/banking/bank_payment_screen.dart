@@ -24,9 +24,22 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
 
   // Filter options
   final List<String> statusOptions = ['All', 'Active', 'Inactive'];
-  final List<String> bankOptions = ['All', 'HBL Bank', 'UBL Bank', 'MCB Bank', 'Allied Bank'];
-  final List<String> dateOptions = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
-  
+  final List<String> bankOptions = [
+    'All',
+    'HBL Bank',
+    'UBL Bank',
+    'MCB Bank',
+    'Allied Bank',
+  ];
+  final List<String> dateOptions = [
+    'All',
+    'Today',
+    'Yesterday',
+    'Last 7 Days',
+    'Last 30 Days',
+    'Custom Range',
+  ];
+
   // Selected filter values
   String? selectedStatus;
   String? selectedBank;
@@ -82,11 +95,15 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
   // Apply filters to the payment methods
   void _applyFilters() {
     final provider = context.read<BankingPaymentMethodProvider>();
-    
+
     // Apply filters to provider
     provider.setFilters(
-      bankName: selectedBank != null && selectedBank != 'All' ? selectedBank : null,
-      status: selectedStatus != null && selectedStatus != 'All' ? selectedStatus : null,
+      bankName:
+          selectedBank != null && selectedBank != 'All' ? selectedBank : null,
+      status:
+          selectedStatus != null && selectedStatus != 'All'
+              ? selectedStatus
+              : null,
     );
   }
 
@@ -97,21 +114,25 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
       selectedBank = null;
       selectedDateRange = null;
     });
-    
+
     final provider = context.read<BankingPaymentMethodProvider>();
     provider.clearFilters();
   }
 
   // Delete payment method
-  void _deletePaymentMethod(BuildContext context, Map<String, dynamic> paymentMethod) async {
+  void _deletePaymentMethod(
+    BuildContext context,
+    Map<String, dynamic> paymentMethod,
+  ) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
-      builder: (context) => const ConfirmationDialog(
-        title: 'Confirm Deletion',
-        content: 'Are you sure you want to delete this payment method?',
-        cancelText: 'Cancel',
-        confirmText: 'Delete',
-      ),
+      builder:
+          (context) => const ConfirmationDialog(
+            title: 'Confirm Deletion',
+            content: 'Are you sure you want to delete this payment method?',
+            cancelText: 'Cancel',
+            confirmText: 'Delete',
+          ),
     );
 
     if (shouldDelete == true) {
@@ -123,13 +144,15 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
   }
 
   // Edit payment method
-  void _editPaymentMethod(BuildContext context, Map<String, dynamic> paymentMethod) {
+  void _editPaymentMethod(
+    BuildContext context,
+    Map<String, dynamic> paymentMethod,
+  ) {
     // TODO: Implement edit functionality
     showDialog(
       context: context,
-      builder: (context) => AddPaymentMethodDialog(
-        paymentMethodData: paymentMethod,
-      ),
+      builder:
+          (context) => AddPaymentMethodDialog(paymentMethodData: paymentMethod),
     );
   }
 
@@ -139,7 +162,9 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
     final provider = context.watch<BankingPaymentMethodProvider>();
 
     // If no data and not loading, try to load data
-    if (provider.paymentMethods.isEmpty && !provider.isLoading && provider.errorMessage == null) {
+    if (provider.paymentMethods.isEmpty &&
+        !provider.isLoading &&
+        provider.errorMessage == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           provider.getAllPaymentMethods();
@@ -166,7 +191,17 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                   color: Colors.red.shade50,
                   border: Border.all(color: Colors.grey, width: 1),
                   borderRadius: BorderRadius.circular(2),
-                  boxShadow: _isHovering ? [BoxShadow(color: Colors.blue, blurRadius: 4, spreadRadius: 0.1, offset: Offset(0, 1))] : [],
+                  boxShadow:
+                      _isHovering
+                          ? [
+                            BoxShadow(
+                              color: Colors.blue,
+                              blurRadius: 4,
+                              spreadRadius: 0.1,
+                              offset: Offset(0, 1),
+                            ),
+                          ]
+                          : [],
                 ),
                 child: Row(
                   children: [
@@ -232,9 +267,19 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                               child: Container(
                                 width: 30,
                                 height: 30,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: const BoxDecoration(shape: BoxShape.circle),
-                                child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                ),
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.clear,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -254,9 +299,19 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                               child: Container(
                                 width: 30,
                                 height: 30,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: const BoxDecoration(shape: BoxShape.circle),
-                                child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                ),
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.refresh,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -306,7 +361,7 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: 16),
-                      Text('Loading payment methods...')
+                      Text('Loading payment methods...'),
                     ],
                   ),
                 ),
@@ -353,7 +408,8 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        provider.successMessage ?? 'Operation completed successfully',
+                        provider.successMessage ??
+                            'Operation completed successfully',
                         style: TextStyle(color: Colors.green),
                       ),
                     ),
@@ -394,14 +450,15 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(minWidth: 1180),
                             child: Table(
-                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                              defaultVerticalAlignment:
+                                  TableCellVerticalAlignment.middle,
                               columnWidths: const {
-                                0: FlexColumnWidth(1),
-                                1: FlexColumnWidth(0.8),
-                                2: FlexColumnWidth(0.8),
+                                0: FlexColumnWidth(0.5),
+                                1: FlexColumnWidth(0.6),
+                                2: FlexColumnWidth(0.6),
                                 3: FlexColumnWidth(1),
                                 4: FlexColumnWidth(1),
-                                5: FlexColumnWidth(1),
+                                5: FlexColumnWidth(0.5),
                               },
                               children: [
                                 TableRow(
@@ -418,35 +475,59 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                                   ],
                                 ),
                                 if (provider.filteredPaymentMethods.isNotEmpty)
-                                  ...provider.filteredPaymentMethods.asMap().entries.map((entry) {
+                                  ...provider.filteredPaymentMethods.asMap().entries.map((
+                                    entry,
+                                  ) {
                                     final index = entry.key;
                                     final paymentMethod = entry.value;
                                     return TableRow(
                                       decoration: BoxDecoration(
-                                        color: index.isEven
-                                            ? Colors.grey.shade200
-                                            : Colors.grey.shade100,
+                                        color:
+                                            index.isEven
+                                                ? Colors.grey.shade200
+                                                : Colors.grey.shade100,
                                       ),
                                       children: [
                                         _buildCell2(
-                                          _formatDate(paymentMethod['created_at'] ?? paymentMethod['updated_at']),
-                                          _formatTime(paymentMethod['created_at'] ?? paymentMethod['updated_at']),
+                                          _formatDate(
+                                            paymentMethod['created_at'] ??
+                                                paymentMethod['updated_at'],
+                                          ),
+                                          _formatTime(
+                                            paymentMethod['created_at'] ??
+                                                paymentMethod['updated_at'],
+                                          ),
                                           centerText2: true,
                                         ),
-                                        _buildCell(paymentMethod['bank_name'] ?? 'N/A'),
-                                        _buildCell(paymentMethod['account_title'] ?? 'N/A'),
+                                        _buildCell(
+                                          paymentMethod['bank_name'] ?? 'N/A',
+                                        ),
+                                        _buildCell(
+                                          paymentMethod['account_title'] ??
+                                              'N/A',
+                                        ),
                                         _buildCell2(
                                           "ACC ${paymentMethod['account_num'] ?? 'N/A'}",
                                           "IBN ${paymentMethod['iban'] ?? 'N/A'}",
                                           copyable: true,
                                         ),
                                         _buildCell2(
-                                          paymentMethod['registered_phone'] ?? 'N/A',
-                                          paymentMethod['registered_email'] ?? 'N/A',
+                                          paymentMethod['registered_phone'] ??
+                                              'N/A',
+                                          paymentMethod['registered_email'] ??
+                                              'N/A',
                                         ),
                                         _buildActionCell(
-                                          onEdit: () => _editPaymentMethod(context, paymentMethod),
-                                          onDelete: () => _deletePaymentMethod(context, paymentMethod),
+                                          onEdit:
+                                              () => _editPaymentMethod(
+                                                context,
+                                                paymentMethod,
+                                              ),
+                                          onDelete:
+                                              () => _deletePaymentMethod(
+                                                context,
+                                                paymentMethod,
+                                              ),
                                         ),
                                       ],
                                     );
@@ -460,13 +541,22 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                                           height: 60,
                                           child: Center(
                                             child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
-                                                Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
+                                                Icon(
+                                                  Icons.inbox_outlined,
+                                                  color: Colors.grey.shade400,
+                                                  size: 24,
+                                                ),
                                                 SizedBox(height: 4),
                                                 Text(
                                                   'No payment methods available',
-                                                  style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic, fontSize: 12),
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontSize: 12,
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -484,13 +574,13 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                   ),
                 ),
               ),
-            )
-
+            ),
           ],
         ),
       ),
     );
   }
+
   Widget _buildHeader(String text) {
     return Container(
       height: 40,
@@ -509,6 +599,7 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
       ),
     );
   }
+
   Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
@@ -539,12 +630,13 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
       ),
     );
   }
+
   Widget _buildCell2(
-      String text1,
-      String text2, {
-        bool copyable = false,
-        bool centerText2 = false,
-      }) {
+    String text1,
+    String text2, {
+    bool copyable = false,
+    bool centerText2 = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -552,78 +644,72 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
         children: [
           Text(text1, style: const TextStyle(fontSize: 12)),
           centerText2
-              ? Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
+              ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    text2,
+                    style: const TextStyle(fontSize: 10, color: Colors.black54),
                   ),
-                ),
-                if (copyable)
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(text: "$text1\n$text2"),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied to clipboard'),
+                  if (copyable)
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied to clipboard')),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.copy,
+                          size: 14,
+                          color: Colors.blue[700],
                         ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(
-                        Icons.copy,
-                        size: 14,
-                        color: Colors.blue[700],
+                      ),
+                    ),
+                ],
+              )
+              : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
                       ),
                     ),
                   ),
-              ],
-            ),
-          )
-              : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  text2,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-              ),
-              if (copyable)
-                GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(
-                      ClipboardData(text: "$text1\n$text2"),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: Icon(
-                      Icons.copy,
-                      size: 8,
-                      color: Colors.blue[700],
+                  if (copyable)
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied to clipboard')),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.copy,
+                          size: 8,
+                          color: Colors.blue[700],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-            ],
-          ),
+                ],
+              ),
         ],
       ),
     );
   }
+
   Widget _buildActionCell({
     VoidCallback? onEdit,
     VoidCallback? onDelete,
@@ -631,11 +717,11 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
   }) {
     return Row(
       children: [
-        IconButton(
+        /*IconButton(
           icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
-        ),
+        ),*/
         IconButton(
           icon: const Icon(Icons.edit, size: 20, color: Colors.green),
           tooltip: 'Edit',
@@ -655,6 +741,4 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
       ],
     );
   }
-
-
 }

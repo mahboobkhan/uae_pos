@@ -33,7 +33,8 @@ class _BankingScreenState extends State<BankingScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final bankingPaymentsProvider = context.read<BankingPaymentsProvider>();
-        final bankingPaymentMethodProvider = context.read<BankingPaymentMethodProvider>();
+        final bankingPaymentMethodProvider =
+            context.read<BankingPaymentMethodProvider>();
         bankingPaymentsProvider.getAllBankingPayments();
         bankingPaymentMethodProvider.getAllPaymentMethods();
       }
@@ -46,15 +47,29 @@ class _BankingScreenState extends State<BankingScreen> {
     _horizontalController.dispose();
     super.dispose();
   }
+
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
 
   // Filter options
   final List<String> statusOptions = ['All', 'Pending', 'Completed'];
   final List<String> paymentTypeOptions = ['All', 'In', 'Out'];
-  final List<String> typeOptions = ['All', 'Employee', 'Short Service', 'Office Expenses', 'Project'];
-  final List<String> dateOptions = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
-  
+  final List<String> typeOptions = [
+    'All',
+    'Employee',
+    'Short Service',
+    'Office Expenses',
+    'Project',
+  ];
+  final List<String> dateOptions = [
+    'All',
+    'Today',
+    'Yesterday',
+    'Last 7 Days',
+    'Last 30 Days',
+    'Custom Range',
+  ];
+
   // Selected filter values
   String? selectedStatus;
   String? selectedPaymentType;
@@ -76,58 +91,81 @@ class _BankingScreenState extends State<BankingScreen> {
                 builder: (context, bankingProvider, child) {
                   final summary = bankingProvider.getSummaryStats();
                   final stats = [
-                    {'label': 'TOTAL PAYMENTS', 'value': summary['total_payments'].toString()},
-                    {'label': 'CASH IN', 'value': bankingProvider.formatAmount(summary['total_income'])},
-                    {'label': 'CASH OUT', 'value': bankingProvider.formatAmount(summary['total_expense'])},
-                    {'label': 'PENDING', 'value': summary['pending_payments'].toString()},
-                    {'label': 'COMPLETED', 'value': summary['completed_payments'].toString()},
+                    {
+                      'label': 'TOTAL PAYMENTS',
+                      'value': summary['total_payments'].toString(),
+                    },
+                    {
+                      'label': 'CASH IN',
+                      'value': bankingProvider.formatAmount(
+                        summary['total_income'],
+                      ),
+                    },
+                    {
+                      'label': 'CASH OUT',
+                      'value': bankingProvider.formatAmount(
+                        summary['total_expense'],
+                      ),
+                    },
+                    {
+                      'label': 'PENDING',
+                      'value': summary['pending_payments'].toString(),
+                    },
+                    {
+                      'label': 'COMPLETED',
+                      'value': summary['completed_payments'].toString(),
+                    },
                   ];
-                  
+
                   return SizedBox(
                     height: 120,
                     child: Row(
-                      children: stats.map((stat) {
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Material(
-                              elevation: 12,
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.white70,
-                              shadowColor: Colors.black,
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(12),
+                      children:
+                          stats.map((stat) {
+                            return Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      stat['value']!,
-                                      style: const TextStyle(
-                                        fontSize: 28,
-                                        color: Colors.white,
-                                        fontFamily: 'Courier',
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                child: Material(
+                                  elevation: 12,
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: Colors.white70,
+                                  shadowColor: Colors.black,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      stat['label']!,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          stat['value']!,
+                                          style: const TextStyle(
+                                            fontSize: 28,
+                                            color: Colors.white,
+                                            fontFamily: 'Courier',
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          stat['label']!,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          }).toList(),
                     ),
                   );
                 },
@@ -180,7 +218,9 @@ class _BankingScreenState extends State<BankingScreen> {
                                 selectedValue: selectedPaymentType,
                                 items: paymentTypeOptions,
                                 onChanged: (newValue) {
-                                  setState(() => selectedPaymentType = newValue!);
+                                  setState(
+                                    () => selectedPaymentType = newValue!,
+                                  );
                                   _applyFilters();
                                 },
                               ),
@@ -201,22 +241,34 @@ class _BankingScreenState extends State<BankingScreen> {
                                 items: dateOptions,
                                 onChanged: (newValue) async {
                                   if (newValue == 'Custom Range') {
-                                    final selectedRange = await showDateRangePickerDialog(context);
+                                    final selectedRange =
+                                        await showDateRangePickerDialog(
+                                          context,
+                                        );
                                     if (selectedRange != null) {
-                                      final start = selectedRange.startDate ?? DateTime.now();
-                                      final end = selectedRange.endDate ?? start;
-                                      final formattedRange = '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
+                                      final start =
+                                          selectedRange.startDate ??
+                                          DateTime.now();
+                                      final end =
+                                          selectedRange.endDate ?? start;
+                                      final formattedRange =
+                                          '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
                                       setState(() {
                                         selectedDateRange = formattedRange;
                                       });
                                       _applyCustomDateRange(start, end);
                                     }
                                   } else {
-                                    setState(() => selectedDateRange = newValue!);
+                                    setState(
+                                      () => selectedDateRange = newValue!,
+                                    );
                                     _applyFilters();
                                   }
                                 },
-                                icon: const Icon(Icons.calendar_month, size: 18),
+                                icon: const Icon(
+                                  Icons.calendar_month,
+                                  size: 18,
+                                ),
                               ),
                             ],
                           ),
@@ -239,9 +291,19 @@ class _BankingScreenState extends State<BankingScreen> {
                                 child: Container(
                                   width: 30,
                                   height: 30,
-                                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                                  decoration: const BoxDecoration(shape: BoxShape.circle),
-                                  child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 5,
+                                  ),
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.clear,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -256,15 +318,26 @@ class _BankingScreenState extends State<BankingScreen> {
                               waitDuration: Duration(milliseconds: 2),
                               child: GestureDetector(
                                 onTap: () {
-                                  final bankingProvider = context.read<BankingPaymentsProvider>();
+                                  final bankingProvider =
+                                      context.read<BankingPaymentsProvider>();
                                   bankingProvider.getAllBankingPayments();
                                 },
                                 child: Container(
                                   width: 30,
                                   height: 30,
-                                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                                  decoration: const BoxDecoration(shape: BoxShape.circle),
-                                  child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 5,
+                                  ),
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.refresh,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -294,7 +367,8 @@ class _BankingScreenState extends State<BankingScreen> {
                           ),
                           const SizedBox(width: 10),
                           GestureDetector(
-                            onTap: () => showUnifiedOfficeExpenseDialog(context),
+                            onTap:
+                                () => showUnifiedOfficeExpenseDialog(context),
                             child: Tooltip(
                               message: 'Office Expense Management',
                               child: Container(
@@ -369,7 +443,11 @@ class _BankingScreenState extends State<BankingScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.error_outline, size: 64, color: Colors.red),
+                            Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: Colors.red,
+                            ),
                             SizedBox(height: 16),
                             Text(
                               bankingProvider.errorMessage!,
@@ -378,7 +456,8 @@ class _BankingScreenState extends State<BankingScreen> {
                             ),
                             SizedBox(height: 16),
                             ElevatedButton(
-                              onPressed: () => bankingProvider.getAllBankingPayments(),
+                              onPressed:
+                                  () => bankingProvider.getAllBankingPayments(),
                               child: Text('Retry'),
                             ),
                           ],
@@ -388,7 +467,7 @@ class _BankingScreenState extends State<BankingScreen> {
                   }
 
                   final payments = bankingProvider.payments;
-                  
+
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Container(
@@ -413,9 +492,12 @@ class _BankingScreenState extends State<BankingScreen> {
                                 scrollDirection: Axis.vertical,
                                 controller: _verticalController,
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(minWidth: 1180),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 1180,
+                                  ),
                                   child: Table(
-                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                    defaultVerticalAlignment:
+                                        TableCellVerticalAlignment.middle,
                                     columnWidths: const {
                                       0: FlexColumnWidth(0.8),
                                       1: FlexColumnWidth(1),
@@ -443,36 +525,72 @@ class _BankingScreenState extends State<BankingScreen> {
                                         ],
                                       ),
                                       if (payments.isNotEmpty)
-                                        ...payments.asMap().entries.map((entry) {
+                                        ...payments.asMap().entries.map((
+                                          entry,
+                                        ) {
                                           final index = entry.key;
                                           final payment = entry.value;
                                           return TableRow(
                                             decoration: BoxDecoration(
-                                              color: index.isEven
-                                                  ? Colors.grey.shade200
-                                                  : Colors.grey.shade100,
+                                              color:
+                                                  index.isEven
+                                                      ? Colors.grey.shade200
+                                                      : Colors.grey.shade100,
                                             ),
                                             children: [
-                                              _buildCell(payment['id']?.toString() ?? 'N/A', copyable: true),
-                                              _buildCell(payment['payment_ref_id']?.toString() ?? 'N/A', copyable: true),
-                                              _buildCell(payment['type']?.toString().toUpperCase() ?? 'N/A'),
-                                              _buildCell(payment['client_ref']?.toString() ?? 'N/A', copyable: true),
+                                              _buildCell(
+                                                payment['id']?.toString() ??
+                                                    'N/A',
+                                                copyable: true,
+                                              ),
+                                              _buildCell(
+                                                payment['payment_ref_id']
+                                                        ?.toString() ??
+                                                    'N/A',
+                                                copyable: true,
+                                              ),
+                                              _buildCell(
+                                                payment['type']
+                                                        ?.toString()
+                                                        .toUpperCase() ??
+                                                    'N/A',
+                                              ),
+                                              _buildCell(
+                                                payment['client_ref']
+                                                        ?.toString() ??
+                                                    'N/A',
+                                                copyable: true,
+                                              ),
                                               _buildCell2(
                                                 "Total: ${bankingProvider.formatAmount(payment['total_amount'])}",
                                                 "Paid: ${bankingProvider.formatAmount(payment['paid_amount'])}",
                                                 copyable: true,
                                               ),
                                               _buildCell(
-                                                payment['status']?.toString().toUpperCase() ?? 'N/A',
+                                                payment['status']
+                                                        ?.toString()
+                                                        .toUpperCase() ??
+                                                    'N/A',
                                                 copyable: false,
                                               ),
                                               _buildCell(
-                                                _formatPaymentDate(payment['created_at'] ?? payment['updated_at']),
+                                                _formatPaymentDate(
+                                                  payment['created_at'] ??
+                                                      payment['updated_at'],
+                                                ),
                                                 copyable: false,
                                               ),
                                               _buildActionCell(
-                                                onEdit: () => _editPayment(context, payment),
-                                                onDelete: () => _deletePayment(context, payment),
+                                                onEdit:
+                                                    () => _editPayment(
+                                                      context,
+                                                      payment,
+                                                    ),
+                                                onDelete:
+                                                    () => _deletePayment(
+                                                      context,
+                                                      payment,
+                                                    ),
                                               ),
                                             ],
                                           );
@@ -486,13 +604,30 @@ class _BankingScreenState extends State<BankingScreen> {
                                                 height: 60,
                                                 child: Center(
                                                   child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
-                                                      Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
+                                                      Icon(
+                                                        Icons.inbox_outlined,
+                                                        color:
+                                                            Colors
+                                                                .grey
+                                                                .shade400,
+                                                        size: 24,
+                                                      ),
                                                       SizedBox(height: 4),
                                                       Text(
                                                         'No payments available',
-                                                        style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic, fontSize: 12),
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade600,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          fontSize: 12,
+                                                        ),
                                                       ),
                                                     ],
                                                   ),
@@ -512,7 +647,7 @@ class _BankingScreenState extends State<BankingScreen> {
                     ),
                   );
                 },
-              )
+              ),
             ],
           ),
         ),
@@ -663,11 +798,11 @@ class _BankingScreenState extends State<BankingScreen> {
   }) {
     return Row(
       children: [
-        IconButton(
+        /*IconButton(
           icon: const Icon(Icons.edit, size: 20, color: Colors.green),
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
-        ),
+        ),*/
         IconButton(
           icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Delete',
@@ -690,24 +825,24 @@ class _BankingScreenState extends State<BankingScreen> {
   /// Apply filters to banking payments
   void _applyFilters() {
     final bankingProvider = context.read<BankingPaymentsProvider>();
-    
+
     // Convert UI filter values to API parameters
     String? statusFilter;
     String? paymentTypeFilter;
     String? typeFilter;
     String? startDateFilter;
     String? endDateFilter;
-    
+
     // Status filter
     if (selectedStatus != null && selectedStatus != 'All') {
       statusFilter = selectedStatus!.toLowerCase();
     }
-    
+
     // Payment type filter
     if (selectedPaymentType != null && selectedPaymentType != 'All') {
       paymentTypeFilter = selectedPaymentType!.toLowerCase();
     }
-    
+
     // Type filter
     if (selectedType != null && selectedType != 'All') {
       switch (selectedType) {
@@ -725,7 +860,7 @@ class _BankingScreenState extends State<BankingScreen> {
           break;
       }
     }
-    
+
     // Date filter
     if (selectedDateRange != null && selectedDateRange != 'All') {
       final now = DateTime.now();
@@ -751,7 +886,7 @@ class _BankingScreenState extends State<BankingScreen> {
           break;
       }
     }
-    
+
     // Apply filters to provider
     bankingProvider.setFilters(
       type: typeFilter,
@@ -760,7 +895,7 @@ class _BankingScreenState extends State<BankingScreen> {
       dateFrom: startDateFilter,
       dateTo: endDateFilter,
     );
-    
+
     // Refresh payments with filters
     bankingProvider.getAllBankingPayments();
   }
@@ -768,12 +903,12 @@ class _BankingScreenState extends State<BankingScreen> {
   /// Apply custom date range filter
   void _applyCustomDateRange(DateTime startDate, DateTime endDate) {
     final bankingProvider = context.read<BankingPaymentsProvider>();
-    
+
     bankingProvider.setFilters(
       dateFrom: DateFormat('yyyy-MM-dd').format(startDate),
       dateTo: DateFormat('yyyy-MM-dd').format(endDate),
     );
-    
+
     bankingProvider.getAllBankingPayments();
   }
 
@@ -785,7 +920,7 @@ class _BankingScreenState extends State<BankingScreen> {
       selectedType = null;
       selectedDateRange = null;
     });
-    
+
     final bankingProvider = context.read<BankingPaymentsProvider>();
     bankingProvider.clearFilters();
     bankingProvider.getAllBankingPayments();
@@ -805,49 +940,59 @@ class _BankingScreenState extends State<BankingScreen> {
   /// Edit payment
   void _editPayment(BuildContext context, Map<String, dynamic> payment) {
     final paymentType = payment['type']?.toString().toLowerCase();
-    
+
     if (paymentType == 'employee') {
       // Show employee dialog for employee payments
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => DialogEmployeType(paymentData: payment, isEditMode: true),
+        builder:
+            (context) =>
+                DialogEmployeType(paymentData: payment, isEditMode: true),
       );
     } else if (paymentType == 'project') {
       // Show client dialog for project payments
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => DialogueBankTransaction(paymentData: payment, isEditMode: true),
+        builder:
+            (context) =>
+                DialogueBankTransaction(paymentData: payment, isEditMode: true),
       );
     } else {
       // Default to employee dialog for other types
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => DialogEmployeType(paymentData: payment, isEditMode: true),
+        builder:
+            (context) =>
+                DialogEmployeType(paymentData: payment, isEditMode: true),
       );
     }
   }
 
   /// Delete payment
-  void _deletePayment(BuildContext context, Map<String, dynamic> payment) async {
+  void _deletePayment(
+    BuildContext context,
+    Map<String, dynamic> payment,
+  ) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirm Deletion'),
-        content: Text('Are you sure you want to delete this payment?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: Text('Confirm Deletion'),
+            content: Text('Are you sure you want to delete this payment?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
 
     if (shouldDelete == true) {

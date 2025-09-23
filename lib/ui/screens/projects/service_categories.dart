@@ -137,7 +137,6 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                 quotation: quotation,
                                 serviceProviderName: serviceProviderName,
                                 date: DateTime.now().toIso8601String(),
-
                               );
                             }
                             Navigator.of(context).pop();
@@ -670,11 +669,11 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
   }) {
     return Row(
       children: [
-        IconButton(
+        /* IconButton(
           icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
-        ),
+        ),*/
         IconButton(
           icon: const Icon(Icons.edit, size: 20, color: Colors.green),
           tooltip: 'Edit',
