@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../expense/expense_provider.dart';
+import '../../../providers/expense_provider.dart';
 import '../../../utils/request_state.dart' show RequestState;
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/tags_class.dart';
@@ -18,6 +18,17 @@ class OfficeExpenseScreen extends StatefulWidget {
 class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
+
+  /// Format number to display with K, M suffixes
+  String formatNumber(double number) {
+    if (number >= 1000000) {
+      return '${(number / 1000000).toStringAsFixed(1)}M';
+    } else if (number >= 1000) {
+      return '${(number / 1000).toStringAsFixed(1)}K';
+    } else {
+      return number.toStringAsFixed(0);
+    }
+  }
 
   @override
   void dispose() {
@@ -42,13 +53,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
 
-  final List<Map<String, dynamic>> stats = [
-    {'label': 'Revenue', 'value': '25K'},
-    {'label': 'Users', 'value': '1.2K'},
-    {'label': 'Orders', 'value': '320'},
-    {'label': 'Visits', 'value': '8.5K'},
-    {'label': 'Returns', 'value': '102'},
-  ];
+  // Dynamic stats will be generated from ExpenseProvider data
 
   DateTime selectedDateTime = DateTime.now();
 
@@ -72,9 +77,9 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
           return Center(child: Text(expensesProvider.errorMessage ?? "Error"));
         }
 
-        if (expensesProvider.expenses.isEmpty) {
+        /*if (expensesProvider.expenses.isEmpty) {
           return const Center(child: Text("No expenses found"));
-        }
+        }*/
         return Scaffold(
           body: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -84,42 +89,178 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                 SizedBox(
                   height: 120,
                   child: Row(
-                    children:
-                        stats.map((stat) {
-                          return Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Material(
-                                elevation: 12,
-                                borderRadius: BorderRadius.circular(12),
-                                color: Colors.white70,
-                                shadowColor: Colors.black,
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      FittedBox(
-                                        child: Text(
-                                          stat['value'],
-                                          style: const TextStyle(
-                                            fontSize: 28,
-                                            color: Colors.white,
-                                            fontFamily: 'Courier',
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                    children: [
+                      // Total Expenses Count
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Material(
+                            elevation: 12,
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white70,
+                            shadowColor: Colors.black,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FittedBox(
+                                    child: Text(
+                                      expensesProvider.totalExpenses.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontFamily: 'Courier',
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      const SizedBox(height: 8),
-                                      FittedBox(child: Text(stat['label'], style: const TextStyle(fontSize: 14, color: Colors.white))),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(height: 8),
+                                  const FittedBox(child: Text('Total Count', style: TextStyle(fontSize: 14, color: Colors.white))),
+                                ],
                               ),
                             ),
-                          );
-                        }).toList(),
+                          ),
+                        ),
+                      ),
+                      // Total Expense Amount
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Material(
+                            elevation: 12,
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white70,
+                            shadowColor: Colors.black,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FittedBox(
+                                    child: Text(
+                                      formatNumber(expensesProvider.totalExpenseAmount),
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontFamily: 'Courier',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const FittedBox(child: Text('Total Amount', style: TextStyle(fontSize: 14, color: Colors.white))),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Placeholder for additional stats if needed
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Material(
+                            elevation: 12,
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white70,
+                            shadowColor: Colors.black,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FittedBox(
+                                    child: Text(
+                                      'N/A',
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontFamily: 'Courier',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const FittedBox(child: Text('Revenue', style: TextStyle(fontSize: 14, color: Colors.white))),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Placeholder for additional stats if needed
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Material(
+                            elevation: 12,
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white70,
+                            shadowColor: Colors.black,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FittedBox(
+                                    child: Text(
+                                      'N/A',
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontFamily: 'Courier',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const FittedBox(child: Text('Visits', style: TextStyle(fontSize: 14, color: Colors.white))),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Placeholder for additional stats if needed
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Material(
+                            elevation: 12,
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white70,
+                            shadowColor: Colors.black,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FittedBox(
+                                    child: Text(
+                                      'N/A',
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontFamily: 'Courier',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const FittedBox(child: Text('Returns', style: TextStyle(fontSize: 14, color: Colors.white))),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 

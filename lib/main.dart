@@ -1,3 +1,5 @@
+import 'package:abc_consultant/providers/banking_payment_method_provider.dart';
+import 'package:abc_consultant/providers/banking_payments_provider.dart';
 import 'package:abc_consultant/providers/client_organization_employee_provider.dart';
 import 'package:abc_consultant/providers/client_profile_provider.dart';
 import 'package:abc_consultant/providers/create_bank_account.dart';
@@ -24,7 +26,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'employee/EmployeeProvider.dart';
-import 'expense/expense_provider.dart';
+import 'providers/expense_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +64,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ClientProfileProvider()),
         ChangeNotifierProvider(create: (_) => ClientOrganizationEmployeeProvider()),
         ChangeNotifierProvider(create: (_) => DocumentsProvider()),
+        ChangeNotifierProvider(create: (_) => BankingPaymentMethodProvider()),
+        ChangeNotifierProvider(create: (_) => BankingPaymentsProvider()),
       ],
 
       child: const MyApp(),

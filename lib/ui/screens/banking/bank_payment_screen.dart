@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
+import '../../../providers/banking_payment_method_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/custom_fields.dart';
 import 'banking_dialoges/add_payment_method.dart';
 
 class BankPaymentScreen extends StatefulWidget {
@@ -18,27 +22,131 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
   bool _isHovering = false;
   final GlobalKey _plusKey = GlobalKey();
 
+  // Filter options
+  final List<String> statusOptions = ['All', 'Active', 'Inactive'];
+  final List<String> bankOptions = ['All', 'HBL Bank', 'UBL Bank', 'MCB Bank', 'Allied Bank'];
+  final List<String> dateOptions = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
+  
+  // Selected filter values
+  String? selectedStatus;
+  String? selectedBank;
+  String? selectedDateRange;
 
-  final List<String> categories = [
-    'All',
-    'New',
-    'Pending',
-    'Completed',
-    'Stop',
-  ];
-  String? selectedCategory;
-  final List<String> categories1 = [
-    'No Tags',
-    'Tag 001',
-    'Tag 002',
-    'Sample Tag',
-  ];
-  String? selectedCategory1;
-  final List<String> categories2 = ['All', 'Pending', 'Paid'];
-  String? selectedCategory2;
+  @override
+  void initState() {
+    super.initState();
+    // Load payment methods when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Future.delayed(Duration(milliseconds: 200), () {
+          if (mounted) {
+            try {
+              final provider = context.read<BankingPaymentMethodProvider>();
+              provider.getAllPaymentMethods();
+            } catch (e) {
+              print('Error accessing provider: $e');
+            }
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
+
+  String _formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '00-00-0000';
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('dd-MM-yyyy').format(dateTime);
+    } catch (e) {
+      return '00-00-0000';
+    }
+  }
+
+  String _formatTime(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '00-00';
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('hh:mm a').format(dateTime);
+    } catch (e) {
+      return '00-00';
+    }
+  }
+
+  // Apply filters to the payment methods
+  void _applyFilters() {
+    final provider = context.read<BankingPaymentMethodProvider>();
+    
+    // Apply filters to provider
+    provider.setFilters(
+      bankName: selectedBank != null && selectedBank != 'All' ? selectedBank : null,
+      status: selectedStatus != null && selectedStatus != 'All' ? selectedStatus : null,
+    );
+  }
+
+  // Clear all filters
+  void _clearFilters() {
+    setState(() {
+      selectedStatus = null;
+      selectedBank = null;
+      selectedDateRange = null;
+    });
+    
+    final provider = context.read<BankingPaymentMethodProvider>();
+    provider.clearFilters();
+  }
+
+  // Delete payment method
+  void _deletePaymentMethod(BuildContext context, Map<String, dynamic> paymentMethod) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => const ConfirmationDialog(
+        title: 'Confirm Deletion',
+        content: 'Are you sure you want to delete this payment method?',
+        cancelText: 'Cancel',
+        confirmText: 'Delete',
+      ),
+    );
+
+    if (shouldDelete == true) {
+      final provider = context.read<BankingPaymentMethodProvider>();
+      await provider.deletePaymentMethod(
+        paymentMethodRefId: paymentMethod['payment_method_ref_id'],
+      );
+    }
+  }
+
+  // Edit payment method
+  void _editPaymentMethod(BuildContext context, Map<String, dynamic> paymentMethod) {
+    // TODO: Implement edit functionality
+    showDialog(
+      context: context,
+      builder: (context) => AddPaymentMethodDialog(
+        paymentMethodData: paymentMethod,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Use context.watch to automatically rebuild when provider changes
+    final provider = context.watch<BankingPaymentMethodProvider>();
+
+    // If no data and not loading, try to load data
+    if (provider.paymentMethods.isEmpty && !provider.isLoading && provider.errorMessage == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          provider.getAllPaymentMethods();
+        }
+      });
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
@@ -58,17 +166,7 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                   color: Colors.red.shade50,
                   border: Border.all(color: Colors.grey, width: 1),
                   borderRadius: BorderRadius.circular(2),
-                  boxShadow:
-                  _isHovering
-                      ? [
-                    BoxShadow(
-                      color: Colors.blue,
-                      blurRadius: 4,
-                      spreadRadius: 0.1,
-                      offset: const Offset(0, 1),
-                    ),
-                  ]
-                      : [],
+                  boxShadow: _isHovering ? [BoxShadow(color: Colors.blue, blurRadius: 4, spreadRadius: 0.1, offset: Offset(0, 1))] : [],
                 ),
                 child: Row(
                   children: [
@@ -77,65 +175,114 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
+                            // Status Filter
                             CustomDropdown(
                               hintText: "Status",
-                              selectedValue: selectedCategory,
-                              onChanged:
-                                  (newValue) => setState(
-                                    () => selectedCategory = newValue!,
-                              ),
-                              items: categories,
+                              selectedValue: selectedStatus,
+                              onChanged: (newValue) {
+                                setState(() => selectedStatus = newValue!);
+                                _applyFilters();
+                              },
+                              items: statusOptions,
                             ),
+                            // Bank Filter
                             CustomDropdown(
-                              hintText: "Select Tags",
-                              selectedValue: selectedCategory1,
-                              onChanged:
-                                  (newValue) => setState(
-                                    () => selectedCategory1 = newValue!,
-                              ),
-                              items: categories1,
+                              hintText: "Bank Name",
+                              selectedValue: selectedBank,
+                              onChanged: (newValue) {
+                                setState(() => selectedBank = newValue!);
+                                _applyFilters();
+                              },
+                              items: bankOptions,
                             ),
+                            // Date Filter
                             CustomDropdown(
-                              hintText: "Payment Status",
-                              selectedValue: selectedCategory2,
-                              onChanged:
-                                  (newValue) => setState(
-                                    () => selectedCategory2 = newValue!,
-                              ),
-                              items: categories2,
+                              hintText: "Dates",
+                              selectedValue: selectedDateRange,
+                              onChanged: (newValue) async {
+                                if (newValue == 'Custom Range') {
+                                  // TODO: Implement custom date range picker
+                                  setState(() => selectedDateRange = newValue!);
+                                } else {
+                                  setState(() => selectedDateRange = newValue!);
+                                  _applyFilters();
+                                }
+                              },
+                              items: dateOptions,
+                              icon: const Icon(Icons.calendar_month, size: 18),
                             ),
-
                           ],
                         ),
                       ),
                     ),
-
                     Row(
                       children: [
-                        /// Plus Button with Menu
+                        // Clear Filters Button
+                        Card(
+                          elevation: 4,
+                          color: Colors.orange,
+                          shape: CircleBorder(),
+                          child: Tooltip(
+                            message: 'Clear Filters',
+                            waitDuration: Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              onTap: () {
+                                _clearFilters();
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                decoration: const BoxDecoration(shape: BoxShape.circle),
+                                child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Refresh Button
+                        Card(
+                          elevation: 4,
+                          color: Colors.green,
+                          shape: CircleBorder(),
+                          child: Tooltip(
+                            message: 'Refresh',
+                            waitDuration: Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              onTap: () {
+                                provider.getAllPaymentMethods();
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                decoration: const BoxDecoration(shape: BoxShape.circle),
+                                child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        // Add Payment Method Button
                         Card(
                           elevation: 8,
                           color: Colors.blue,
                           shape: const CircleBorder(),
-                          child: Builder(
-                            builder:
-                                (context) => Tooltip(
-                              message: 'Show menu',
-                              waitDuration: const Duration(milliseconds: 2),
-                              child: GestureDetector(
-                                key: _plusKey,
-                                onTap: () {
-                                  showAddPaymentMethodDialog(context);
-                                },
-                                child: const SizedBox(
-                                  width: 30,
-                                  height: 30,
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.add,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
+                          child: Tooltip(
+                            message: 'Add Payment Method',
+                            waitDuration: const Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              key: _plusKey,
+                              onTap: () {
+                                showAddPaymentMethodDialog(context);
+                              },
+                              child: const SizedBox(
+                                width: 30,
+                                height: 30,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
                                 ),
                               ),
@@ -149,11 +296,82 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                 ),
               ),
             ),
-            Padding
-              (
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            // Show loading indicator
+            if (provider.isLoading)
+              Container(
+                height: 200,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Loading payment methods...')
+                    ],
+                  ),
+                ),
+              )
+            // Show error message
+            else if (provider.errorMessage != null)
+              Container(
+                height: 200,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      SizedBox(height: 16),
+                      Text(
+                        provider.errorMessage ?? 'An error occurred',
+                        style: TextStyle(color: Colors.red, fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          provider.getAllPaymentMethods();
+                        },
+                        child: Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            // Show success message
+            else if (provider.successMessage != null)
+              Container(
+                padding: EdgeInsets.all(8),
+                margin: EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  border: Border.all(color: Colors.green),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        provider.successMessage ?? 'Operation completed successfully',
+                        style: TextStyle(color: Colors.green),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.green),
+                      onPressed: () {
+                        provider.clearMessages();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+            SizedBox(height: 15),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Container(
-                height: 400,
                 child: ScrollbarTheme(
                   data: ScrollbarThemeData(
                     thumbVisibility: MaterialStateProperty.all(true),
@@ -197,31 +415,65 @@ class _BankPaymentScreenState extends State<BankPaymentScreen> {
                                     _buildHeader("Account No/IBN"),
                                     _buildHeader("Mobile/Email"),
                                     _buildHeader("Other Actions"),
-
                                   ],
                                 ),
-                                for (int i = 0; i < 20; i++)
+                                if (provider.filteredPaymentMethods.isNotEmpty)
+                                  ...provider.filteredPaymentMethods.asMap().entries.map((entry) {
+                                    final index = entry.key;
+                                    final paymentMethod = entry.value;
+                                    return TableRow(
+                                      decoration: BoxDecoration(
+                                        color: index.isEven
+                                            ? Colors.grey.shade200
+                                            : Colors.grey.shade100,
+                                      ),
+                                      children: [
+                                        _buildCell2(
+                                          _formatDate(paymentMethod['created_at'] ?? paymentMethod['updated_at']),
+                                          _formatTime(paymentMethod['created_at'] ?? paymentMethod['updated_at']),
+                                          centerText2: true,
+                                        ),
+                                        _buildCell(paymentMethod['bank_name'] ?? 'N/A'),
+                                        _buildCell(paymentMethod['account_title'] ?? 'N/A'),
+                                        _buildCell2(
+                                          "ACC ${paymentMethod['account_num'] ?? 'N/A'}",
+                                          "IBN ${paymentMethod['iban'] ?? 'N/A'}",
+                                          copyable: true,
+                                        ),
+                                        _buildCell2(
+                                          paymentMethod['registered_phone'] ?? 'N/A',
+                                          paymentMethod['registered_email'] ?? 'N/A',
+                                        ),
+                                        _buildActionCell(
+                                          onEdit: () => _editPaymentMethod(context, paymentMethod),
+                                          onDelete: () => _deletePaymentMethod(context, paymentMethod),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList()
+                                else if (!provider.isLoading)
                                   TableRow(
-                                    decoration: BoxDecoration(
-                                      color: i.isEven
-                                          ? Colors.grey.shade200
-                                          : Colors.grey.shade100,
+                                    children: List.generate(
+                                      6,
+                                      (index) => TableCell(
+                                        child: Container(
+                                          height: 60,
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  'No payment methods available',
+                                                  style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic, fontSize: 12),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    children: [
-                                      _buildCell("xxxxx3667", copyable: true),
-                                      _buildCell("UDC Bank"),
-                                      _buildCell('xxxxxx'),
-                                      _buildCell2(
-                                        "ACC xxxxxxxx345",
-                                        "IBN xxxxxxx345",
-                                        copyable: true,
-                                      ),
-                                      _buildCell2("0626626626", "@gmail.com"),
-                                      _buildActionCell(
-                                        onEdit: () {},
-                                        onDelete: () {},
-                                      ),
-                                    ],
                                   ),
                               ],
                             ),

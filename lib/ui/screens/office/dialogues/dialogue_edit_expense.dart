@@ -3,7 +3,7 @@ import 'package:abc_consultant/ui/dialogs/custom_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../expense/expense_provider.dart';
+import '../../../../providers/expense_provider.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/custom_dialoges.dart';
 

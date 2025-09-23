@@ -1,38 +1,52 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:connectivity_plus/connectivity_plus.dart';
+
 import '../utils/request_state.dart';
 
 class ExpenseProvider extends ChangeNotifier {
   // State management
   RequestState _state = RequestState.idle;
+
   RequestState get state => _state;
 
   RequestState _fetchState = RequestState.idle;
+
   RequestState get fetchState => _fetchState;
 
   // Data
   List<ExpenseData> _expenses = [];
+  int _totalExpenses = 0;
+  double _totalExpenseAmount = 0.0;
+
   List<ExpenseData> get expenses => _expenses;
+  int get totalExpenses => _totalExpenses;
+  double get totalExpenseAmount => _totalExpenseAmount;
 
   // Error handling
   String? _errorMessage;
+
   String? get errorMessage => _errorMessage;
 
   String? _fetchErrorMessage;
+
   String? get fetchErrorMessage => _fetchErrorMessage;
 
   // Response objects
   ExpenseResponse? _response;
+
   ExpenseResponse? get response => _response;
 
   UpdateExpenseResponse? _updateResponse;
+
   UpdateExpenseResponse? get updateResponse => _updateResponse;
 
   DeleteExpenseResponse? _deleteResponse;
+
   DeleteExpenseResponse? get deleteResponse => _deleteResponse;
 
   /// Reset all states
@@ -73,11 +87,7 @@ class ExpenseProvider extends ChangeNotifier {
   // ==================== FETCH OPERATIONS ====================
 
   /// Fetch expenses with optional filters
-  Future<void> fetchExpenses({
-    String? expenseType,
-    String? paymentStatus,
-    String? tag,
-  }) async {
+  Future<void> fetchExpenses({String? expenseType, String? paymentStatus, String? tag}) async {
     _setFetchState(RequestState.loading);
     print("Step 1: Checking Internet...");
 
@@ -114,7 +124,11 @@ class ExpenseProvider extends ChangeNotifier {
           if (data['status'] == 'success') {
             final parsed = ExpensesResponse.fromJson(data);
             _expenses = parsed.data;
+            _totalExpenses = data['total_expenses'] ?? 0;
+            _totalExpenseAmount = (data['total_expense_amount'] ?? 0).toDouble();
             print("Step 4: Expenses Parsed -> ${_expenses.length}");
+            print("Step 4: Total Expenses -> $_totalExpenses");
+            print("Step 4: Total Amount -> $_totalExpenseAmount");
             _setFetchState(RequestState.success);
           } else {
             _fetchErrorMessage = data['message'] ?? 'Unknown API error';
@@ -140,7 +154,7 @@ class ExpenseProvider extends ChangeNotifier {
   /// Fetch fixed office expenses
   Future<void> fetchFixedOfficeExpenses() async {
     print("🔄 Fetching fixed office expenses...");
-    
+
     if (!await _checkConnectivity()) {
       _setFetchState(RequestState.error);
       _fetchErrorMessage = "No Internet Connection";
@@ -192,10 +206,10 @@ class ExpenseProvider extends ChangeNotifier {
           // Filter for office expenses only
           final allExpenses = (data['expenses'] as List).map((json) => ExpenseData.fromJson(json)).toList();
 
-          _expenses = allExpenses
-              .where((expense) => expense.tag.toLowerCase().contains('office') || 
-                                  expense.expenseType.toLowerCase().contains('office'))
-              .toList();
+          _expenses =
+              allExpenses
+                  .where((expense) => expense.tag.toLowerCase().contains('office') || expense.expenseType.toLowerCase().contains('office'))
+                  .toList();
 
           _setFetchState(RequestState.success);
           print("✅ Fetched ${_expenses.length} office expenses from fallback");
@@ -224,7 +238,7 @@ class ExpenseProvider extends ChangeNotifier {
   /// Create a new expense
   Future<void> createExpense(ExpenseRequest request) async {
     print("🔄 Step 1: Checking Internet...");
-    
+
     if (!await _checkConnectivity()) {
       _setState(RequestState.error);
       _errorMessage = "No Internet Connection";
@@ -237,11 +251,7 @@ class ExpenseProvider extends ChangeNotifier {
       print("⏳ Step 2: Sending request to API...");
 
       final url = Uri.parse("https://abcwebservices.com/api/expenses/create_expense.php");
-      final response = await http.post(
-        url, 
-        headers: {"Content-Type": "application/json"}, 
-        body: jsonEncode(request.toJson())
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: jsonEncode(request.toJson()));
 
       print("📥 Step 3: Response received with status ${response.statusCode}");
 
@@ -274,7 +284,10 @@ class ExpenseProvider extends ChangeNotifier {
   /// Add user-created expense to local list when API fails
   void addUserCreatedExpense(ExpenseRequest request) {
     final userExpense = ExpenseData(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: DateTime
+          .now()
+          .millisecondsSinceEpoch
+          .toString(),
       tid: "",
       expenseType: request.expenseType,
       expenseName: request.expenseName,
@@ -310,11 +323,7 @@ class ExpenseProvider extends ChangeNotifier {
 
     try {
       final response = await http
-          .post(
-            Uri.parse(url),
-            body: jsonEncode(body),
-            headers: {"Content-Type": "application/json"},
-          )
+          .post(Uri.parse(url), body: jsonEncode(body), headers: {"Content-Type": "application/json"})
           .timeout(const Duration(seconds: 15));
 
       print("Response received: ${response.statusCode}");
@@ -358,11 +367,7 @@ class ExpenseProvider extends ChangeNotifier {
     print("🟡 DeleteExpense: Loading... tid=$tid");
 
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        body: jsonEncode({"tid": tid}),
-        headers: {"Content-Type": "application/json"},
-      );
+      final response = await http.post(Uri.parse(url), body: jsonEncode({"tid": tid}), headers: {"Content-Type": "application/json"});
 
       print("📡 API Called: $url");
       print("➡️ Request Body: { tid: $tid }");
@@ -376,7 +381,7 @@ class ExpenseProvider extends ChangeNotifier {
         if (_deleteResponse!.status) {
           _setState(RequestState.success);
           print("✅ Delete Success: ${_deleteResponse!.message}");
-          
+
           // Remove from local list
           _expenses.removeWhere((expense) => expense.tid == tid);
           notifyListeners();
@@ -457,10 +462,7 @@ class ExpenseResponse {
   ExpenseResponse({required this.success, required this.message});
 
   factory ExpenseResponse.fromJson(Map<String, dynamic> json) {
-    return ExpenseResponse(
-      success: json['success'] ?? false, 
-      message: json['message'] ?? "Unknown response"
-    );
+    return ExpenseResponse(success: json['success'] ?? false, message: json['message'] ?? "Unknown response");
   }
 }
 
@@ -471,10 +473,7 @@ class UpdateExpenseResponse {
   UpdateExpenseResponse({required this.success, required this.message});
 
   factory UpdateExpenseResponse.fromJson(Map<String, dynamic> json) {
-    return UpdateExpenseResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-    );
+    return UpdateExpenseResponse(success: json['success'] ?? false, message: json['message'] ?? '');
   }
 }
 
@@ -482,16 +481,10 @@ class DeleteExpenseResponse {
   final bool status;
   final String message;
 
-  DeleteExpenseResponse({
-    required this.status,
-    required this.message,
-  });
+  DeleteExpenseResponse({required this.status, required this.message});
 
   factory DeleteExpenseResponse.fromJson(Map<String, dynamic> json) {
-    return DeleteExpenseResponse(
-      status: json["status"] == "success" || json["status"] == 1,
-      message: json["message"] ?? "",
-    );
+    return DeleteExpenseResponse(status: json["status"] == "success" || json["status"] == 1, message: json["message"] ?? "");
   }
 }
 
@@ -565,19 +558,13 @@ class ExpensesResponse {
   final int count;
   final List<ExpenseData> data;
 
-  ExpensesResponse({
-    required this.status,
-    required this.count,
-    required this.data,
-  });
+  ExpensesResponse({required this.status, required this.count, required this.data});
 
   factory ExpensesResponse.fromJson(Map<String, dynamic> json) {
     return ExpensesResponse(
       status: json["status"] ?? "error",
       count: json["count"] ?? 0,
-      data: (json["data"] as List)
-          .map((e) => ExpenseData.fromJson(e))
-          .toList(),
+      data: (json["data"] as List).map((e) => ExpenseData.fromJson(e)).toList(),
     );
   }
 }

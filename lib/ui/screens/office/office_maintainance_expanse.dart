@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../expense/expense_provider.dart';
+import '../../../providers/expense_provider.dart';
 import '../../../providers/designation_delete_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../banking/banking_dialoges/unified_office_expense_dialog.dart';

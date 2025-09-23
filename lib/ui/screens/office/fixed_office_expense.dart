@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../expense/expense_provider.dart';
+import '../../../providers/expense_provider.dart';
 import '../../../utils/request_state.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_dialoges.dart';
