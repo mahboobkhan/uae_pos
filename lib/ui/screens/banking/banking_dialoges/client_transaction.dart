@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../providers/banking_payment_method_provider.dart';
 import '../../../../providers/banking_payments_provider.dart';
 import '../../../../providers/projects_provider.dart';
+import '../../../../providers/project_stage_provider.dart';
 import '../../../dialogs/custom_fields.dart';
 
 class DialogueBankTransaction extends StatefulWidget {
@@ -22,10 +23,12 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   String? selectedPaymentType;
   String? selectedProject;
   String? selectedPaymentMethod; // Cash, Cheque, Bank
+  String? selectedProjectStage;
   Map<String, dynamic>? selectedProjectData; // Store full project data
+  Map<String, dynamic>? selectedStageData; // Store selected stage data
 
-  // Payment types similar to unified office expense dialog
-  final List<String> paymentTypes = ['Cash', 'Cheque', 'Bank'];
+  // Payment types updated to new naming
+  final List<String> paymentTypes = ['Receive', 'Return', 'Spend'];
 
   late TextEditingController _amountController;
   late TextEditingController _searchController;
@@ -33,6 +36,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   late TextEditingController _receivedByController;
   late TextEditingController _serviceTIDController;
   late TextEditingController _noteController;
+  late TextEditingController _stepCostController;
+  late TextEditingController _additionalCostController;
 
   // Capitalize first letter helper
   String capitalizeFirstLetter(String? text) {
@@ -78,6 +83,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       _receivedByController = TextEditingController();
       _serviceTIDController = TextEditingController();
       _noteController = TextEditingController();
+      _stepCostController = TextEditingController();
+      _additionalCostController = TextEditingController();
     }
 
     // Load data when dialog opens
@@ -98,6 +105,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     _receivedByController.dispose();
     _serviceTIDController.dispose();
     _noteController.dispose();
+    _stepCostController.dispose();
+    _additionalCostController.dispose();
     super.dispose();
   }
 
@@ -108,7 +117,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       insetPadding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 720, maxHeight: 400),
+        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -171,98 +180,209 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 ],
               ),
               const SizedBox(height: 20),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
+              // First Row - Payment Type and Direction
+              Row(
                 children: [
-                  // Payment Type Selection
-                  CustomDropdownField(
-                    label: "Payment Type",
-                    selectedValue: selectedPaymentMethod,
-                    options: paymentTypes,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedPaymentMethod = value;
-                        // Reset bank and service TID when changing payment type
-                        if (value != 'Bank') {
-                          selectedBank = null;
-                          _serviceTIDController.clear();
-                        }
-                      });
-                    },
+                  Expanded(
+                    child: CustomDropdownField(
+                      label: "Payment Type",
+                      selectedValue: selectedPaymentMethod,
+                      options: paymentTypes,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPaymentMethod = value;
+                          // Reset bank and service TID when changing payment type
+                          if (value != 'Bank') {
+                            selectedBank = null;
+                            _serviceTIDController.clear();
+                          }
+                        });
+                      },
+                    ),
                   ),
-                  CustomDropdownField(
-                    label: "Payment",
-                    selectedValue: selectedPaymentType,
-                    options: ["In", "Out"],
-                    onChanged: (value) => setState(() => selectedPaymentType = value),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: CustomDropdownField(
+                      label: "Payment Direction",
+                      selectedValue: selectedPaymentType,
+                      options: ["In", "Out"],
+                      onChanged: (value) => setState(() => selectedPaymentType = value),
+                    ),
                   ),
-                  CustomTextField(label: "Amount", controller: _amountController, hintText: '300'),
-                  // Project Selection
-                  Consumer<ProjectsProvider>(
-                    builder: (context, projectsProvider, child) {
-                      final projects =
-                          projectsProvider.projects.where((project) => project['project_ref_id']?.toString().isNotEmpty == true).toList();
-
-                      return CustomDropdownField(
-                        label: "Select Project",
-                        selectedValue: selectedProject,
-                        options: [
-                          'Select Project',
-                          ...projects.map((p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}'),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedProject = value == 'Select Project' ? null : value;
-                            if (value != null && value != 'Select Project') {
-                              // Find and store the full project data
-                              selectedProjectData = projects.firstWhere(
-                                (p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}' == value,
-                                orElse: () => {},
-                              );
-                            } else {
-                              selectedProjectData = null;
-                            }
-                          });
-                        },
-                      );
-                    },
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: CustomTextField(label: "Amount", controller: _amountController, hintText: '300'),
                   ),
-                  CustomTextField(label: "Payment By", controller: _paymentByController, hintText: "John Doe"),
-                  CustomTextField(label: "Received By", controller: _receivedByController, hintText: 'Auto fill'),
-
-                  // Bank and Service TID (only show when payment type is Bank)
-                  if (selectedPaymentMethod == 'Bank') ...[
-                    Consumer<BankingPaymentMethodProvider>(
-                      builder: (context, paymentMethodProvider, child) {
-                        final banks =
-                            paymentMethodProvider.paymentMethods
-                                .map((pm) => pm['bank_name']?.toString() ?? '')
-                                .where((name) => name.isNotEmpty)
-                                .toSet()
-                                .toList();
+                ],
+              ),
+              const SizedBox(height: 15),
+              // Second Row - Project Selection
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Consumer<ProjectsProvider>(
+                      builder: (context, projectsProvider, child) {
+                        final projects =
+                            projectsProvider.projects.where((project) => project['project_ref_id']?.toString().isNotEmpty == true).toList();
 
                         return CustomDropdownField(
-                          label: 'Select Bank',
-                          selectedValue: selectedBank,
-                          options: ['Select Bank', ...banks],
+                          label: "Select Project",
+                          selectedValue: selectedProject,
+                          options: [
+                            'Select Project',
+                            ...projects.map((p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}'),
+                          ],
                           onChanged: (value) {
                             setState(() {
-                              selectedBank = value == 'Select Bank' ? null : value;
+                              selectedProject = value == 'Select Project' ? null : value;
+                              selectedProjectStage = null; // Reset stage when project changes
+                              selectedStageData = null;
+                              if (value != null && value != 'Select Project') {
+                                // Find and store the full project data
+                                selectedProjectData = projects.firstWhere(
+                                  (p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}' == value,
+                                  orElse: () => {},
+                                );
+                                // Load project stages when project is selected
+                                if (selectedProjectData != null) {
+                                  final projectStageProvider = context.read<ProjectStageProvider>();
+                                  projectStageProvider.getStagesByProject(
+                                    projectRefId: selectedProjectData!['project_ref_id']?.toString() ?? '',
+                                  );
+                                }
+                              } else {
+                                selectedProjectData = null;
+                              }
                             });
                           },
                         );
                       },
                     ),
-                    CustomTextField(label: "Service TID", controller: _serviceTIDController, hintText: 'Bank Transaction ID '),
-                  ],
+                  ),
+                  const SizedBox(width: 10),
+                  // Project Stage Selection (only show if project is selected)
+                  if (selectedProject != null) ...[
+                    Expanded(
+                      child: Consumer<ProjectStageProvider>(
+                        builder: (context, projectStageProvider, child) {
+                          // Filter stages that are not ended
+                          final activeStages = projectStageProvider.projectStages
+                              .where((stage) => stage['end_at'] == null)
+                              .toList();
 
-                  // Cheque No (only show when payment type is Cheque)
-                  if (selectedPaymentMethod == 'Cheque') ...[
-                    CustomTextField(label: "Cheque No", controller: _serviceTIDController, hintText: 'Cheque No'),
+                          return CustomDropdownField(
+                            label: "Project Stage",
+                            selectedValue: selectedProjectStage,
+                            options: [
+                              'Select Stage',
+                              ...activeStages.map((stage) => '${stage['service_department'] ?? 'Unknown Department'}'),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                selectedProjectStage = value == 'Select Stage' ? null : value;
+                                if (value != null && value != 'Select Stage') {
+                                  selectedStageData = activeStages.firstWhere(
+                                    (stage) => '${stage['service_department'] ?? 'Unknown Department'}' == value,
+                                    orElse: () => {},
+                                  );
+                                  // Auto-fill step cost if available
+                                  if (selectedStageData != null && selectedStageData!['step_cost'] != null) {
+                                    _stepCostController.text = selectedStageData!['step_cost'].toString();
+                                  }
+                                } else {
+                                  selectedStageData = null;
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
                   ],
+                ],
+              ),
+              const SizedBox(height: 15),
+              // Third Row - Payment Details
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(label: "Payment By", controller: _paymentByController, hintText: "John Doe"),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: CustomTextField(label: "Received By", controller: _receivedByController, hintText: 'Auto fill'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+              // Fourth Row - Step Cost and Additional Cost (only for Receive payment type)
+              if (selectedPaymentType == 'In') ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextField(label: "Step Cost", controller: _stepCostController, hintText: '0.00'),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: CustomTextField(label: "Additional Cost", controller: _additionalCostController, hintText: '0.00'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+              ],
+              // Fifth Row - Bank/Cheque Details (conditional)
+              if (selectedPaymentMethod == 'Bank') ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Consumer<BankingPaymentMethodProvider>(
+                        builder: (context, paymentMethodProvider, child) {
+                          final banks =
+                              paymentMethodProvider.paymentMethods
+                                  .map((pm) => pm['bank_name']?.toString() ?? '')
+                                  .where((name) => name.isNotEmpty)
+                                  .toSet()
+                                  .toList();
 
-                  CustomTextField(label: "Note", controller: _noteController, hintText: 'xxxx'),
+                          return CustomDropdownField(
+                            label: 'Select Bank',
+                            selectedValue: selectedBank,
+                            options: ['Select Bank', ...banks],
+                            onChanged: (value) {
+                              setState(() {
+                                selectedBank = value == 'Select Bank' ? null : value;
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: CustomTextField(label: "Service TID", controller: _serviceTIDController, hintText: 'Bank Transaction ID'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+              ],
+              // Cheque No (only show when payment type is Cheque)
+              if (selectedPaymentMethod == 'Cheque') ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextField(label: "Cheque No", controller: _serviceTIDController, hintText: 'Cheque No'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+              ],
+              // Sixth Row - Note
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(label: "Note", controller: _noteController, hintText: 'xxxx'),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -314,13 +434,17 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       selectedPaymentType = null;
       selectedProject = null;
       selectedPaymentMethod = null;
+      selectedProjectStage = null;
       selectedProjectData = null;
+      selectedStageData = null;
       _amountController.clear();
       _searchController.clear();
       _paymentByController.clear();
       _receivedByController.clear();
       _serviceTIDController.clear();
       _noteController.clear();
+      _stepCostController.clear();
+      _additionalCostController.clear();
     });
   }
 
@@ -355,12 +479,26 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     final projectRefId = selectedProjectData?['project_ref_id']?.toString() ?? selectedProject!;
     final clientRefId = selectedProjectData?['client_id']?['client_ref_id']?.toString() ?? '';
 
+    // Map payment types to API values
+    String apiPaymentType;
+    if (selectedPaymentType == 'In') {
+      apiPaymentType = 'receive';
+    } else if (selectedPaymentType == 'Out') {
+      if (selectedPaymentMethod == 'Return') {
+        apiPaymentType = 'return';
+      } else {
+        apiPaymentType = 'spend';
+      }
+    } else {
+      apiPaymentType = selectedPaymentType!.toLowerCase();
+    }
+
     await bankingProvider.addBankingPayment(
       type: 'project',
       typeRef: projectRefId,
       clientRef: clientRefId,
       // Using actual client ref ID from project data
-      paymentType: selectedPaymentType!.toLowerCase(),
+      paymentType: apiPaymentType,
       payBy: _paymentByController.text,
       receivedBy: _receivedByController.text,
       totalAmount: amount,
@@ -370,6 +508,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       transactionId: _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
       bankRefId: selectedBank,
       chequeNo: selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+      stepCost: _stepCostController.text.isNotEmpty ? double.tryParse(_stepCostController.text) : null,
+      additionalProfit: _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
+      projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
     );
 
     // Check if submission was successful
@@ -409,10 +550,24 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     // Update the payment
     final bankingProvider = context.read<BankingPaymentsProvider>();
 
+    // Map payment types to API values
+    String apiPaymentType;
+    if (selectedPaymentType == 'In') {
+      apiPaymentType = 'receive';
+    } else if (selectedPaymentType == 'Out') {
+      if (selectedPaymentMethod == 'Return') {
+        apiPaymentType = 'return';
+      } else {
+        apiPaymentType = 'spend';
+      }
+    } else {
+      apiPaymentType = selectedPaymentType!.toLowerCase();
+    }
+
     await bankingProvider.updateBankingPayment(
       id: widget.paymentData!['id']?.toString(),
       paymentRefId: widget.paymentData!['payment_ref_id']?.toString(),
-      paymentType: selectedPaymentType!.toLowerCase(),
+      paymentType: apiPaymentType,
       payBy: _paymentByController.text,
       receivedBy: _receivedByController.text,
       totalAmount: amount,
@@ -422,6 +577,10 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       transactionId: _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
       bankRefId: selectedBank,
       chequeNo: selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+      // Add step cost and additional cost if available
+      stepCost: _stepCostController.text.isNotEmpty ? double.tryParse(_stepCostController.text) : null,
+      additionalCost: _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
+      projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
     );
 
     // Check if update was successful

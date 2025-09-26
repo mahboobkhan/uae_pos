@@ -139,6 +139,9 @@ class BankingPaymentsProvider extends ChangeNotifier {
     required String receivedBy,
     required double totalAmount,
     double? paidAmount,
+    String? projectStageRefId,
+    double? stepCost,
+    double? additionalProfit,
     String? status, // pending, completed
     String? paymentMethod, // bank, cheque, cash
     String? chequeNo,
@@ -166,6 +169,9 @@ class BankingPaymentsProvider extends ChangeNotifier {
     };
 
     if (paidAmount != null) bodyData["paid_amount"] = paidAmount;
+    if (projectStageRefId != null) bodyData["project_stage_ref_id"] = projectStageRefId;
+    if (stepCost != null) bodyData["step_cost"] = stepCost;
+    if (additionalProfit != null) bodyData["additional_profit"] = additionalProfit;
     if (status != null && status.isNotEmpty) bodyData["status"] = status;
     if (paymentMethod != null && paymentMethod.isNotEmpty) bodyData["payment_method"] = paymentMethod;
     if (chequeNo != null && chequeNo.isNotEmpty) bodyData["cheque_no"] = chequeNo;
@@ -233,6 +239,9 @@ class BankingPaymentsProvider extends ChangeNotifier {
     String? chequeNo,
     String? transactionId,
     String? bankRefId,
+    String? projectStageRefId,
+    double? stepCost,
+    double? additionalCost,
     String? createdAt,
     String? updatedAt,
   }) async {
@@ -267,6 +276,9 @@ class BankingPaymentsProvider extends ChangeNotifier {
     if (chequeNo != null && chequeNo.isNotEmpty) bodyData["cheque_no"] = chequeNo;
     if (transactionId != null && transactionId.isNotEmpty) bodyData["transaction_id"] = transactionId;
     if (bankRefId != null && bankRefId.isNotEmpty) bodyData["bank_ref_id"] = bankRefId;
+    if (projectStageRefId != null && projectStageRefId.isNotEmpty) bodyData["project_stage_ref_id"] = projectStageRefId;
+    if (stepCost != null) bodyData["step_cost"] = stepCost;
+    if (additionalCost != null) bodyData["additional_cost"] = additionalCost;
     if (createdAt != null && createdAt.isNotEmpty) bodyData["created_at"] = createdAt;
     if (updatedAt != null && updatedAt.isNotEmpty) bodyData["updated_at"] = updatedAt;
 
