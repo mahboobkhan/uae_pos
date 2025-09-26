@@ -7,6 +7,7 @@ import '../../../../providers/banking_payments_provider.dart';
 import '../../../../providers/projects_provider.dart';
 import '../../../../providers/project_stage_provider.dart';
 import '../../../dialogs/custom_fields.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DialogueBankTransaction extends StatefulWidget {
   final Map<String, dynamic>? paymentData;
@@ -28,7 +29,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   Map<String, dynamic>? selectedStageData; // Store selected stage data
 
   // Payment types updated to new naming
-  final List<String> paymentTypes = ['Receive', 'Return', 'Spend'];
+  final List<String> paymentMethods = ['Cash', 'Cheque', 'Bank'];
+  // payment type
+  final List<String> paymentTypes = ['Receive', 'Return', 'Expense'];
 
   late TextEditingController _amountController;
   late TextEditingController _searchController;
@@ -45,6 +48,14 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
+  Future<String> getCurrentUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? name = prefs.getString("name");
+    return name??'' ;
+  }
+
+
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +65,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       _searchController = TextEditingController();
       _amountController = TextEditingController(text: widget.paymentData!['total_amount']?.toString() ?? '');
       _paymentByController = TextEditingController(text: widget.paymentData!['pay_by']?.toString() ?? '');
-      _receivedByController = TextEditingController(text: widget.paymentData!['received_by']?.toString() ?? '');
+      _receivedByController = TextEditingController(text: widget.paymentData!['received_by']?.toString() ?? getCurrentUserName().toString());
       _serviceTIDController = TextEditingController(text: widget.paymentData!['transaction_id']?.toString() ?? '');
       _noteController = TextEditingController(text: widget.paymentData!['note']?.toString() ?? '');
 
@@ -137,14 +148,19 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        widget.isEditMode ? "Ref: ${widget.paymentData?['payment_ref_id'] ?? 'N/A'}" : "TID. 00001-292382",
+                        widget.isEditMode
+                            ? "Ref: ${widget.paymentData?['payment_ref_id'] ?? 'N/A'}"
+                            : 'N/A',
                         style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
                   Row(
                     children: [
-                      Text(_formattedDate(), style: const TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold)),
+                      Text(
+                        _formattedDate(),
+                        style: const TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(width: 10),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red),
@@ -185,9 +201,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 children: [
                   Expanded(
                     child: CustomDropdownField(
-                      label: "Payment Type",
+                      label: "Payment Method",
                       selectedValue: selectedPaymentMethod,
-                      options: paymentTypes,
+                      options: paymentMethods,
                       onChanged: (value) {
                         setState(() {
                           selectedPaymentMethod = value;
@@ -203,16 +219,14 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: CustomDropdownField(
-                      label: "Payment Direction",
+                      label: "Payment Type",
                       selectedValue: selectedPaymentType,
-                      options: ["In", "Out"],
+                      options: paymentTypes,
                       onChanged: (value) => setState(() => selectedPaymentType = value),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Expanded(
-                    child: CustomTextField(label: "Amount", controller: _amountController, hintText: '300'),
-                  ),
+                  Expanded(child: CustomTextField(label: "Amount", controller: _amountController, hintText: '300')),
                 ],
               ),
               const SizedBox(height: 15),
@@ -224,14 +238,18 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                     child: Consumer<ProjectsProvider>(
                       builder: (context, projectsProvider, child) {
                         final projects =
-                            projectsProvider.projects.where((project) => project['project_ref_id']?.toString().isNotEmpty == true).toList();
+                            projectsProvider.projects
+                                .where((project) => project['project_ref_id']?.toString().isNotEmpty == true)
+                                .toList();
 
                         return CustomDropdownField(
                           label: "Select Project",
                           selectedValue: selectedProject,
                           options: [
                             'Select Project',
-                            ...projects.map((p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}'),
+                            ...projects.map(
+                              (p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}',
+                            ),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -241,7 +259,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                               if (value != null && value != 'Select Project') {
                                 // Find and store the full project data
                                 selectedProjectData = projects.firstWhere(
-                                  (p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}' == value,
+                                  (p) =>
+                                      '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}' ==
+                                      value,
                                   orElse: () => {},
                                 );
                                 // Load project stages when project is selected
@@ -267,9 +287,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       child: Consumer<ProjectStageProvider>(
                         builder: (context, projectStageProvider, child) {
                           // Filter stages that are not ended
-                          final activeStages = projectStageProvider.projectStages
-                              .where((stage) => stage['end_at'] == null)
-                              .toList();
+                          final activeStages =
+                              projectStageProvider.projectStages.where((stage) => stage['end_at'] == null).toList();
 
                           return CustomDropdownField(
                             label: "Project Stage",
@@ -307,17 +326,21 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
               Row(
                 children: [
                   Expanded(
-                    child: CustomTextField(label: "Payment By", controller: _paymentByController, hintText: "John Doe"),
+                    child: CustomTextField(label: "Payment By", controller: _paymentByController, hintText: "Client"),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: CustomTextField(label: "Received By", controller: _receivedByController, hintText: 'Auto fill'),
+                    child: CustomTextField(
+                      label: "Received By",
+                      controller: _receivedByController,
+                      hintText: 'Manager',
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 15),
               // Fourth Row - Step Cost and Additional Cost (only for Receive payment type)
-              if (selectedPaymentType == 'In') ...[
+              if (selectedPaymentType == 'Receive') ...[
                 Row(
                   children: [
                     Expanded(
@@ -325,7 +348,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: CustomTextField(label: "Additional Cost", controller: _additionalCostController, hintText: '0.00'),
+                      child: CustomTextField(
+                        label: "Additional Cost",
+                        controller: _additionalCostController,
+                        hintText: '0.00',
+                      ),
                     ),
                   ],
                 ),
@@ -360,7 +387,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: CustomTextField(label: "Service TID", controller: _serviceTIDController, hintText: 'Bank Transaction ID'),
+                      child: CustomTextField(
+                        label: "Service TID",
+                        controller: _serviceTIDController,
+                        hintText: 'Bank Transaction ID',
+                      ),
                     ),
                   ],
                 ),
@@ -371,7 +402,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 Row(
                   children: [
                     Expanded(
-                      child: CustomTextField(label: "Cheque No", controller: _serviceTIDController, hintText: 'Cheque No'),
+                      child: CustomTextField(
+                        label: "Cheque No",
+                        controller: _serviceTIDController,
+                        hintText: 'Cheque No',
+                      ),
                     ),
                   ],
                 ),
@@ -380,9 +415,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
               // Sixth Row - Note
               Row(
                 children: [
-                  Expanded(
-                    child: CustomTextField(label: "Note", controller: _noteController, hintText: 'xxxx'),
-                  ),
+                  Expanded(child: CustomTextField(label: "Note", controller: _noteController, hintText: 'xxxx')),
                 ],
               ),
               const SizedBox(height: 20),
@@ -479,26 +512,17 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     final projectRefId = selectedProjectData?['project_ref_id']?.toString() ?? selectedProject!;
     final clientRefId = selectedProjectData?['client_id']?['client_ref_id']?.toString() ?? '';
 
-    // Map payment types to API values
-    String apiPaymentType;
-    if (selectedPaymentType == 'In') {
-      apiPaymentType = 'receive';
-    } else if (selectedPaymentType == 'Out') {
-      if (selectedPaymentMethod == 'Return') {
-        apiPaymentType = 'return';
-      } else {
-        apiPaymentType = 'spend';
-      }
-    } else {
-      apiPaymentType = selectedPaymentType!.toLowerCase();
-    }
+
+
+    // Map payment type to in/out
+    String paymentTypeValue = selectedPaymentType == 'Receive' ? 'in' : 'out';
 
     await bankingProvider.addBankingPayment(
       type: 'project',
       typeRef: projectRefId,
       clientRef: clientRefId,
       // Using actual client ref ID from project data
-      paymentType: apiPaymentType,
+      paymentType: paymentTypeValue,
       payBy: _paymentByController.text,
       receivedBy: _receivedByController.text,
       totalAmount: amount,
@@ -507,7 +531,10 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       paymentMethod: selectedPaymentMethod!.toLowerCase(),
       transactionId: _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
       bankRefId: selectedBank,
-      chequeNo: selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+      chequeNo:
+          selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty
+              ? _serviceTIDController.text
+              : null,
       stepCost: _stepCostController.text.isNotEmpty ? double.tryParse(_stepCostController.text) : null,
       additionalProfit: _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
       projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
@@ -550,24 +577,13 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     // Update the payment
     final bankingProvider = context.read<BankingPaymentsProvider>();
 
-    // Map payment types to API values
-    String apiPaymentType;
-    if (selectedPaymentType == 'In') {
-      apiPaymentType = 'receive';
-    } else if (selectedPaymentType == 'Out') {
-      if (selectedPaymentMethod == 'Return') {
-        apiPaymentType = 'return';
-      } else {
-        apiPaymentType = 'spend';
-      }
-    } else {
-      apiPaymentType = selectedPaymentType!.toLowerCase();
-    }
+    // Map payment type to in/out
+    String paymentTypeValue = selectedPaymentType == 'Receive' ? 'in' : 'out';
 
     await bankingProvider.updateBankingPayment(
       id: widget.paymentData!['id']?.toString(),
       paymentRefId: widget.paymentData!['payment_ref_id']?.toString(),
-      paymentType: apiPaymentType,
+      paymentType: paymentTypeValue,
       payBy: _paymentByController.text,
       receivedBy: _receivedByController.text,
       totalAmount: amount,
@@ -576,10 +592,14 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       paymentMethod: selectedPaymentMethod!.toLowerCase(),
       transactionId: _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
       bankRefId: selectedBank,
-      chequeNo: selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+      chequeNo:
+          selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty
+              ? _serviceTIDController.text
+              : null,
       // Add step cost and additional cost if available
       stepCost: _stepCostController.text.isNotEmpty ? double.tryParse(_stepCostController.text) : null,
-      additionalCost: _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
+      additionalCost:
+          _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
       projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
     );
 
@@ -636,7 +656,12 @@ void showBankTransactionDialog(BuildContext context) {
   showDialog(context: context, barrierDismissible: false, builder: (context) => const DialogueBankTransaction());
 }
 
-Widget _buildTextFieldSearch(String label, TextEditingController controller, {bool enabled = true, double width = 220}) {
+Widget _buildTextFieldSearch(
+  String label,
+  TextEditingController controller, {
+  bool enabled = true,
+  double width = 220,
+}) {
   return SizedBox(
     width: width,
     child: TextField(

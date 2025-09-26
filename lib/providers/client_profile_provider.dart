@@ -10,6 +10,13 @@ class ClientProfileProvider extends ChangeNotifier {
   String? errorMessage;
   String? successMessage;
   List<Map<String, dynamic>> clients = [];
+  Map<String, dynamic>? clientsSummary = {};
+  
+  // Filter properties
+  String? clientTypeFilter; // 'individual' or 'organization'
+  String? typeFilter; // 'regular' or 'walking'
+  String? startDateFilter;
+  String? endDateFilter;
 
   Future<void> getAllClients({int page = 1, int perPage = 20}) async {
     isLoading = true;
@@ -17,14 +24,41 @@ class ClientProfileProvider extends ChangeNotifier {
     successMessage = null;
     notifyListeners();
 
-    final url = Uri.parse("$baseUrl/get_client_profiles.php");
+    // Build query parameters
+    final Map<String, String> queryParams = {};
+    
+    if (clientTypeFilter != null && clientTypeFilter!.isNotEmpty) {
+      queryParams['type'] = clientTypeFilter!.toLowerCase();
+    }
+    
+    if (typeFilter != null && typeFilter!.isNotEmpty) {
+      queryParams['work'] = typeFilter!.toLowerCase();
+    }
+    
+    if (startDateFilter != null && startDateFilter!.isNotEmpty) {
+      queryParams['start_date'] = startDateFilter!;
+    }
+    
+    if (endDateFilter != null && endDateFilter!.isNotEmpty) {
+      queryParams['end_date'] = endDateFilter!;
+    }
+
+    final url = Uri.parse("$baseUrl/get_client_profiles.php").replace(queryParameters: queryParams);
 
     try {
       if (kDebugMode) {
-        print('Fetching clients from: $url');
+        print('=== CLIENT FILTER DEBUG ===');
+        print('Base URL: $baseUrl');
+        print('Query parameters: $queryParams');
+        print('Final URL: $url');
+        print('Client Type Filter: $clientTypeFilter');
+        print('Type Filter: $typeFilter');
+        print('Start Date Filter: $startDateFilter');
+        print('End Date Filter: $endDateFilter');
+        print('========================');
       }
 
-      final response = await http.post(url, body: "");
+      final response = await http.get(url);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -36,6 +70,10 @@ class ClientProfileProvider extends ChangeNotifier {
         if (data['status'] == 'success') {
           if (data['clients'] != null && data['clients'] is List) {
             clients = List<Map<String, dynamic>>.from(data['clients']);
+            // Store clients summary if available
+            if (data['clients_summary'] != null) {
+              clientsSummary = Map<String, dynamic>.from(data['clients_summary']);
+            }
             successMessage = "Clients fetched";
           } else {
             clients = [];
@@ -239,5 +277,35 @@ class ClientProfileProvider extends ChangeNotifier {
     errorMessage = null;
     successMessage = null;
     notifyListeners();
+  }
+
+  // Set filters
+  void setFilters({
+    String? clientType,
+    String? type,
+    String? startDate,
+    String? endDate,
+  }) {
+    clientTypeFilter = clientType;
+    typeFilter = type;
+    startDateFilter = startDate;
+    endDateFilter = endDate;
+    notifyListeners();
+  }
+
+  // Clear all filters
+  void clearFilters() {
+    clientTypeFilter = null;
+    typeFilter = null;
+    startDateFilter = null;
+    endDateFilter = null;
+    notifyListeners();
+  }
+
+  // Get filtered clients (now handled by API)
+  List<Map<String, dynamic>> get filteredClients {
+    // Since filtering is now handled by the API, we just return all clients
+    // The API will return only the filtered results
+    return clients;
   }
 }

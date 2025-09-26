@@ -73,7 +73,14 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final projectStageProvider = context.read<ProjectStageProvider>();
-          projectStageProvider.getStagesByProject(projectRefId: widget.projectData!['project_ref_id']);
+          projectStageProvider.getStagesByProject(projectRefId: widget.projectData!['project_ref_id']).then((_) {
+            // Refresh calculations when stages are loaded
+            if (mounted) {
+              setState(() {
+                // This will trigger a rebuild and recalculate all values
+              });
+            }
+          });
         }
       });
     }
@@ -107,6 +114,58 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     return remaining.toStringAsFixed(2); // Always 2 decimal places
   }
 
+  /// Calculate total steps cost from project stages
+  double calculateTotalStepsCost() {
+    final projectStageProvider = context.read<ProjectStageProvider>();
+    double total = 0.0;
+    
+    for (final stage in projectStageProvider.projectStages) {
+      final stepCost = double.tryParse(stage['step_cost']?.toString() ?? '0') ?? 0.0;
+      total += stepCost;
+    }
+    
+    return total;
+  }
+
+  /// Calculate total additional profit from project stages
+  double calculateTotalAdditionalProfit() {
+    final projectStageProvider = context.read<ProjectStageProvider>();
+    double total = 0.0;
+    
+    for (final stage in projectStageProvider.projectStages) {
+      final additionalProfit = double.tryParse(stage['additional_profit']?.toString() ?? '0') ?? 0.0;
+      total += additionalProfit;
+    }
+    
+    return total;
+  }
+
+  /// Calculate total steps received amount from project stages
+  double calculateTotalStepsReceivedAmount() {
+    final projectStageProvider = context.read<ProjectStageProvider>();
+    double total = 0.0;
+    
+    for (final stage in projectStageProvider.projectStages) {
+      final receivedAmount = double.tryParse(stage['received_amount']?.toString() ?? '0') ?? 0.0;
+      total += receivedAmount;
+    }
+    
+    return total;
+  }
+
+  /// Calculate pending payment using the larger value between quotation and total steps cost
+  String calculatePendingPayment(String? quotation, String? paidPayment) {
+    final double quotationAmount = double.tryParse(quotation ?? '0') ?? 0;
+    final double totalStepsCost = calculateTotalStepsCost();
+    final double paidAmount = double.tryParse(paidPayment ?? '0') ?? 0;
+    
+    // Use the larger value between quotation and total steps cost
+    final double totalAmount = quotationAmount > totalStepsCost ? quotationAmount : totalStepsCost;
+    final double remaining = totalAmount - paidAmount;
+
+    return remaining.toStringAsFixed(2);
+  }
+
   void _initializeFormData() {
     if (widget.projectData != null) {
       final project = widget.projectData!;
@@ -114,7 +173,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       // Pre-fill form fields with project data
       _beneficiaryController.text = project['client_name'] ?? '';
       _fundsController.text = project['quotation'] ?? '';
-      _recordPaymentController.text = calculateRemaining(project['quotation'], project['paid_payment']).toString();
+      // Use the new pending payment calculation that considers both quotation and total steps cost
+      _recordPaymentController.text = calculatePendingPayment(project['quotation'], project['paid_payment']);
 
       // Set order type
       selectedOrderType = project['order_type'] ?? '';
@@ -636,8 +696,60 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         CustomTextField(label: "Service Beneficiary", controller: _beneficiaryController, hintText: "xyz", enabled: _isEditMode),
                         CustomTextField(label: "Order Quote Price", controller: _fundsController, hintText: '500', enabled: false),
-                        CustomTextField(label: "Pending Payment", controller: _recordPaymentController, hintText: '0', enabled: false),
+                        /*Consumer<ProjectStageProvider>(
+                          builder: (context, projectStageProvider, child) {
+                            // Update the pending payment controller with the calculated value
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              final pendingAmount = calculatePendingPayment(_fundsController.text, widget.projectData?['paid_payment']);
+                              if (_recordPaymentController.text != pendingAmount) {
+                                _recordPaymentController.text = pendingAmount;
+                              }
+                            });
+                            
+                            return CustomTextField(
+                              label: "Pending Payment", 
+                              controller: _recordPaymentController, 
+                              hintText: '0', 
+                              enabled: false
+                            );
+                          },
+                        ),*/
 
+                        Consumer<ProjectStageProvider>(
+                          builder: (context, projectStageProvider, child) {
+                            final totalStepsCost = calculateTotalStepsCost();
+                            final totalAdditionalProfit = calculateTotalAdditionalProfit();
+                            final totalStepsReceivedAmount = calculateTotalStepsReceivedAmount();
+                            final pendingAmount = calculatePendingPayment(_fundsController.text, widget.projectData?['paid_payment']);
+                            
+                            return Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: [
+                                InfoBox(
+                                  label: pendingAmount,
+                                  value: 'Pending Amount',
+                                  color: Colors.blue.shade200, // light blue fill
+                                ),
+                                InfoBox(
+                                  label: totalStepsCost.toStringAsFixed(2),
+                                  value: 'Total Steps Cost',
+                                  color: Colors.blue.shade200, // light blue fill
+                                ),
+                                InfoBox(
+                                  label: totalAdditionalProfit.toStringAsFixed(2),
+                                  value: 'Total Additional Profit',
+                                  color: Colors.blue.shade200, // light blue fill
+                                ),
+                                InfoBox(
+                                  label: totalStepsReceivedAmount.toStringAsFixed(2),
+                                  value: 'Total Steps Received Amount',
+                                  color: Colors.blue.shade200, // light blue fill
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                         InfoBox(
                           label: widget.projectData?['user_id']?['name'] ?? 'N/A',
                           value: 'Assign Employee',
@@ -867,7 +979,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     return SizedBox(
       width: 220,
       child: GestureDetector(
-        onTap: _isEditMode ? _selectedDateTime : null,
+        // onTap: _isEditMode ? _selectedDateTime : null,
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: "Date and Time",
@@ -1209,7 +1321,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             runSpacing: 10,
             children: [
               _buildDateTimeField(),
-              _buildDateTimeField(),
+              // _buildDateTimeField(),
               InfoBoxNoColor(label: stage['service_department'] ?? 'N/A', value: 'Services Department'),
               SizedBox(width: 220), // Placeholder for status dropdowns
               SizedBox(width: 220),
@@ -1408,6 +1520,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     additionalProfit: additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
                   );
 
+                  // Refresh calculations after adding stage
+                  if (mounted) {
+                    setState(() {});
+                  }
+
                   Navigator.pop(context);
                 },
               ),
@@ -1466,6 +1583,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     applicationIds: applicationIds.isEmpty ? null : applicationIds,
                   );
 
+                  // Refresh calculations after updating stage
+                  if (mounted) {
+                    setState(() {});
+                  }
+
                   Navigator.pop(context);
                 },
               ),
@@ -1507,6 +1629,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
                   await provider.updateProjectStage(projectStageRefId: stage['project_stage_ref_id'], applicationIds: currentIds);
 
+                  // Refresh calculations after adding application ID
+                  if (mounted) {
+                    setState(() {});
+                  }
+
                   Navigator.pop(context);
                 },
               ),
@@ -1534,6 +1661,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     if (shouldEnd == true) {
       final endTime = DateTime.now().toIso8601String().replaceAll('T', ' ').substring(0, 19);
       await provider.updateProjectStage(projectStageRefId: stage['project_stage_ref_id'], endAt: endTime);
+      
+      // Refresh calculations after ending stage
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -1555,6 +1687,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
     if (shouldDelete == true) {
       await provider.deleteProjectStage(projectStageRefId: stage['project_stage_ref_id']);
+      
+      // Refresh calculations after deleting stage
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 }

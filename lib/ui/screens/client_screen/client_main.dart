@@ -57,14 +57,9 @@ class _ClientMainState extends State<ClientMain> {
   String? dateValue;
   String? profileAddCategory;
 
-  final List<String> categories = ['Company', 'Individual'];
+  final List<String> categories = ['All', 'Individual', 'Organization'];
   String? selectedCategory;
-  final List<String> categories1 = [
-    'No Tags',
-    'Tag 001',
-    'Tag 002',
-    'Sample Tag',
-  ];
+  final List<String> categories1 = ['All', 'Regular', 'Walking'];
   String? selectedCategory1;
 
   final List<String> categories2 = ['All', 'Pending', 'Paid'];
@@ -72,31 +67,118 @@ class _ClientMainState extends State<ClientMain> {
   final List<String> categories4 = ['Individual', 'Company'];
   String selectedCategory4 = '';
 
-  final List<String> categories3 = [
-    'All',
-    'Toady',
-    'Yesterday',
-    'Last 7 Days',
-    'Last 30 Days',
-    'Custom Range',
-  ];
+  final List<String> categories3 = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
   String? selectedCategory3;
 
-  final List<Map<String, dynamic>> stats = [
-    {'label': 'Clients', 'value': '220'},
-    {'label': 'Pending Projects', 'value': '4'},
-    {'label': 'In Progress', 'value': '5'},
-    {'label': 'Delivered', 'value': '150'},
-    {'label': 'Complaints', 'value': '5'},
-  ];
+  // Dynamic stats will be generated from clientsSummary data
 
   bool _isOrganization(String? type) {
     final t = (type ?? '').toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
     // handles "Organization", "Organisation", "Company", "Org", etc.
-    return t == 'organization' ||
-        t == 'organisation' ||
-        t == 'company' ||
-        t == 'org';
+    return t == 'organization' || t == 'organisation' || t == 'company' || t == 'org';
+  }
+
+  // Apply filters to the clients
+  void _applyFilters() {
+    final clientProvider = context.read<ClientProfileProvider>();
+
+    // Convert UI filter values to API parameters
+    String? clientTypeFilter;
+    String? typeFilter;
+    String? startDateFilter;
+    String? endDateFilter;
+
+    // Client type filter
+    if (selectedCategory != null && selectedCategory != 'All') {
+      clientTypeFilter = selectedCategory!.toLowerCase();
+    }
+
+    // Type filter (Regular/Walking)
+    if (selectedCategory1 != null && selectedCategory1 != 'All') {
+      typeFilter = selectedCategory1!.toLowerCase();
+    }
+
+    // Date filter
+    if (selectedCategory3 != null && selectedCategory3 != 'All') {
+      final now = DateTime.now();
+      switch (selectedCategory3) {
+        case 'Today':
+          startDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          break;
+        case 'Yesterday':
+          final yesterday = now.subtract(Duration(days: 1));
+          startDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
+          break;
+        case 'Last 7 Days':
+          final weekAgo = now.subtract(Duration(days: 7));
+          startDateFilter = DateFormat('yyyy-MM-dd').format(weekAgo);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          break;
+        case 'Last 30 Days':
+          final monthAgo = now.subtract(Duration(days: 30));
+          startDateFilter = DateFormat('yyyy-MM-dd').format(monthAgo);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          break;
+      }
+    }
+
+    // Apply filters to provider
+    clientProvider.setFilters(
+      clientType: clientTypeFilter,
+      type: typeFilter,
+      startDate: startDateFilter,
+      endDate: endDateFilter,
+    );
+
+    // Debug print
+    print('=== UI FILTER DEBUG ===');
+    print('Selected Category: $selectedCategory');
+    print('Selected Category1: $selectedCategory1');
+    print('Client Type Filter: $clientTypeFilter');
+    print('Type Filter: $typeFilter');
+    print('Start Date Filter: $startDateFilter');
+    print('End Date Filter: $endDateFilter');
+    print('======================');
+
+    // Refresh clients with filters - API will handle the filtering
+    clientProvider.getAllClients();
+  }
+
+  // Clear all filters
+  void _clearFilters() {
+    setState(() {
+      selectedCategory = null;
+      selectedCategory1 = null;
+      selectedCategory2 = null;
+      selectedCategory3 = null;
+    });
+
+    final clientProvider = context.read<ClientProfileProvider>();
+    clientProvider.clearFilters();
+    clientProvider.getAllClients();
+  }
+
+  // Get stats from clients summary
+  List<Map<String, dynamic>> _getStatsFromSummary(Map<String, dynamic>? summary) {
+    if (summary == null) {
+      return [
+        {'label': 'Total Clients', 'value': '0'},
+        {'label': 'Individual', 'value': '0'},
+        {'label': 'Organization', 'value': '0'},
+        {'label': 'Pending Amount', 'value': 'AED 0.00'},
+        {'label': 'Received Amount', 'value': 'AED 0.00'},
+      ];
+    }
+
+    return [
+      {'label': 'Total Clients', 'value': summary['total_clients']?.toString() ?? '0'},
+      {'label': 'Individual', 'value': summary['total_individual']?.toString() ?? '0'},
+      {'label': 'Organization', 'value': summary['total_organization']?.toString() ?? '0'},
+      {'label': 'Pending Amount', 'value': 'AED ${summary['total_pending_amount']?.toString() ?? '0.00'}'},
+      {'label': 'Received Amount', 'value': 'AED ${summary['total_received_amount']?.toString() ?? '0.00'}'},
+    ];
   }
 
   @override
@@ -117,55 +199,48 @@ class _ClientMainState extends State<ClientMain> {
               SizedBox(
                 height: 120,
                 child: Row(
-                  children:
-                      stats.map((stat) {
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Material(
-                              elevation: 12,
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.white70,
-                              shadowColor: Colors.black,
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        stat['value'],
-                                        style: const TextStyle(
-                                          fontSize: 28,
-                                          color: Colors.white,
-                                          fontFamily: 'Courier',
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                  children: _getStatsFromSummary(clientProvider.clientsSummary).map((stat) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Material(
+                          elevation: 12,
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.white70,
+                          shadowColor: Colors.black,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    stat['value'],
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      color: Colors.white,
+                                      fontFamily: 'Courier',
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const SizedBox(height: 8),
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        stat['label'],
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(height: 8),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    stat['label'],
+                                    style: const TextStyle(fontSize: 14, color: Colors.white),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      }).toList(),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
 
@@ -186,14 +261,7 @@ class _ClientMainState extends State<ClientMain> {
                     borderRadius: BorderRadius.circular(2),
                     boxShadow:
                         _isHovering
-                            ? [
-                              BoxShadow(
-                                color: Colors.blue,
-                                blurRadius: 4,
-                                spreadRadius: 0.1,
-                                offset: Offset(0, 1),
-                              ),
-                            ]
+                            ? [BoxShadow(color: Colors.blue, blurRadius: 4, spreadRadius: 0.1, offset: Offset(0, 1))]
                             : [],
                   ),
                   child: Row(
@@ -209,14 +277,16 @@ class _ClientMainState extends State<ClientMain> {
                                 items: categories,
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory = newValue!);
+                                  _applyFilters();
                                 },
                               ),
                               CustomDropdown(
                                 selectedValue: selectedCategory1,
-                                hintText: "Select Tags",
+                                hintText: "Type",
                                 items: categories1,
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory1 = newValue!);
+                                  _applyFilters();
                                 },
                               ),
                               CustomDropdown(
@@ -233,17 +303,11 @@ class _ClientMainState extends State<ClientMain> {
                                 items: categories3,
                                 onChanged: (newValue) async {
                                   if (newValue == 'Custom Range') {
-                                    final selectedRange =
-                                        await showDateRangePickerDialog(
-                                          context,
-                                        );
+                                    final selectedRange = await showDateRangePickerDialog(context);
 
                                     if (selectedRange != null) {
-                                      final start =
-                                          selectedRange.startDate ??
-                                          DateTime.now();
-                                      final end =
-                                          selectedRange.endDate ?? start;
+                                      final start = selectedRange.startDate ?? DateTime.now();
+                                      final end = selectedRange.endDate ?? start;
 
                                       final formattedRange =
                                           '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
@@ -251,17 +315,22 @@ class _ClientMainState extends State<ClientMain> {
                                       setState(() {
                                         selectedCategory3 = formattedRange;
                                       });
+
+                                      // Apply custom date range filter
+                                      final clientProvider = context.read<ClientProfileProvider>();
+                                      clientProvider.setFilters(
+                                        startDate: DateFormat('yyyy-MM-dd').format(start),
+                                        endDate: DateFormat('yyyy-MM-dd').format(end),
+                                      );
+                                      // API will handle the filtering
+                                      clientProvider.getAllClients();
                                     }
                                   } else {
-                                    setState(
-                                      () => selectedCategory3 = newValue!,
-                                    );
+                                    setState(() => selectedCategory3 = newValue!);
+                                    _applyFilters();
                                   }
                                 },
-                                icon: const Icon(
-                                  Icons.calendar_month,
-                                  size: 18,
-                                ),
+                                icon: const Icon(Icons.calendar_month, size: 18),
                               ),
                             ],
                           ),
@@ -269,6 +338,51 @@ class _ClientMainState extends State<ClientMain> {
                       ),
                       Row(
                         children: [
+                          // Clear Filters Button
+                          Card(
+                            elevation: 4,
+                            color: Colors.orange,
+                            shape: CircleBorder(),
+                            child: Tooltip(
+                              message: 'Clear Filters',
+                              waitDuration: Duration(milliseconds: 2),
+                              child: GestureDetector(
+                                onTap: () {
+                                  _clearFilters();
+                                },
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Refresh Button
+                          Card(
+                            elevation: 4,
+                            color: Colors.green,
+                            shape: CircleBorder(),
+                            child: Tooltip(
+                              message: 'Refresh',
+                              waitDuration: Duration(milliseconds: 2),
+                              child: GestureDetector(
+                                onTap: () {
+                                  clientProvider.getAllClients();
+                                },
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Add Client Button
                           Card(
                             elevation: 8,
                             color: Colors.blue,
@@ -276,17 +390,14 @@ class _ClientMainState extends State<ClientMain> {
                             child: Builder(
                               builder:
                                   (context) => Tooltip(
-                                    message: 'Show menu',
+                                    message: 'Add Client',
                                     waitDuration: Duration(milliseconds: 2),
                                     child: GestureDetector(
                                       key: _plusKey,
                                       onTap: () async {
                                         final RenderBox renderBox =
-                                            _plusKey.currentContext!
-                                                    .findRenderObject()
-                                                as RenderBox;
-                                        final Offset offset = renderBox
-                                            .localToGlobal(Offset.zero);
+                                            _plusKey.currentContext!.findRenderObject() as RenderBox;
+                                        final Offset offset = renderBox.localToGlobal(Offset.zero);
 
                                         final selected = await showMenu<String>(
                                           context: context,
@@ -297,54 +408,30 @@ class _ClientMainState extends State<ClientMain> {
                                             offset.dy,
                                           ),
                                           items: [
-                                            const PopupMenuItem<String>(
-                                              value: 'Company',
-                                              child: Text('Company'),
-                                            ),
-                                            const PopupMenuItem<String>(
-                                              value: 'Individual',
-                                              child: Text('Individual'),
-                                            ),
+                                            const PopupMenuItem<String>(value: 'Company', child: Text('Company')),
+                                            const PopupMenuItem<String>(value: 'Individual', child: Text('Individual')),
                                           ],
                                         );
 
                                         if (selected != null) {
-                                          setState(
-                                            () => selectedCategory4 = selected,
-                                          );
+                                          setState(() => selectedCategory4 = selected);
 
                                           if (selected == 'Company') {
-                                            await showCompanyProfileDialog(
-                                              context,
-                                            );
+                                            await showCompanyProfileDialog(context);
                                           } else if (selected == 'Individual') {
-                                            await showIndividualProfileDialog(
-                                              context,
-                                            );
+                                            await showIndividualProfileDialog(context);
                                           }
                                           try {
-                                            await context
-                                                .read<ClientProfileProvider>()
-                                                .getAllClients();
+                                            await context.read<ClientProfileProvider>().getAllClients();
                                           } catch (_) {}
                                         }
                                       },
                                       child: Container(
                                         width: 30,
                                         height: 30,
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.add,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
+                                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                                        decoration: const BoxDecoration(shape: BoxShape.circle),
+                                        child: const Center(child: Icon(Icons.add, color: Colors.white, size: 20)),
                                       ),
                                     ),
                                   ),
@@ -366,10 +453,7 @@ class _ClientMainState extends State<ClientMain> {
                 )
               else if (clientProvider.errorMessage != null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12.0,
-                    horizontal: 16,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
@@ -381,12 +465,7 @@ class _ClientMainState extends State<ClientMain> {
                       children: [
                         Icon(Icons.error_outline, color: Colors.red),
                         SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            clientProvider.errorMessage!,
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
+                        Expanded(child: Text(clientProvider.errorMessage!, style: TextStyle(color: Colors.red))),
                         IconButton(
                           onPressed: () => clientProvider.clearMessages(),
                           icon: Icon(Icons.close, color: Colors.red),
@@ -397,10 +476,7 @@ class _ClientMainState extends State<ClientMain> {
                 )
               else if (clientProvider.successMessage != null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12.0,
-                    horizontal: 16,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.green.shade50,
@@ -412,12 +488,7 @@ class _ClientMainState extends State<ClientMain> {
                       children: [
                         Icon(Icons.check_circle, color: Colors.green),
                         SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            clientProvider.successMessage!,
-                            style: TextStyle(color: Colors.green),
-                          ),
-                        ),
+                        Expanded(child: Text(clientProvider.successMessage!, style: TextStyle(color: Colors.green))),
                         IconButton(
                           onPressed: () => clientProvider.clearMessages(),
                           icon: Icon(Icons.close, color: Colors.green),
@@ -454,8 +525,7 @@ class _ClientMainState extends State<ClientMain> {
                               constraints: const BoxConstraints(minWidth: 1150),
 
                               child: Table(
-                                defaultVerticalAlignment:
-                                    TableCellVerticalAlignment.middle,
+                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                 columnWidths: const {
                                   0: FlexColumnWidth(0.8),
                                   1: FlexColumnWidth(0.8),
@@ -468,169 +538,102 @@ class _ClientMainState extends State<ClientMain> {
                                 children: [
                                   // Header Row
                                   TableRow(
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade50,
-                                    ),
+                                    decoration: BoxDecoration(color: Colors.red.shade50),
                                     children: [
                                       _buildHeader("Client Type"),
                                       _buildHeader("Customer Ref I'd"),
-                                      _buildHeader("Tag Details"),
+                                      // _buildHeader("Tag Details"),
                                       _buildHeader("Number/Email"),
                                       _buildHeader("Project Status"),
                                       _buildHeader("Payment Pending"),
-                                      _buildHeader("Total Revived"),
+                                      _buildHeader("Total Received"),
                                       _buildHeader("Other Actions"),
                                     ],
                                   ),
-                                  if (clientProvider.clients.isNotEmpty)
-                                    ...clientProvider.clients.asMap().entries.map((
-                                      entry,
-                                    ) {
+                                  if (clientProvider.filteredClients.isNotEmpty)
+                                    ...clientProvider.filteredClients.asMap().entries.map((entry) {
                                       final index = entry.key;
                                       final client = entry.value;
-                                      final List<dynamic> tagList =
-                                          (client['tags'] is List)
-                                              ? client['tags']
-                                              : [];
+                               /*       final List<dynamic> tagList = (client['tags'] is List) ? client['tags'] : [];
                                       final tagsForWidget =
                                           tagList
-                                              .map(
-                                                (t) => {
-                                                  'tag': t.toString(),
-                                                  'color':
-                                                      Colors.green.shade100,
-                                                },
-                                              )
-                                              .toList();
+                                              .map((t) => {'tag': t.toString(), 'color': Colors.green.shade100})
+                                              .toList();*/
                                       return TableRow(
                                         decoration: BoxDecoration(
-                                          color:
-                                              index.isEven
-                                                  ? Colors.grey.shade200
-                                                  : Colors.grey.shade100,
+                                          color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
                                         ),
                                         children: [
                                           _buildCell(
-                                            (client['client_type'] ?? '')
-                                                    .toString()
-                                                    .isEmpty
+                                            (client['client_type'] ?? '').toString().isEmpty
                                                 ? 'N/A'
-                                                : client['client_type']
-                                                    .toString(),
+                                                : client['client_type'].toString(),
                                           ),
                                           _buildCell3(
                                             client['name']?.toString() ?? 'N/A',
-                                            client['client_ref_id']
-                                                    ?.toString() ??
-                                                'N/A',
+                                            client['client_ref_id']?.toString() ?? 'N/A',
                                             copyable: true,
                                           ),
-                                          TagsCellWidget(
-                                            initialTags:
-                                                tagsForWidget.isNotEmpty
-                                                    ? tagsForWidget
-                                                    : currentTags,
-                                          ),
+                                          /*TagsCellWidget(
+                                            initialTags: tagsForWidget.isNotEmpty ? tagsForWidget : currentTags,
+                                          ),*/
                                           _buildCell3(
-                                            client['phone1']?.toString() ??
-                                                'N/A',
-                                            client['email']?.toString() ??
-                                                'N/A',
+                                            client['phone1']?.toString() ?? 'N/A',
+                                            client['email']?.toString() ?? 'N/A',
                                             copyable: true,
                                           ),
                                           // _buildCell((client['phone1'] ?? client['email'] ?? 'N/A').toString()),
-                                          _buildCell('—————'),
-                                          _buildPriceWithAdd('AED-', '0'),
-                                          _buildPriceWithAdd('AED-', '0'),
+                                          _buildCell(client['project_stats']['project_status']??'N/A'),
+                                          _buildPriceWithAdd('AED-', client['project_stats']['pending_amount']??'N/A'),
+                                          _buildPriceWithAdd('AED-', client['project_stats']['paid_amount']??'N/A'),
                                           _buildActionCell(
                                             onEdit: () async {
-                                              final type =
-                                                  (client['client_type']
-                                                          as String?)
-                                                      ?.toLowerCase() ??
-                                                  '';
+                                              final type = (client['client_type'] as String?)?.toLowerCase() ?? '';
                                               final isIndividual =
-                                                  type == 'individual' ||
-                                                  type ==
-                                                      'indiviual'; // typo-safe
+                                                  type == 'individual' || type == 'individual'; // typo-safe
 
                                               if (isIndividual) {
-                                                await showIndividualProfileDialog(
-                                                  context,
-                                                  clientData: client,
-                                                );
+                                                await showIndividualProfileDialog(context, clientData: client);
                                               } else {
-                                                await showCompanyProfileDialog(
-                                                  context,
-                                                  clientData: client,
-                                                );
+                                                await showCompanyProfileDialog(context, clientData: client);
                                               }
                                             },
                                             onDelete: () async {
-                                              final shouldDelete = await showDialog<
-                                                bool
-                                              >(
+                                              final shouldDelete = await showDialog<bool>(
                                                 context: context,
                                                 builder:
-                                                    (
-                                                      context,
-                                                    ) => const ConfirmationDialog(
+                                                    (context) => const ConfirmationDialog(
                                                       title: 'Confirm Deletion',
-                                                      content:
-                                                          'Are you sure you want to delete this client?',
+                                                      content: 'Are you sure you want to delete this client?',
                                                       cancelText: 'Cancel',
                                                       confirmText: 'Delete',
                                                     ),
                                               );
                                               if (shouldDelete == true) {
-                                                final ref =
-                                                    client['client_ref_id']
-                                                        ?.toString();
-                                                if (ref != null &&
-                                                    ref.isNotEmpty) {
-                                                  await context
-                                                      .read<
-                                                        ClientProfileProvider
-                                                      >()
-                                                      .deleteClient(
-                                                        clientRefId: ref,
-                                                      );
+                                                final ref = client['client_ref_id']?.toString();
+                                                if (ref != null && ref.isNotEmpty) {
+                                                  await context.read<ClientProfileProvider>().deleteClient(
+                                                    clientRefId: ref,
+                                                  );
                                                 }
                                               }
                                             },
                                             onAddEmployee:
-                                                _isOrganization(
-                                                      client['client_type']
-                                                          ?.toString(),
-                                                    )
+                                                _isOrganization(client['client_type']?.toString())
                                                     ? () async {
-                                                      final clientRefId =
-                                                          client['client_ref_id']
-                                                              ?.toString() ??
-                                                          '';
-                                                      final clientName =
-                                                          client['name']
-                                                              ?.toString() ??
-                                                          'Unknown';
-                                                      if (clientRefId
-                                                          .isNotEmpty) {
+                                                      final clientRefId = client['client_ref_id']?.toString() ?? '';
+                                                      final clientName = client['name']?.toString() ?? 'Unknown';
+                                                      if (clientRefId.isNotEmpty) {
                                                         await showEmployeeListDialog(
                                                           context,
-                                                          clientRefId:
-                                                              clientRefId,
-                                                          clientName:
-                                                              clientName,
+                                                          clientRefId: clientRefId,
+                                                          clientName: clientName,
                                                         );
                                                       } else {
-                                                        ScaffoldMessenger.of(
-                                                          context,
-                                                        ).showSnackBar(
+                                                        ScaffoldMessenger.of(context).showSnackBar(
                                                           const SnackBar(
-                                                            content: Text(
-                                                              'Client reference ID not found',
-                                                            ),
-                                                            backgroundColor:
-                                                                Colors.red,
+                                                            content: Text('Client reference ID not found'),
+                                                            backgroundColor: Colors.red,
                                                           ),
                                                         );
                                                       }
@@ -643,11 +646,27 @@ class _ClientMainState extends State<ClientMain> {
                                   else
                                     TableRow(
                                       children: List.generate(
-                                        8,
-                                        (i) => Padding(
-                                          padding: const EdgeInsets.all(12.0),
-                                          child: Center(
-                                            child: Text('No clients'),
+                                        7,
+                                        (i) => TableCell(
+                                          child: Container(
+                                            height: 60,
+                                            child: Center(
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'No clients found',
+                                                    style: TextStyle(
+                                                      color: Colors.grey.shade600,
+                                                      fontStyle: FontStyle.italic,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -686,8 +705,7 @@ class _ClientMainState extends State<ClientMain> {
                     color: tags[i]['color'] ?? Colors.grey.shade200,
                     onDelete: () {
                       // You must call setState from the parent
-                      (context as Element)
-                          .markNeedsBuild(); // temporary refresh
+                      (context as Element).markNeedsBuild(); // temporary refresh
                       tags.removeAt(i);
                     },
                   ),
@@ -699,18 +717,12 @@ class _ClientMainState extends State<ClientMain> {
             child: GestureDetector(
               onTap: () async {
                 final result = await showAddTagDialog(context);
-                if (result != null &&
-                    result['tag'].toString().trim().isNotEmpty) {
+                if (result != null && result['tag'].toString().trim().isNotEmpty) {
                   (context as Element).markNeedsBuild();
                   tags.add({'tag': result['tag'], 'color': result['color']});
                 }
               },
-              child: Image.asset(
-                width: 14,
-                height: 14,
-                color: Colors.blue,
-                'assets/icons/img_1.png',
-              ),
+              child: Image.asset(width: 14, height: 14, color: Colors.blue, 'assets/icons/img_1.png'),
             ),
           ),
         ],
@@ -724,20 +736,12 @@ class _ClientMainState extends State<ClientMain> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -760,17 +764,12 @@ class _ClientMainState extends State<ClientMain> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                text2,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
-              ),
+              Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
               if (copyable)
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: text2));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -792,47 +791,26 @@ class _ClientMainState extends State<ClientMain> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
     );
   }
 
-  Widget _buildPriceWithAdd(
-    String curr,
-    String price, {
-    bool showPlus = false,
-  }) {
+  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            price,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.green,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(
               width: 15,
               height: 15,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.blue)),
               child: const Icon(Icons.add, size: 13, color: Colors.blue),
             ),
         ],
@@ -840,11 +818,7 @@ class _ClientMainState extends State<ClientMain> {
     );
   }
 
-  Widget _buildActionCell({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-    VoidCallback? onAddEmployee,
-  }) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onAddEmployee}) {
     return Row(
       children: [
         IconButton(
@@ -869,12 +843,7 @@ class _HoverableTag extends StatefulWidget {
   final Color color;
   final VoidCallback onDelete;
 
-  const _HoverableTag({
-    Key? key,
-    required this.tag,
-    required this.color,
-    required this.onDelete,
-  }) : super(key: key);
+  const _HoverableTag({Key? key, required this.tag, required this.color, required this.onDelete}) : super(key: key);
 
   @override
   State<_HoverableTag> createState() => _HoverableTagState();
@@ -894,17 +863,10 @@ class _HoverableTagState extends State<_HoverableTag> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             margin: const EdgeInsets.only(top: 6, right: 2),
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: widget.color, borderRadius: BorderRadius.circular(12)),
             child: Text(
               widget.tag,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 12),
             ),
           ),
           if (_hovering)
@@ -913,9 +875,7 @@ class _HoverableTagState extends State<_HoverableTag> {
               right: 5,
               child: GestureDetector(
                 onTap: widget.onDelete,
-                child: Container(
-                  child: const Icon(Icons.close, size: 12, color: Colors.black),
-                ),
+                child: Container(child: const Icon(Icons.close, size: 12, color: Colors.black)),
               ),
             ),
         ],

@@ -34,11 +34,8 @@ class _CreateOrdersState extends State<CreateOrders> {
           if (mounted) {
             try {
               final projectsProvider = context.read<ProjectsProvider>();
-              final serviceCategoryProvider =
-                  context.read<ServiceCategoryProvider>();
-              print(
-                'Providers found: ${projectsProvider.runtimeType}, ${serviceCategoryProvider.runtimeType}',
-              );
+              final serviceCategoryProvider = context.read<ServiceCategoryProvider>();
+              print('Providers found: ${projectsProvider.runtimeType}, ${serviceCategoryProvider.runtimeType}');
               projectsProvider.getAllProjects();
               serviceCategoryProvider.getServiceCategories();
             } catch (e) {
@@ -63,22 +60,9 @@ class _CreateOrdersState extends State<CreateOrders> {
   ];
 
   // Filter options
-  final List<String> statusOptions = [
-    'All',
-    'New',
-    'In Progress',
-    'Completed',
-    'Stop',
-  ];
+  final List<String> statusOptions = ['All', 'New', 'In Progress', 'Completed', 'Stop'];
   final List<String> paymentStatusOptions = ['All', 'Paid', 'Pending'];
-  final List<String> dateOptions = [
-    'All',
-    'Today',
-    'Yesterday',
-    'Last 7 Days',
-    'Last 30 Days',
-    'Custom Range',
-  ];
+  final List<String> dateOptions = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
 
   // Selected filter values
   String? selectedStatus;
@@ -92,19 +76,14 @@ class _CreateOrdersState extends State<CreateOrders> {
   // Get service names for filtering
   List<String> _getServiceNamesForFilter() {
     final provider = context.read<ServiceCategoryProvider>();
-    return ['All'] +
-        provider.serviceCategories
-            .map((service) => service['service_name'].toString() ?? '')
-            .toList();
+    return ['All'] + provider.serviceCategories.map((service) => service['service_name'].toString() ?? '').toList();
   }
 
   // Get service provider names for filtering
   List<String> _getServiceProviderNamesForFilter() {
     final provider = context.read<ServiceCategoryProvider>();
     return ['All'] +
-        provider.serviceCategories
-            .map((service) => service['service_provider_name'].toString() ?? '')
-            .toList();
+        provider.serviceCategories.map((service) => service['service_provider_name'].toString() ?? '').toList();
   }
 
   String _formatDate(String? dateString) {
@@ -145,11 +124,10 @@ class _CreateOrdersState extends State<CreateOrders> {
     // Tags filter (using service category)
     if (selectedTags != null && selectedTags != 'All') {
       final serviceCategoryProvider = context.read<ServiceCategoryProvider>();
-      final selectedService = serviceCategoryProvider.serviceCategories
-          .firstWhere(
-            (service) => service['service_name'] == selectedTags,
-            orElse: () => {},
-          );
+      final selectedService = serviceCategoryProvider.serviceCategories.firstWhere(
+        (service) => service['service_name'] == selectedTags,
+        orElse: () => {},
+      );
       if (selectedService.isNotEmpty) {
         serviceCategoryIdFilter = selectedService['id']?.toString();
       }
@@ -215,8 +193,21 @@ class _CreateOrdersState extends State<CreateOrders> {
       final createdDate = DateTime.parse(createdAt);
       final now = DateTime.now();
 
-      final difference = now.difference(createdDate).inDays;
-      return '$difference-days';
+      final difference = now.difference(createdDate);
+      final days = difference.inDays;
+      final hours = difference.inHours % 24;
+      
+      if (days == 0) {
+        if (hours == 0) {
+          return 'Today';
+        } else {
+          return '${hours}h ago';
+        }
+      } else if (days == 1) {
+        return 'Yesterday';
+      } else {
+        return '$days-days';
+      }
     } catch (e) {
       return '0-days'; // fallback if parsing fails
     }
@@ -231,6 +222,32 @@ class _CreateOrdersState extends State<CreateOrders> {
     return remaining.toStringAsFixed(2); // Always 2 decimal places
   }
 
+  /// Calculate pending payment using the larger value between quotation and total steps cost
+  String calculatePendingPayment(Map<String, dynamic> project) {
+    final double quotationAmount = double.tryParse(project['quotation']?.toString() ?? '0') ?? 0;
+    final double paidAmount = double.tryParse(project['paid_payment']?.toString() ?? '0') ?? 0;
+
+    // Get total steps cost from stage_totals if available
+    double totalStepsCost = 0.0;
+    if (project['stage_totals'] != null && project['stage_totals']['total_step_cost'] != null) {
+      totalStepsCost = double.tryParse(project['stage_totals']['total_step_cost'].toString()) ?? 0.0;
+    }
+
+    // Use the larger value between quotation and total steps cost
+    final double totalAmount = quotationAmount > totalStepsCost ? quotationAmount : totalStepsCost;
+    final double remaining = totalAmount - paidAmount;
+
+    return remaining.toStringAsFixed(2);
+  }
+
+  /// Get total steps cost from stage_totals
+  String getTotalStepsCost(Map<String, dynamic> project) {
+    if (project['stage_totals'] != null && project['stage_totals']['total_step_cost'] != null) {
+      return project['stage_totals']['total_step_cost'].toString();
+    }
+    return '0.00';
+  }
+
   @override
   Widget build(BuildContext context) {
     // Use context.watch to automatically rebuild when providers change
@@ -243,9 +260,7 @@ class _CreateOrdersState extends State<CreateOrders> {
     );
 
     // If no data and not loading, try to load data
-    if (projectsProvider.projects.isEmpty &&
-        !projectsProvider.isLoading &&
-        projectsProvider.errorMessage == null) {
+    if (projectsProvider.projects.isEmpty && !projectsProvider.isLoading && projectsProvider.errorMessage == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           print('No data found, attempting to load...');
@@ -276,14 +291,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                     borderRadius: BorderRadius.circular(2),
                     boxShadow:
                         _isHovering
-                            ? [
-                              BoxShadow(
-                                color: Colors.blue,
-                                blurRadius: 3,
-                                spreadRadius: 0.1,
-                                offset: Offset(0, 1),
-                              ),
-                            ]
+                            ? [BoxShadow(color: Colors.blue, blurRadius: 3, spreadRadius: 0.1, offset: Offset(0, 1))]
                             : [],
                   ),
                   child: Row(
@@ -310,9 +318,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                                 hintText: "Payment Status",
                                 items: paymentStatusOptions,
                                 onChanged: (newValue) {
-                                  setState(
-                                    () => selectedPaymentStatus = newValue!,
-                                  );
+                                  setState(() => selectedPaymentStatus = newValue!);
                                   // Note: Payment status filtering would need to be implemented in the backend
                                   // For now, we'll just update the UI state
                                 },
@@ -324,17 +330,11 @@ class _CreateOrdersState extends State<CreateOrders> {
                                 items: dateOptions,
                                 onChanged: (newValue) async {
                                   if (newValue == 'Custom Range') {
-                                    final selectedRange =
-                                        await showDateRangePickerDialog(
-                                          context,
-                                        );
+                                    final selectedRange = await showDateRangePickerDialog(context);
 
                                     if (selectedRange != null) {
-                                      final start =
-                                          selectedRange.startDate ??
-                                          DateTime.now();
-                                      final end =
-                                          selectedRange.endDate ?? start;
+                                      final start = selectedRange.startDate ?? DateTime.now();
+                                      final end = selectedRange.endDate ?? start;
 
                                       final formattedRange =
                                           '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
@@ -344,29 +344,19 @@ class _CreateOrdersState extends State<CreateOrders> {
                                       });
 
                                       // Apply custom date range filter
-                                      final projectsProvider =
-                                          context.read<ProjectsProvider>();
+                                      final projectsProvider = context.read<ProjectsProvider>();
                                       projectsProvider.setFilters(
-                                        startDate: DateFormat(
-                                          'yyyy-MM-dd',
-                                        ).format(start),
-                                        endDate: DateFormat(
-                                          'yyyy-MM-dd',
-                                        ).format(end),
+                                        startDate: DateFormat('yyyy-MM-dd').format(start),
+                                        endDate: DateFormat('yyyy-MM-dd').format(end),
                                       );
                                       projectsProvider.getAllProjects();
                                     }
                                   } else {
-                                    setState(
-                                      () => selectedDateRange = newValue!,
-                                    );
+                                    setState(() => selectedDateRange = newValue!);
                                     _applyFilters();
                                   }
                                 },
-                                icon: const Icon(
-                                  Icons.calendar_month,
-                                  size: 18,
-                                ),
+                                icon: const Icon(Icons.calendar_month, size: 18),
                               ),
                             ],
                           ),
@@ -389,19 +379,9 @@ class _CreateOrdersState extends State<CreateOrders> {
                                 child: Container(
                                   width: 30,
                                   height: 30,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 5,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.clear,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
                                 ),
                               ),
                             ),
@@ -417,25 +397,14 @@ class _CreateOrdersState extends State<CreateOrders> {
                               child: GestureDetector(
                                 onTap: () {
                                   projectsProvider.getAllProjects();
-                                  serviceCategoryProvider
-                                      .getServiceCategories();
+                                  serviceCategoryProvider.getServiceCategories();
                                 },
                                 child: Container(
                                   width: 30,
                                   height: 30,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 5,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.refresh,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
                                 ),
                               ),
                             ),
@@ -451,21 +420,12 @@ class _CreateOrdersState extends State<CreateOrders> {
                               waitDuration: Duration(milliseconds: 2),
                               child: GestureDetector(
                                 onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => CreateOrderDialog(),
-                                  );
+                                  showDialog(context: context, builder: (context) => CreateOrderDialog());
                                 },
                                 child: SizedBox(
                                   height: 30,
                                   width: 30,
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.edit_outlined,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                  ),
+                                  child: const Center(child: Icon(Icons.edit_outlined, color: Colors.white, size: 16)),
                                 ),
                               ),
                             ),
@@ -480,24 +440,18 @@ class _CreateOrdersState extends State<CreateOrders> {
               SizedBox(width: 10),
 
               // Show loading indicator
-              if (projectsProvider.isLoading ||
-                  serviceCategoryProvider.isLoading)
+              if (projectsProvider.isLoading || serviceCategoryProvider.isLoading)
                 Container(
                   height: 200,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text('Loading data...'),
-                      ],
+                      children: [CircularProgressIndicator(), SizedBox(height: 16), Text('Loading data...')],
                     ),
                   ),
                 )
               // Show error message
-              else if (projectsProvider.errorMessage != null ||
-                  serviceCategoryProvider.errorMessage != null)
+              else if (projectsProvider.errorMessage != null || serviceCategoryProvider.errorMessage != null)
                 Container(
                   height: 200,
                   child: Center(
@@ -507,9 +461,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                         Icon(Icons.error_outline, size: 64, color: Colors.red),
                         SizedBox(height: 16),
                         Text(
-                          projectsProvider.errorMessage ??
-                              serviceCategoryProvider.errorMessage ??
-                              'An error occurred',
+                          projectsProvider.errorMessage ?? serviceCategoryProvider.errorMessage ?? 'An error occurred',
                           style: TextStyle(color: Colors.red, fontSize: 16),
                           textAlign: TextAlign.center,
                         ),
@@ -526,8 +478,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                   ),
                 )
               // Show success message
-              else if (projectsProvider.successMessage != null ||
-                  serviceCategoryProvider.successMessage != null)
+              else if (projectsProvider.successMessage != null || serviceCategoryProvider.successMessage != null)
                 Container(
                   padding: EdgeInsets.all(8),
                   margin: EdgeInsets.symmetric(horizontal: 12),
@@ -584,17 +535,17 @@ class _CreateOrdersState extends State<CreateOrders> {
                             scrollDirection: Axis.vertical,
                             controller: _verticalController,
                             child: ConstrainedBox(
-                              constraints: const BoxConstraints(minWidth: 1150),
+                              constraints: const BoxConstraints(minWidth: 1250),
                               child: Table(
-                                defaultVerticalAlignment:
-                                    TableCellVerticalAlignment.middle,
+                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                 columnWidths: const {
                                   0: FlexColumnWidth(0.8),
                                   1: FlexColumnWidth(1.5),
                                   2: FlexColumnWidth(1.5),
                                   3: FlexColumnWidth(1),
-                                  4: FlexColumnWidth(1),
-                                  5: FlexColumnWidth(1.3),
+                                  // 4: FlexColumnWidth(1),
+                                  4: FlexColumnWidth(1.3),
+                                  5: FlexColumnWidth(1),
                                   6: FlexColumnWidth(1),
                                   7: FlexColumnWidth(1),
                                   8: FlexColumnWidth(1),
@@ -602,106 +553,55 @@ class _CreateOrdersState extends State<CreateOrders> {
                                 },
                                 children: [
                                   TableRow(
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade50,
-                                    ),
+                                    decoration: BoxDecoration(color: Colors.red.shade50),
                                     children: [
                                       _buildHeader("Date"),
+                                      _buildHeader("Ref Id"),
                                       _buildHeader("Client"),
-                                      _buildHeader("Tags Details"),
+                                      // _buildHeader("Tags Details"),
                                       _buildHeader("Status"),
                                       _buildHeader("Stage"),
                                       _buildHeader("Pending"),
                                       _buildHeader("Quotation"),
+                                      _buildHeader("Steps Cost"),
                                       _buildHeader("Manage"),
-                                      _buildHeader("Ref Id"),
                                       _buildHeader("More Actions"),
                                     ],
                                   ),
                                   if (projectsProvider.projects.isNotEmpty)
-                                    ...projectsProvider.projects.asMap().entries.map((
-                                      entry,
-                                    ) {
+                                    ...projectsProvider.projects.asMap().entries.map((entry) {
                                       final index = entry.key;
                                       final project = entry.value;
                                       return TableRow(
                                         decoration: BoxDecoration(
-                                          color:
-                                              index.isEven
-                                                  ? Colors.grey.shade200
-                                                  : Colors.grey.shade100,
+                                          color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
                                         ),
                                         children: [
                                           _buildCell2(
-                                            _formatDate(
-                                              project['created_at'] ??
-                                                  project['updated_at'],
-                                            ),
-                                            _formatTime(
-                                              project['created_at'] ??
-                                                  project['updated_at'],
-                                            ),
+                                            _formatDate(project['created_at'] ),
+                                            _formatTime(project['created_at'] ),
                                             centerText2: true,
                                           ),
+                                          _buildCell(project['project_ref_id'] ?? 'N/A', copyable: true),
+
                                           _buildCell3(
-                                            project['client_id']?['name'] ??
-                                                'N/A',
-                                            project['client_id']?['client_ref_id'] ??
-                                                'N/A',
+                                            project['client_id']?['name'] ?? 'N/A',
+                                            project['client_id']?['client_ref_id'] ?? 'N/A',
                                             copyable: true,
                                           ),
-                                          TagsCellWidget(
-                                            initialTags: currentTags,
-                                          ),
-                                          _buildCell(
-                                            project['status'] ?? 'N/A',
-                                          ),
+                                          // TagsCellWidget(initialTags: currentTags),
+                                          _buildCell(project['status'] ?? 'N/A'),
                                           _buildCell2(
-                                            project['stage_name'] ??
-                                                project['stage_id'] ??
-                                                'N/A',
-                                            getDaysDifference(
-                                              project['created_at'],
-                                            ),
+                                            project['stage_totals']['latest_stage_ref_id'] ?? 'N/A',
+                                            getDaysDifference(project['created_at']),
                                           ),
-                                          _buildPriceWithAdd(
-                                            "AED-",
-                                            ((double.tryParse(
-                                                              project['quotation'] ??
-                                                                  '0',
-                                                            ) ??
-                                                            0) -
-                                                        (double.tryParse(
-                                                              project['paid_payment'] ??
-                                                                  '0',
-                                                            ) ??
-                                                            0))
-                                                    .toStringAsFixed(2) ??
-                                                '0',
-                                          ),
-                                          _buildPriceWithAdd(
-                                            "AED-",
-                                            project['quotation'] ?? '0',
-                                          ),
-                                          _buildCell(
-                                            project['user_id']?['name'] ??
-                                                'N/A',
-                                          ),
-                                          _buildCell(
-                                            project['project_ref_id'] ?? 'N/A',
-                                            copyable: true,
-                                          ),
+                                          _buildPriceWithAdd("AED-", calculatePendingPayment(project)),
+                                          _buildPriceWithAdd("AED-", project['quotation'] ?? '0'),
+                                          _buildPriceWithAdd("AED-", getTotalStepsCost(project)),
+                                          _buildCell(project['user_id']?['name'] ?? 'N/A'),
                                           _buildActionCell(
-                                            onDelete:
-                                                () => _deleteProject(
-                                                  context,
-                                                  project,
-                                                ),
-                                            onEdit:
-                                                () => _editProject(
-                                                  context,
-                                                  project,
-                                                ),
+                                            onDelete: () => _deleteProject(context, project),
+                                            onEdit: () => _editProject(context, project),
                                             onDraft: () {},
                                           ),
                                         ],
@@ -710,28 +610,21 @@ class _CreateOrdersState extends State<CreateOrders> {
                                   else if (!projectsProvider.isLoading)
                                     TableRow(
                                       children: List.generate(
-                                        10,
+                                        11,
                                         (index) => TableCell(
                                           child: Container(
                                             height: 60,
                                             child: Center(
                                               child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                mainAxisAlignment: MainAxisAlignment.center,
                                                 children: [
-                                                  Icon(
-                                                    Icons.inbox_outlined,
-                                                    color: Colors.grey.shade400,
-                                                    size: 24,
-                                                  ),
+                                                  Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
                                                   SizedBox(height: 4),
                                                   Text(
                                                     'No projects available',
                                                     style: TextStyle(
-                                                      color:
-                                                          Colors.grey.shade600,
-                                                      fontStyle:
-                                                          FontStyle.italic,
+                                                      color: Colors.grey.shade600,
+                                                      fontStyle: FontStyle.italic,
                                                       fontSize: 12,
                                                     ),
                                                   ),
@@ -767,11 +660,7 @@ class _CreateOrdersState extends State<CreateOrders> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -784,20 +673,12 @@ class _CreateOrdersState extends State<CreateOrders> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -809,36 +690,19 @@ class _CreateOrdersState extends State<CreateOrders> {
     );
   }
 
-  Widget _buildPriceWithAdd(
-    String curr,
-    String price, {
-    bool showPlus = false,
-  }) {
+  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            price,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.green,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(
               width: 15,
               height: 15,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.blue)),
               child: const Icon(Icons.add, size: 13, color: Colors.blue),
             ),
         ],
@@ -846,12 +710,7 @@ class _CreateOrdersState extends State<CreateOrders> {
     );
   }
 
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -863,32 +722,18 @@ class _CreateOrdersState extends State<CreateOrders> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
+                    Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
                     if (copyable)
                       GestureDetector(
                         onTap: () {
-                          Clipboard.setData(
-                            ClipboardData(text: "$text1\n$text2"),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Copied to clipboard'),
-                            ),
-                          );
+                          Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.copy,
-                            size: 14,
-                            color: Colors.blue[700],
-                          ),
+                          child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
                         ),
                       ),
                   ],
@@ -897,32 +742,18 @@ class _CreateOrdersState extends State<CreateOrders> {
               : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
+                  Flexible(child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54))),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 8,
-                          color: Colors.blue[700],
-                        ),
+                        child: Icon(Icons.copy, size: 8, color: Colors.blue[700]),
                       ),
                     ),
                 ],
@@ -943,17 +774,12 @@ class _CreateOrdersState extends State<CreateOrders> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                text2,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
-              ),
+              Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
               if (copyable)
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -967,11 +793,7 @@ class _CreateOrdersState extends State<CreateOrders> {
     );
   }
 
-  Widget _buildActionCell({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-    VoidCallback? onDraft,
-  }) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onDraft}) {
     return Row(
       children: [
         /*IconButton(
@@ -996,19 +818,11 @@ class _CreateOrdersState extends State<CreateOrders> {
   /// Edit project
   void _editProject(BuildContext context, Map<String, dynamic> project) {
     // Navigate to CreateOrderScreen with project data
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CreateOrderScreen(projectData: project),
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => CreateOrderScreen(projectData: project)));
   }
 
   /// Delete project
-  void _deleteProject(
-    BuildContext context,
-    Map<String, dynamic> project,
-  ) async {
+  void _deleteProject(BuildContext context, Map<String, dynamic> project) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder:
