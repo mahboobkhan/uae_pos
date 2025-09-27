@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../utils/clipboard_utils.dart';
 import '../../dialogs/company_profile.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
@@ -567,7 +568,7 @@ class _ClientMainState extends State<ClientMain> {
                                           _buildCell(
                                             (client['client_type'] ?? '').toString().isEmpty
                                                 ? 'N/A'
-                                                : client['client_type'].toString(),
+                                                : ClipboardUtils.capitalizeFirstLetter(client['client_type'].toString()),
                                           ),
                                           _buildCell3(
                                             client['name']?.toString() ?? 'N/A',

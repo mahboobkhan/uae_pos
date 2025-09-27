@@ -8,4 +8,10 @@ class ClipboardUtils {
       SnackBar(content: Text(message ?? 'Copied to clipboard')),
     );
   }
+
+  // Capitalize first letter helper
+  static  String capitalizeFirstLetter(String? text) {
+    if (text == null || text.isEmpty) return '';
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
 }
