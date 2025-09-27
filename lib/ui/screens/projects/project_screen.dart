@@ -203,14 +203,14 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                         projectsProvider.getCombinedProjectsAndShortServices();
                                       },
                                     ),
-                                    CustomDropdown(
+                                    /*CustomDropdown(
                                       selectedValue: selectedCategory1,
                                       hintText: "Select Tags",
                                       items: categories1,
                                       onChanged: (newValue) {
                                         setState(() => selectedCategory1 = newValue!);
                                       },
-                                    ),
+                                    ),*/
                                     CustomDropdown(
                                       selectedValue: selectedCategory2,
                                       hintText: "Payment Status",
@@ -300,7 +300,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                     ),
                                   ),
                                 ),
-                                Card(
+                                /*Card(
                                   elevation: 8,
                                   color: Colors.blue,
                                   shape: CircleBorder(),
@@ -379,7 +379,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                       ),
                                     ),
                                   ),
-                                ),
+                                ),*/
                                 SizedBox(width: 10),
                               ],
                             ),

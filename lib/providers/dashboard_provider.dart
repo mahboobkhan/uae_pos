@@ -432,6 +432,8 @@ class DashboardProvider extends ChangeNotifier {
   /// ✅ Get All Dashboard Data
   Future<void> getAllDashboardData() async {
     try {
+      clearAllFilters();
+
       // Fetch all chart data concurrently for better performance
       await Future.wait([
         getPaymentsChartData(),

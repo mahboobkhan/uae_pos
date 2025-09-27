@@ -1,5 +1,9 @@
+import 'package:abc_consultant/utils/clipboard_utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../providers/dashboard_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -7,6 +11,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  // Keep your existing static stats for top cards
   final List<Map<String, dynamic>> stats = [
     {'label': 'Revenue', 'value': '25K'},
     {'label': 'Users', 'value': '1.2K'},
@@ -15,27 +20,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     {'label': 'Returns', 'value': '102'},
   ];
 
-  final List<PieChartSectionData> pieSections = [
-    PieChartSectionData(value: 40, color: Colors.red, title: '40%'),
-    PieChartSectionData(value: 30, color: Colors.blue, title: '30%'),
-    PieChartSectionData(value: 15, color: Colors.green, title: '15%'),
-    PieChartSectionData(value: 15, color: Colors.yellow, title: '15%'),
-  ];
+  // Date filters for each chart
+  DateTime? _paymentsStartDate;
+  DateTime? _paymentsEndDate;
+  DateTime? _clientsStartDate;
+  DateTime? _clientsEndDate;
+  DateTime? _projectsStartDate;
+  DateTime? _projectsEndDate;
+  DateTime? _expensesStartDate;
+  DateTime? _expensesEndDate;
 
-  final List<FlSpot> lineSpots = [
-    FlSpot(0, 1),
-    FlSpot(1, 1.5),
-    FlSpot(2, 1.4),
-    FlSpot(3, 3.4),
-    FlSpot(4, 2),
-    FlSpot(5, 2.2),
-    FlSpot(6, 1.8),
-  ];
-
-  final List<BarChartGroupData> barGroups = List.generate(
-    5,
-    (i) => BarChartGroupData(x: i, barRods: [BarChartRodData(toY: (i + 1) * 1.0, color: Colors.red)]),
-  );
+  @override
+  void initState() {
+    super.initState();
+    // Load all dashboard data when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DashboardProvider>().getAllDashboardData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Cards
+              // Keep your existing Top Cards (unchanged)
               SizedBox(
                 height: 120,
                 child: Row(
@@ -77,7 +79,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const SizedBox(height: 8),
                                 FittedBox(
                                   fit: BoxFit.scaleDown,
-
                                   child: Text(stat['label'], style: const TextStyle(fontSize: 14, color: Colors.white)),
                                 ),
                               ],
@@ -88,107 +89,165 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              // Graphs
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Line Chart
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildGraphHeader("Revenue Chart"),
-                        SizedBox(
-                          height: 200,
-                          child: LineChart(
-                            LineChartData(
-                              lineBarsData: [
-                                LineChartBarData(
-                                  spots: lineSpots,
-                                  isCurved: false,
-                                  dotData: FlDotData(show: true),
-                                  color: Colors.red,
-                                  belowBarData: BarAreaData(show: false, color: Colors.red.withOpacity(0.3)),
+
+              // Charts Section with Provider Integration
+              Consumer<DashboardProvider>(
+                builder: (context, provider, child) {
+                  return Column(
+                    children: [
+                      // Top Row: Payments Line Chart & Clients Bar Chart
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Payments Line Chart
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildGraphHeader(
+                                  "Payments Chart",
+                                  onStartDateChanged: (date) {
+                                    setState(() => _paymentsStartDate = date);
+                                    provider.setPaymentsFilters(
+                                      startDate: date?.toIso8601String().split('T')[0],
+                                      endDate: _paymentsEndDate?.toIso8601String().split('T')[0],
+                                    );
+                                    provider.refreshPaymentsData();
+                                  },
+                                  onEndDateChanged: (date) {
+                                    setState(() => _paymentsEndDate = date);
+                                    provider.setPaymentsFilters(
+                                      startDate: _paymentsStartDate?.toIso8601String().split('T')[0],
+                                      endDate: date?.toIso8601String().split('T')[0],
+                                    );
+                                    provider.refreshPaymentsData();
+                                  },
+                                  startDate: _paymentsStartDate,
+                                  endDate: _paymentsEndDate,
                                 ),
+                                SizedBox(height: 200, child: _buildPaymentsChart(provider)),
                               ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Separator
-                  Container(width: 1, height: 240, color: Colors.grey.shade300),
-                  const SizedBox(width: 12),
-                  // Bar Chart
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      _buildGraphHeader("Clients Chart"),
-                      SizedBox(
-                        height: 200,
-                        width: 300,
-                        child: BarChart(
-                          BarChartData(
-                            barGroups: barGroups,
-                            borderData: FlBorderData(show: false),
-                            gridData: FlGridData(show: false),
-                            titlesData: FlTitlesData(show: false),
+                          const SizedBox(width: 12),
+                          Container(width: 1, height: 240, color: Colors.grey.shade300),
+                          const SizedBox(width: 12),
+                          // Clients Bar Chart
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              _buildGraphHeader(
+                                "Clients Chart",
+                                onStartDateChanged: (date) {
+                                  setState(() => _clientsStartDate = date);
+                                  provider.setClientsFilters(
+                                    startDate: date?.toIso8601String().split('T')[0],
+                                    endDate: _clientsEndDate?.toIso8601String().split('T')[0],
+                                  );
+                                  provider.refreshClientsData();
+                                },
+                                onEndDateChanged: (date) {
+                                  setState(() => _clientsEndDate = date);
+                                  provider.setClientsFilters(
+                                    startDate: _clientsStartDate?.toIso8601String().split('T')[0],
+                                    endDate: date?.toIso8601String().split('T')[0],
+                                  );
+                                  provider.refreshClientsData();
+                                },
+                                startDate: _clientsStartDate,
+                                endDate: _clientsEndDate,
+                              ),
+                              SizedBox(height: 200, width: 300, child: _buildClientsChart(provider)),
+                            ],
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Divider(color: Colors.grey.shade300),
+                      const SizedBox(height: 24),
+
+                      // Bottom Row: Projects Pie Chart & Expenses Pie Chart
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Projects Pie Chart
+                            SizedBox(
+                              width: width * 0.36,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  _buildGraphHeader(
+                                    "Projects Chart",
+                                    onStartDateChanged: (date) {
+                                      setState(() => _projectsStartDate = date);
+                                      provider.setProjectsFilters(
+                                        startDate: date?.toIso8601String().split('T')[0],
+                                        endDate: _projectsEndDate?.toIso8601String().split('T')[0],
+                                      );
+                                      provider.refreshProjectsData();
+                                    },
+                                    onEndDateChanged: (date) {
+                                      setState(() => _projectsEndDate = date);
+                                      provider.setProjectsFilters(
+                                        startDate: _projectsStartDate?.toIso8601String().split('T')[0],
+                                        endDate: date?.toIso8601String().split('T')[0],
+                                      );
+                                      provider.refreshProjectsData();
+                                    },
+                                    startDate: _projectsStartDate,
+                                    endDate: _projectsEndDate,
+                                  ),
+                                  SizedBox(height: 200, child: _buildProjectsChart(provider)),
+                                  const SizedBox(height: 8),
+                                  _buildProjectsLegend(provider),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Container(width: 1, height: 240, color: Colors.grey.shade300),
+                            SizedBox(width: 12),
+                            // Expenses Pie Chart
+                            SizedBox(
+                              width: width * 0.36,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  _buildGraphHeader(
+                                    "Expenses Chart",
+                                    onStartDateChanged: (date) {
+                                      setState(() => _expensesStartDate = date);
+                                      provider.setExpensesFilters(
+                                        startDate: date?.toIso8601String().split('T')[0],
+                                        endDate: _expensesEndDate?.toIso8601String().split('T')[0],
+                                      );
+                                      provider.refreshExpensesData();
+                                    },
+                                    onEndDateChanged: (date) {
+                                      setState(() => _expensesEndDate = date);
+                                      provider.setExpensesFilters(
+                                        startDate: _expensesStartDate?.toIso8601String().split('T')[0],
+                                        endDate: date?.toIso8601String().split('T')[0],
+                                      );
+                                      provider.refreshExpensesData();
+                                    },
+                                    startDate: _expensesStartDate,
+                                    endDate: _expensesEndDate,
+                                  ),
+                                  SizedBox(height: 200, child: _buildExpensesChart(provider)),
+                                  const SizedBox(height: 8),
+                                  _buildExpensesLegend(provider),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
-              const SizedBox(height: 24),
-              Divider(color: Colors.grey.shade300),
-              const SizedBox(height: 24),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // First Pie Chart with header
-                    SizedBox(
-                      width: width * 0.36,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _buildGraphHeader("Project Chart"),
-                          SizedBox(
-                            height: 200,
-                            child: PieChart(
-                              PieChartData(sections: pieSections, sectionsSpace: 4, centerSpaceRadius: 40),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Container(width: 1, height: 240, color: Colors.grey.shade300),
-                    SizedBox(width: 12),
-                    SizedBox(
-                      width: width * 0.36, // 45% of screen width
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _buildGraphHeader("Expense Chart"),
-                          SizedBox(
-                            height: 200,
-                            child: PieChart(
-                              PieChartData(sections: pieSections, sectionsSpace: 4, centerSpaceRadius: 40),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Pie Chart
             ],
           ),
         ),
@@ -196,10 +255,294 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  DateTime? _startDate;
-  DateTime? _endDate;
+  // Build Payments Line Chart
+  Widget _buildPaymentsChart(DashboardProvider provider) {
+    if (provider.isPaymentsLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
 
-  Widget _buildGraphHeader(String title) {
+    if (provider.paymentsErrorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Colors.red, size: 48),
+            SizedBox(height: 8),
+            Text('Error loading payments data', style: TextStyle(color: Colors.red)),
+            SizedBox(height: 4),
+            Text(
+              provider.paymentsErrorMessage!,
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (provider.paymentsChartData.isEmpty) {
+      return Center(child: Text('No payments data available'));
+    }
+
+    // Convert payments data to line chart spots and capture x labels (dates)
+    final List<FlSpot> spots = [];
+    final List<String> xLabels = [];
+    for (int i = 0; i < provider.paymentsChartData.length; i++) {
+      final dayData = provider.paymentsChartData[i];
+      spots.add(FlSpot(i.toDouble(), (dayData['total_amount'] ?? 0).toDouble()));
+      final String date = (dayData['date'] ?? '').toString();
+      xLabels.add(date.isNotEmpty && date.length >= 10 ? date.substring(5) : date);
+    }
+
+    // Adaptive bottom label interval to avoid overlap
+    final int maxBottomLabels = 6;
+    final int bottomInterval =
+        xLabels.isEmpty ? 1 : (xLabels.length <= maxBottomLabels ? 1 : (xLabels.length / maxBottomLabels).ceil());
+
+    return LineChart(
+      LineChartData(
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            dotData: FlDotData(show: true),
+            color: Colors.red,
+            belowBarData: BarAreaData(show: true, color: Colors.red.withOpacity(0.3)),
+          ),
+        ],
+        titlesData: FlTitlesData(
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 60)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: bottomInterval.toDouble(),
+              getTitlesWidget: (value, meta) {
+                final int index = value.toInt();
+                if (index < 0 || index >= xLabels.length) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6.0),
+                  child: Text(xLabels[index], style: const TextStyle(fontSize: 10, color: Colors.black54)),
+                );
+              },
+            ),
+          ),
+        ),
+        gridData: FlGridData(show: true),
+        borderData: FlBorderData(show: true),
+      ),
+    );
+  }
+
+  // Build Clients Bar Chart
+  Widget _buildClientsChart(DashboardProvider provider) {
+    if (provider.isClientsLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.clientsErrorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Colors.red, size: 48),
+            SizedBox(height: 8),
+            Text('Error loading clients data', style: TextStyle(color: Colors.red)),
+          ],
+        ),
+      );
+    }
+
+    if (provider.clientsChartData.isEmpty) {
+      return Center(child: Text('No clients data available'));
+    }
+
+    // Convert clients data to bar chart and capture x labels (dates)
+    final List<BarChartGroupData> barGroups = [];
+    final List<String> xLabels = [];
+    double maxCount = 0;
+    final int len = provider.clientsChartData.length;
+    for (int i = 0; i < len; i++) {
+      final dayData = provider.clientsChartData[i];
+      final double count = ((dayData['total_clients'] ?? 0) as num).toDouble();
+      if (count > maxCount) maxCount = count;
+      barGroups.add(BarChartGroupData(x: i, barRods: [BarChartRodData(toY: count, color: Colors.red)]));
+      final String date = (dayData['date'] ?? '').toString();
+      xLabels.add(date.isNotEmpty && date.length >= 10 ? date.substring(5) : date);
+    }
+
+    // Compute integer-friendly Y-axis max and interval
+    final double computedMaxY = maxCount <= 1 ? 2 : (maxCount + 1).ceilToDouble();
+
+    // // Adaptive bottom label interval to avoid overlap
+    // final int maxBottomLabels = 6;
+    // final int bottomInterval =
+    //     xLabels.isEmpty ? 1 : (xLabels.length <= maxBottomLabels ? 1 : (xLabels.length / maxBottomLabels).ceil());
+
+    // Keep labels minimal for smaller box: cap to ~4 labels
+    final int maxBottomLabels = 4;
+    final int bottomInterval =
+        xLabels.isEmpty ? 1 : (xLabels.length <= maxBottomLabels ? 1 : (xLabels.length / maxBottomLabels).ceil());
+
+    return BarChart(
+      BarChartData(
+        barGroups: barGroups,
+        minY: 0,
+        maxY: computedMaxY,
+        borderData: FlBorderData(show: false),
+        gridData: FlGridData(show: true, horizontalInterval: 1),
+        titlesData: FlTitlesData(
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: 1,
+              getTitlesWidget: (value, meta) {
+                final int v = value.round();
+                return Text('$v', style: const TextStyle(fontSize: 10, color: Colors.black54));
+              },
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: bottomInterval.toDouble(),
+              getTitlesWidget: (value, meta) {
+                final int index = value.toInt();
+                if (index < 0 || index >= xLabels.length) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6.0),
+                  child: Text(xLabels[index], style: const TextStyle(fontSize: 10, color: Colors.black54)),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Build Projects Pie Chart
+  Widget _buildProjectsChart(DashboardProvider provider) {
+    if (provider.isProjectsLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.projectsErrorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Colors.red, size: 48),
+            SizedBox(height: 8),
+            Text('Error loading projects data', style: TextStyle(color: Colors.red)),
+          ],
+        ),
+      );
+    }
+
+    if (provider.projectsStatusDistribution == null || provider.projectsStatusDistribution!.isEmpty) {
+      return Center(child: Text('No projects data available'));
+    }
+
+    // Convert projects status distribution to pie chart
+    List<PieChartSectionData> sections = [];
+    List<Color> colors = [Colors.green, Colors.blue, Colors.orange, Colors.red, Colors.purple];
+
+    for (int i = 0; i < provider.projectsStatusDistribution!.length; i++) {
+      final statusData = provider.projectsStatusDistribution![i];
+      final percentage = (statusData['percentage'] ?? 0).toDouble();
+
+      if (percentage > 0) {
+        sections.add(
+          PieChartSectionData(
+            value: percentage,
+            color: colors[i % colors.length],
+            title: '${percentage.toStringAsFixed(1)}%',
+            titleStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        );
+      }
+    }
+
+    return PieChart(PieChartData(sections: sections, sectionsSpace: 4, centerSpaceRadius: 40));
+  }
+
+  // Legend for Projects Pie
+  Widget _buildProjectsLegend(DashboardProvider provider) {
+    final data = provider.projectsStatusDistribution ?? [];
+    if (data.isEmpty) return const SizedBox.shrink();
+    final List<Color> colors = [Colors.green, Colors.blue, Colors.orange, Colors.red, Colors.purple];
+
+    final List<Widget> items = [];
+    for (int i = 0; i < data.length; i++) {
+      final m = data[i];
+      final num pct = (m['percentage'] ?? 0) is num ? m['percentage'] : 0;
+      if (pct == 0) continue; // show only categories present in chart
+      final String label = (m['status'] ?? '').toString();
+      items.add(_LegendItem(color: colors[i % colors.length], label: label));
+    }
+
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Wrap(spacing: 12, runSpacing: 8, children: items);
+  }
+
+  // Build Expenses Pie Chart
+  Widget _buildExpensesChart(DashboardProvider provider) {
+    if (provider.isExpensesLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.expensesErrorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Colors.red, size: 48),
+            SizedBox(height: 8),
+            Text('Error loading expenses data', style: TextStyle(color: Colors.red)),
+          ],
+        ),
+      );
+    }
+
+    if (provider.expensesTypeDistribution == null || provider.expensesTypeDistribution!.isEmpty) {
+      return Center(child: Text('No expenses data available'));
+    }
+
+    // Convert expenses type distribution to pie chart
+    List<PieChartSectionData> sections = [];
+    List<Color> colors = [Colors.red, Colors.blue, Colors.green, Colors.yellow, Colors.purple];
+
+    for (int i = 0; i < provider.expensesTypeDistribution!.length; i++) {
+      final typeData = provider.expensesTypeDistribution![i];
+      final percentage = (typeData['percentage'] ?? 0).toDouble();
+
+      if (percentage > 0) {
+        sections.add(
+          PieChartSectionData(
+            value: percentage,
+            color: colors[i % colors.length],
+            title: '${percentage.toStringAsFixed(1)}%',
+            titleStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        );
+      }
+    }
+
+    return PieChart(PieChartData(sections: sections, sectionsSpace: 4, centerSpaceRadius: 40));
+  }
+
+  // Updated graph header with individual date filters
+  Widget _buildGraphHeader(
+    String title, {
+    required Function(DateTime?) onStartDateChanged,
+    required Function(DateTime?) onEndDateChanged,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -220,12 +563,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     onPressed: () async {
                       final picked = await showDatePicker(
                         context: context,
-                        initialDate: _startDate ?? DateTime.now(),
+                        initialDate: startDate ?? DateTime.now(),
                         firstDate: DateTime(2020),
                         lastDate: DateTime(2100),
                       );
                       if (picked != null) {
-                        setState(() => _startDate = picked);
+                        onStartDateChanged(picked);
                       }
                     },
                     icon: const Icon(Icons.calendar_today, size: 14),
@@ -245,12 +588,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     onPressed: () async {
                       final picked = await showDatePicker(
                         context: context,
-                        initialDate: _endDate ?? DateTime.now(),
+                        initialDate: endDate ?? DateTime.now(),
                         firstDate: DateTime(2020),
                         lastDate: DateTime(2100),
                       );
                       if (picked != null) {
-                        setState(() => _endDate = picked);
+                        onEndDateChanged(picked);
                       }
                     },
                     icon: const Icon(Icons.calendar_today, size: 14),
@@ -270,17 +613,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_startDate != null)
+                  if (startDate != null)
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Text(
-                        "From: ${_startDate!.toLocal().toString().split(' ')[0]}",
+                        "From: ${startDate.toLocal().toString().split(' ')[0]}",
                         style: const TextStyle(fontSize: 11, color: Colors.grey),
                       ),
                     ),
-                  if (_endDate != null)
+                  if (endDate != null)
                     Text(
-                      "To: ${_endDate!.toLocal().toString().split(' ')[0]}",
+                      "To: ${endDate.toLocal().toString().split(' ')[0]}",
                       style: const TextStyle(fontSize: 11, color: Colors.grey),
                     ),
                 ],
@@ -289,6 +632,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // Legend for Expenses Pie
+  Widget _buildExpensesLegend(DashboardProvider provider) {
+    final data = provider.expensesTypeDistribution ?? [];
+    if (data.isEmpty) return const SizedBox.shrink();
+    final List<Color> colors = [Colors.red, Colors.blue, Colors.green, Colors.yellow, Colors.purple];
+
+    final List<Widget> items = [];
+    for (int i = 0; i < data.length; i++) {
+      final m = data[i];
+      final num pct = (m['percentage'] ?? 0) is num ? m['percentage'] : 0;
+      if (pct == 0) continue; // show only categories present in chart
+      final String label = (m['type'] ?? '').toString();
+      items.add(_LegendItem(color: colors[i % colors.length], label: label));
+    }
+
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Wrap(spacing: 12, runSpacing: 8, children: items);
+  }
+}
+
+class _LegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendItem({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+        ),
+        const SizedBox(width: 6),
+        Text(ClipboardUtils.capitalizeFirstLetter(label), style: const TextStyle(fontSize: 12, color: Colors.black54)),
+      ],
     );
   }
 }
