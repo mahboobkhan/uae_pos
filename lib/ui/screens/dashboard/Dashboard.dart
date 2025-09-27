@@ -7,7 +7,6 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-
   final List<Map<String, dynamic>> stats = [
     {'label': 'Revenue', 'value': '25K'},
     {'label': 'Users', 'value': '1.2K'},
@@ -35,10 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final List<BarChartGroupData> barGroups = List.generate(
     5,
-    (i) => BarChartGroupData(
-      x: i,
-      barRods: [BarChartRodData(toY: (i + 1) * 1.0, color: Colors.red)],
-    ),
+    (i) => BarChartGroupData(x: i, barRods: [BarChartRodData(toY: (i + 1) * 1.0, color: Colors.red)]),
   );
 
   @override
@@ -62,10 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: Container(
                             margin: const EdgeInsets.symmetric(horizontal: 6),
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -85,13 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 FittedBox(
                                   fit: BoxFit.scaleDown,
 
-                                  child: Text(
-                                    stat['label'],
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                                  child: Text(stat['label'], style: const TextStyle(fontSize: 14, color: Colors.white)),
                                 ),
                               ],
                             ),
@@ -110,7 +97,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildGraphHeader("Line Chart"),
+                        _buildGraphHeader("Revenue Chart"),
                         SizedBox(
                           height: 200,
                           child: LineChart(
@@ -121,10 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   isCurved: false,
                                   dotData: FlDotData(show: true),
                                   color: Colors.red,
-                                  belowBarData: BarAreaData(
-                                    show: false,
-                                    color: Colors.red.withOpacity(0.3),
-                                  ),
+                                  belowBarData: BarAreaData(show: false, color: Colors.red.withOpacity(0.3)),
                                 ),
                               ],
                             ),
@@ -141,7 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      _buildGraphHeader("Bar Chart"),
+                      _buildGraphHeader("Clients Chart"),
                       SizedBox(
                         height: 200,
                         width: 300,
@@ -172,37 +156,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          _buildGraphHeader("Pie Chart 1"),
+                          _buildGraphHeader("Project Chart"),
                           SizedBox(
                             height: 200,
                             child: PieChart(
-                              PieChartData(
-                                sections: pieSections,
-                                sectionsSpace: 4,
-                                centerSpaceRadius: 40,
-                              ),
+                              PieChartData(sections: pieSections, sectionsSpace: 4, centerSpaceRadius: 40),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(width: 12,),
+                    SizedBox(width: 12),
                     Container(width: 1, height: 240, color: Colors.grey.shade300),
-                    SizedBox(width: 12,),
+                    SizedBox(width: 12),
                     SizedBox(
                       width: width * 0.36, // 45% of screen width
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          _buildGraphHeader("Pie Chart 2"),
+                          _buildGraphHeader("Expense Chart"),
                           SizedBox(
                             height: 200,
                             child: PieChart(
-                              PieChartData(
-                                sections: pieSections,
-                                sectionsSpace: 4,
-                                centerSpaceRadius: 40,
-                              ),
+                              PieChartData(sections: pieSections, sectionsSpace: 4, centerSpaceRadius: 40),
                             ),
                           ),
                         ],
@@ -231,10 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Left side: Graph Title
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
 
           // Right side: Start/End Date Filters
           Column(
@@ -259,10 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     label: const Text("Start", style: TextStyle(fontSize: 13)),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                       minimumSize: const Size(10, 36),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       backgroundColor: Colors.transparent,
@@ -287,10 +257,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     label: const Text("End", style: TextStyle(fontSize: 13)),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                       minimumSize: const Size(10, 36),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       backgroundColor: Colors.transparent,
@@ -308,10 +275,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Text(
                         "From: ${_startDate!.toLocal().toString().split(' ')[0]}",
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey,
-                        ),
+                        style: const TextStyle(fontSize: 11, color: Colors.grey),
                       ),
                     ),
                   if (_endDate != null)

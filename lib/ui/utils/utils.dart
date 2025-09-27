@@ -68,7 +68,7 @@ final List<SidebarItem> sidebarItems = [
   ),
   SidebarItem(
     icon: Icons.file_download_done_sharp,
-    title: 'Files Cash Flow',
+    title: 'Files Backup',
     submenuKeys: ['download', 'upload'],
     accessKey: 'files_cash_flow',
 
@@ -147,7 +147,7 @@ final List<SidebarItem> sidebarItemsAccess = [
   ),
   SidebarItem(
     icon: Icons.file_download_done_sharp,
-    title: 'Files Cash Flow',
+    title: 'Files Backup',
     submenuKeys: ['download', 'upload'],
     accessKey: 'files_cash_flow',
     submenus: ['Download', 'Upload'],

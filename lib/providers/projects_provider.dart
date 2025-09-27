@@ -12,6 +12,10 @@ class ProjectsProvider extends ChangeNotifier {
   String? successMessage;
   List<Map<String, dynamic>> projects = [];
   
+  // Combined data for projects and short services
+  List<Map<String, dynamic>> combinedData = [];
+  Map<String, dynamic>? summaryData;
+  
   // Filter parameters
   String? statusFilter;
   String? serviceCategoryIdFilter;
@@ -20,6 +24,91 @@ class ProjectsProvider extends ChangeNotifier {
   String? stageIdFilter;
   String? startDateFilter;
   String? endDateFilter;
+
+  /// ✅ Get Combined Projects and Short Services
+  Future<void> getCombinedProjectsAndShortServices() async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    // Build query parameters for filtering
+    final Map<String, String> queryParams = {};
+    if (statusFilter != null && statusFilter!.isNotEmpty && statusFilter != 'All') {
+      queryParams['status'] = statusFilter!;
+    }
+    if (serviceCategoryIdFilter != null && serviceCategoryIdFilter!.isNotEmpty && serviceCategoryIdFilter != 'All') {
+      queryParams['service_category_id'] = serviceCategoryIdFilter!;
+    }
+    if (userIdFilter != null && userIdFilter!.isNotEmpty && userIdFilter != 'All') {
+      queryParams['user_id'] = userIdFilter!;
+    }
+    if (clientIdFilter != null && clientIdFilter!.isNotEmpty && clientIdFilter != 'All') {
+      queryParams['client_id'] = clientIdFilter!;
+    }
+    if (stageIdFilter != null && stageIdFilter!.isNotEmpty && stageIdFilter != 'All') {
+      queryParams['stage_id'] = stageIdFilter!;
+    }
+    if (startDateFilter != null && startDateFilter!.isNotEmpty) {
+      queryParams['start_date'] = startDateFilter!;
+    }
+    if (endDateFilter != null && endDateFilter!.isNotEmpty) {
+      queryParams['end_date'] = endDateFilter!;
+    }
+
+    final url = Uri.parse("$baseUrl/get_all_project_and_short_services.php").replace(queryParameters: queryParams);
+
+    try {
+      if (kDebugMode) {
+        print('Fetching combined data from: $url');
+      }
+      
+      final response = await http.get(url);
+      
+      if (kDebugMode) {
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          if (data['data'] != null && data['data'] is List) {
+            combinedData = List<Map<String, dynamic>>.from(data['data']);
+            summaryData = data['summary'];
+            successMessage = "Data fetched successfully";
+            if (kDebugMode) {
+              print('Fetched ${combinedData.length} items');
+            }
+          } else {
+            combinedData = [];
+            summaryData = null;
+            errorMessage = "No data available";
+            if (kDebugMode) {
+              print('No data in response');
+            }
+          }
+        } else {
+          errorMessage = data['message'] ?? "Failed to fetch data";
+          if (kDebugMode) {
+            print('API returned error: $errorMessage');
+          }
+        }
+      } else {
+        errorMessage = "Error: ${response.statusCode} - ${response.reasonPhrase}";
+        if (kDebugMode) {
+          print('HTTP error: $errorMessage');
+        }
+      }
+    } catch (e) {
+      errorMessage = "Network error: $e";
+      if (kDebugMode) {
+        print('Exception occurred: $e');
+      }
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
 
   /// ✅ Get All Projects
   Future<void> getAllProjects() async {

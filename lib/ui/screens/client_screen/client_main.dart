@@ -32,6 +32,7 @@ class _ClientMainState extends State<ClientMain> {
       if (!mounted) return;
       try {
         final provider = context.read<ClientProfileProvider>();
+        provider.clearFilters();
         provider.getAllClients();
       } catch (e) {
         // ignore provider lookup errors on early build
@@ -200,48 +201,49 @@ class _ClientMainState extends State<ClientMain> {
               SizedBox(
                 height: 120,
                 child: Row(
-                  children: _getStatsFromSummary(clientProvider.clientsSummary).map((stat) {
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Material(
-                          elevation: 12,
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.white70,
-                          shadowColor: Colors.black,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    stat['value'],
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      color: Colors.white,
-                                      fontFamily: 'Courier',
-                                      fontWeight: FontWeight.bold,
+                  children:
+                      _getStatsFromSummary(clientProvider.clientsSummary).map((stat) {
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Material(
+                              elevation: 12,
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.white70,
+                              shadowColor: Colors.black,
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        stat['value'],
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          color: Colors.white,
+                                          fontFamily: 'Courier',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(height: 8),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        stat['label'],
+                                        style: const TextStyle(fontSize: 14, color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 8),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    stat['label'],
-                                    style: const TextStyle(fontSize: 14, color: Colors.white),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
                 ),
               ),
 
@@ -555,7 +557,7 @@ class _ClientMainState extends State<ClientMain> {
                                     ...clientProvider.filteredClients.asMap().entries.map((entry) {
                                       final index = entry.key;
                                       final client = entry.value;
-                               /*       final List<dynamic> tagList = (client['tags'] is List) ? client['tags'] : [];
+                                      /*       final List<dynamic> tagList = (client['tags'] is List) ? client['tags'] : [];
                                       final tagsForWidget =
                                           tagList
                                               .map((t) => {'tag': t.toString(), 'color': Colors.green.shade100})
@@ -568,7 +570,9 @@ class _ClientMainState extends State<ClientMain> {
                                           _buildCell(
                                             (client['client_type'] ?? '').toString().isEmpty
                                                 ? 'N/A'
-                                                : ClipboardUtils.capitalizeFirstLetter(client['client_type'].toString()),
+                                                : ClipboardUtils.capitalizeFirstLetter(
+                                                  client['client_type'].toString(),
+                                                ),
                                           ),
                                           _buildCell3(
                                             client['name']?.toString() ?? 'N/A',
@@ -584,9 +588,12 @@ class _ClientMainState extends State<ClientMain> {
                                             copyable: true,
                                           ),
                                           // _buildCell((client['phone1'] ?? client['email'] ?? 'N/A').toString()),
-                                          _buildCell(client['project_stats']['project_status']??'N/A'),
-                                          _buildPriceWithAdd('AED-', client['project_stats']['pending_amount']??'N/A'),
-                                          _buildPriceWithAdd('AED-', client['project_stats']['paid_amount']??'N/A'),
+                                          _buildCell(client['project_stats']['project_status'] ?? 'N/A'),
+                                          _buildPriceWithAdd(
+                                            'AED-',
+                                            client['project_stats']['pending_amount'] ?? 'N/A',
+                                          ),
+                                          _buildPriceWithAdd('AED-', client['project_stats']['paid_amount'] ?? 'N/A'),
                                           _buildActionCell(
                                             onEdit: () async {
                                               final type = (client['client_type'] as String?)?.toLowerCase() ?? '';

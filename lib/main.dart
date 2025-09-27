@@ -7,6 +7,7 @@ import 'package:abc_consultant/providers/create_bank_provider.dart';
 import 'package:abc_consultant/providers/create_employee_type_provider.dart';
 import 'package:abc_consultant/providers/create_payment_method_provider.dart';
 import 'package:abc_consultant/providers/create_salary_provider.dart';
+import 'package:abc_consultant/providers/dashboard_provider.dart';
 import 'package:abc_consultant/providers/delete_bank_account.dart';
 import 'package:abc_consultant/providers/desigination_provider.dart';
 import 'package:abc_consultant/providers/designation_delete_provider.dart';
@@ -47,6 +48,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => EmployeeProvider()),
         ChangeNotifierProvider(create: (_) => UpdateUserBankAccountProvider()),
         ChangeNotifierProvider(create: (_) => DesignationProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),
         ChangeNotifierProvider(create: (_) => DesignationUpdateProvider()),
         ChangeNotifierProvider(create: (_) => DesignationDeleteProvider()),
         ChangeNotifierProvider(create: (_) => DesignationListProvider()),
