@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
 import '../../dialogs/custom_dialoges.dart';
-import '../../dialogs/employe_profile.dart';
 import '../../utils/utils.dart';
 
 class EmployeesRoleScreen extends StatefulWidget {
@@ -31,9 +30,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => Provider.of<EmployeeProvider>(context, listen: false).getFullData(),
-    );
+    Future.microtask(() => Provider.of<EmployeeProvider>(context, listen: false).getFullData());
   }
 
   // Get filtered employees based on selected filters
@@ -96,12 +93,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
           print("Selected Category: $selectedCategory");
           print("Total Employees: ${employeeProvider.employees?.length ?? 0}");
           print("Filtered Employees: ${filteredEmployees.length}");
-          print(
-            "Active Employees: ${employeeProvider.employees?.where((e) => e.isUserActive == 1).length ?? 0}",
-          );
-          print(
-            "Blocked Employees: ${employeeProvider.employees?.where((e) => e.isUserActive == 0).length ?? 0}",
-          );
+          print("Active Employees: ${employeeProvider.employees?.where((e) => e.isUserActive == 1).length ?? 0}");
+          print("Blocked Employees: ${employeeProvider.employees?.where((e) => e.isUserActive == 0).length ?? 0}");
 
           if (filteredEmployees.isEmpty) {
             return Scaffold(
@@ -110,27 +103,16 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.search_off,
-                      size: 64,
-                      color: Colors.grey.shade400,
-                    ),
+                    Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
                     const SizedBox(height: 16),
                     Text(
                       'No employees match the selected filters',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(fontSize: 18, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Try changing your filter criteria or clear the filter',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade500,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
@@ -144,10 +126,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue.shade600,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),
                     ),
                   ],
@@ -200,9 +179,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                       hintText: "Status",
                                       items: categories,
                                       onChanged: (newValue) {
-                                        setState(
-                                          () => selectedCategory = newValue!,
-                                        );
+                                        setState(() => selectedCategory = newValue!);
                                         print("Filter changed to: $newValue");
                                       },
                                     ),
@@ -396,12 +373,9 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                   scrollDirection: Axis.vertical,
                                   controller: _verticalController,
                                   child: ConstrainedBox(
-                                    constraints: const BoxConstraints(
-                                      minWidth: 1150,
-                                    ),
+                                    constraints: const BoxConstraints(minWidth: 1150),
                                     child: Table(
-                                      defaultVerticalAlignment:
-                                          TableCellVerticalAlignment.middle,
+                                      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                       columnWidths: const {
                                         0: FlexColumnWidth(2),
                                         1: FlexColumnWidth(2),
@@ -410,9 +384,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                       },
                                       children: [
                                         TableRow(
-                                          decoration: BoxDecoration(
-                                            color: Colors.red.shade50,
-                                          ),
+                                          decoration: BoxDecoration(color: Colors.red.shade50),
                                           children: [
                                             _buildHeader("Name"),
                                             _buildHeader("Desigination"),
@@ -431,39 +403,21 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                             ),
                                             children: [
                                               _buildCell3(
-                                                singleEmployee
-                                                    .value
-                                                    .employeeName,
+                                                singleEmployee.value.employeeName,
                                                 singleEmployee.value.userId,
                                                 copyable: true,
                                               ),
                                               _buildCell1(
-                                                singleEmployee
-                                                        .value
-                                                        .empDesignation
-                                                        .isEmpty
+                                                singleEmployee.value.empDesignation.isEmpty
                                                     ? "N/A"
-                                                    : singleEmployee
-                                                        .value
-                                                        .empDesignation,
+                                                    : singleEmployee.value.empDesignation,
                                               ),
 
                                               _buildCell(
-                                                singleEmployee
-                                                    .value
-                                                    .allDesignations,
-                                                singleEmployee
-                                                        .value
-                                                        .employeeType
-                                                        .isEmpty
-                                                    ? "Role"
-                                                    : "Access",
-                                                singleEmployee
-                                                    .value
-                                                    .empDesignation,
-                                                singleEmployee
-                                                    .value
-                                                    .employeeName,
+                                                singleEmployee.value.allDesignations,
+                                                singleEmployee.value.employeeType.isEmpty ? "Role" : "Access",
+                                                singleEmployee.value.empDesignation,
+                                                singleEmployee.value.employeeName,
                                                 singleEmployee.value.access,
                                               ),
                                               _buildActionCell2(
@@ -519,11 +473,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
         padding: const EdgeInsets.only(left: 5.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -546,13 +496,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
             child: GestureDetector(
               onTap: () {
                 // _showLockUnlockDialog(context);
-                showAccessDialog(
-                  context,
-                  userName,
-                  userDesignation,
-                  designation,
-                  access!.toJson(),
-                );
+                showAccessDialog(context, userName, userDesignation, designation, access!.toJson());
               },
               child: Text(
                 text,
@@ -581,17 +525,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                text2,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
-              ),
+              Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
               if (copyable)
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: "$text2"));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -642,13 +581,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
               selectedService = userDesignation;
               return AlertDialog(
                 backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                title: Text(
-                  'Manage Access For $userName',
-                  style: TextStyle(fontSize: 12, color: Colors.black),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                title: Text('Manage Access For $userName', style: TextStyle(fontSize: 12, color: Colors.black)),
                 content: SizedBox(
                   width: 420,
                   child: Column(
@@ -663,8 +597,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                           itemCount: sidebarItemsAccess.length,
                           itemBuilder: (_, i) {
                             final item = sidebarItemsAccess[i];
-                            final parentOn =
-                                moduleState[item.accessKey] ?? false;
+                            final parentOn = moduleState[item.accessKey] ?? false;
 
                             return ExpansionTile(
                               title: Row(
@@ -672,12 +605,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                   Icon(item.icon, size: 18),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(
-                                      item.title,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    child: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                                   ),
                                   Transform.scale(
                                     scale: 0.5,
@@ -701,17 +629,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                   ),
                                 ],
                               ),
-                              children: List.generate(item.submenuKeys.length, (
-                                j,
-                              ) {
+                              children: List.generate(item.submenuKeys.length, (j) {
                                 final subKey = item.submenuKeys[j];
                                 final subOn = submenuState[subKey] ?? false;
                                 return ListTile(
                                   dense: true,
-                                  contentPadding: const EdgeInsets.only(
-                                    left: 32,
-                                    right: 8,
-                                  ),
+                                  contentPadding: const EdgeInsets.only(left: 32, right: 8),
                                   title: Text(item.submenus[j]),
                                   trailing: Transform.scale(
                                     scale: 0.5,
@@ -719,9 +642,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                       value: subOn,
                                       onChanged: (val) {
                                         setState(() {
-                                          if (val &&
-                                              !(moduleState[item.accessKey] ??
-                                                  false)) {
+                                          if (val && !(moduleState[item.accessKey] ?? false)) {
                                             moduleState[item.accessKey] = true;
                                           }
                                           submenuState[subKey] = val;
@@ -745,18 +666,13 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      'Close',
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                    child: const Text('Close', style: TextStyle(color: Colors.grey)),
                   ),
                   CustomButton(
                     text: 'Submit',
                     backgroundColor: Colors.green,
                     onPressed: () async {
-                      final payload = <String, dynamic>{
-                        for (final c in cols) c: 0,
-                      };
+                      final payload = <String, dynamic>{for (final c in cols) c: 0};
                       for (final item in sidebarItemsAccess) {
                         final pOn = moduleState[item.accessKey] ?? false;
                         payload[item.accessKey] = pOn ? 1 : 0;
@@ -766,11 +682,8 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                         }
                       }
                       final signup = context.read<SignupProvider>();
-                      await signup.updateUserAccess(
-                        userId: userId,
-                        accessData: payload,
-                        context: context,
-                      );
+                      await signup.updateUserAccess(userId: userId, accessData: payload, context: context);
+                      await Provider.of<EmployeeProvider>(context, listen: false).getFullData();
                       Navigator.pop(context);
                     },
                   ),
@@ -784,19 +697,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
   Widget _buildActionCell({VoidCallback? onDraft}) {
     return Row(
       children: [
-        IconButton(
-          icon: const Icon(Icons.people_outline, size: 23, color: Colors.blue),
-          onPressed: onDraft ?? () {},
-        ),
+        IconButton(icon: const Icon(Icons.people_outline, size: 23, color: Colors.blue), onPressed: onDraft ?? () {}),
       ],
     );
   }
 
-  Widget _buildActionCell2({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-    required Employee employee,
-  }) {
+  Widget _buildActionCell2({VoidCallback? onEdit, VoidCallback? onDelete, required Employee employee}) {
     return Row(
       children: [
         IconButton(
@@ -817,20 +723,12 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),

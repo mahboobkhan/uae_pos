@@ -36,6 +36,7 @@ class _CreateOrdersState extends State<CreateOrders> {
               final projectsProvider = context.read<ProjectsProvider>();
               final serviceCategoryProvider = context.read<ServiceCategoryProvider>();
               print('Providers found: ${projectsProvider.runtimeType}, ${serviceCategoryProvider.runtimeType}');
+              projectsProvider.clearFilters();
               projectsProvider.getAllProjects();
               serviceCategoryProvider.getServiceCategories();
             } catch (e) {
@@ -196,7 +197,7 @@ class _CreateOrdersState extends State<CreateOrders> {
       final difference = now.difference(createdDate);
       final days = difference.inDays;
       final hours = difference.inHours % 24;
-      
+
       if (days == 0) {
         if (hours == 0) {
           return 'Today';
@@ -578,8 +579,8 @@ class _CreateOrdersState extends State<CreateOrders> {
                                         ),
                                         children: [
                                           _buildCell2(
-                                            _formatDate(project['created_at'] ),
-                                            _formatTime(project['created_at'] ),
+                                            _formatDate(project['created_at']),
+                                            _formatTime(project['created_at']),
                                             centerText2: true,
                                           ),
                                           _buildCell(project['project_ref_id'] ?? 'N/A', copyable: true),
@@ -610,7 +611,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                                   else if (!projectsProvider.isLoading)
                                     TableRow(
                                       children: List.generate(
-                                        11,
+                                        10,
                                         (index) => TableCell(
                                           child: Container(
                                             height: 60,

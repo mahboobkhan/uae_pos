@@ -26,6 +26,15 @@ class _ProjectScreenState extends State<ProjectScreen> {
   final ScrollController _horizontalController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final projectsProvider = context.read<ProjectsProvider>();
+      projectsProvider.getCombinedProjectsAndShortServices();
+    });
+  }
+
+  @override
   void dispose() {
     _verticalController.dispose();
     _horizontalController.dispose();
@@ -90,13 +99,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
   Widget build(BuildContext context) {
     return Consumer<ProjectsProvider>(
       builder: (context, projectsProvider, child) {
-        // Load data on first build
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (projectsProvider.combinedData.isEmpty && !projectsProvider.isLoading) {
-            projectsProvider.getCombinedProjectsAndShortServices();
-          }
-        });
-
         return Scaffold(
           backgroundColor: Colors.grey.shade100,
           body: RefreshIndicator(

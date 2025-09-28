@@ -11,8 +11,7 @@ import '../../../utils/request_state.dart';
 import '../../dialogs/custom_dialoges.dart';
 import 'employee_dialoges/edit_dialog.dart';
 
-final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
-    GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class BankDetailScreen extends StatefulWidget {
   const BankDetailScreen({super.key});
@@ -37,12 +36,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
       return ['All'];
     }
 
-    final types =
-        provider.employees!
-            .map((e) => e.employeeType)
-            .where((type) => type.isNotEmpty)
-            .toSet()
-            .toList();
+    final types = provider.employees!.map((e) => e.employeeType).where((type) => type.isNotEmpty).toSet().toList();
     print("Employee Types: $types");
 
     return ['All', ...types];
@@ -70,14 +64,12 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
 
     return provider.employees!.where((employee) {
       // Apply Employee Type filter
-      if (selectedCategory != 'All' &&
-          employee.employeeType != selectedCategory) {
+      if (selectedCategory != 'All' && employee.employeeType != selectedCategory) {
         return false;
       }
 
       // Apply Designation filter
-      if (selectedCategory1 != 'All' &&
-          employee.empDesignation != selectedCategory1) {
+      if (selectedCategory1 != 'All' && employee.empDesignation != selectedCategory1) {
         return false;
       }
 
@@ -87,14 +79,12 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
 
   // Get filtered bank accounts based on selected filters
   List<BankAccount> getFilteredBankAccounts(EmployeeProvider provider) {
-    if (provider.allUserBankAccounts == null ||
-        provider.allUserBankAccounts!.isEmpty) {
+    if (provider.allUserBankAccounts == null || provider.allUserBankAccounts!.isEmpty) {
       return [];
     }
 
     // Get filtered employee IDs first
-    final filteredEmployeeIds =
-        getFilteredEmployees(provider).map((e) => e.userId).toSet();
+    final filteredEmployeeIds = getFilteredEmployees(provider).map((e) => e.userId).toSet();
 
     // Filter bank accounts based on employee IDs
     return provider.allUserBankAccounts!.where((bankAccount) {
@@ -103,10 +93,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
   }
 
   // Get employee details for a bank account
-  Employee? getEmployeeForBankAccount(
-    EmployeeProvider provider,
-    BankAccount bankAccount,
-  ) {
+  Employee? getEmployeeForBankAccount(EmployeeProvider provider, BankAccount bankAccount) {
     if (provider.employees == null || provider.employees!.isEmpty) {
       return null;
     }
@@ -139,11 +126,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
   }
 
   // Show edit bank account dialog
-  void _showEditBankAccountDialog(
-    BuildContext context,
-    BankAccount bankAccount,
-    EmployeeProvider employeeProvider,
-  ) {
+  void _showEditBankAccountDialog(BuildContext context, BankAccount bankAccount, EmployeeProvider employeeProvider) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -157,11 +140,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
               const SnackBar(
                 content: Row(
                   children: [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
+                    SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
                     SizedBox(width: 16),
                     Text('Updating bank account...'),
                   ],
@@ -172,10 +151,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
 
             try {
               // Update the bank account using the provider
-              final updateProvider = Provider.of<UpdateUserBankAccountProvider>(
-                context,
-                listen: false,
-              );
+              final updateProvider = Provider.of<UpdateUserBankAccountProvider>(context, listen: false);
 
               final request = UpdateUserBankAccountRequest(
                 bankAccountId: updatedBankAccount.id,
@@ -199,30 +175,22 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
 
                 // Show success message
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Bank account updated successfully!'),
-                    backgroundColor: Colors.green,
-                  ),
+                  const SnackBar(content: Text('Bank account updated successfully!'), backgroundColor: Colors.green),
                 );
               } else {
                 // Show error message
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
-                      'Error: ${updateProvider.errorMessage ?? 'Unknown error'}',
-                    ),
+                    content: Text('Error: ${updateProvider.errorMessage ?? 'Unknown error'}'),
                     backgroundColor: Colors.red,
                   ),
                 );
               }
             } catch (e) {
               // Show error message
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error: $e'),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
             }
           },
         );
@@ -272,14 +240,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                   borderRadius: BorderRadius.circular(2),
                   boxShadow:
                       _isHovering
-                          ? [
-                            BoxShadow(
-                              color: Colors.blue,
-                              blurRadius: 4,
-                              spreadRadius: 0.1,
-                              offset: Offset(0, 1),
-                            ),
-                          ]
+                          ? [BoxShadow(color: Colors.blue, blurRadius: 4, spreadRadius: 0.1, offset: Offset(0, 1))]
                           : [],
                 ),
                 child: Consumer<EmployeeProvider>(
@@ -294,25 +255,17 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                 CustomDropdown(
                                   selectedValue: selectedCategory,
                                   hintText: "Employee Type",
-                                  items: getUniqueEmployeeTypes(
-                                    employeeProvider,
-                                  ),
+                                  items: getUniqueEmployeeTypes(employeeProvider),
                                   onChanged: (newValue) {
-                                    setState(
-                                      () => selectedCategory = newValue!,
-                                    );
+                                    setState(() => selectedCategory = newValue!);
                                   },
                                 ),
                                 CustomDropdown(
                                   selectedValue: selectedCategory1,
                                   hintText: "Designation",
-                                  items: getUniqueDesignations(
-                                    employeeProvider,
-                                  ),
+                                  items: getUniqueDesignations(employeeProvider),
                                   onChanged: (newValue) {
-                                    setState(
-                                      () => selectedCategory1 = newValue!,
-                                    );
+                                    setState(() => selectedCategory1 = newValue!);
                                   },
                                 ),
                               ],
@@ -329,25 +282,13 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                 builder:
                                     (context) => Tooltip(
                                       message: 'Show menu',
-                                      waitDuration: const Duration(
-                                        milliseconds: 2,
-                                      ),
+                                      waitDuration: const Duration(milliseconds: 2),
                                       child: Container(
                                         width: 30,
                                         height: 30,
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.add,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
+                                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                                        decoration: const BoxDecoration(shape: BoxShape.circle),
+                                        child: const Center(child: Icon(Icons.add, color: Colors.white, size: 20)),
                                       ),
                                     ),
                               ),
@@ -376,27 +317,16 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: Colors.red.shade300,
-                            ),
+                            Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
                             const SizedBox(height: 16),
                             Text(
                               'Error loading data',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.red.shade700,
-                              ),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.red.shade700),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               employeeProvider.error!,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade600,
-                              ),
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 16),
@@ -411,33 +341,21 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                       );
                     }
 
-                    if (employeeProvider.allUserBankAccounts == null ||
-                        employeeProvider.allUserBankAccounts!.isEmpty) {
+                    if (employeeProvider.allUserBankAccounts == null || employeeProvider.allUserBankAccounts!.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.account_balance_outlined,
-                              size: 48,
-                              color: Colors.grey.shade400,
-                            ),
+                            Icon(Icons.account_balance_outlined, size: 48, color: Colors.grey.shade400),
                             const SizedBox(height: 16),
                             Text(
                               'No bank accounts found',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey.shade600,
-                              ),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.grey.shade600),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'There are no bank accounts in the system yet.',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade500,
-                              ),
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -445,19 +363,13 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                       );
                     }
                     // Get filtered bank accounts based on selected filters
-                    final filteredBankAccounts = getFilteredBankAccounts(
-                      employeeProvider,
-                    );
+                    final filteredBankAccounts = getFilteredBankAccounts(employeeProvider);
                     if (filteredBankAccounts.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.filter_list_outlined,
-                              size: 48,
-                              color: Colors.orange.shade300,
-                            ),
+                            Icon(Icons.filter_list_outlined, size: 48, color: Colors.orange.shade300),
                             const SizedBox(height: 16),
                             Text(
                               'No matching bank accounts',
@@ -470,10 +382,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                             const SizedBox(height: 8),
                             Text(
                               'Try adjusting your filters to see more results.',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade600,
-                              ),
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -482,35 +391,22 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                     }
 
                     // Check if all bank accounts have empty data
-                    final hasAnyData = filteredBankAccounts.any(
-                      (account) => _hasBankAccountData(account),
-                    );
+                    final hasAnyData = filteredBankAccounts.any((account) => _hasBankAccountData(account));
                     if (!hasAnyData) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.account_balance_outlined,
-                              size: 48,
-                              color: Colors.grey.shade400,
-                            ),
+                            Icon(Icons.account_balance_outlined, size: 48, color: Colors.grey.shade400),
                             const SizedBox(height: 16),
                             Text(
                               'Bank accounts found but no data',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey.shade600,
-                              ),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.grey.shade600),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Bank accounts exist but all fields are empty.',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade500,
-                              ),
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -523,9 +419,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                           child: ScrollbarTheme(
                             data: ScrollbarThemeData(
                               thumbVisibility: MaterialStateProperty.all(true),
-                              thumbColor: MaterialStateProperty.all(
-                                Colors.grey,
-                              ),
+                              thumbColor: MaterialStateProperty.all(Colors.grey),
                               thickness: MaterialStateProperty.all(8),
                               radius: const Radius.circular(4),
                             ),
@@ -542,12 +436,9 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                     scrollDirection: Axis.vertical,
                                     controller: _verticalController,
                                     child: ConstrainedBox(
-                                      constraints: const BoxConstraints(
-                                        minWidth: 1200,
-                                      ),
+                                      constraints: const BoxConstraints(minWidth: 1200),
                                       child: Table(
-                                        defaultVerticalAlignment:
-                                            TableCellVerticalAlignment.middle,
+                                        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                         columnWidths: const {
                                           0: FlexColumnWidth(0.8),
                                           1: FlexColumnWidth(1.2),
@@ -555,14 +446,12 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                           3: FlexColumnWidth(1),
                                           4: FlexColumnWidth(1.2),
                                           5: FlexColumnWidth(1.3),
-                                          6: FlexColumnWidth(1.3),
+                                          6: FlexColumnWidth(1.0),
                                         },
                                         children: [
                                           // Header Row
                                           TableRow(
-                                            decoration: BoxDecoration(
-                                              color: Colors.red.shade50,
-                                            ),
+                                            decoration: BoxDecoration(color: Colors.red.shade50),
                                             children: [
                                               _buildHeader("Date "),
                                               _buildHeader("Title Name"),
@@ -574,60 +463,24 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                             ],
                                           ),
                                           // Bank Account Rows
-                                          for (
-                                            int i = 0;
-                                            i < filteredBankAccounts.length;
-                                            i++
-                                          )
+                                          for (int i = 0; i < filteredBankAccounts.length; i++)
                                             TableRow(
                                               decoration: BoxDecoration(
-                                                color:
-                                                    i.isEven
-                                                        ? Colors.grey.shade200
-                                                        : Colors.grey.shade100,
+                                                color: i.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
                                               ),
                                               children: [
+                                                _buildCell(_formatDateForDisplay(filteredBankAccounts[i].createdDate)),
+                                                _buildCell(_getDisplayValue(filteredBankAccounts[i].titleName)),
+                                                _buildCell(_getDisplayValue(filteredBankAccounts[i].bankName)),
                                                 _buildCell(
-                                                  _formatDateForDisplay(
-                                                    filteredBankAccounts[i]
-                                                        .createdDate,
-                                                  ),
-                                                ),
-                                                _buildCell(
-                                                  _getDisplayValue(
-                                                    filteredBankAccounts[i]
-                                                        .titleName,
-                                                  ),
-                                                ),
-                                                _buildCell(
-                                                  _getDisplayValue(
-                                                    filteredBankAccounts[i]
-                                                        .bankName,
-                                                  ),
-                                                ),
-                                                _buildCell(
-                                                  _getDisplayValue(
-                                                    filteredBankAccounts[i]
-                                                        .bankAccountNumber,
-                                                  ),
+                                                  _getDisplayValue(filteredBankAccounts[i].bankAccountNumber),
                                                   copyable: true,
                                                 ),
                                                 _buildCell3(
-                                                  _getDisplayValue(
-                                                    filteredBankAccounts[i]
-                                                        .contactNumber,
-                                                  ),
-                                                  _getDisplayValue(
-                                                    filteredBankAccounts[i]
-                                                        .emailId,
-                                                  ),
+                                                  _getDisplayValue(filteredBankAccounts[i].contactNumber),
+                                                  _getDisplayValue(filteredBankAccounts[i].emailId),
                                                 ),
-                                                _buildCell(
-                                                  _getDisplayValue(
-                                                    filteredBankAccounts[i]
-                                                        .additionalNote,
-                                                  ),
-                                                ),
+                                                _buildCell(_getDisplayValue(filteredBankAccounts[i].additionalNote)),
                                                 _buildActionCell(
                                                   onEdit: () {
                                                     _showEditBankAccountDialog(
@@ -669,11 +522,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -714,18 +563,13 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   color: text1 == 'N/A' ? Colors.grey.shade500 : Colors.black87,
-                  fontStyle:
-                      text1 == 'N/A' ? FontStyle.italic : FontStyle.normal,
+                  fontStyle: text1 == 'N/A' ? FontStyle.italic : FontStyle.normal,
                 ),
               ),
               if (copyable && text1 != 'N/A')
                 GestureDetector(
                   onTap: () {
-                    ClipboardUtils.copyToClipboard(
-                      text1,
-                      context,
-                      message: 'Text 1 copied',
-                    );
+                    ClipboardUtils.copyToClipboard(text1, context, message: 'Text 1 copied');
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -743,18 +587,13 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                 style: TextStyle(
                   fontSize: 10,
                   color: text2 == 'N/A' ? Colors.grey.shade400 : Colors.black54,
-                  fontStyle:
-                      text2 == 'N/A' ? FontStyle.italic : FontStyle.normal,
+                  fontStyle: text2 == 'N/A' ? FontStyle.italic : FontStyle.normal,
                 ),
               ),
               if (copyable && text2 != 'N/A')
                 GestureDetector(
                   onTap: () {
-                    ClipboardUtils.copyToClipboard(
-                      text2,
-                      context,
-                      message: 'Text 2 copied',
-                    );
+                    ClipboardUtils.copyToClipboard(text2, context, message: 'Text 2 copied');
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -790,9 +629,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 8),
@@ -812,21 +649,16 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
         ),
-        IconButton(
+        /*IconButton(
           icon: const Icon(Icons.share, size: 20, color: Colors.blue),
           tooltip: 'Share',
           onPressed: onShare ?? () {},
-        ),
+        ),*/
       ],
     );
   }
 
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -839,31 +671,19 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
+                    child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
                   ),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 14,
-                          color: Colors.blue[700],
-                        ),
+                        child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
                       ),
                     ),
                 ],
@@ -871,32 +691,18 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
               : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
+                  Flexible(child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54))),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 8,
-                          color: Colors.blue[700],
-                        ),
+                        child: Icon(Icons.copy, size: 8, color: Colors.blue[700]),
                       ),
                     ),
                 ],

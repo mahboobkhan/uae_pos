@@ -33,8 +33,8 @@ class _BankingScreenState extends State<BankingScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final bankingPaymentsProvider = context.read<BankingPaymentsProvider>();
-        final bankingPaymentMethodProvider =
-            context.read<BankingPaymentMethodProvider>();
+        final bankingPaymentMethodProvider = context.read<BankingPaymentMethodProvider>();
+        bankingPaymentsProvider.clearFilters();
         bankingPaymentsProvider.getAllBankingPayments();
         bankingPaymentMethodProvider.getAllPaymentMethods();
       }
@@ -48,27 +48,34 @@ class _BankingScreenState extends State<BankingScreen> {
     super.dispose();
   }
 
+  String _formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '00-00-0000';
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('dd-MM-yyyy').format(dateTime);
+    } catch (e) {
+      return '00-00-0000';
+    }
+  }
+
+  String _formatTime(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '00-00';
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('hh:mm a').format(dateTime);
+    } catch (e) {
+      return '00-00';
+    }
+  }
+
   final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
 
   // Filter options
   final List<String> statusOptions = ['All', 'Pending', 'Completed'];
   final List<String> paymentTypeOptions = ['All', 'In', 'Out'];
-  final List<String> typeOptions = [
-    'All',
-    'Employee',
-    'Short Service',
-    'Office Expenses',
-    'Project',
-  ];
-  final List<String> dateOptions = [
-    'All',
-    'Today',
-    'Yesterday',
-    'Last 7 Days',
-    'Last 30 Days',
-    'Custom Range',
-  ];
+  final List<String> typeOptions = ['All', 'Employee', 'Short Service', 'Office Expenses', 'Project'];
+  final List<String> dateOptions = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
 
   // Selected filter values
   String? selectedStatus;
@@ -91,30 +98,11 @@ class _BankingScreenState extends State<BankingScreen> {
                 builder: (context, bankingProvider, child) {
                   final summary = bankingProvider.getSummaryStats();
                   final stats = [
-                    {
-                      'label': 'TOTAL PAYMENTS',
-                      'value': summary['total_payments'].toString(),
-                    },
-                    {
-                      'label': 'CASH IN',
-                      'value': bankingProvider.formatAmount(
-                        summary['total_income'],
-                      ),
-                    },
-                    {
-                      'label': 'CASH OUT',
-                      'value': bankingProvider.formatAmount(
-                        summary['total_expense'],
-                      ),
-                    },
-                    {
-                      'label': 'PENDING',
-                      'value': summary['pending_payments'].toString(),
-                    },
-                    {
-                      'label': 'COMPLETED',
-                      'value': summary['completed_payments'].toString(),
-                    },
+                    {'label': 'TOTAL PAYMENTS', 'value': summary['total_payments'].toString()},
+                    {'label': 'CASH IN', 'value': bankingProvider.formatAmount(summary['total_income'])},
+                    {'label': 'CASH OUT', 'value': bankingProvider.formatAmount(summary['total_expense'])},
+                    {'label': 'PENDING', 'value': summary['pending_payments'].toString()},
+                    {'label': 'COMPLETED', 'value': summary['completed_payments'].toString()},
                   ];
 
                   return SizedBox(
@@ -124,9 +112,7 @@ class _BankingScreenState extends State<BankingScreen> {
                           stats.map((stat) {
                             return Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
                                 child: Material(
                                   elevation: 12,
                                   borderRadius: BorderRadius.circular(12),
@@ -139,8 +125,7 @@ class _BankingScreenState extends State<BankingScreen> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           stat['value']!,
@@ -152,13 +137,7 @@ class _BankingScreenState extends State<BankingScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 8),
-                                        Text(
-                                          stat['label']!,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.white,
-                                          ),
-                                        ),
+                                        Text(stat['label']!, style: const TextStyle(fontSize: 14, color: Colors.white)),
                                       ],
                                     ),
                                   ),
@@ -218,9 +197,7 @@ class _BankingScreenState extends State<BankingScreen> {
                                 selectedValue: selectedPaymentType,
                                 items: paymentTypeOptions,
                                 onChanged: (newValue) {
-                                  setState(
-                                    () => selectedPaymentType = newValue!,
-                                  );
+                                  setState(() => selectedPaymentType = newValue!);
                                   _applyFilters();
                                 },
                               ),
@@ -241,16 +218,10 @@ class _BankingScreenState extends State<BankingScreen> {
                                 items: dateOptions,
                                 onChanged: (newValue) async {
                                   if (newValue == 'Custom Range') {
-                                    final selectedRange =
-                                        await showDateRangePickerDialog(
-                                          context,
-                                        );
+                                    final selectedRange = await showDateRangePickerDialog(context);
                                     if (selectedRange != null) {
-                                      final start =
-                                          selectedRange.startDate ??
-                                          DateTime.now();
-                                      final end =
-                                          selectedRange.endDate ?? start;
+                                      final start = selectedRange.startDate ?? DateTime.now();
+                                      final end = selectedRange.endDate ?? start;
                                       final formattedRange =
                                           '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
                                       setState(() {
@@ -259,16 +230,11 @@ class _BankingScreenState extends State<BankingScreen> {
                                       _applyCustomDateRange(start, end);
                                     }
                                   } else {
-                                    setState(
-                                      () => selectedDateRange = newValue!,
-                                    );
+                                    setState(() => selectedDateRange = newValue!);
                                     _applyFilters();
                                   }
                                 },
-                                icon: const Icon(
-                                  Icons.calendar_month,
-                                  size: 18,
-                                ),
+                                icon: const Icon(Icons.calendar_month, size: 18),
                               ),
                             ],
                           ),
@@ -291,19 +257,9 @@ class _BankingScreenState extends State<BankingScreen> {
                                 child: Container(
                                   width: 30,
                                   height: 30,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 5,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.clear,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
                                 ),
                               ),
                             ),
@@ -318,26 +274,15 @@ class _BankingScreenState extends State<BankingScreen> {
                               waitDuration: Duration(milliseconds: 2),
                               child: GestureDetector(
                                 onTap: () {
-                                  final bankingProvider =
-                                      context.read<BankingPaymentsProvider>();
+                                  final bankingProvider = context.read<BankingPaymentsProvider>();
                                   bankingProvider.getAllBankingPayments();
                                 },
                                 child: Container(
                                   width: 30,
                                   height: 30,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 5,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.refresh,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
                                 ),
                               ),
                             ),
@@ -351,40 +296,21 @@ class _BankingScreenState extends State<BankingScreen> {
                               child: Container(
                                 width: 30,
                                 height: 30,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.blue,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.move_to_inbox_outlined,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
+                                decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.blue),
+                                child: Center(child: Icon(Icons.move_to_inbox_outlined, color: Colors.white, size: 20)),
                               ),
                             ),
                           ),
                           const SizedBox(width: 10),
                           GestureDetector(
-                            onTap:
-                                () => showUnifiedOfficeExpenseDialog(context),
+                            onTap: () => showUnifiedOfficeExpenseDialog(context),
                             child: Tooltip(
                               message: 'Office Expense Management',
                               child: Container(
                                 width: 30,
                                 height: 30,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.blue,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.auto_graph_sharp,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
+                                decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.blue),
+                                child: Center(child: Icon(Icons.auto_graph_sharp, color: Colors.white, size: 20)),
                               ),
                             ),
                           ),
@@ -396,17 +322,8 @@ class _BankingScreenState extends State<BankingScreen> {
                               child: Container(
                                 width: 30,
                                 height: 30,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.blue,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.person_pin_outlined,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
+                                decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.blue),
+                                child: Center(child: Icon(Icons.person_pin_outlined, color: Colors.white, size: 20)),
                               ),
                             ),
                           ),
@@ -443,11 +360,7 @@ class _BankingScreenState extends State<BankingScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 64,
-                              color: Colors.red,
-                            ),
+                            Icon(Icons.error_outline, size: 64, color: Colors.red),
                             SizedBox(height: 16),
                             Text(
                               bankingProvider.errorMessage!,
@@ -456,8 +369,7 @@ class _BankingScreenState extends State<BankingScreen> {
                             ),
                             SizedBox(height: 16),
                             ElevatedButton(
-                              onPressed:
-                                  () => bankingProvider.getAllBankingPayments(),
+                              onPressed: () => bankingProvider.getAllBankingPayments(),
                               child: Text('Retry'),
                             ),
                           ],
@@ -492,12 +404,9 @@ class _BankingScreenState extends State<BankingScreen> {
                                 scrollDirection: Axis.vertical,
                                 controller: _verticalController,
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    minWidth: 1180,
-                                  ),
+                                  constraints: const BoxConstraints(minWidth: 1180),
                                   child: Table(
-                                    defaultVerticalAlignment:
-                                        TableCellVerticalAlignment.middle,
+                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                     columnWidths: const {
                                       0: FlexColumnWidth(0.8),
                                       1: FlexColumnWidth(1),
@@ -505,127 +414,72 @@ class _BankingScreenState extends State<BankingScreen> {
                                       3: FlexColumnWidth(1),
                                       4: FlexColumnWidth(1),
                                       5: FlexColumnWidth(1),
-                                      6: FlexColumnWidth(0.8),
-                                      7: FlexColumnWidth(0.6),
+                                      // 6: FlexColumnWidth(0.6),
                                     },
                                     children: [
                                       TableRow(
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.shade50,
-                                        ),
+                                        decoration: BoxDecoration(color: Colors.red.shade50),
                                         children: [
-                                          _buildHeader("ID"),
+                                          _buildHeader("Date"),
                                           _buildHeader("Payment Ref"),
                                           _buildHeader("Type"),
                                           _buildHeader("Client Ref"),
                                           _buildHeader("Amount"),
                                           _buildHeader("Status"),
-                                          _buildHeader("Date"),
-                                          _buildHeader("Action"),
+                                          // _buildHeader("Action"),
                                         ],
                                       ),
                                       if (payments.isNotEmpty)
-                                        ...payments.asMap().entries.map((
-                                          entry,
-                                        ) {
+                                        ...payments.asMap().entries.map((entry) {
                                           final index = entry.key;
                                           final payment = entry.value;
                                           return TableRow(
                                             decoration: BoxDecoration(
-                                              color:
-                                                  index.isEven
-                                                      ? Colors.grey.shade200
-                                                      : Colors.grey.shade100,
+                                              color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
                                             ),
                                             children: [
-                                              _buildCell(
-                                                payment['id']?.toString() ??
-                                                    'N/A',
-                                                copyable: true,
-                                              ),
-                                              _buildCell(
-                                                payment['payment_ref_id']
-                                                        ?.toString() ??
-                                                    'N/A',
-                                                copyable: true,
-                                              ),
-                                              _buildCell(
-                                                payment['type']
-                                                        ?.toString()
-                                                        .toUpperCase() ??
-                                                    'N/A',
-                                              ),
-                                              _buildCell(
-                                                payment['client_ref']
-                                                        ?.toString() ??
-                                                    'N/A',
-                                                copyable: true,
-                                              ),
                                               _buildCell2(
-                                                "Total: ${bankingProvider.formatAmount(payment['total_amount'])}",
-                                                "Paid: ${bankingProvider.formatAmount(payment['paid_amount'])}",
+                                                _formatDate(payment['created_at'] ?? payment['updated_at']),
+                                                _formatTime(payment['created_at'] ?? payment['updated_at']),
+                                                copyable: false,
+                                              ),
+                                              _buildCell(
+                                                payment['payment_ref_id']?.toString() ?? 'N/A',
                                                 copyable: true,
                                               ),
+                                              _buildCell(payment['type']?.toString().toUpperCase() ?? 'N/A'),
+                                              _buildCell(payment['client_ref']?.toString() ?? 'N/A', copyable: true),
+                                              _buildCell(bankingProvider.formatAmount(payment['paid_amount']) ?? 'N/A'),
                                               _buildCell(
-                                                payment['status']
-                                                        ?.toString()
-                                                        .toUpperCase() ??
-                                                    'N/A',
+                                                payment['status']?.toString().toUpperCase() ?? 'N/A',
                                                 copyable: false,
                                               ),
-                                              _buildCell(
-                                                _formatPaymentDate(
-                                                  payment['created_at'] ??
-                                                      payment['updated_at'],
-                                                ),
-                                                copyable: false,
-                                              ),
-                                              _buildActionCell(
-                                                onEdit:
-                                                    () => _editPayment(
-                                                      context,
-                                                      payment,
-                                                    ),
-                                                onDelete:
-                                                    () => _deletePayment(
-                                                      context,
-                                                      payment,
-                                                    ),
-                                              ),
+
+                                              /*_buildActionCell(
+                                                onEdit: () => _editPayment(context, payment),
+                                                onDelete: () => _deletePayment(context, payment),
+                                              ),*/
                                             ],
                                           );
                                         }).toList()
                                       else
                                         TableRow(
                                           children: List.generate(
-                                            8,
+                                            6,
                                             (index) => TableCell(
                                               child: Container(
                                                 height: 60,
                                                 child: Center(
                                                   child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
+                                                    mainAxisAlignment: MainAxisAlignment.center,
                                                     children: [
-                                                      Icon(
-                                                        Icons.inbox_outlined,
-                                                        color:
-                                                            Colors
-                                                                .grey
-                                                                .shade400,
-                                                        size: 24,
-                                                      ),
+                                                      Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
                                                       SizedBox(height: 4),
                                                       Text(
                                                         'No payments available',
                                                         style: TextStyle(
-                                                          color:
-                                                              Colors
-                                                                  .grey
-                                                                  .shade600,
-                                                          fontStyle:
-                                                              FontStyle.italic,
+                                                          color: Colors.grey.shade600,
+                                                          fontStyle: FontStyle.italic,
                                                           fontSize: 12,
                                                         ),
                                                       ),
@@ -663,11 +517,7 @@ class _BankingScreenState extends State<BankingScreen> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -680,20 +530,12 @@ class _BankingScreenState extends State<BankingScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -705,12 +547,7 @@ class _BankingScreenState extends State<BankingScreen> {
     );
   }
 
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -722,32 +559,18 @@ class _BankingScreenState extends State<BankingScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
+                    Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
                     if (copyable)
                       GestureDetector(
                         onTap: () {
-                          Clipboard.setData(
-                            ClipboardData(text: "$text1\n$text2"),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Copied to clipboard'),
-                            ),
-                          );
+                          Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.copy,
-                            size: 14,
-                            color: Colors.blue[700],
-                          ),
+                          child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
                         ),
                       ),
                   ],
@@ -756,32 +579,18 @@ class _BankingScreenState extends State<BankingScreen> {
               : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
+                  Flexible(child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54))),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 8,
-                          color: Colors.blue[700],
-                        ),
+                        child: Icon(Icons.copy, size: 8, color: Colors.blue[700]),
                       ),
                     ),
                 ],
@@ -791,11 +600,7 @@ class _BankingScreenState extends State<BankingScreen> {
     );
   }
 
-  Widget _buildActionCell({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-    VoidCallback? onDraft,
-  }) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onDraft}) {
     return Row(
       children: [
         /*IconButton(
@@ -946,36 +751,27 @@ class _BankingScreenState extends State<BankingScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder:
-            (context) =>
-                DialogEmployeType(paymentData: payment, isEditMode: true),
+        builder: (context) => DialogEmployeType(paymentData: payment, isEditMode: true),
       );
     } else if (paymentType == 'project') {
       // Show client dialog for project payments
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder:
-            (context) =>
-                DialogueBankTransaction(paymentData: payment, isEditMode: true),
+        builder: (context) => DialogueBankTransaction(paymentData: payment, isEditMode: true),
       );
     } else {
       // Default to employee dialog for other types
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder:
-            (context) =>
-                DialogEmployeType(paymentData: payment, isEditMode: true),
+        builder: (context) => DialogEmployeType(paymentData: payment, isEditMode: true),
       );
     }
   }
 
   /// Delete payment
-  void _deletePayment(
-    BuildContext context,
-    Map<String, dynamic> payment,
-  ) async {
+  void _deletePayment(BuildContext context, Map<String, dynamic> payment) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder:
@@ -983,10 +779,7 @@ class _BankingScreenState extends State<BankingScreen> {
             title: Text('Confirm Deletion'),
             content: Text('Are you sure you want to delete this payment?'),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text('Cancel'),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('Cancel')),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 child: Text('Delete', style: TextStyle(color: Colors.red)),
@@ -997,9 +790,7 @@ class _BankingScreenState extends State<BankingScreen> {
 
     if (shouldDelete == true) {
       final provider = context.read<BankingPaymentsProvider>();
-      await provider.deleteBankingPayment(
-        paymentRefId: payment['payment_ref_id']?.toString() ?? '',
-      );
+      await provider.deleteBankingPayment(paymentRefId: payment['payment_ref_id']?.toString() ?? '');
     }
   }
 }
