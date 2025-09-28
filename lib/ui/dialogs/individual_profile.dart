@@ -128,7 +128,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
 
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        
+
         setState(() {
           if (kIsWeb) {
             // For web, use PlatformFile directly
@@ -143,7 +143,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
             }
           }
         });
-        
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -155,7 +155,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       }
     } catch (e) {
       print('File picker error: $e'); // Debug print
-      
+
       // Handle specific error types
       String errorMessage = 'Error picking file';
       if (e.toString().contains('LateInitializationError')) {
@@ -165,13 +165,9 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       } else {
         errorMessage = 'Error picking file: ${e.toString()}';
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 4)),
       );
     }
   }
@@ -185,13 +181,13 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
         if (status.isDenied) {
           status = await Permission.storage.request();
         }
-        
+
         // Also check for media permissions for newer Android versions
         var mediaStatus = await Permission.photos.status;
         if (mediaStatus.isDenied) {
           mediaStatus = await Permission.photos.request();
         }
-        
+
         return status.isGranted || mediaStatus.isGranted;
       } else if (Platform.isIOS) {
         var status = await Permission.photos.status;
@@ -200,7 +196,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
         }
         return status.isGranted;
       }
-      
+
       return true; // For other platforms, assume permission is granted
     } catch (e) {
       print('Permission check error: $e');
@@ -210,7 +206,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
 
   Future<void> _uploadDocument() async {
     if (_isProcessing) return; // Prevent multiple simultaneous uploads
-    
+
     if (selectedFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a file first')));
       return;
@@ -237,12 +233,14 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
         if (selectedFileBytes != null) {
           documentRefId = await documentsProvider.addDocumentWeb(
             name: documentNameController.text.trim(),
-            issueDate: documentIssueDateController.text.trim().isNotEmpty
-                ? documentIssueDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            expireDate: documentExpiryDateController.text.trim().isNotEmpty
-                ? documentExpiryDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
+            issueDate:
+                documentIssueDateController.text.trim().isNotEmpty
+                    ? documentIssueDateController.text.trim()
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            expireDate:
+                documentExpiryDateController.text.trim().isNotEmpty
+                    ? documentExpiryDateController.text.trim()
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
             fileBytes: selectedFileBytes!,
             fileName: selectedFileName ?? 'document',
           );
@@ -252,12 +250,14 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
         if (selectedFile is File) {
           documentRefId = await documentsProvider.addDocument(
             name: documentNameController.text.trim(),
-            issueDate: documentIssueDateController.text.trim().isNotEmpty
-                ? documentIssueDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            expireDate: documentExpiryDateController.text.trim().isNotEmpty
-                ? documentExpiryDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
+            issueDate:
+                documentIssueDateController.text.trim().isNotEmpty
+                    ? documentIssueDateController.text.trim()
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            expireDate:
+                documentExpiryDateController.text.trim().isNotEmpty
+                    ? documentExpiryDateController.text.trim()
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
             file: selectedFile as File,
           );
         }
@@ -276,10 +276,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Document uploaded successfully: $documentRefId'),
-              backgroundColor: Colors.green,
-            ),
+            SnackBar(content: Text('Document uploaded successfully: $documentRefId'), backgroundColor: Colors.green),
           );
         }
       } else {
@@ -288,11 +285,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
             SnackBar(
               backgroundColor: Colors.red,
               content: Text(documentsProvider.errorMessage ?? 'Failed to upload document'),
-              action: SnackBarAction(
-                label: 'Retry',
-                textColor: Colors.white,
-                onPressed: () => _uploadDocument(),
-              ),
+              action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
             ),
           );
         }
@@ -303,11 +296,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
           SnackBar(
             backgroundColor: Colors.red,
             content: Text('Upload failed: ${e.toString()}'),
-            action: SnackBarAction(
-              label: 'Retry',
-              textColor: Colors.white,
-              onPressed: () => _uploadDocument(),
-            ),
+            action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
           ),
         );
       }
@@ -323,7 +312,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
   Future<void> _loadClientDocuments() async {
     if (widget.clientData != null && widget.clientData!['client_ref_id'] != null) {
       final documentsProvider = context.read<DocumentsProvider>();
-      
+
       // First try to get documents from the documents field in client data
       if (widget.clientData!['documents'] != null) {
         try {
@@ -336,7 +325,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
               final fetchedDocuments = await documentsProvider.getDocumentsByIds(
                 documentRefIds: documentIds.cast<String>(),
               );
-              
+
               if (mounted && fetchedDocuments != null) {
                 setState(() {
                   clientDocuments = fetchedDocuments;
@@ -349,7 +338,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
           print('Error parsing documents from client data: $e');
         }
       }
-      
+
       // Fallback to the old method if documents field is not available or parsing failed
       await documentsProvider.getClientDocuments(clientRefId: widget.clientData!['client_ref_id'].toString());
 
@@ -373,9 +362,12 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document deleted successfully')));
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(documentsProvider.errorMessage ?? 'Failed to delete document')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
+        ),
+      );
     }
   }
 
@@ -424,13 +416,10 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
             selectedFile = File(file.path!);
             selectedFileName = file.name;
           });
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('File selected: ${file.name}'),
-              backgroundColor: Colors.green,
-            ),
-          );
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('File selected: ${file.name}'), backgroundColor: Colors.green));
         }
       }
     } catch (e) {
@@ -476,7 +465,12 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
   }
 
   void _pickDocumentDate(TextEditingController controller) {
-    showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2030)).then((date) {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2030),
+    ).then((date) {
       if (date != null) {
         controller.text = DateFormat('yyyy-MM-dd').format(date);
       }
@@ -494,7 +488,11 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.grey.shade50, border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(6)),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Row(
         children: [
           Icon(Icons.description, color: isExisting ? Colors.blue : Colors.green, size: 20),
@@ -505,7 +503,10 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
               children: [
                 Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 if (issueDate.isNotEmpty || expiryDate.isNotEmpty)
-                  Text('Issue: $issueDate | Expiry: $expiryDate', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                  Text(
+                    'Issue: $issueDate | Expiry: $expiryDate',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
                 Text('ID: $documentRefId', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
               ],
             ),
@@ -565,7 +566,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       // Load existing documents if editing
       _loadClientDocuments();
     }
-    
+
     // Reset provider state when dialog opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final documentsProvider = context.read<DocumentsProvider>();
@@ -599,7 +600,10 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                 children: [
                   Row(
                     children: [
-                      const Text('Individual Profile', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
+                      const Text(
+                        'Individual Profile',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
                       const SizedBox(width: 12),
                       SizedBox(
                         width: 160,
@@ -656,10 +660,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                   ),
                 ],
               ),
-              Text(
-                widget.clientData?["client_ref_id"] ?? "",
-                style: TextStyle(fontSize: 12),
-              ),
+              Text(widget.clientData?["client_ref_id"] ?? "", style: TextStyle(fontSize: 12)),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
@@ -671,9 +672,21 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                   CustomTextField(label: "Contact Number ", controller: contactNumber, hintText: "xxxxxxxxx"),
                   CustomTextField(label: "Contact Number 2", controller: contactNumber2, hintText: "xxxxxxxxx"),
                   CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: "S.E.C.P"),
-                  CustomTextField(label: "E- Channel Login I'd", controller: channelLoginController, hintText: "S.E.C.P"),
-                  CustomTextField(label: "E- Channel Login Password", controller: channelPasswordController, hintText: "xxxxxxx"),
-                  CustomTextField(label: "Advance Payment TID", controller: advancePaymentController, hintText: "*****"),
+                  CustomTextField(
+                    label: "E- Channel Login I'd",
+                    controller: channelLoginController,
+                    hintText: "S.E.C.P",
+                  ),
+                  CustomTextField(
+                    label: "E- Channel Login Password",
+                    controller: channelPasswordController,
+                    hintText: "xxxxxxx",
+                  ),
+                  CustomTextField(
+                    label: "Advance Payment TID",
+                    controller: advancePaymentController,
+                    hintText: "*****",
+                  ),
                 ],
               ),
               SizedBox(height: 10),
@@ -689,10 +702,13 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                       controller: _physicalAddressController,
                     ),
                   ),
-                  SizedBox(width: 450, child: CustomTextField(label: "Note / Extra", controller: _noteController, hintText: 'xxxxx')),
+                  SizedBox(
+                    width: 450,
+                    child: CustomTextField(label: "Note / Extra", controller: _noteController, hintText: 'xxxxx'),
+                  ),
                 ],
               ),
-              SizedBox(height: 10),
+              /*SizedBox(height: 10),
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
@@ -700,7 +716,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                   InfoBox(value: "Pending Payment", label: "AED-3000", color: Colors.blue.shade50),
                   InfoBox(value: "Advance Payment", label: "AED-3000", color: Colors.blue.shade50),
                 ],
-              ),
+              ),*/
               SizedBox(height: 10),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -732,17 +748,27 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                   // Document Upload Section
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Document Upload', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red)),
+                        const Text(
+                          'Document Upload',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                        ),
                         const SizedBox(height: 10),
                         Wrap(
                           spacing: 10,
                           runSpacing: 10,
                           children: [
-                            CustomTextField(label: "Document Name", controller: documentNameController, hintText: "e.g., Trade License Copy"),
+                            CustomTextField(
+                              label: "Document Name",
+                              controller: documentNameController,
+                              hintText: "e.g., Trade License Copy",
+                            ),
                             CustomDateNotificationField(
                               label: "Issue Date",
                               controller: documentIssueDateController,
@@ -757,89 +783,95 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                               hintText: "yyyy-MM-dd",
                               onTap: () => _pickDocumentDate(documentExpiryDateController),
                             ),
-                        Consumer<DocumentsProvider>(
-                          builder: (context, documentsProvider, child) {
-                            return Column(
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
+                            Consumer<DocumentsProvider>(
+                              builder: (context, documentsProvider, child) {
+                                return Column(
                                   children: [
-                                    GestureDetector(
-                                      onTap: (documentsProvider.isUploading || _isProcessing) ? null : () {
-                                        // Use a microtask to ensure proper timing
-                                        Future.microtask(() {
-                                          _handleDocumentAction();
-                                        });
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          // color: (documentsProvider.isUploading || _isProcessing) ? Colors.grey : _getDocumentButtonColor(),
-                                          color: Colors.grey,
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 150,
-                                          minHeight: 38,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            if (documentsProvider.isUploading)
-                                              const SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap:
+                                              (documentsProvider.isUploading || _isProcessing)
+                                                  ? null
+                                                  : () {
+                                                    // Use a microtask to ensure proper timing
+                                                    Future.microtask(() {
+                                                      _handleDocumentAction();
+                                                    });
+                                                  },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              // color: (documentsProvider.isUploading || _isProcessing) ? Colors.grey : _getDocumentButtonColor(),
+                                              color: Colors.grey,
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                            constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
+                                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                if (documentsProvider.isUploading)
+                                                  const SizedBox(
+                                                    width: 16,
+                                                    height: 16,
+                                                    child: CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                    ),
+                                                  )
+                                                else
+                                                  Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  _getDocumentButtonText(),
+                                                  style: const TextStyle(fontSize: 14, color: Colors.white),
                                                 ),
-                                              )
-                                            else
-                                              Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
-                                            const SizedBox(width: 6),
-                                            Text(_getDocumentButtonText(), style: const TextStyle(fontSize: 14, color: Colors.white)),
-                                          ],
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        if (documentsProvider.isUploading)
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 8.0),
+                                            child: IconButton(
+                                              onPressed: () {
+                                                documentsProvider.resetLoadingState();
+                                                setState(() {
+                                                  selectedFile = null;
+                                                  selectedFileName = null;
+                                                  selectedFileBytes = null;
+                                                });
+                                              },
+                                              icon: const Icon(Icons.close, color: Colors.red),
+                                              tooltip: 'Cancel Upload',
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                     if (documentsProvider.isUploading)
                                       Padding(
-                                        padding: const EdgeInsets.only(left: 8.0),
-                                        child: IconButton(
-                                          onPressed: () {
-                                            documentsProvider.resetLoadingState();
-                                            setState(() {
-                                              selectedFile = null;
-                                              selectedFileName = null;
-                                              selectedFileBytes = null;
-                                            });
-                                          },
-                                          icon: const Icon(Icons.close, color: Colors.red),
-                                          tooltip: 'Cancel Upload',
+                                        padding: const EdgeInsets.only(top: 8.0),
+                                        child: LinearProgressIndicator(
+                                          value: documentsProvider.uploadProgress,
+                                          backgroundColor: Colors.grey[300],
+                                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
                                         ),
                                       ),
                                   ],
-                                ),
-                                if (documentsProvider.isUploading)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: LinearProgressIndicator(
-                                      value: documentsProvider.uploadProgress,
-                                      backgroundColor: Colors.grey[300],
-                                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
+                                );
+                              },
+                            ),
                           ],
                         ),
                         if (selectedFileName != null)
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child: Text('Selected: $selectedFileName', style: const TextStyle(fontSize: 12, color: Colors.green)),
+                            child: Text(
+                              'Selected: $selectedFileName',
+                              style: const TextStyle(fontSize: 12, color: Colors.green),
+                            ),
                           ),
                       ],
                     ),
@@ -853,11 +885,17 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Attached Documents', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red)),
+                    const Text(
+                      'Attached Documents',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Column(
                         children: [
                           // Existing documents
@@ -874,8 +912,13 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
 
                           // Newly uploaded documents
                           ...uploadedDocumentIds.map(
-                            (docId) =>
-                                _buildDocumentItem(name: 'New Document', issueDate: '', expiryDate: '', documentRefId: docId, isExisting: false),
+                            (docId) => _buildDocumentItem(
+                              name: 'New Document',
+                              issueDate: '',
+                              expiryDate: '',
+                              documentRefId: docId,
+                              isExisting: false,
+                            ),
                           ),
                         ],
                       ),
@@ -897,54 +940,93 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                         backgroundColor: Colors.green,
                         onPressed: () async {
                           final provider = context.read<ClientProfileProvider>();
-                          final isEdit = widget.clientData != null && (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
+                          final isEdit =
+                              widget.clientData != null &&
+                              (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
 
                           // Combine existing and new document IDs
                           final allDocumentIds = [
-                            ...clientDocuments.map((doc) => doc['document_ref_id']?.toString()).where((id) => id != null).cast<String>(),
+                            ...clientDocuments
+                                .map((doc) => doc['document_ref_id']?.toString())
+                                .where((id) => id != null)
+                                .cast<String>(),
                             ...uploadedDocumentIds,
                           ];
 
                           if (isEdit) {
                             await provider.updateClient(
                               clientRefId: widget.clientData!['client_ref_id'].toString(),
-                              name: clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : null,
+                              name:
+                                  clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : null,
                               email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : null,
                               phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : null,
                               phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
                               clientType: 'individual',
                               clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
-                              physicalAddress: _physicalAddressController.text.trim().isNotEmpty ? _physicalAddressController.text.trim() : null,
-                              echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
-                              echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
-                              echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
+                              physicalAddress:
+                                  _physicalAddressController.text.trim().isNotEmpty
+                                      ? _physicalAddressController.text.trim()
+                                      : null,
+                              echannelName:
+                                  channelNameController.text.trim().isNotEmpty
+                                      ? channelNameController.text.trim()
+                                      : null,
+                              echannelId:
+                                  channelLoginController.text.trim().isNotEmpty
+                                      ? channelLoginController.text.trim()
+                                      : null,
+                              echannelPassword:
+                                  channelPasswordController.text.trim().isNotEmpty
+                                      ? channelPasswordController.text.trim()
+                                      : null,
                               extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
                               documents: allDocumentIds,
                             );
                           } else {
                             await provider.addClient(
-                              name: clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : 'N/A',
+                              name:
+                                  clientNameController.text.trim().isNotEmpty
+                                      ? clientNameController.text.trim()
+                                      : 'N/A',
                               clientType: 'individual',
                               clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
                               email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : 'no-email@example.com',
                               phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : '+000000000',
                               phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
-                              physicalAddress: _physicalAddressController.text.trim().isNotEmpty ? _physicalAddressController.text.trim() : null,
-                              echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
-                              echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
-                              echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
+                              physicalAddress:
+                                  _physicalAddressController.text.trim().isNotEmpty
+                                      ? _physicalAddressController.text.trim()
+                                      : null,
+                              echannelName:
+                                  channelNameController.text.trim().isNotEmpty
+                                      ? channelNameController.text.trim()
+                                      : null,
+                              echannelId:
+                                  channelLoginController.text.trim().isNotEmpty
+                                      ? channelLoginController.text.trim()
+                                      : null,
+                              echannelPassword:
+                                  channelPasswordController.text.trim().isNotEmpty
+                                      ? channelPasswordController.text.trim()
+                                      : null,
                               extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
                               documents: allDocumentIds,
                             );
                           }
 
                           if (provider.errorMessage == null) {
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'))));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'),
+                                ),
+                              ),
+                            );
                             Navigator.of(context).pop();
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
+                            );
                           }
                         },
                       ),
@@ -1000,17 +1082,27 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
     return Wrap(
       spacing: 16,
       runSpacing: 16,
-      children: [_buildPaymentTile("Pending Payments", "9700", Colors.red), _buildPaymentTile("Advance Payment", "10,000", Colors.green)],
+      children: [
+        _buildPaymentTile("Pending Payments", "9700", Colors.red),
+        _buildPaymentTile("Advance Payment", "10,000", Colors.green),
+      ],
     );
   }
 
   Widget _buildPaymentTile(String title, String amount, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color.withOpacity(0.2), border: Border.all(color: color), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        border: Border.all(color: color),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [Text(title), Text(amount, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color))],
+        children: [
+          Text(title),
+          Text(amount, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+        ],
       ),
     );
   }
@@ -1025,7 +1117,12 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
         const Icon(Icons.calendar_month, color: Colors.red, size: 20),
         const Text("12-02-2025 - 02:59 pm"),
         const Icon(Icons.check_circle, color: Colors.green, size: 24),
-        CustomButton(text: 'Upload File', onPressed: () {}, backgroundColor: Colors.green, icon: Icons.file_copy_outlined),
+        CustomButton(
+          text: 'Upload File',
+          onPressed: () {},
+          backgroundColor: Colors.green,
+          icon: Icons.file_copy_outlined,
+        ),
       ],
     );
   }

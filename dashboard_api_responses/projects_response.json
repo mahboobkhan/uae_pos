@@ -1,0 +1,102 @@
+{
+    "status": "success",
+    "period_info": {
+        "start_date": "2025-08-28",
+        "end_date": "2025-09-27",
+        "total_days": 31,
+        "active_days": 2
+    },
+    "summary": {
+        "total_projects": 3,
+        "in_progress_projects": 0,
+        "in_progress_percentage": 0,
+        "draft_projects": 2,
+        "draft_percentage": 66.67,
+        "completed_projects": 1,
+        "completed_percentage": 33.33,
+        "stopped_projects": 0,
+        "stopped_percentage": 0,
+        "pending_projects": 0,
+        "pending_percentage": 0,
+        "other_status_projects": 0,
+        "other_percentage": 0
+    },
+    "financial_summary": {
+        "total_quotation": 8000,
+        "total_paid_payment": 6000,
+        "outstanding_amount": 2000,
+        "payment_completion_rate": 75,
+        "avg_project_value": 2666.666667,
+        "max_project_value": 5000,
+        "min_project_value": 1500
+    },
+    "status_distribution": [
+        {
+            "status": "in-progress",
+            "count": 0,
+            "percentage": 0,
+            "quotation": 0,
+            "paid_amount": 0
+        },
+        {
+            "status": "draft",
+            "count": 2,
+            "percentage": 66.67,
+            "quotation": 6500,
+            "paid_amount": 6000
+        },
+        {
+            "status": "completed",
+            "count": 1,
+            "percentage": 33.33,
+            "quotation": 1500,
+            "paid_amount": 0
+        },
+        {
+            "status": "stopped",
+            "count": 0,
+            "percentage": 0,
+            "quotation": 0,
+            "paid_amount": 0
+        },
+        {
+            "status": "pending",
+            "count": 0,
+            "percentage": 0,
+            "quotation": 0,
+            "paid_amount": 0
+        }
+    ],
+    "diversity_metrics": {
+        "unique_clients": 2,
+        "unique_users": 1,
+        "unique_service_categories": 2,
+        "unique_order_types": 2
+    },
+    "insights": {
+        "daily_avg_projects": 0.1,
+        "peak_day": {
+            "date": "2025-09-16",
+            "projects": 2,
+            "quotation": 3000
+        },
+        "most_common_status": "completed",
+        "projects_with_zero_quotation": -2
+    },
+    "daily_breakdown": [
+        {
+            "date": "2025-09-16",
+            "projects": 2,
+            "quotation": 3000
+        },
+        {
+            "date": "2025-09-17",
+            "projects": 1,
+            "quotation": 5000
+        }
+    ],
+    "filters_applied": {
+        "start_date": "2025-08-28",
+        "end_date": "2025-09-27"
+    }
+}
