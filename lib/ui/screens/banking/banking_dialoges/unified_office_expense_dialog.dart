@@ -71,11 +71,12 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       selectedExpenseType = data['expense_type'] ?? '';
       selectedBank = data['bank_ref_id'] ?? data['bank'] ?? '';
       selectedPaymentType = data['payment_type'] ?? '';
-      selectedDateTime = data['expense_date'] != null ? 
-        (data['expense_date'] is String ? 
-          DateTime.tryParse(data['expense_date']) ?? DateTime.now() : 
-          data['expense_date']) : 
-        DateTime.now();
+      selectedDateTime =
+          data['expense_date'] != null
+              ? (data['expense_date'] is String
+                  ? DateTime.tryParse(data['expense_date']) ?? DateTime.now()
+                  : data['expense_date'])
+              : DateTime.now();
     });
 
     _expenseNameController.text = data['expense_name'] ?? '';
@@ -114,7 +115,10 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
             },
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel", style: TextStyle(color: Colors.grey))),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+            ),
             TextButton(
               onPressed: () {
                 setState(() {
@@ -158,30 +162,30 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red, size: 28),
                         onPressed: () async {
-                          final shouldClose = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  backgroundColor: Colors.white,
-                                  title: const Text("Are you sure?"),
-                                  content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(false),
-                                      child: const Text("Keep Changes", style: TextStyle(color: Colors.blue)),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(true),
-                                      child: const Text("Close", style: TextStyle(color: Colors.red)),
-                                    ),
-                                  ],
-                                ),
-                          );
-
-                          if (shouldClose == true) {
-                            Navigator.of(context).pop(false);
-                          }
+                          // final shouldClose = await showDialog<bool>(
+                          //   context: context,
+                          //   builder:
+                          //       (context) => AlertDialog(
+                          //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          //         backgroundColor: Colors.white,
+                          //         title: const Text("Are you sure?"),
+                          //         content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                          //         actions: [
+                          //           TextButton(
+                          //             onPressed: () => Navigator.of(context).pop(false),
+                          //             child: const Text("Keep Changes", style: TextStyle(color: Colors.blue)),
+                          //           ),
+                          //           TextButton(
+                          //             onPressed: () => Navigator.of(context).pop(true),
+                          //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                          //           ),
+                          //         ],
+                          //       ),
+                          // );
+                          //
+                          // if (shouldClose == true) {
+                          Navigator.of(context).pop(false);
+                          // }
                         },
                       ),
                     ],
@@ -269,7 +273,10 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                             children: [
                               Icon(_getExpenseIcon(selectedExpenseType!), color: Colors.red, size: 20),
                               const SizedBox(width: 8),
-                              Text(selectedExpenseType!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red)),
+                              Text(
+                                selectedExpenseType!,
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 20),
@@ -279,9 +286,21 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                             spacing: 16,
                             runSpacing: 16,
                             children: [
-                              CustomTextField(label: "Expense Name", hintText: 'Enter expense name', controller: _expenseNameController),
-                              CustomTextField(label: "Expense Amount", controller: _expenseAmountController, hintText: '500-AED'),
-                              CustomTextField(label: "Allocate Balance", controller: _allocateBalanceController, hintText: '500'),
+                              CustomTextField(
+                                label: "Expense Name",
+                                hintText: 'Enter expense name',
+                                controller: _expenseNameController,
+                              ),
+                              CustomTextField(
+                                label: "Expense Amount",
+                                controller: _expenseAmountController,
+                                hintText: '500-AED',
+                              ),
+                              CustomTextField(
+                                label: "Allocate Balance",
+                                controller: _allocateBalanceController,
+                                hintText: '500',
+                              ),
                             ],
                           ),
 
@@ -293,7 +312,11 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                             runSpacing: 16,
                             children: [
                               CustomTextField(label: "Pay By", controller: _payByController, hintText: 'Pay By'),
-                              CustomTextField(label: "Received By", controller: _receivedByController, hintText: 'Received By'),
+                              CustomTextField(
+                                label: "Received By",
+                                controller: _receivedByController,
+                                hintText: 'Received By',
+                              ),
                               _buildDateTimeField(),
                             ],
                           ),
@@ -327,10 +350,18 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                   options: bankOptions,
                                   onChanged: (val) => setState(() => selectedBank = val),
                                 ),
-                                CustomTextField(label: "Service TID", controller: _serviceTIDController, hintText: 'Service TID'),
+                                CustomTextField(
+                                  label: "Service TID",
+                                  controller: _serviceTIDController,
+                                  hintText: 'Service TID',
+                                ),
                               ],
                               if (selectedPaymentType == 'Cheque') ...[
-                                CustomTextField(label: "Cheque No", controller: _serviceTIDController, hintText: 'Cheque No'),
+                                CustomTextField(
+                                  label: "Cheque No",
+                                  controller: _serviceTIDController,
+                                  hintText: 'Cheque No',
+                                ),
                               ],
                             ],
                           ),
@@ -370,7 +401,12 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                 children: [
                                   const Icon(Icons.error, color: Colors.red, size: 20),
                                   const SizedBox(width: 8),
-                                  Expanded(child: Text(provider.errorMessage ?? "Something went wrong", style: const TextStyle(color: Colors.red))),
+                                  Expanded(
+                                    child: Text(
+                                      provider.errorMessage ?? "Something went wrong",
+                                      style: const TextStyle(color: Colors.red),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -535,12 +571,16 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
 
   void _submitExpense(ExpenseProvider provider) {
     if (selectedExpenseType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select an expense type"), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select an expense type"), backgroundColor: Colors.red));
       return;
     }
 
     if (_expenseNameController.text.trim().isEmpty || _expenseAmountController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please fill in required fields"), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please fill in required fields"), backgroundColor: Colors.red));
       return;
     }
 
@@ -567,7 +607,10 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       provider.updateExpense(updateBody).then((_) {
         if (provider.state == RequestState.success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(provider.updateResponse?.message ?? "Expense Updated!"), backgroundColor: Colors.green)
+            SnackBar(
+              content: Text(provider.updateResponse?.message ?? "Expense Updated!"),
+              backgroundColor: Colors.green,
+            ),
           );
           Navigator.of(context).pop(true); // Return success
         }
@@ -594,7 +637,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       provider.createExpense(expense).then((_) {
         if (provider.state == RequestState.success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(provider.response?.message ?? "Expense Created!"), backgroundColor: Colors.green)
+            SnackBar(content: Text(provider.response?.message ?? "Expense Created!"), backgroundColor: Colors.green),
           );
           Navigator.of(context).pop(false);
         }
@@ -603,7 +646,11 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
   }
 }
 
-Future<bool?> showUnifiedOfficeExpenseDialog(BuildContext context, {Map<String, dynamic>? expenseData, bool isEditMode = false}) {
+Future<bool?> showUnifiedOfficeExpenseDialog(
+  BuildContext context, {
+  Map<String, dynamic>? expenseData,
+  bool isEditMode = false,
+}) {
   // Reset provider state before showing dialog
   final provider = Provider.of<ExpenseProvider>(context, listen: false);
   provider.resetState();

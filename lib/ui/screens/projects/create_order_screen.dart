@@ -22,7 +22,8 @@ class DropdownItem {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is DropdownItem && runtimeType == other.runtimeType && id == other.id && label == other.label;
+      identical(this, other) ||
+      other is DropdownItem && runtimeType == other.runtimeType && id == other.id && label == other.label;
 
   @override
   int get hashCode => id.hashCode ^ label.hashCode;
@@ -59,6 +60,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   bool _isSubmitting = false;
   String? _errorMessage;
   String? _successMessage;
+  String _projectStatus = 'draft';
 
   @override
   void initState() {
@@ -118,12 +120,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   double calculateTotalStepsCost() {
     final projectStageProvider = context.read<ProjectStageProvider>();
     double total = 0.0;
-    
+
     for (final stage in projectStageProvider.projectStages) {
       final stepCost = double.tryParse(stage['step_cost']?.toString() ?? '0') ?? 0.0;
       total += stepCost;
     }
-    
+
     return total;
   }
 
@@ -131,12 +133,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   double calculateTotalAdditionalProfit() {
     final projectStageProvider = context.read<ProjectStageProvider>();
     double total = 0.0;
-    
+
     for (final stage in projectStageProvider.projectStages) {
       final additionalProfit = double.tryParse(stage['additional_profit']?.toString() ?? '0') ?? 0.0;
       total += additionalProfit;
     }
-    
+
     return total;
   }
 
@@ -144,12 +146,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   double calculateTotalStepsReceivedAmount() {
     final projectStageProvider = context.read<ProjectStageProvider>();
     double total = 0.0;
-    
+
     for (final stage in projectStageProvider.projectStages) {
       final receivedAmount = double.tryParse(stage['received_amount']?.toString() ?? '0') ?? 0.0;
       total += receivedAmount;
     }
-    
+
     return total;
   }
 
@@ -158,7 +160,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     final double quotationAmount = double.tryParse(quotation ?? '0') ?? 0;
     final double totalStepsCost = calculateTotalStepsCost();
     final double paidAmount = double.tryParse(paidPayment ?? '0') ?? 0;
-    
+
     // Use the larger value between quotation and total steps cost
     final double totalAmount = quotationAmount > totalStepsCost ? quotationAmount : totalStepsCost;
     final double remaining = totalAmount - paidAmount;
@@ -179,13 +181,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       // Set order type
       selectedOrderType = project['order_type'] ?? '';
 
+      // Set and track project status
+      _projectStatus = (project['status'] ?? 'draft').toString();
+
       // Set service project (only if not empty)
       final serviceName = project['service_category_id']?['service_name']?.toString();
       selectedServiceProject = (serviceName != null && serviceName.isNotEmpty) ? serviceName : null;
 
       // Set service provider (only if not empty)
       final serviceProviderName = project['service_category_id']?['service_provider_name']?.toString();
-      selectedServiceProvider = (serviceProviderName != null && serviceProviderName.isNotEmpty) ? serviceProviderName : null;
+      selectedServiceProvider =
+          (serviceProviderName != null && serviceProviderName.isNotEmpty) ? serviceProviderName : null;
 
       // Set employee
       selectedEmployee = project['user_id']?['name'] ?? '';
@@ -208,6 +214,32 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     }
   }
 
+  bool get _isProjectLocked => _projectStatus == 'completed' || _projectStatus == 'stop';
+
+  Future<void> _updateProjectStatus(String newStatus) async {
+    if (widget.projectData == null) return;
+    try {
+      final provider = context.read<ProjectsProvider>();
+      await provider.updateProject(projectRefId: widget.projectData!['project_ref_id'], status: newStatus);
+      if (provider.errorMessage == null) {
+        setState(() {
+          _projectStatus = newStatus;
+          _isEditMode = false;
+          _successMessage = provider.successMessage ?? 'Status updated';
+          _errorMessage = null;
+        });
+      } else {
+        setState(() {
+          _errorMessage = provider.errorMessage;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error updating status: $e';
+      });
+    }
+  }
+
   // Get service names for dropdown
   List<String> _getServiceNames() {
     final provider = context.read<ServiceCategoryProvider>();
@@ -224,7 +256,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   String? _getQuotationForService(String? serviceName) {
     if (serviceName == null) return null;
     final provider = context.read<ServiceCategoryProvider>();
-    final service = provider.serviceCategories.firstWhere((service) => service['service_name'] == serviceName, orElse: () => {});
+    final service = provider.serviceCategories.firstWhere(
+      (service) => service['service_name'] == serviceName,
+      orElse: () => {},
+    );
     return service['quotation']?.toString();
   }
 
@@ -232,7 +267,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   String? _getServiceProviderForService(String? serviceName) {
     if (serviceName == null) return null;
     final provider = context.read<ServiceCategoryProvider>();
-    final service = provider.serviceCategories.firstWhere((service) => service['service_name'] == serviceName, orElse: () => {});
+    final service = provider.serviceCategories.firstWhere(
+      (service) => service['service_name'] == serviceName,
+      orElse: () => {},
+    );
     return service['service_provider_name']?.toString();
   }
 
@@ -266,13 +304,19 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             return AlertDialog(
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              title: const Text("Submit Verification", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+              title: const Text(
+                "Submit Verification",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
               content: SizedBox(
                 width: 300,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("Please enter your PIN to confirm form submission", style: TextStyle(fontSize: 14, color: Colors.black54)),
+                    const Text(
+                      "Please enter your PIN to confirm form submission",
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
                     const SizedBox(height: 20),
                     TextField(
                       controller: verificationController,
@@ -403,7 +447,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   String? _getCategoryForService(String? serviceName) {
     if (serviceName == null) return null;
     final provider = context.read<ServiceCategoryProvider>();
-    final service = provider.serviceCategories.firstWhere((service) => service['service_name'] == serviceName, orElse: () => {});
+    final service = provider.serviceCategories.firstWhere(
+      (service) => service['service_name'] == serviceName,
+      orElse: () => {},
+    );
     return service['ref_id']?.toString();
   }
 
@@ -467,14 +514,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("Project Details", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
+                            const Text(
+                              "Project Details",
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                            ),
                             Text("Ref ID: ${widget.projectData?['project_ref_id'] ?? 'N/A'}"),
                           ],
                         ),
                         Row(
                           children: [
                             // Edit Mode Toggle Button
-                            if (widget.projectData != null)
+                            if (widget.projectData != null && !_isProjectLocked)
                               ElevatedButton.icon(
                                 onPressed: _isSubmitting ? null : _toggleEditMode,
                                 icon: Icon(_isEditMode ? Icons.lock : Icons.edit, size: 16),
@@ -488,30 +538,30 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             IconButton(
                               icon: const Icon(Icons.close, color: Colors.red),
                               onPressed: () async {
-                                final shouldClose = await showDialog<bool>(
-                                  context: context,
-                                  builder:
-                                      (context) => AlertDialog(
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                        backgroundColor: Colors.white,
-                                        title: const Text("Are you sure?"),
-                                        content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(false),
-                                            child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
-                                          ),
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(true),
-                                            child: const Text("Close", style: TextStyle(color: Colors.red)),
-                                          ),
-                                        ],
-                                      ),
-                                );
-
-                                if (shouldClose == true) {
-                                  Navigator.of(context).pop(); // close the dialog
-                                }
+                                // final shouldClose = await showDialog<bool>(
+                                //   context: context,
+                                //   builder:
+                                //       (context) => AlertDialog(
+                                //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                //         backgroundColor: Colors.white,
+                                //         title: const Text("Are you sure?"),
+                                //         content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                                //         actions: [
+                                //           TextButton(
+                                //             onPressed: () => Navigator.of(context).pop(false),
+                                //             child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
+                                //           ),
+                                //           TextButton(
+                                //             onPressed: () => Navigator.of(context).pop(true),
+                                //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                                //           ),
+                                //         ],
+                                //       ),
+                                // );
+                                //
+                                // if (shouldClose == true) {
+                                Navigator.of(context).pop(); // close the dialog
+                                // }
                               },
                             ),
                           ],
@@ -535,7 +585,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             Icon(Icons.error_outline, color: Colors.red),
                             SizedBox(width: 8),
                             Expanded(child: Text(_errorMessage!, style: TextStyle(color: Colors.red))),
-                            IconButton(icon: Icon(Icons.close, color: Colors.red), onPressed: () => setState(() => _errorMessage = null)),
+                            IconButton(
+                              icon: Icon(Icons.close, color: Colors.red),
+                              onPressed: () => setState(() => _errorMessage = null),
+                            ),
                           ],
                         ),
                       ),
@@ -555,7 +608,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             Icon(Icons.check_circle, color: Colors.green),
                             SizedBox(width: 8),
                             Expanded(child: Text(_successMessage!, style: TextStyle(color: Colors.green))),
-                            IconButton(icon: Icon(Icons.close, color: Colors.green), onPressed: () => setState(() => _successMessage = null)),
+                            IconButton(
+                              icon: Icon(Icons.close, color: Colors.green),
+                              onPressed: () => setState(() => _successMessage = null),
+                            ),
                           ],
                         ),
                       ),
@@ -583,6 +639,28 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           ],
                         ),
                       ),
+                    if (_isProjectLocked)
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        margin: EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          border: Border.all(color: Colors.orange),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.lock, color: Colors.orange),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "This project is finalized (Stopped/Completed). Further changes are disabled.",
+                                style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
                     // Input Fields Wrap
                     Wrap(
@@ -593,10 +671,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         Consumer<ClientProfileProvider>(
                           builder: (context, clientProvider, child) {
                             final clients = clientProvider.clients;
-                            final clientNames = clients.map((c) => (c['name'] ?? 'Unnamed').toString()).where((name) => name.isNotEmpty).toList();
+                            final clientNames =
+                                clients
+                                    .map((c) => (c['name'] ?? 'Unnamed').toString())
+                                    .where((name) => name.isNotEmpty)
+                                    .toList();
 
                             // Only set selectedValue if it exists in the options list
-                            final validSelectedValue = (searchClient != null && clientNames.contains(searchClient)) ? searchClient : null;
+                            final validSelectedValue =
+                                (searchClient != null && clientNames.contains(searchClient)) ? searchClient : null;
 
                             return CustomDropdownWithSearch(
                               label: "Search Client ",
@@ -608,7 +691,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                       ? (val) {
                                         setState(() {
                                           searchClient = val;
-                                          _selectedClient = clients.firstWhere((c) => (c['name'] ?? '').toString() == (val ?? ''), orElse: () => {});
+                                          _selectedClient = clients.firstWhere(
+                                            (c) => (c['name'] ?? '').toString() == (val ?? ''),
+                                            orElse: () => {},
+                                          );
                                         });
                                       }
                                       : (val) {},
@@ -618,7 +704,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         CustomDropdownField(
                           label: "Order Type ",
                           selectedValue: selectedOrderType,
-                          options: ["Services Base", " Project base"],
+                          options: ["Services Base", " Project Base"],
                           enabled: _isEditMode,
                           onChanged:
                               _isEditMode
@@ -637,7 +723,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
                             // Only set selectedValue if it exists in the options list
                             final validSelectedValue =
-                                (selectedServiceProject != null && serviceOptions.contains(selectedServiceProject)) ? selectedServiceProject : null;
+                                (selectedServiceProject != null && serviceOptions.contains(selectedServiceProject))
+                                    ? selectedServiceProject
+                                    : null;
 
                             return CustomDropdownWithSearch(
                               label: "Service Project ",
@@ -676,7 +764,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
                             // Only set selectedValue if it exists in the options list
                             final validSelectedValue =
-                                (selectedServiceProvider != null && serviceProviderOptions.contains(selectedServiceProvider))
+                                (selectedServiceProvider != null &&
+                                        serviceProviderOptions.contains(selectedServiceProvider))
                                     ? selectedServiceProvider
                                     : null;
 
@@ -694,8 +783,19 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             );
                           },
                         ),
-                        CustomTextField(label: "Service Beneficiary", controller: _beneficiaryController, hintText: "xyz", enabled: _isEditMode),
-                        CustomTextField(label: "Order Quote Price", controller: _fundsController, hintText: '500', enabled: false),
+                        /*CustomTextField(
+                          label: "Service Beneficiary",
+                          controller: _beneficiaryController,
+                          hintText: "xyz",
+                          enabled: _isEditMode,
+                        ),*/
+                        CustomTextField(
+                          label: "Order Quote Price",
+                          controller: _fundsController,
+                          hintText: '500',
+                          enabled: false,
+                        ),
+
                         /*Consumer<ProjectStageProvider>(
                           builder: (context, projectStageProvider, child) {
                             // Update the pending payment controller with the calculated value
@@ -705,23 +805,25 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 _recordPaymentController.text = pendingAmount;
                               }
                             });
-                            
+
                             return CustomTextField(
-                              label: "Pending Payment", 
-                              controller: _recordPaymentController, 
-                              hintText: '0', 
+                              label: "Pending Payment",
+                              controller: _recordPaymentController,
+                              hintText: '0',
                               enabled: false
                             );
                           },
                         ),*/
-
                         Consumer<ProjectStageProvider>(
                           builder: (context, projectStageProvider, child) {
                             final totalStepsCost = calculateTotalStepsCost();
                             final totalAdditionalProfit = calculateTotalAdditionalProfit();
                             final totalStepsReceivedAmount = calculateTotalStepsReceivedAmount();
-                            final pendingAmount = calculatePendingPayment(_fundsController.text, widget.projectData?['paid_payment']);
-                            
+                            final pendingAmount = calculatePendingPayment(
+                              _fundsController.text,
+                              widget.projectData?['paid_payment'],
+                            );
+
                             return Wrap(
                               spacing: 10,
                               runSpacing: 10,
@@ -794,7 +896,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             },
                           ),
                         ] else ...[
-                          CustomButton(text: "Stop", backgroundColor: Colors.red, onPressed: () {}),
+                          CustomButton(
+                            text: "Stop",
+                            backgroundColor: Colors.red,
+                            onPressed: _isProjectLocked ? () {} : () => _updateProjectStatus('stop'),
+                          ),
+                          const SizedBox(width: 10),
+                          CustomButton(
+                            text: "Complete",
+                            backgroundColor: Colors.blue,
+                            onPressed: _isProjectLocked ? () {} : () => _updateProjectStatus('completed'),
+                          ),
                         ],
 
                         const Spacer(), // Pushes the icon to the right
@@ -846,15 +958,19 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
                             ),
                             Spacer(),
-                            if (widget.projectData != null)
-                              ElevatedButton.icon(
-                                onPressed: () => _showAddStageDialog(context),
-                                icon: Icon(Icons.add, size: 16),
-                                label: Text("Add Stage"),
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                              ),
+                            if (widget.projectData != null && !_isProjectLocked)
+                              if (widget.projectData != null && !_isProjectLocked)
+                                ElevatedButton.icon(
+                                  onPressed: () => _showAddStageDialog(context),
+                                  icon: Icon(Icons.add, size: 16),
+                                  label: Text("Add Stage"),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                ),
                             SizedBox(width: 10),
-                            IconButton(
+                            /*IconButton(
                               icon: const Icon(Icons.close, color: Colors.red),
                               onPressed: () async {
                                 final shouldClose = await showDialog<bool>(
@@ -882,7 +998,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                   Navigator.of(context).pop();
                                 }
                               },
-                            ),
+                            ),*/
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -901,8 +1017,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                               children: [
                                 const Icon(Icons.check_circle, color: Colors.green),
                                 const SizedBox(width: 8),
-                                Expanded(child: Text(projectStageProvider.successMessage!, style: const TextStyle(color: Colors.green))),
-                                IconButton(icon: const Icon(Icons.close, color: Colors.green), onPressed: () => projectStageProvider.clearMessages()),
+                                Expanded(
+                                  child: Text(
+                                    projectStageProvider.successMessage!,
+                                    style: const TextStyle(color: Colors.green),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.green),
+                                  onPressed: () => projectStageProvider.clearMessages(),
+                                ),
                               ],
                             ),
                           ),
@@ -921,8 +1045,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                               children: [
                                 const Icon(Icons.error_outline, color: Colors.red),
                                 const SizedBox(width: 8),
-                                Expanded(child: Text(projectStageProvider.errorMessage!, style: const TextStyle(color: Colors.red))),
-                                IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => projectStageProvider.clearMessages()),
+                                Expanded(
+                                  child: Text(
+                                    projectStageProvider.errorMessage!,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.red),
+                                  onPressed: () => projectStageProvider.clearMessages(),
+                                ),
                               ],
                             ),
                           ),
@@ -934,7 +1066,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [CircularProgressIndicator(), SizedBox(height: 16), Text('Loading project stages...')],
+                                children: const [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 16),
+                                  Text('Loading project stages...'),
+                                ],
                               ),
                             ),
                           )
@@ -945,7 +1081,14 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             final isLastStage = projectStageProvider.isLastStage(stage['project_stage_ref_id']);
                             final isStageEnded = projectStageProvider.isStageEnded(stage);
 
-                            return _buildStageCard(context, stage, index + 1, isLastStage, isStageEnded, projectStageProvider);
+                            return _buildStageCard(
+                              context,
+                              stage,
+                              index + 1,
+                              isLastStage,
+                              isStageEnded,
+                              projectStageProvider,
+                            );
                           }).toList()
                         else
                           SizedBox(
@@ -956,9 +1099,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 children: [
                                   Icon(Icons.assignment_outlined, size: 64, color: Colors.grey.shade400),
                                   const SizedBox(height: 16),
-                                  Text('No project stages available', style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
+                                  Text(
+                                    'No project stages available',
+                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                                  ),
                                   const SizedBox(height: 8),
-                                  Text('Add the first stage to get started', style: TextStyle(color: Colors.grey.shade500, fontSize: 14)),
+                                  Text(
+                                    'Add the first stage to get started',
+                                    style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                                  ),
                                 ],
                               ),
                             ),
@@ -987,7 +1136,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             border: OutlineInputBorder(),
             suffixIcon: Icon(Icons.calendar_month, color: Colors.red),
           ),
-          child: Text(DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime), style: TextStyle(fontSize: 14, color: Colors.black)),
+          child: Text(
+            DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime),
+            style: TextStyle(fontSize: 14, color: Colors.black),
+          ),
         ),
       ),
     );
@@ -1061,7 +1213,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red, width: 1)),
         ),
         onChanged: onChanged,
-        items: options.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 16)))).toList(),
+        items:
+            options
+                .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 16))))
+                .toList(),
       ),
     );
   }
@@ -1121,7 +1276,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         Expanded(
                           child: Container(
                             height: 40,
-                            decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(6)),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             alignment: Alignment.centerLeft,
                             child: TextField(
@@ -1174,7 +1332,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 itemBuilder: (context, index) {
                                   return Container(
                                     margin: const EdgeInsets.only(bottom: 4),
-                                    decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
                                     child: ListTile(
                                       dense: true,
                                       // Makes tiles more compact
@@ -1189,7 +1350,14 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                             IconButton(
                                               icon: const Icon(Icons.edit, size: 18, color: Colors.green),
                                               padding: EdgeInsets.zero,
-                                              onPressed: () => _showEditDialog(context, setState, institutes, index, editController),
+                                              onPressed:
+                                                  () => _showEditDialog(
+                                                    context,
+                                                    setState,
+                                                    institutes,
+                                                    index,
+                                                    editController,
+                                                  ),
                                             ),
                                             IconButton(
                                               icon: const Icon(Icons.delete, size: 18, color: Colors.red),
@@ -1218,7 +1386,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     );
   }
 
-  void _showEditDialog(BuildContext context, StateSetter setState, List<String> institutes, int index, TextEditingController editController) {
+  void _showEditDialog(
+    BuildContext context,
+    StateSetter setState,
+    List<String> institutes,
+    int index,
+    TextEditingController editController,
+  ) {
     editController.text = institutes[index];
     showDialog(
       context: context,
@@ -1246,7 +1420,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(onPressed: () => Navigator.pop(editContext), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+                    TextButton(
+                      onPressed: () => Navigator.pop(editContext),
+                      child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                    ),
                     const SizedBox(width: 8),
                     CustomButton(
                       backgroundColor: Colors.blue,
@@ -1295,16 +1472,28 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             children: [
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: isStageEnded ? Colors.grey : Colors.red, borderRadius: BorderRadius.circular(16)),
-                child: Text("Stage $stageNumber", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                decoration: BoxDecoration(
+                  color: isStageEnded ? Colors.grey : Colors.red,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  "Stage $stageNumber",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                ),
               ),
               SizedBox(width: 10),
-              Text("SID: ${stage['project_stage_ref_id'] ?? 'N/A'}", style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+              Text(
+                "SID: ${stage['project_stage_ref_id'] ?? 'N/A'}",
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
               Spacer(),
-              if (!isStageEnded)
+              if (!isStageEnded && !_isProjectLocked)
                 Row(
                   children: [
-                    IconButton(icon: Icon(Icons.edit, size: 18, color: Colors.blue), onPressed: () => _showEditStageDialog(context, stage)),
+                    IconButton(
+                      icon: Icon(Icons.edit, size: 18, color: Colors.blue),
+                      onPressed: () => _showEditStageDialog(context, stage),
+                    ),
                     /*IconButton(
                       icon: Icon(Icons.delete, size: 18, color: Colors.red),
                       onPressed: () => _deleteStage(context, stage, provider),
@@ -1349,12 +1538,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     ),
                   );
                 }).toList(),
-              if (!isStageEnded)
+              if (!isStageEnded && !_isProjectLocked)
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0),
                   child: TextButton(
                     onPressed: () => _showAddApplicationDialog(context, stage, provider),
-                    child: Text('Add more', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 15)),
+                    child: Text(
+                      'Add more',
+                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
                   ),
                 ),
             ],
@@ -1407,7 +1599,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
 
           // Action Buttons (show on any stage that is not ended)
-          if (!isStageEnded) ...[
+          if (!isStageEnded && !_isProjectLocked) ...[
             SizedBox(height: 20),
             Row(
               children: [
@@ -1430,7 +1622,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 const SizedBox(width: 10),
 
                 // Show Add Next Stage button only on last stage
-                if (isLastStage) CustomButton(text: "Add Next Stage", backgroundColor: Colors.green, onPressed: () => _showAddStageDialog(context)),
+                if (isLastStage)
+                  CustomButton(
+                    text: "Add Next Stage",
+                    backgroundColor: Colors.green,
+                    onPressed: () => _showAddStageDialog(context),
+                  ),
                 if (isLastStage) const SizedBox(width: 10),
 
                 const Spacer(),
@@ -1483,33 +1680,50 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CustomTextField(label: "Service Department", controller: serviceDepartmentController, hintText: "e.g., Installation, Testing"),
-                  SizedBox(height: 16),
-                  CustomTextField(label: "Step Cost", controller: stepCostController, hintText: "5000.00", keyboardType: TextInputType.number),
+                  CustomTextField(label: "Service Department", controller: serviceDepartmentController, hintText: ""),
+                  // SizedBox(height: 16),
+                  /*CustomTextField(
+                    label: "Step Cost",
+                    controller: stepCostController,
+                    hintText: "5000.00",
+                    keyboardType: TextInputType.number,
+                  ),
                   SizedBox(height: 16),
                   CustomTextField(
                     label: "Additional Profit",
                     controller: additionalProfitController,
                     hintText: "1200.00",
                     keyboardType: TextInputType.number,
-                  ),
+                  ),*/
                   SizedBox(height: 16),
-                  CustomTextField(label: "Application IDs (comma separated)", controller: applicationIdsController, hintText: "APP-1, APP-2, APP-3"),
+                  CustomTextField(
+                    label: "Application IDs (comma separated)",
+                    controller: applicationIdsController,
+                    hintText: "APP-1, APP-2, APP-3",
+                  ),
                 ],
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel", style: TextStyle(color: Colors.grey))),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+              ),
               CustomButton(
                 text: "Add Stage",
                 backgroundColor: Colors.green,
                 onPressed: () async {
-                  if (serviceDepartmentController.text.trim().isEmpty || stepCostController.text.trim().isEmpty) {
+                  if (serviceDepartmentController.text.trim().isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please fill required fields")));
                     return;
                   }
 
-                  final applicationIds = applicationIdsController.text.split(',').map((id) => id.trim()).where((id) => id.isNotEmpty).toList();
+                  final applicationIds =
+                      applicationIdsController.text
+                          .split(',')
+                          .map((id) => id.trim())
+                          .where((id) => id.isNotEmpty)
+                          .toList();
 
                   final provider = context.read<ProjectStageProvider>();
                   await provider.addProjectStage(
@@ -1517,8 +1731,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     serviceDepartment: serviceDepartmentController.text.trim(),
                     applicationIds: applicationIds,
                     stepCost: stepCostController.text.trim(),
-                    additionalProfit: additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
+                    additionalProfit:
+                        additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
                   );
+                  // After adding a stage, move project to in-progress if not locked
+                  if (!_isProjectLocked) {
+                    await _updateProjectStatus('in-progress');
+                  }
 
                   // Refresh calculations after adding stage
                   if (mounted) {
@@ -1554,7 +1773,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 children: [
                   InfoBoxNoColor(label: stage['service_department'] ?? 'N/A', value: 'Service Department (Read Only)'),
                   SizedBox(height: 16),
-                  CustomTextField(label: "Step Cost", controller: stepCostController, hintText: "5000.00", keyboardType: TextInputType.number),
+                  CustomTextField(
+                    label: "Step Cost",
+                    controller: stepCostController,
+                    hintText: "5000.00",
+                    keyboardType: TextInputType.number,
+                  ),
                   SizedBox(height: 16),
                   CustomTextField(
                     label: "Additional Profit",
@@ -1563,25 +1787,42 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     keyboardType: TextInputType.number,
                   ),
                   SizedBox(height: 16),
-                  CustomTextField(label: "Application IDs (comma separated)", controller: applicationIdsController, hintText: "APP-1, APP-2, APP-3"),
+                  CustomTextField(
+                    label: "Application IDs (comma separated)",
+                    controller: applicationIdsController,
+                    hintText: "APP-1, APP-2, APP-3",
+                  ),
                 ],
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel", style: TextStyle(color: Colors.grey))),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+              ),
               CustomButton(
                 text: "Update Stage",
                 backgroundColor: Colors.blue,
                 onPressed: () async {
-                  final applicationIds = applicationIdsController.text.split(',').map((id) => id.trim()).where((id) => id.isNotEmpty).toList();
+                  final applicationIds =
+                      applicationIdsController.text
+                          .split(',')
+                          .map((id) => id.trim())
+                          .where((id) => id.isNotEmpty)
+                          .toList();
 
                   final provider = context.read<ProjectStageProvider>();
                   await provider.updateProjectStage(
                     projectStageRefId: stage['project_stage_ref_id'],
                     stepCost: stepCostController.text.trim().isEmpty ? null : stepCostController.text.trim(),
-                    additionalProfit: additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
+                    additionalProfit:
+                        additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
                     applicationIds: applicationIds.isEmpty ? null : applicationIds,
                   );
+                  // After editing a stage, ensure project is in-progress if not locked
+                  if (!_isProjectLocked) {
+                    await _updateProjectStatus('in-progress');
+                  }
 
                   // Refresh calculations after updating stage
                   if (mounted) {
@@ -1610,11 +1851,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               width: 300,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: [CustomTextField(label: "Application ID", controller: applicationIdController, hintText: "APP-4")],
+                children: [
+                  CustomTextField(label: "Application ID", controller: applicationIdController, hintText: "APP-4"),
+                ],
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel", style: TextStyle(color: Colors.grey))),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+              ),
               CustomButton(
                 text: "Add",
                 backgroundColor: Colors.green,
@@ -1627,7 +1873,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                   final currentIds = List<String>.from(stage['application_ids'] ?? []);
                   currentIds.add(applicationIdController.text.trim());
 
-                  await provider.updateProjectStage(projectStageRefId: stage['project_stage_ref_id'], applicationIds: currentIds);
+                  await provider.updateProjectStage(
+                    projectStageRefId: stage['project_stage_ref_id'],
+                    applicationIds: currentIds,
+                  );
 
                   // Refresh calculations after adding application ID
                   if (mounted) {
@@ -1652,8 +1901,14 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             title: Text("End Stage?"),
             content: Text("Are you sure you want to end this stage? This action cannot be undone."),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: Text("Cancel", style: TextStyle(color: Colors.grey))),
-              TextButton(onPressed: () => Navigator.pop(context, true), child: Text("End Stage", style: TextStyle(color: Colors.red))),
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text("End Stage", style: TextStyle(color: Colors.red)),
+              ),
             ],
           ),
     );
@@ -1661,7 +1916,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     if (shouldEnd == true) {
       final endTime = DateTime.now().toIso8601String().replaceAll('T', ' ').substring(0, 19);
       await provider.updateProjectStage(projectStageRefId: stage['project_stage_ref_id'], endAt: endTime);
-      
+
       // Refresh calculations after ending stage
       if (mounted) {
         setState(() {});
@@ -1679,15 +1934,21 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             title: Text("Delete Stage?"),
             content: Text("Are you sure you want to delete this stage? This action cannot be undone."),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: Text("Cancel", style: TextStyle(color: Colors.grey))),
-              TextButton(onPressed: () => Navigator.pop(context, true), child: Text("Delete", style: TextStyle(color: Colors.red))),
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text("Delete", style: TextStyle(color: Colors.red)),
+              ),
             ],
           ),
     );
 
     if (shouldDelete == true) {
       await provider.deleteProjectStage(projectStageRefId: stage['project_stage_ref_id']);
-      
+
       // Refresh calculations after deleting stage
       if (mounted) {
         setState(() {});

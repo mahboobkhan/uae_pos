@@ -48,15 +48,12 @@ class SignupProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await http.get(
-        Uri.parse('https://abcwebservices.com/api/employee/get_employees.php'),
-      );
+      final response = await http.get(Uri.parse('https://abcwebservices.com/api/employee/get_employees.php'));
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
-        if (responseData['status'] == 'success' &&
-            responseData['data'] is List) {
+        if (responseData['status'] == 'success' && responseData['data'] is List) {
           _employees = List<Map<String, dynamic>>.from(responseData['data']);
         } else {
           _employees = [];
@@ -73,9 +70,7 @@ class SignupProvider with ChangeNotifier {
   }
 
   /// Create a new employee
-  Future<Map<String, dynamic>> createEmployeeProfile(
-    Map<String, dynamic> profileData,
-  ) async {
+  Future<Map<String, dynamic>> createEmployeeProfile(Map<String, dynamic> profileData) async {
     isLoading = true;
     notifyListeners();
 
@@ -90,11 +85,7 @@ class SignupProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         if (responseData['status'] == 'exists') {
-          return {
-            'success': false,
-            'status': 'exists',
-            'message': 'Profile already exists',
-          };
+          return {'success': false, 'status': 'exists', 'message': 'Profile already exists'};
         } else if (responseData['status'] == 'submitted') {
           _employees.add(responseData['data']);
           notifyListeners();
@@ -107,10 +98,7 @@ class SignupProvider with ChangeNotifier {
         }
       }
 
-      return {
-        'success': false,
-        'message': responseData['message'] ?? 'Failed to create profile',
-      };
+      return {'success': false, 'message': responseData['message'] ?? 'Failed to create profile'};
     } catch (e) {
       return {'success': false, 'message': 'Network error: $e'};
     } finally {
@@ -120,9 +108,7 @@ class SignupProvider with ChangeNotifier {
   }
 
   /// Update employee profile
-  Future<Map<String, dynamic>> updateEmployeeProfile(
-    Map<String, dynamic> updateData,
-  ) async {
+  Future<Map<String, dynamic>> updateEmployeeProfile(Map<String, dynamic> updateData) async {
     isLoading = true;
     notifyListeners();
 
@@ -137,15 +123,9 @@ class SignupProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         if (responseData['status'] == 'error') {
-          return {
-            'success': false,
-            'status': 'error',
-            'message': responseData['message'] ?? 'Profile not found',
-          };
+          return {'success': false, 'status': 'error', 'message': responseData['message'] ?? 'Profile not found'};
         } else if (responseData['status'] == 'updated') {
-          final index = _employees.indexWhere(
-            (emp) => emp['id'] == responseData['data']['id'],
-          );
+          final index = _employees.indexWhere((emp) => emp['id'] == responseData['data']['id']);
           if (index != -1) {
             _employees[index] = {..._employees[index], ...responseData['data']};
             notifyListeners();
@@ -159,10 +139,7 @@ class SignupProvider with ChangeNotifier {
         }
       }
 
-      return {
-        'success': false,
-        'message': responseData['message'] ?? 'Failed to update profile',
-      };
+      return {'success': false, 'message': responseData['message'] ?? 'Failed to update profile'};
     } catch (e) {
       return {'success': false, 'message': 'Network error: $e'};
     } finally {
@@ -185,11 +162,7 @@ class SignupProvider with ChangeNotifier {
     final url = Uri.parse('https://abcwebservices.com/api/login/signup.php');
     final headers = {'Content-Type': 'application/json'};
 
-    final Map<String, dynamic> body = {
-      "name": name,
-      "email": email,
-      "password": password,
-    };
+    final Map<String, dynamic> body = {"name": name, "email": email, "password": password};
 
     if (phone != null) body["phone"] = phone;
     if (dob != null) body["dob"] = dob;
@@ -202,11 +175,7 @@ class SignupProvider with ChangeNotifier {
       error = null;
       notifyListeners();
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
+      final response = await http.post(url, headers: headers, body: jsonEncode(body));
       final jsonResponse = jsonDecode(response.body);
 
       isLoading = false;
@@ -234,9 +203,7 @@ class SignupProvider with ChangeNotifier {
     required String userId,
     required String to, // 'user', 'admin', or 'both'
   }) async {
-    final url = Uri.parse(
-      'https://abcwebservices.com/api/login/resend_verification.php',
-    );
+    final url = Uri.parse('https://abcwebservices.com/api/login/resend_verification.php');
     final headers = {'Content-Type': 'application/json'};
 
     final Map<String, dynamic> body = {"user_id": userId, "to": to};
@@ -246,11 +213,7 @@ class SignupProvider with ChangeNotifier {
       error = null;
       notifyListeners();
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
+      final response = await http.post(url, headers: headers, body: jsonEncode(body));
 
       final jsonResponse = jsonDecode(response.body);
       isLoading = false;
@@ -269,22 +232,12 @@ class SignupProvider with ChangeNotifier {
   }
 
   //////////
-  Future<String?> verifyUser({
-    required String userId,
-    required String pinUser,
-    required String pinAdmin,
-  }) async {
+  Future<String?> verifyUser({required String userId, required String pinUser, required String pinAdmin}) async {
     print("Sending for : $userId");
-    final url = Uri.parse(
-      'https://abcwebservices.com/api/login/verify_user.php',
-    );
+    final url = Uri.parse('https://abcwebservices.com/api/login/verify_user.php');
     final headers = {'Content-Type': 'application/json'};
 
-    final Map<String, dynamic> body = {
-      "user_id": userId,
-      "pin_user": pinUser,
-      "pin_admin": pinAdmin,
-    };
+    final Map<String, dynamic> body = {"user_id": userId, "pin_user": pinUser, "pin_admin": pinAdmin};
 
     print('userID : $userId');
     print('userID : pin  $pinUser');
@@ -295,11 +248,7 @@ class SignupProvider with ChangeNotifier {
       error = null;
       notifyListeners();
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
+      final response = await http.post(url, headers: headers, body: jsonEncode(body));
 
       final jsonResponse = jsonDecode(response.body);
       isLoading = false;
@@ -320,18 +269,13 @@ class SignupProvider with ChangeNotifier {
   /////////
 
   Future<void> fetchAllUsersWithAccess() async {
-    final url = Uri.parse(
-      'https://abcwebservices.com/api/login/get_all_users_with_access.php',
-    );
+    final url = Uri.parse('https://abcwebservices.com/api/login/get_all_users_with_access.php');
 
     isLoading = true;
     notifyListeners();
 
     try {
-      final response = await http.get(
-        url,
-        headers: {'Accept': 'application/json'},
-      );
+      final response = await http.get(url, headers: {'Accept': 'application/json'});
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -362,9 +306,7 @@ class SignupProvider with ChangeNotifier {
     required Map<String, dynamic> accessData,
     required BuildContext context,
   }) async {
-    final url = Uri.parse(
-      'https://abcwebservices.com/api/login/update_access.php',
-    );
+    final url = Uri.parse('https://abcwebservices.com/api/login/update_access.php');
 
     // Build payload exactly as the PHP expects
     final payload = <String, dynamic>{
@@ -376,10 +318,7 @@ class SignupProvider with ChangeNotifier {
       final response = await http
           .post(
             url,
-            headers: const {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            headers: const {'Content-Type': 'application/json', 'Accept': 'application/json'},
             body: jsonEncode(payload),
           )
           .timeout(const Duration(seconds: 20));
@@ -390,25 +329,16 @@ class SignupProvider with ChangeNotifier {
         result = jsonDecode(response.body) as Map<String, dynamic>?;
       } catch (_) {}
 
-      if (response.statusCode == 200 &&
-          result != null &&
-          result['status'] == 'success') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Access updated successfully')),
-        );
+      if (response.statusCode == 200 && result != null && result['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Access updated successfully')));
         return true;
       } else {
-        final msg =
-            result?['message'] ?? 'Update failed (HTTP ${response.statusCode})';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(msg)));
+        final msg = result?['message'] ?? 'Update failed (HTTP ${response.statusCode})';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
         return false;
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Network error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Network error: $e')));
       return false;
     }
   }
@@ -418,9 +348,7 @@ class SignupProvider with ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    final url = Uri.parse(
-      'https://abcwebservices.com/api/login/get_access.php?user_id=$userId',
-    );
+    final url = Uri.parse('https://abcwebservices.com/api/login/get_access.php?user_id=$userId');
 
     try {
       final response = await http.get(url);
@@ -434,9 +362,7 @@ class SignupProvider with ChangeNotifier {
           accessData.remove('user_id');
           accessData.remove('updated_at');
 
-          _accessMap = accessData.map(
-            (key, value) => MapEntry(key, value == 1),
-          );
+          _accessMap = accessData.map((key, value) => MapEntry(key, value == 1));
         } else {
           throw Exception(data['message']);
         }
@@ -484,14 +410,16 @@ class SignupProvider with ChangeNotifier {
         print('loginwork status success');
 
         final user = jsonResponse['user'] ?? {};
+        final isAdmin = jsonResponse['is_admin'] ?? {};
         final access = jsonResponse['access'] ?? {};
+        print('loginwork 200 ${isAdmin}');
 
         // ✅ Save to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_id', user['user_id'] ?? '');
         await prefs.setString('name', user['name'] ?? '');
         await prefs.setString('email', user['email'] ?? '');
-        await prefs.setString('password', password); 
+        await prefs.setString('password', password);
         await prefs.setBool('verification', user['verification'] ?? '');
         await prefs.setString('created_at', user['created_at'] ?? '');
         await prefs.setString('pin', user['pin'] ?? '');
@@ -507,19 +435,11 @@ class SignupProvider with ChangeNotifier {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (context) => VerificationScreen(
-                    userId: user['user_id'],
-                    email: user['email'],
-                    adminEmail: "",
-                  ),
+              builder: (context) => VerificationScreen(userId: user['user_id'], email: user['email'], adminEmail: ""),
             ),
           );
         } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SidebarLayout()),
-          );
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SidebarLayout()));
         }
       } else {
         print('loginwork status error ${jsonResponse['message']} ');
@@ -530,12 +450,7 @@ class SignupProvider with ChangeNotifier {
               (_) => AlertDialog(
                 title: const Text("Login Failed"),
                 content: Text(jsonResponse['message']),
-                actions: [
-                  TextButton(
-                    child: const Text("OK"),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
+                actions: [TextButton(child: const Text("OK"), onPressed: () => Navigator.of(context).pop())],
               ),
         );
         ;
@@ -550,13 +465,8 @@ class SignupProvider with ChangeNotifier {
       context: context,
       builder:
           (_) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            title: const Text(
-              "Error",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            title: const Text("Error", style: TextStyle(fontWeight: FontWeight.bold)),
             content: Text(message),
             actions: [
               TextButton(
@@ -569,13 +479,8 @@ class SignupProvider with ChangeNotifier {
   }
 
   ///////
-  Future<String?> updatePassword({
-    required String userId,
-    required String newPassword,
-  }) async {
-    final url = Uri.parse(
-      'https://abcwebservices.com/api/login/update_password.php',
-    );
+  Future<String?> updatePassword({required String userId, required String newPassword}) async {
+    final url = Uri.parse('https://abcwebservices.com/api/login/update_password.php');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({"user_id": userId, "new_password": newPassword});
 
@@ -606,18 +511,13 @@ class SignupProvider with ChangeNotifier {
   }
 
   //////////
-  Future<void> sendForgetPasswordRequest(
-    BuildContext context,
-    String email,
-  ) async {
+  Future<void> sendForgetPasswordRequest(BuildContext context, String email) async {
     if (email.isEmpty) {
       _showErrorDialog(context, "Please enter your email.");
       return;
     }
 
-    final url = Uri.parse(
-      'https://abcwebservices.com/api/login/forget_pass.php',
-    );
+    final url = Uri.parse('https://abcwebservices.com/api/login/forget_pass.php');
 
     try {
       // Show loading
@@ -645,12 +545,7 @@ class SignupProvider with ChangeNotifier {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder:
-                (context) => ForgotScreen(
-                  userId: userId,
-                  email: emailResponse,
-                  adminEmail: adminEmail,
-                ),
+            builder: (context) => ForgotScreen(userId: userId, email: emailResponse, adminEmail: adminEmail),
           ),
         );
       } else {
@@ -665,23 +560,13 @@ class SignupProvider with ChangeNotifier {
   }
 
   // create tags function
-  Future<String> createTag({
-    required String userId,
-    required String tagName,
-    required String createdBy,
-  }) async {
+  Future<String> createTag({required String userId, required String tagName, required String createdBy}) async {
     try {
-      final url = Uri.parse(
-        'https://abcwebservices.com/api/employee/create_tag.php',
-      );
+      final url = Uri.parse('https://abcwebservices.com/api/employee/create_tag.php');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'user_id': userId,
-          'tag_name': tagName,
-          'created_by_user': createdBy,
-        }),
+        body: jsonEncode({'user_id': userId, 'tag_name': tagName, 'created_by_user': createdBy}),
       );
 
       final data = jsonDecode(response.body);
@@ -693,23 +578,13 @@ class SignupProvider with ChangeNotifier {
   }
 
   // tags update
-  Future<String> updateTag({
-    required String userId,
-    required String oldTagName,
-    required String newTagName,
-  }) async {
+  Future<String> updateTag({required String userId, required String oldTagName, required String newTagName}) async {
     try {
-      final url = Uri.parse(
-        'https://abcwebservices.com/api/employee/update_tag.php',
-      );
+      final url = Uri.parse('https://abcwebservices.com/api/employee/update_tag.php');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'user_id': userId,
-          'old_tag_name': oldTagName,
-          'new_tag_name': newTagName,
-        }),
+        body: jsonEncode({'user_id': userId, 'old_tag_name': oldTagName, 'new_tag_name': newTagName}),
       );
 
       final data = jsonDecode(response.body);
@@ -721,14 +596,9 @@ class SignupProvider with ChangeNotifier {
   }
 
   /// tag delete
-  Future<String> deleteTag({
-    required String userId,
-    required String tagName,
-  }) async {
+  Future<String> deleteTag({required String userId, required String tagName}) async {
     try {
-      final url = Uri.parse(
-        'https://abcwebservices.com/api/employee/delete_tag.php',
-      );
+      final url = Uri.parse('https://abcwebservices.com/api/employee/delete_tag.php');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -745,9 +615,7 @@ class SignupProvider with ChangeNotifier {
 
   /// get all tags
   Future<List<Map<String, dynamic>>> getAllTags(String userId) async {
-    final url = Uri.parse(
-      "https://abcwebservices.com/api/employee/get_all_tags.php",
-    );
+    final url = Uri.parse("https://abcwebservices.com/api/employee/get_all_tags.php");
 
     try {
       final response = await http.get(url);
@@ -787,18 +655,13 @@ class SignupProvider with ChangeNotifier {
     required String designation,
     required String createdBy,
   }) async {
-    const String url =
-        'https://abcwebservices.com/api/employee/create_designation.php';
+    const String url = 'https://abcwebservices.com/api/employee/create_designation.php';
 
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'user_id': userId,
-          'designations': designation,
-          'created_by': createdBy,
-        }),
+        body: jsonEncode({'user_id': userId, 'designations': designation, 'created_by': createdBy}),
       );
 
       final data = jsonDecode(response.body);
@@ -827,10 +690,7 @@ void _showErrorDialog(BuildContext context, String message) {
     builder:
         (_) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          title: const Text(
-            "Error",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          title: const Text("Error", style: TextStyle(fontWeight: FontWeight.bold)),
           content: Text(message),
           actions: [
             TextButton(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProjectsProvider extends ChangeNotifier {
   final String baseUrl = "https://abcwebservices.com/api/projects/projects";
@@ -39,8 +40,16 @@ class ProjectsProvider extends ChangeNotifier {
     if (serviceCategoryIdFilter != null && serviceCategoryIdFilter!.isNotEmpty && serviceCategoryIdFilter != 'All') {
       queryParams['service_category_id'] = serviceCategoryIdFilter!;
     }
-    if (userIdFilter != null && userIdFilter!.isNotEmpty && userIdFilter != 'All') {
-      queryParams['user_id'] = userIdFilter!;
+    // Prefer explicit filter; otherwise pull user_id from shared preferences
+    String? effectiveUserId = userIdFilter;
+    if (effectiveUserId == null || effectiveUserId.isEmpty || effectiveUserId == 'All') {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        effectiveUserId = prefs.getString('user_id');
+      } catch (_) {}
+    }
+    if (effectiveUserId != null && effectiveUserId.isNotEmpty && effectiveUserId != 'All') {
+      queryParams['user_id'] = effectiveUserId;
     }
     if (clientIdFilter != null && clientIdFilter!.isNotEmpty && clientIdFilter != 'All') {
       queryParams['client_id'] = clientIdFilter!;
@@ -124,8 +133,16 @@ class ProjectsProvider extends ChangeNotifier {
     if (serviceCategoryIdFilter != null && serviceCategoryIdFilter!.isNotEmpty && serviceCategoryIdFilter != 'All') {
       queryParams['service_category_id'] = serviceCategoryIdFilter!;
     }
-    if (userIdFilter != null && userIdFilter!.isNotEmpty && userIdFilter != 'All') {
-      queryParams['user_id'] = userIdFilter!;
+    // Prefer explicit filter; otherwise pull user_id from shared preferences
+    String? effectiveUserId = userIdFilter;
+    if (effectiveUserId == null || effectiveUserId.isEmpty || effectiveUserId == 'All') {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        effectiveUserId = prefs.getString('user_id');
+      } catch (_) {}
+    }
+    if (effectiveUserId != null && effectiveUserId.isNotEmpty && effectiveUserId != 'All') {
+      queryParams['user_id'] = effectiveUserId;
     }
     if (clientIdFilter != null && clientIdFilter!.isNotEmpty && clientIdFilter != 'All') {
       queryParams['client_id'] = clientIdFilter!;

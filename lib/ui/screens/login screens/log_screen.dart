@@ -2,6 +2,7 @@ import 'package:abc_consultant/ui/screens/login%20screens/forgot_screen.dart';
 import 'package:abc_consultant/ui/screens/login%20screens/sign_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../providers/signup_provider.dart';
 import '../../dialogs/custom_fields.dart';
@@ -19,12 +20,32 @@ class LogScreen extends StatefulWidget {
 class _LogScreenState extends State<LogScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _rememberMe = false;
 
   @override
   void initState() {
     super.initState();
-    _emailController.text = widget.email ?? 'yousafrana1212@gmail.com';
-    _passwordController.text = widget.password ?? 'Eline@52';
+    _loadSavedEmail();
+    if (widget.email != null && widget.email!.isNotEmpty) {
+      _emailController.text = widget.email!;
+    } else if (_emailController.text.isEmpty) {
+      // _emailController.text = 'yousafrana1212@gmail.com';
+    }
+    // _passwordController.text = widget.password ?? 'Eline@52';
+  }
+
+  Future<void> _loadSavedEmail() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedEmail = prefs.getString('email');
+      final remember = prefs.getBool('remember_email') ?? false;
+      setState(() {
+        _rememberMe = remember;
+        if (remember && savedEmail != null && savedEmail.isNotEmpty) {
+          _emailController.text = savedEmail;
+        }
+      });
+    } catch (_) {}
   }
 
   @override
@@ -52,35 +73,17 @@ class _LogScreenState extends State<LogScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: 30),
-                        Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25,
-                          ),
-                        ),
+                        Text('Login', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 25)),
                         SizedBox(height: 8),
                         Text(
                           'Sign in to continue',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w300,
-                            fontSize: 16,
-                          ),
+                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 16),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 45,
-                            vertical: 20,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 20),
                           child: Column(
                             children: [
-                              CustomTextField(
-                                controller: _emailController,
-                                label: 'Email',
-                                hintText: "",
-                              ),
+                              CustomTextField(controller: _emailController, label: 'Email', hintText: ""),
                               SizedBox(height: 20),
                               CustomTextField(
                                 controller: _passwordController,
@@ -89,6 +92,27 @@ class _LogScreenState extends State<LogScreen> {
                                 isPassword: true,
                               ),
                               SizedBox(height: 10),
+                              SizedBox(
+                                width: 240,
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: _rememberMe,
+                                      onChanged: (val) async {
+                                        setState(() => _rememberMe = val ?? false);
+                                        final prefs = await SharedPreferences.getInstance();
+                                        await prefs.setBool('remember_email', _rememberMe);
+                                        if (_rememberMe) {
+                                          await prefs.setString('email', _emailController.text.trim());
+                                        }
+                                      },
+                                      activeColor: Colors.red,
+                                      checkColor: Colors.white,
+                                    ),
+                                    const Text('Remember me'),
+                                  ],
+                                ),
+                              ),
                               FittedBox(
                                 child: TextButton(
                                   onPressed: () {
@@ -99,28 +123,13 @@ class _LogScreenState extends State<LogScreen> {
                                         context: context,
                                         builder:
                                             (context) => AlertDialog(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              title: const Text(
-                                                "Email Required",
-                                              ),
-                                              content: const Text(
-                                                "Please enter your email before resetting password.",
-                                              ),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                              title: const Text("Email Required"),
+                                              content: const Text("Please enter your email before resetting password."),
                                               actions: [
                                                 TextButton(
-                                                  onPressed:
-                                                      () => Navigator.pop(
-                                                        context,
-                                                      ),
-                                                  child: const Text(
-                                                    "OK",
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: const Text("OK", style: TextStyle(color: Colors.black)),
                                                 ),
                                               ],
                                             ),
@@ -134,38 +143,28 @@ class _LogScreenState extends State<LogScreen> {
                                       listen: false,
                                     ).sendForgetPasswordRequest(context, email);
                                   },
-                                  child: Text(
-                                    "Forgot/Update Password",
-                                    style: TextStyle(color: Colors.blue),
-                                  ),
+                                  child: Text("Forgot Password", style: TextStyle(color: Colors.blue)),
                                 ),
                               ),
                               SizedBox(height: 31),
                               ElevatedButton(
                                 onPressed: () {
-                                  final provider = Provider.of<SignupProvider>(
-                                    context,
-                                    listen: false,
-                                  );
-                                  provider.handleLogin(
-                                    context,
-                                    _emailController,
-                                    _passwordController,
-                                  );
+                                  final provider = Provider.of<SignupProvider>(context, listen: false);
+                                  // Save email preferences on login attempt
+                                  SharedPreferences.getInstance().then((prefs) async {
+                                    // await prefs.setString('email', _emailController.text.trim());
+                                    await prefs.setBool('remember_email', _rememberMe);
+                                  });
+                                  provider.handleLogin(context, _emailController, _passwordController);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   minimumSize: Size(150, 48),
                                   backgroundColor: Colors.red,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                                 ),
                                 child: Text(
                                   "Login",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ],
@@ -178,10 +177,7 @@ class _LogScreenState extends State<LogScreen> {
                 FittedBox(
                   child: TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignScreen()),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => SignScreen()));
                     },
                     child: RichText(
                       text: TextSpan(
@@ -190,10 +186,7 @@ class _LogScreenState extends State<LogScreen> {
                         children: [
                           TextSpan(
                             text: 'Signup',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
+                            style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
                           ),
                         ],
                       ),

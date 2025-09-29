@@ -765,8 +765,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
             if (isProject) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => CreateOrderScreen(projectData: item)));
             } else {
-              // Open short service edit dialog inline, reusing logic from ShortServiceScreen
-              // _editShortService(context, item);
+              _editShortService(context, item);
             }
           },
           onDelete: () {
@@ -789,6 +788,121 @@ class _ProjectScreenState extends State<ProjectScreen> {
           onDraft: () {},
         ),
       ],
+    );
+  }
+
+  /// Edit short service (reused from ShortServiceScreen)
+  void _editShortService(BuildContext context, Map<String, dynamic> service) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        String clientName = service['client_name'] ?? '';
+        String cost = service['cost'] ?? service['pending_payment'] ?? '';
+        String managerName = service['manager_name'] ?? '';
+
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          content: SizedBox(
+            width: 400,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 6.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "EDIT SHORT SERVICE",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Text(
+                        "Ref ID: ${service['ref_id'] ?? 'N/A'}",
+                        style: const TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 20),
+                      CustomTextField1(label: 'CLIENT NAME', text: clientName, onChanged: (val) => clientName = val),
+                      const SizedBox(height: 12),
+                      CustomTextField1(
+                        label: 'COST (AED)',
+                        keyboardType: TextInputType.number,
+                        text: cost,
+                        onChanged: (val) => cost = val,
+                      ),
+                      const SizedBox(height: 12),
+                      CustomTextField1(label: 'MANAGER NAME', text: managerName, onChanged: (val) => managerName = val),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+                          const SizedBox(width: 12),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            ),
+                            onPressed: () async {
+                              if (clientName.isNotEmpty && cost.isNotEmpty && managerName.isNotEmpty) {
+                                try {
+                                  final provider = context.read<ShortServicesProvider>();
+                                  await provider.updateShortService(
+                                    refId: service['ref_id'],
+                                    clientName: clientName,
+                                    cost: cost,
+                                    managerName: managerName,
+                                  );
+
+                                  if (provider.errorMessage == null) {
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(provider.successMessage ?? 'Service updated successfully'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(provider.errorMessage!), backgroundColor: Colors.red),
+                                    );
+                                  }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please fill all fields'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Text('Update', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

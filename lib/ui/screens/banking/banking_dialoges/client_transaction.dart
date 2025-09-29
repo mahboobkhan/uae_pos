@@ -51,10 +51,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   Future<String> getCurrentUserName() async {
     final prefs = await SharedPreferences.getInstance();
     String? name = prefs.getString("name");
-    return name??'' ;
+    return name ?? '';
   }
-
-
 
   @override
   void initState() {
@@ -65,7 +63,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       _searchController = TextEditingController();
       _amountController = TextEditingController(text: widget.paymentData!['total_amount']?.toString() ?? '');
       _paymentByController = TextEditingController(text: widget.paymentData!['pay_by']?.toString() ?? '');
-      _receivedByController = TextEditingController(text: widget.paymentData!['received_by']?.toString() ?? getCurrentUserName().toString());
+      _receivedByController = TextEditingController(
+        text: widget.paymentData!['received_by']?.toString() ?? getCurrentUserName().toString(),
+      );
       _serviceTIDController = TextEditingController(text: widget.paymentData!['transaction_id']?.toString() ?? '');
       _noteController = TextEditingController(text: widget.paymentData!['note']?.toString() ?? '');
 
@@ -148,9 +148,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        widget.isEditMode
-                            ? "Ref: ${widget.paymentData?['payment_ref_id'] ?? 'N/A'}"
-                            : 'N/A',
+                        widget.isEditMode ? "Ref: ${widget.paymentData?['payment_ref_id'] ?? 'N/A'}" : 'N/A',
                         style: const TextStyle(fontSize: 12),
                       ),
                     ],
@@ -165,30 +163,30 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red),
                         onPressed: () async {
-                          final shouldClose = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  backgroundColor: Colors.white,
-                                  title: const Text("Are you sure?"),
-                                  content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(false),
-                                      child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(true),
-                                      child: const Text("Close", style: TextStyle(color: Colors.red)),
-                                    ),
-                                  ],
-                                ),
-                          );
-
-                          if (shouldClose == true) {
-                            Navigator.of(context).pop(); // close the dialog
-                          }
+                          // final shouldClose = await showDialog<bool>(
+                          //   context: context,
+                          //   builder:
+                          //       (context) => AlertDialog(
+                          //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          //         backgroundColor: Colors.white,
+                          //         title: const Text("Are you sure?"),
+                          //         content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                          //         actions: [
+                          //           TextButton(
+                          //             onPressed: () => Navigator.of(context).pop(false),
+                          //             child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
+                          //           ),
+                          //           TextButton(
+                          //             onPressed: () => Navigator.of(context).pop(true),
+                          //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                          //           ),
+                          //         ],
+                          //       ),
+                          // );
+                          //
+                          // if (shouldClose == true) {
+                          Navigator.of(context).pop(); // close the dialog
+                          // }
                         },
                       ),
                     ],
@@ -512,8 +510,6 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     final projectRefId = selectedProjectData?['project_ref_id']?.toString() ?? selectedProject!;
     final clientRefId = selectedProjectData?['client_id']?['client_ref_id']?.toString() ?? '';
 
-
-
     // Map payment type to in/out
     String paymentTypeValue = selectedPaymentType == 'Receive' ? 'in' : 'out';
 
@@ -536,7 +532,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
               ? _serviceTIDController.text
               : null,
       stepCost: _stepCostController.text.isNotEmpty ? double.tryParse(_stepCostController.text) : null,
-      additionalProfit: _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
+      additionalProfit:
+          _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
       projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
     );
 

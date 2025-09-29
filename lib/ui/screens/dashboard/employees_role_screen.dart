@@ -40,6 +40,10 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
     }
 
     return provider.employees!.where((employee) {
+      // Exclude Admin designation from list
+      if (employee.empDesignation == 'Admin') {
+        return false;
+      }
       // Filter by employee status (Active/Blocked)
       if (selectedCategory == 'Active' && employee.isUserActive != 1) {
         return false;

@@ -99,14 +99,20 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   String? _getQuotationForService(String? serviceName) {
     if (serviceName == null) return null;
     final provider = context.read<ServiceCategoryProvider>();
-    final service = provider.serviceCategories.firstWhere((service) => service['service_name'] == serviceName, orElse: () => {});
+    final service = provider.serviceCategories.firstWhere(
+      (service) => service['service_name'] == serviceName,
+      orElse: () => {},
+    );
     return service['quotation']?.toString();
   }
 
   String? _getCategoryForService(String? serviceName) {
     if (serviceName == null) return null;
     final provider = context.read<ServiceCategoryProvider>();
-    final service = provider.serviceCategories.firstWhere((service) => service['service_name'] == serviceName, orElse: () => {});
+    final service = provider.serviceCategories.firstWhere(
+      (service) => service['service_name'] == serviceName,
+      orElse: () => {},
+    );
     return service['ref_id']?.toString();
   }
 
@@ -114,7 +120,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   String? _getServiceProviderForService(String? serviceName) {
     if (serviceName == null) return null;
     final provider = context.read<ServiceCategoryProvider>();
-    final service = provider.serviceCategories.firstWhere((service) => service['service_name'] == serviceName, orElse: () => {});
+    final service = provider.serviceCategories.firstWhere(
+      (service) => service['service_name'] == serviceName,
+      orElse: () => {},
+    );
     return service['service_provider_name']?.toString();
   }
 
@@ -172,7 +181,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
         orderType: selectedOrderType,
         serviceCategoryId: _getCategoryForService(selectedServiceProject),
         userId: sharePref.getString('user_id'),
-        status: 'Draft',
+        status: 'draft',
         // Default status for new projects
         stageId: '',
         // Default stage ID
@@ -183,9 +192,12 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
 
       if (provider.errorMessage == null) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(provider.successMessage ?? 'Project created successfully'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.successMessage ?? 'Project created successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
       } else {
         setState(() {
           _errorMessage = provider.errorMessage;
@@ -222,35 +234,40 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [Text("Create New Order", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red))],
+                      children: [
+                        Text(
+                          "Create New Order",
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red),
+                        ),
+                      ],
                     ),
                     IconButton(
                       icon: const Icon(Icons.close, color: Colors.red),
                       onPressed: () async {
-                        final shouldClose = await showDialog<bool>(
-                          context: context,
-                          builder:
-                              (context) => AlertDialog(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                backgroundColor: Colors.white,
-                                title: const Text("Are you sure?"),
-                                content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(false),
-                                    child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(true),
-                                    child: const Text("Close", style: TextStyle(color: Colors.red)),
-                                  ),
-                                ],
-                              ),
-                        );
-
-                        if (shouldClose == true) {
-                          Navigator.of(context).pop(); // close the dialog
-                        }
+                        // final shouldClose = await showDialog<bool>(
+                        //   context: context,
+                        //   builder:
+                        //       (context) => AlertDialog(
+                        //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        //         backgroundColor: Colors.white,
+                        //         title: const Text("Are you sure?"),
+                        //         content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                        //         actions: [
+                        //           TextButton(
+                        //             onPressed: () => Navigator.of(context).pop(false),
+                        //             child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
+                        //           ),
+                        //           TextButton(
+                        //             onPressed: () => Navigator.of(context).pop(true),
+                        //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                        //           ),
+                        //         ],
+                        //       ),
+                        // );
+                        //
+                        // if (shouldClose == true) {
+                        Navigator.of(context).pop(); // close the dialog
+                        // }
                       },
                     ),
                   ],
@@ -272,7 +289,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                         Icon(Icons.error_outline, color: Colors.red),
                         SizedBox(width: 8),
                         Expanded(child: Text(_errorMessage!, style: TextStyle(color: Colors.red))),
-                        IconButton(icon: Icon(Icons.close, color: Colors.red), onPressed: () => setState(() => _errorMessage = null)),
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.red),
+                          onPressed: () => setState(() => _errorMessage = null),
+                        ),
                       ],
                     ),
                   ),
@@ -298,7 +318,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                               onChanged: (val) {
                                 setState(() {
                                   searchClient = val;
-                                  _selectedClient = clients.firstWhere((c) => (c['name'] ?? '').toString() == (val ?? ''), orElse: () => {});
+                                  _selectedClient = clients.firstWhere(
+                                    (c) => (c['name'] ?? '').toString() == (val ?? ''),
+                                    orElse: () => {},
+                                  );
                                   // reset employee on client change
                                   selectedEmployee = null;
                                 });
@@ -316,7 +339,12 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
 
                             // individual -> show Self (InfoBox)
                             if (_selectedClient != null && !_isOrg(_selectedClient))
-                              CustomTextField(label: "Client", controller: _clientSelf, hintText: 'Self', keyboardType: TextInputType.text)
+                              CustomTextField(
+                                label: "Client",
+                                controller: _clientSelf,
+                                hintText: 'Self',
+                                keyboardType: TextInputType.text,
+                              )
                             // organization -> show employee dropdown (dynamic list)
                             else if (_selectedClient != null && _isOrg(_selectedClient))
                               _buildEmployeeDropdown(),
@@ -327,7 +355,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     CustomDropdownField(
                       label: "Order Type ",
                       selectedValue: selectedOrderType,
-                      options: ["Services Base", " Project base"],
+                      options: ["Services Base", " Project Base"],
                       onChanged: (val) {
                         setState(() => selectedOrderType = val);
                       },
@@ -337,7 +365,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                         return CustomDropdownWithSearch(
                           label: "Service Project ",
                           selectedValue: selectedServiceProject,
-                          options: serviceProvider.serviceCategories.map((service) => service['service_name'].toString() ?? '').toList(),
+                          options:
+                              serviceProvider.serviceCategories
+                                  .map((service) => service['service_name'].toString() ?? '')
+                                  .toList(),
                           onChanged: (val) {
                             setState(() {
                               selectedServiceProject = val;
@@ -361,7 +392,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       builder: (context, serviceProvider, child) {
                         return CustomDropdownWithSearch(
                           label: "Service Provider",
-                          options: serviceProvider.serviceCategories.map((service) => service['service_provider_name'].toString() ?? '').toList(),
+                          options:
+                              serviceProvider.serviceCategories
+                                  .map((service) => service['service_provider_name'].toString() ?? '')
+                                  .toList(),
                           selectedValue: _beneficiaryController,
                           onChanged: (val) {
                             setState(() => _beneficiaryController = val);
@@ -397,7 +431,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   padding: const EdgeInsets.only(left: 2.0),
                   child: Row(
                     children: [
-                      CustomButton(
+                      /*CustomButton(
                         text: "Save Draft",
                         backgroundColor: Colors.blue,
                         onPressed:
@@ -405,12 +439,12 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                 ? () {}
                                 : () {
                                   // Save as draft logic
-                                  ScaffoldMessenger.of(
-                                    context,
-                                  ).showSnackBar(SnackBar(content: Text('Draft saved successfully'), backgroundColor: Colors.blue));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Draft saved successfully'), backgroundColor: Colors.blue),
+                                  );
                                 },
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 10),*/
                       CustomButton(
                         text: _isSubmitting ? "Creating..." : "Submit",
                         backgroundColor: Colors.green,
@@ -446,7 +480,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
             border: OutlineInputBorder(),
             suffixIcon: Icon(Icons.calendar_month_outlined, color: Colors.red, size: 22),
           ),
-          child: Text(DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime), style: const TextStyle(fontSize: 14)),
+          child: Text(
+            DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime),
+            style: const TextStyle(fontSize: 14),
+          ),
         ),
       ),
     );
@@ -461,7 +498,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
             width: 220,
             child: Container(
               padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Colors.grey.shade100, border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(4),
+              ),
               child: Row(
                 children: [
                   SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
@@ -478,7 +519,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
             width: 220,
             child: Container(
               padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Colors.red.shade50, border: Border.all(color: Colors.red), borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                border: Border.all(color: Colors.red),
+                borderRadius: BorderRadius.circular(4),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

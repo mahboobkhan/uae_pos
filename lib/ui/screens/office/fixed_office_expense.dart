@@ -68,7 +68,17 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                     color: Colors.red.shade50,
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(2),
-                    boxShadow: _isHovering ? [BoxShadow(color: Colors.blue, blurRadius: 4, spreadRadius: 0.2, offset: const Offset(0, 1))] : [],
+                    boxShadow:
+                        _isHovering
+                            ? [
+                              BoxShadow(
+                                color: Colors.blue,
+                                blurRadius: 4,
+                                spreadRadius: 0.2,
+                                offset: const Offset(0, 1),
+                              ),
+                            ]
+                            : [],
                   ),
                   child: Row(
                     children: [
@@ -85,7 +95,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                 setState(() => selectedCategory = newValue!);
                               },
                             ),*/
-                              CustomDropdown(
+                              /*CustomDropdown(
                                 hintText: "Select Tags",
                                 selectedValue: selectedCategory1,
                                 items: categories1,
@@ -100,46 +110,33 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory2 = newValue!);
                                 },
-                              ),
+                              ),*/
                             ],
                           ),
                         ),
                       ),
-                      /*Card(
-                        elevation: 8,
-                        color: Colors.blue,
+                      Card(
+                        elevation: 4,
+                        color: Colors.green,
                         shape: CircleBorder(),
-                        child: Builder(
-                          builder:
-                              (context) => Tooltip(
-                                message: 'Show menu',
-                                waitDuration: Duration(milliseconds: 2),
-                                child: GestureDetector(
-                                  key: _plusKey,
-                                  onTap: () async {
-                                    showFixedOfficeExpanseDialogue(context);
-                                  },
-                                  child: Container(
-                                    width: 30,
-                                    height: 30,
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                        child: Tooltip(
+                          message: 'Refresh',
+                          waitDuration: Duration(milliseconds: 2),
+                          child: GestureDetector(
+                            onTap: () {
+                              Provider.of<ExpenseProvider>(context, listen: false)
+                                  .fetchExpenses(expenseType: 'Fixed Office Expense');
+                            },
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              margin: const EdgeInsets.symmetric(horizontal: 5),
+                              decoration: const BoxDecoration(shape: BoxShape.circle),
+                              child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                            ),
+                          ),
                         ),
-                      ),*/
+                      ),
                     ],
                   ),
                 ),
@@ -188,11 +185,11 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                     columnWidths: const {
                                       0: FlexColumnWidth(1),
                                       1: FlexColumnWidth(1),
+                                      // 2: FlexColumnWidth(1),
                                       2: FlexColumnWidth(1),
                                       3: FlexColumnWidth(1),
                                       4: FlexColumnWidth(1),
                                       5: FlexColumnWidth(1),
-                                      6: FlexColumnWidth(1),
                                     },
                                     children: [
                                       // Header Row
@@ -201,7 +198,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                         children: [
                                           _buildHeader("TID"),
                                           _buildHeader("Expenses Value"),
-                                          _buildHeader("Drop Down Tag"),
+                                          // _buildHeader("Drop Down Tag"),
                                           _buildHeader("Payment Status"),
                                           _buildHeader("Allocate"),
                                           _buildHeader("Note"),
@@ -213,17 +210,22 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                         final index = entry.key;
                                         final e = entry.value;
                                         return TableRow(
-                                          decoration: BoxDecoration(color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100),
+                                          decoration: BoxDecoration(
+                                            color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
+                                          ),
                                           children: [
                                             _buildCell2(e.expenseType, e.tid, copyable: true),
                                             _buildCell(e.expenseAmount.toString()),
-                                            _buildCell('nil'),
+                                            // _buildCell('nil'),
                                             _buildCell(e.paymentStatus),
                                             _buildCell(e.allocatedAmount.toString()),
                                             _buildCell(e.note),
                                             _buildActionCell(
                                               onDelete: () async {
-                                                final expenseProvider = Provider.of<ExpenseProvider>(context, listen: false);
+                                                final expenseProvider = Provider.of<ExpenseProvider>(
+                                                  context,
+                                                  listen: false,
+                                                );
                                                 showLoadingDialog(context);
 
                                                 // Reset before new delete
@@ -235,16 +237,21 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                                                 if (expenseProvider.state == RequestState.success) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     SnackBar(
-                                                      content: Text(expenseProvider.deleteResponse?.message ?? "Expense deleted successfully"),
+                                                      content: Text(
+                                                        expenseProvider.deleteResponse?.message ??
+                                                            "Expense deleted successfully",
+                                                      ),
                                                     ),
                                                   );
 
                                                   // Refresh list
                                                   expenseProvider.fetchExpenses(expenseType: 'Fixed Office Expense');
                                                 } else if (expenseProvider.state == RequestState.error) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(SnackBar(content: Text(expenseProvider.errorMessage ?? "Delete failed")));
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(expenseProvider.errorMessage ?? "Delete failed"),
+                                                    ),
+                                                  );
                                                 }
                                               },
                                               onEdit: () async {
@@ -312,7 +319,10 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                 Clipboard.setData(ClipboardData(text: text));
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
-              child: Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.copy, size: 10, color: Colors.blue[700])),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Icon(Icons.copy, size: 10, color: Colors.blue[700]),
+              ),
             ),
         ],
       ),
@@ -336,9 +346,14 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                       GestureDetector(
                         onTap: () {
                           Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                         },
-                        child: Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.copy, size: 14, color: Colors.blue[700])),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                        ),
                       ),
                   ],
                 ),
@@ -351,9 +366,14 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
                     GestureDetector(
                       onTap: () {
                         Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
-                      child: Padding(padding: const EdgeInsets.only(left: 4), child: Icon(Icons.copy, size: 8, color: Colors.blue[700])),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Icon(Icons.copy, size: 8, color: Colors.blue[700]),
+                      ),
                     ),
                 ],
               ),
@@ -368,7 +388,11 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
       alignment: Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.only(left: 4.0),
-        child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12), textAlign: TextAlign.center),
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
@@ -376,8 +400,16 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
   Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
     return Row(
       children: [
-        IconButton(icon: const Icon(Icons.edit, size: 20, color: Colors.blue), tooltip: 'Edit', onPressed: onEdit ?? () {}),
-        IconButton(icon: const Icon(Icons.delete, size: 20, color: Colors.blue), tooltip: 'delete', onPressed: onDelete ?? () {}),
+        IconButton(
+          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
+          tooltip: 'Edit',
+          onPressed: onEdit ?? () {},
+        ),
+        /*IconButton(
+          icon: const Icon(Icons.delete, size: 20, color: Colors.blue),
+          tooltip: 'delete',
+          onPressed: onDelete ?? () {},
+        ),*/
       ],
     );
   }

@@ -21,9 +21,7 @@ Future<void> showCompanyProfileDialog(BuildContext context, {Map<String, dynamic
     builder:
         (context) => Dialog(
           backgroundColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: CompanyProfile(clientData: clientData),
         ),
   );
@@ -38,32 +36,23 @@ class CompanyProfile extends StatefulWidget {
 }
 
 class CompanyProfileState extends State<CompanyProfile> {
-
-
-
   final TextEditingController companyNameController = TextEditingController();
   final TextEditingController tradeLicenseController = TextEditingController();
   final TextEditingController companyCodeController = TextEditingController();
-  final TextEditingController establishmentNumberController =
-  TextEditingController();
+  final TextEditingController establishmentNumberController = TextEditingController();
   final TextEditingController extraNoteController = TextEditingController();
   final TextEditingController emailId2Controller = TextEditingController();
   final TextEditingController contactNumberController = TextEditingController();
-  final TextEditingController contactNumber2Controller =
-  TextEditingController();
-  final TextEditingController physicalAddressController =
-  TextEditingController();
+  final TextEditingController contactNumber2Controller = TextEditingController();
+  final TextEditingController physicalAddressController = TextEditingController();
   final TextEditingController channelNameController = TextEditingController();
   final TextEditingController channelLoginController = TextEditingController();
-  final TextEditingController channelPasswordController =
-  TextEditingController();
+  final TextEditingController channelPasswordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emiratesIdController = TextEditingController();
-  final TextEditingController workPermitNumberController =
-  TextEditingController();
+  final TextEditingController workPermitNumberController = TextEditingController();
   final TextEditingController emailId1Controller = TextEditingController();
-  final TextEditingController contactNumber3Controller =
-  TextEditingController();
+  final TextEditingController contactNumber3Controller = TextEditingController();
   final TextEditingController docName2 = TextEditingController();
   final TextEditingController advancePayment = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
@@ -85,8 +74,6 @@ class CompanyProfileState extends State<CompanyProfile> {
   String? selectedJobType3;
   String? selectedJobType4;
   final TextEditingController _dateTimeController = TextEditingController();
-
-
 
   void _pickDateTime2() {
     showDialog(
@@ -152,7 +139,7 @@ class CompanyProfileState extends State<CompanyProfile> {
 
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        
+
         setState(() {
           if (kIsWeb) {
             // For web, use PlatformFile directly
@@ -167,7 +154,7 @@ class CompanyProfileState extends State<CompanyProfile> {
             }
           }
         });
-        
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -179,7 +166,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       }
     } catch (e) {
       print('File picker error: $e'); // Debug print
-      
+
       // Handle specific error types
       String errorMessage = 'Error picking file';
       if (e.toString().contains('LateInitializationError')) {
@@ -189,13 +176,9 @@ class CompanyProfileState extends State<CompanyProfile> {
       } else {
         errorMessage = 'Error picking file: ${e.toString()}';
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 4)),
       );
     }
   }
@@ -209,13 +192,13 @@ class CompanyProfileState extends State<CompanyProfile> {
         if (status.isDenied) {
           status = await Permission.storage.request();
         }
-        
+
         // Also check for media permissions for newer Android versions
         var mediaStatus = await Permission.photos.status;
         if (mediaStatus.isDenied) {
           mediaStatus = await Permission.photos.request();
         }
-        
+
         return status.isGranted || mediaStatus.isGranted;
       } else if (Platform.isIOS) {
         var status = await Permission.photos.status;
@@ -224,7 +207,7 @@ class CompanyProfileState extends State<CompanyProfile> {
         }
         return status.isGranted;
       }
-      
+
       return true; // For other platforms, assume permission is granted
     } catch (e) {
       print('Permission check error: $e');
@@ -234,7 +217,7 @@ class CompanyProfileState extends State<CompanyProfile> {
 
   Future<void> _uploadDocument() async {
     if (_isProcessing) return; // Prevent multiple simultaneous uploads
-    
+
     if (selectedFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a file first')));
       return;
@@ -261,12 +244,14 @@ class CompanyProfileState extends State<CompanyProfile> {
         if (selectedFileBytes != null) {
           documentRefId = await documentsProvider.addDocumentWeb(
             name: documentNameController.text.trim(),
-            issueDate: documentIssueDateController.text.trim().isNotEmpty
-                ? documentIssueDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            expireDate: documentExpiryDateController.text.trim().isNotEmpty
-                ? documentExpiryDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
+            issueDate:
+                documentIssueDateController.text.trim().isNotEmpty
+                    ? documentIssueDateController.text.trim()
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            expireDate:
+                documentExpiryDateController.text.trim().isNotEmpty
+                    ? documentExpiryDateController.text.trim()
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
             fileBytes: selectedFileBytes!,
             fileName: selectedFileName ?? 'document',
           );
@@ -276,12 +261,14 @@ class CompanyProfileState extends State<CompanyProfile> {
         if (selectedFile is File) {
           documentRefId = await documentsProvider.addDocument(
             name: documentNameController.text.trim(),
-            issueDate: documentIssueDateController.text.trim().isNotEmpty
-                ? documentIssueDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            expireDate: documentExpiryDateController.text.trim().isNotEmpty
-                ? documentExpiryDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
+            issueDate:
+                documentIssueDateController.text.trim().isNotEmpty
+                    ? documentIssueDateController.text.trim()
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            expireDate:
+                documentExpiryDateController.text.trim().isNotEmpty
+                    ? documentExpiryDateController.text.trim()
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
             file: selectedFile as File,
           );
         }
@@ -300,10 +287,7 @@ class CompanyProfileState extends State<CompanyProfile> {
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Document uploaded successfully: $documentRefId'),
-              backgroundColor: Colors.green,
-            ),
+            SnackBar(content: Text('Document uploaded successfully: $documentRefId'), backgroundColor: Colors.green),
           );
         }
       } else {
@@ -312,11 +296,7 @@ class CompanyProfileState extends State<CompanyProfile> {
             SnackBar(
               backgroundColor: Colors.red,
               content: Text(documentsProvider.errorMessage ?? 'Failed to upload document'),
-              action: SnackBarAction(
-                label: 'Retry',
-                textColor: Colors.white,
-                onPressed: () => _uploadDocument(),
-              ),
+              action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
             ),
           );
         }
@@ -327,11 +307,7 @@ class CompanyProfileState extends State<CompanyProfile> {
           SnackBar(
             backgroundColor: Colors.red,
             content: Text('Upload failed: ${e.toString()}'),
-            action: SnackBarAction(
-              label: 'Retry',
-              textColor: Colors.white,
-              onPressed: () => _uploadDocument(),
-            ),
+            action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
           ),
         );
       }
@@ -347,7 +323,7 @@ class CompanyProfileState extends State<CompanyProfile> {
   Future<void> _loadClientDocuments() async {
     if (widget.clientData != null && widget.clientData!['client_ref_id'] != null) {
       final documentsProvider = context.read<DocumentsProvider>();
-      
+
       // First try to get documents from the documents field in client data
       if (widget.clientData!['documents'] != null) {
         try {
@@ -360,7 +336,7 @@ class CompanyProfileState extends State<CompanyProfile> {
               final fetchedDocuments = await documentsProvider.getDocumentsByIds(
                 documentRefIds: documentIds.cast<String>(),
               );
-              
+
               if (mounted && fetchedDocuments != null) {
                 setState(() {
                   clientDocuments = fetchedDocuments;
@@ -373,7 +349,7 @@ class CompanyProfileState extends State<CompanyProfile> {
           print('Error parsing documents from client data: $e');
         }
       }
-      
+
       // Fallback to the old method if documents field is not available or parsing failed
       await documentsProvider.getClientDocuments(clientRefId: widget.clientData!['client_ref_id'].toString());
 
@@ -397,9 +373,12 @@ class CompanyProfileState extends State<CompanyProfile> {
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document deleted successfully')));
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(documentsProvider.errorMessage ?? 'Failed to delete document')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
+        ),
+      );
     }
   }
 
@@ -448,13 +427,10 @@ class CompanyProfileState extends State<CompanyProfile> {
             selectedFile = File(file.path!);
             selectedFileName = file.name;
           });
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('File selected: ${file.name}'),
-              backgroundColor: Colors.green,
-            ),
-          );
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('File selected: ${file.name}'), backgroundColor: Colors.green));
         }
       }
     } catch (e) {
@@ -500,7 +476,12 @@ class CompanyProfileState extends State<CompanyProfile> {
   }
 
   void _pickDocumentDate(TextEditingController controller) {
-    showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2030)).then((date) {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2030),
+    ).then((date) {
       if (date != null) {
         controller.text = DateFormat('yyyy-MM-dd').format(date);
       }
@@ -518,7 +499,11 @@ class CompanyProfileState extends State<CompanyProfile> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.grey.shade50, border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(6)),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Row(
         children: [
           Icon(Icons.description, color: isExisting ? Colors.blue : Colors.green, size: 20),
@@ -529,7 +514,10 @@ class CompanyProfileState extends State<CompanyProfile> {
               children: [
                 Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 if (issueDate.isNotEmpty || expiryDate.isNotEmpty)
-                  Text('Issue: $issueDate | Expiry: $expiryDate', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                  Text(
+                    'Issue: $issueDate | Expiry: $expiryDate',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
                 Text('ID: $documentRefId', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
               ],
             ),
@@ -565,7 +553,6 @@ class CompanyProfileState extends State<CompanyProfile> {
     );
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -589,7 +576,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       // Load existing documents if editing
       _loadClientDocuments();
     }
-    
+
     // Reset provider state when dialog opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final documentsProvider = context.read<DocumentsProvider>();
@@ -625,11 +612,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                     children: [
                       const Text(
                         'Company Profile',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
@@ -651,53 +634,49 @@ class CompanyProfileState extends State<CompanyProfile> {
                     children: [
                       Text(
                         DateFormat('dd-MM-yyyy').format(DateTime.now()),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red),
                         onPressed: () async {
-                          final shouldClose = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  backgroundColor: Colors.white,
-                                  title: const Text("Are you sure?"),
-                                  content: const Text(
-                                    "Do you want to close this form? Unsaved changes may be lost.",
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () =>
-                                              Navigator.of(context).pop(false),
-                                      child: const Text(
-                                        "Keep Changes ",
-                                        style: TextStyle(color: Colors.blue),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(context).pop(true),
-                                      child: const Text(
-                                        "Close",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                          );
-
-                          if (shouldClose == true) {
-                            Navigator.of(context).pop(); // close the dialog
-                          }
+                          // final shouldClose = await showDialog<bool>(
+                          //   context: context,
+                          //   builder:
+                          //       (context) => AlertDialog(
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(8),
+                          //         ),
+                          //         backgroundColor: Colors.white,
+                          //         title: const Text("Are you sure?"),
+                          //         content: const Text(
+                          //           "Do you want to close this form? Unsaved changes may be lost.",
+                          //         ),
+                          //         actions: [
+                          //           TextButton(
+                          //             onPressed:
+                          //                 () =>
+                          //                     Navigator.of(context).pop(false),
+                          //             child: const Text(
+                          //               "Keep Changes ",
+                          //               style: TextStyle(color: Colors.blue),
+                          //             ),
+                          //           ),
+                          //           TextButton(
+                          //             onPressed:
+                          //                 () => Navigator.of(context).pop(true),
+                          //             child: const Text(
+                          //               "Close",
+                          //               style: TextStyle(color: Colors.red),
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          // );
+                          //
+                          // if (shouldClose == true) {
+                          Navigator.of(context).pop(); // close the dialog
+                          // }
                         },
                       ),
                     ],
@@ -713,21 +692,9 @@ class CompanyProfileState extends State<CompanyProfile> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  CustomTextField(
-                    label: "Company Name",
-                    hintText: "xyz",
-                    controller: companyNameController,
-                  ),
-                  CustomTextField(
-                    label: "Trade Licence Number ",
-                    controller: tradeLicenseController,
-                    hintText: "1234",
-                  ),
-                  CustomTextField(
-                    label: "Company Code ",
-                    controller: companyCodeController,
-                    hintText: "456",
-                  ),
+                  CustomTextField(label: "Company Name", hintText: "xyz", controller: companyNameController),
+                  CustomTextField(label: "Trade Licence Number ", controller: tradeLicenseController, hintText: "1234"),
+                  CustomTextField(label: "Company Code ", controller: companyCodeController, hintText: "456"),
                   CustomTextField(
                     label: "Establishment Number ",
                     controller: establishmentNumberController,
@@ -741,16 +708,8 @@ class CompanyProfileState extends State<CompanyProfile> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  CustomTextField(
-                    label: "Note Extra ",
-                    controller: extraNoteController,
-                    hintText: "xxxxxxxxx",
-                  ),
-                  CustomTextField(
-                    label: "Email I'd ",
-                    controller: emailId2Controller,
-                    hintText: "@gmail.com",
-                  ),
+                  CustomTextField(label: "Note Extra ", controller: extraNoteController, hintText: "xxxxxxxxx"),
+                  CustomTextField(label: "Email I'd ", controller: emailId2Controller, hintText: "@gmail.com"),
                   CustomTextField(
                     label: "Contact Number ",
                     controller: contactNumberController,
@@ -766,11 +725,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                     controller: physicalAddressController,
                     hintText: "Address,house,street,town,post code",
                   ),
-                  CustomTextField(
-                    label: "E- Channel Name",
-                    controller: channelNameController,
-                    hintText: "S.E.C.P",
-                  ),
+                  CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: "S.E.C.P"),
                   CustomTextField(
                     label: "E- Channel Login I'd",
                     controller: channelLoginController,
@@ -789,17 +744,27 @@ class CompanyProfileState extends State<CompanyProfile> {
               // Document Upload Section
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Document Upload', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red)),
+                    const Text(
+                      'Document Upload',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        CustomTextField(label: "Document Name", controller: documentNameController, hintText: "e.g., Trade License Copy"),
+                        CustomTextField(
+                          label: "Document Name",
+                          controller: documentNameController,
+                          hintText: "e.g., Trade License Copy",
+                        ),
                         CustomDateNotificationField(
                           label: "Issue Date",
                           controller: documentIssueDateController,
@@ -822,21 +787,24 @@ class CompanyProfileState extends State<CompanyProfile> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     GestureDetector(
-                                      onTap: (documentsProvider.isUploading || _isProcessing) ? null : () {
-                                        // Use a microtask to ensure proper timing
-                                        Future.microtask(() {
-                                          _handleDocumentAction();
-                                        });
-                                      },
+                                      onTap:
+                                          (documentsProvider.isUploading || _isProcessing)
+                                              ? null
+                                              : () {
+                                                // Use a microtask to ensure proper timing
+                                                Future.microtask(() {
+                                                  _handleDocumentAction();
+                                                });
+                                              },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: (documentsProvider.isUploading || _isProcessing) ? Colors.grey : _getDocumentButtonColor(),
+                                          color:
+                                              (documentsProvider.isUploading || _isProcessing)
+                                                  ? Colors.grey
+                                                  : _getDocumentButtonColor(),
                                           borderRadius: BorderRadius.circular(4),
                                         ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 150,
-                                          minHeight: 38,
-                                        ),
+                                        constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
                                         padding: const EdgeInsets.symmetric(horizontal: 12),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -854,7 +822,10 @@ class CompanyProfileState extends State<CompanyProfile> {
                                             else
                                               Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
                                             const SizedBox(width: 6),
-                                            Text(_getDocumentButtonText(), style: const TextStyle(fontSize: 14, color: Colors.white)),
+                                            Text(
+                                              _getDocumentButtonText(),
+                                              style: const TextStyle(fontSize: 14, color: Colors.white),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -895,7 +866,10 @@ class CompanyProfileState extends State<CompanyProfile> {
                     if (selectedFileName != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
-                        child: Text('Selected: $selectedFileName', style: const TextStyle(fontSize: 12, color: Colors.green)),
+                        child: Text(
+                          'Selected: $selectedFileName',
+                          style: const TextStyle(fontSize: 12, color: Colors.green),
+                        ),
                       ),
                   ],
                 ),
@@ -908,11 +882,17 @@ class CompanyProfileState extends State<CompanyProfile> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Attached Documents', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red)),
+                    const Text(
+                      'Attached Documents',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Column(
                         children: [
                           // Existing documents
@@ -929,8 +909,13 @@ class CompanyProfileState extends State<CompanyProfile> {
 
                           // Newly uploaded documents
                           ...uploadedDocumentIds.map(
-                            (docId) =>
-                                _buildDocumentItem(name: 'New Document', issueDate: '', expiryDate: '', documentRefId: docId, isExisting: false),
+                            (docId) => _buildDocumentItem(
+                              name: 'New Document',
+                              issueDate: '',
+                              expiryDate: '',
+                              documentRefId: docId,
+                              isExisting: false,
+                            ),
                           ),
                         ],
                       ),
@@ -942,22 +927,23 @@ class CompanyProfileState extends State<CompanyProfile> {
               SizedBox(height: 20),
               Row(
                 children: [
-                  CustomButton(
-                    text: "Editing",
-                    backgroundColor: Colors.blue,
-                    onPressed: () {},
-                  ),
+                  CustomButton(text: "Editing", backgroundColor: Colors.blue, onPressed: () {}),
                   const SizedBox(width: 10),
                   CustomButton(
                     text: "Submit",
                     backgroundColor: Colors.green,
                     onPressed: () async {
                       final provider = context.read<ClientProfileProvider>();
-                      final isEdit = widget.clientData != null && (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
+                      final isEdit =
+                          widget.clientData != null &&
+                          (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
 
                       // Combine existing and new document IDs
                       final allDocumentIds = [
-                        ...clientDocuments.map((doc) => doc['document_ref_id']?.toString()).where((id) => id != null).cast<String>(),
+                        ...clientDocuments
+                            .map((doc) => doc['document_ref_id']?.toString())
+                            .where((id) => id != null)
+                            .cast<String>(),
                         ...uploadedDocumentIds,
                       ];
 
@@ -966,55 +952,100 @@ class CompanyProfileState extends State<CompanyProfile> {
                           clientRefId: widget.clientData!['client_ref_id'].toString(),
                           name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : null,
                           email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : null,
-                          phone1: contactNumberController.text.trim().isNotEmpty ? contactNumberController.text.trim() : null,
-                          phone2: contactNumber2Controller.text.trim().isNotEmpty ? contactNumber2Controller.text.trim() : null,
+                          phone1:
+                              contactNumberController.text.trim().isNotEmpty
+                                  ? contactNumberController.text.trim()
+                                  : null,
+                          phone2:
+                              contactNumber2Controller.text.trim().isNotEmpty
+                                  ? contactNumber2Controller.text.trim()
+                                  : null,
                           clientType: 'organization',
                           clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
-                          tradeLicenseNo: tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
-                          companyCode: companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
-                          establishmentNo: establishmentNumberController.text.trim().isNotEmpty ? establishmentNumberController.text.trim() : null,
-                          physicalAddress: physicalAddressController.text.trim().isNotEmpty ? physicalAddressController.text.trim() : null,
-                          echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
-                          echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
-                          echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
-                          extraNote: extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
+                          tradeLicenseNo:
+                              tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
+                          companyCode:
+                              companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
+                          establishmentNo:
+                              establishmentNumberController.text.trim().isNotEmpty
+                                  ? establishmentNumberController.text.trim()
+                                  : null,
+                          physicalAddress:
+                              physicalAddressController.text.trim().isNotEmpty
+                                  ? physicalAddressController.text.trim()
+                                  : null,
+                          echannelName:
+                              channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                          echannelId:
+                              channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                          echannelPassword:
+                              channelPasswordController.text.trim().isNotEmpty
+                                  ? channelPasswordController.text.trim()
+                                  : null,
+                          extraNote:
+                              extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
                           documents: allDocumentIds,
                         );
                       } else {
                         await provider.addClient(
-                          name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
+                          name:
+                              companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
                           clientType: 'organization',
                           clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
-                          email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : 'no-email@example.com',
-                          phone1: contactNumberController.text.trim().isNotEmpty ? contactNumberController.text.trim() : '+000000000',
-                          phone2: contactNumber2Controller.text.trim().isNotEmpty ? contactNumber2Controller.text.trim() : null,
-                          tradeLicenseNo: tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
-                          companyCode: companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
-                          establishmentNo: establishmentNumberController.text.trim().isNotEmpty ? establishmentNumberController.text.trim() : null,
-                          physicalAddress: physicalAddressController.text.trim().isNotEmpty ? physicalAddressController.text.trim() : null,
-                          echannelName: channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
-                          echannelId: channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
-                          echannelPassword: channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null,
-                          extraNote: extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
+                          email:
+                              emailId2Controller.text.trim().isNotEmpty
+                                  ? emailId2Controller.text.trim()
+                                  : 'no-email@example.com',
+                          phone1:
+                              contactNumberController.text.trim().isNotEmpty
+                                  ? contactNumberController.text.trim()
+                                  : '+000000000',
+                          phone2:
+                              contactNumber2Controller.text.trim().isNotEmpty
+                                  ? contactNumber2Controller.text.trim()
+                                  : null,
+                          tradeLicenseNo:
+                              tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
+                          companyCode:
+                              companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
+                          establishmentNo:
+                              establishmentNumberController.text.trim().isNotEmpty
+                                  ? establishmentNumberController.text.trim()
+                                  : null,
+                          physicalAddress:
+                              physicalAddressController.text.trim().isNotEmpty
+                                  ? physicalAddressController.text.trim()
+                                  : null,
+                          echannelName:
+                              channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                          echannelId:
+                              channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                          echannelPassword:
+                              channelPasswordController.text.trim().isNotEmpty
+                                  ? channelPasswordController.text.trim()
+                                  : null,
+                          extraNote:
+                              extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
                           documents: allDocumentIds,
                         );
                       }
 
                       if (provider.errorMessage == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'))),
+                          SnackBar(
+                            content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created')),
+                          ),
                         );
                         Navigator.of(context).pop();
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)));
                       }
                     },
                   ),
                 ],
               ),
-
             ],
           ),
         ),
@@ -1081,9 +1112,7 @@ void _showEditDialog(
                 cursorColor: Colors.blue,
                 controller: editController,
                 decoration: const InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 1.5, color: Colors.blue),
-                  ),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(width: 1.5, color: Colors.blue)),
                   labelText: 'Edit institute',
                   labelStyle: TextStyle(color: Colors.blue),
                   isDense: true,
@@ -1096,10 +1125,7 @@ void _showEditDialog(
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(editContext),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.blue),
-                    ),
+                    child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
                   ),
                   const SizedBox(width: 8),
                   CustomButton(
@@ -1137,9 +1163,7 @@ void showInstituteManagementDialog(BuildContext context) {
         builder: (context, setState) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                12,
-              ), // Slightly smaller radius
+              borderRadius: BorderRadius.circular(12), // Slightly smaller radius
             ),
             contentPadding: const EdgeInsets.all(12), // Reduced padding
             insetPadding: const EdgeInsets.all(20), // Space around dialog
@@ -1161,11 +1185,7 @@ void showInstituteManagementDialog(BuildContext context) {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          size: 25,
-                          color: Colors.red,
-                        ),
+                        icon: const Icon(Icons.close, size: 25, color: Colors.red),
                         // Smaller icon
                         padding: EdgeInsets.zero,
                         // Remove default padding
@@ -1213,9 +1233,7 @@ void showInstituteManagementDialog(BuildContext context) {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                           ),
                           onPressed: () {
                             if (addController.text.trim().isNotEmpty) {
@@ -1225,10 +1243,7 @@ void showInstituteManagementDialog(BuildContext context) {
                               });
                             }
                           },
-                          child: const Text(
-                            "Add",
-                            style: TextStyle(fontSize: 14, color: Colors.white),
-                          ),
+                          child: const Text("Add", style: TextStyle(fontSize: 14, color: Colors.white)),
                         ),
                       ),
                     ],
@@ -1239,12 +1254,7 @@ void showInstituteManagementDialog(BuildContext context) {
                   Expanded(
                     child:
                         institutes.isEmpty
-                            ? const Center(
-                              child: Text(
-                                'No institutes',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            )
+                            ? const Center(child: Text('No institutes', style: TextStyle(fontSize: 14)))
                             : ListView.builder(
                               shrinkWrap: true,
                               itemCount: institutes.length,
@@ -1260,24 +1270,14 @@ void showInstituteManagementDialog(BuildContext context) {
                                     // Makes tiles more compact
                                     visualDensity: VisualDensity.compact,
                                     // Even more compact
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    title: Text(
-                                      institutes[index],
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                                    title: Text(institutes[index], style: const TextStyle(fontSize: 14)),
                                     trailing: SizedBox(
-                                      width:
-                                          80, // Constrained width for buttons
+                                      width: 80, // Constrained width for buttons
                                       child: Row(
                                         children: [
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.edit,
-                                              size: 18,
-                                              color: Colors.green,
-                                            ),
+                                            icon: const Icon(Icons.edit, size: 18, color: Colors.green),
                                             padding: EdgeInsets.zero,
                                             onPressed:
                                                 () => _showEditDialog(
@@ -1289,11 +1289,7 @@ void showInstituteManagementDialog(BuildContext context) {
                                                 ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.delete,
-                                              size: 18,
-                                              color: Colors.red,
-                                            ),
+                                            icon: const Icon(Icons.delete, size: 18, color: Colors.red),
                                             padding: EdgeInsets.zero,
                                             onPressed: () {
                                               setState(() {
@@ -1354,19 +1350,9 @@ class CustomCompactInfoBox extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                title,
-                style:
-                    titleStyle ??
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
+              Text(title, style: titleStyle ?? const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style:
-                    subtitleStyle ??
-                    const TextStyle(fontSize: 13, color: Colors.black87),
-              ),
+              Text(subtitle, style: subtitleStyle ?? const TextStyle(fontSize: 13, color: Colors.black87)),
             ],
           ),
         ),

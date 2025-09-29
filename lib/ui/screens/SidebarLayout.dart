@@ -63,10 +63,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
     final storedUserId = prefs.getString('user_id');
 
     if (storedUserId != null && storedUserId.isNotEmpty) {
-      final accessProvider = Provider.of<SignupProvider>(
-        context,
-        listen: false,
-      );
+      final accessProvider = Provider.of<SignupProvider>(context, listen: false);
 
       await accessProvider.fetchUserAccess(storedUserId);
 
@@ -82,8 +79,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
     for (final item in sidebarItems) {
       item.isLocked = !(accessMap[item.accessKey] ?? false);
 
-      item.submenuLockStates =
-          item.submenuKeys.map((key) => !(accessMap[key] ?? false)).toList();
+      item.submenuLockStates = item.submenuKeys.map((key) => !(accessMap[key] ?? false)).toList();
     }
   }
 
@@ -122,10 +118,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SvgPicture.asset(
-                      'assets/images/home/ic_yahya_chodrary.svg',
-                      height: 35,
-                    ),
+                    SvgPicture.asset('assets/images/home/ic_yahya_chodrary.svg', height: 35),
                     SizedBox(height: 2),
                   ],
                 ),
@@ -145,10 +138,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                             color: Colors.grey.shade200,
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 3,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                           child: const TextField(
                             textAlign: TextAlign.left, // horizontal alignment
                             textAlignVertical: TextAlignVertical.center,
@@ -168,10 +158,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                         child: Container(
                           height: 38,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                          decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(30)),
                           child: const Icon(Icons.search, color: Colors.white),
                         ),
                       ),
@@ -213,15 +200,8 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                             Align(
                               alignment: Alignment.centerRight,
                               child: IconButton(
-                                icon: Icon(
-                                  isExpanded
-                                      ? Icons.arrow_back_ios
-                                      : Icons.menu,
-                                ),
-                                onPressed:
-                                    () => setState(
-                                      () => isExpanded = !isExpanded,
-                                    ),
+                                icon: Icon(isExpanded ? Icons.arrow_back_ios : Icons.menu),
+                                onPressed: () => setState(() => isExpanded = !isExpanded),
                               ),
                             ),
                             Expanded(
@@ -229,114 +209,65 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                 itemCount: sidebarItems.length,
                                 itemBuilder: (context, index) {
                                   final item = sidebarItems[index];
-                                  final isSelected =
-                                      _selectedSidebarIndex == index;
+                                  final isSelected = _selectedSidebarIndex == index;
 
                                   return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       InkWell(
                                         onTap: () {
                                           setState(() {
-                                            _selectedSidebarIndex =
-                                                (_selectedSidebarIndex == index)
-                                                    ? -1
-                                                    : index;
+                                            _selectedSidebarIndex = (_selectedSidebarIndex == index) ? -1 : index;
                                             _selectedSubmenuIndex = -1;
-                                            selectedItem =
-                                                NavItem.values[index];
+                                            selectedItem = NavItem.values[index];
                                           });
                                         },
                                         child: Container(
-                                          color:
-                                              isSelected
-                                                  ? Colors.red.shade50
-                                                  : Colors.transparent,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 18,
-                                          ),
+                                          color: isSelected ? Colors.red.shade50 : Colors.transparent,
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                                           child: Row(
                                             children: [
-                                              Icon(
-                                                item.icon,
-                                                color:
-                                                    isSelected
-                                                        ? Colors.red
-                                                        : Colors.black,
-                                                size: 18,
-                                              ),
+                                              Icon(item.icon, color: isSelected ? Colors.red : Colors.black, size: 18),
                                               if (isExpanded) ...[
                                                 const SizedBox(width: 20),
                                                 Expanded(
                                                   child: Text(
                                                     item.title,
                                                     style: TextStyle(
-                                                      color:
-                                                          isSelected
-                                                              ? Colors.red
-                                                              : Colors.black,
+                                                      color: isSelected ? Colors.red : Colors.black,
                                                       fontSize: 12,
-                                                      fontWeight:
-                                                          isSelected
-                                                              ? FontWeight.bold
-                                                              : FontWeight
-                                                                  .normal,
+                                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                                     ),
                                                   ),
                                                 ),
                                                 if (item.submenus.isNotEmpty)
                                                   Icon(
-                                                    isSelected
-                                                        ? Icons
-                                                            .keyboard_arrow_down
-                                                        : Icons
-                                                            .keyboard_arrow_right,
+                                                    isSelected ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
                                                     size: 16,
                                                     color: Colors.grey,
                                                   ),
                                                 // Show lock only if locked
                                                 if (item.isLocked == true)
-                                                  const Icon(
-                                                    Icons.lock,
-                                                    size: 16,
-                                                    color: Colors.red,
-                                                  ),
+                                                  const Icon(Icons.lock, size: 16, color: Colors.red),
                                               ],
                                             ],
                                           ),
                                         ),
                                       ),
                                       if (isSelected && isExpanded)
-                                        ...List.generate(item.submenus.length, (
-                                          i,
-                                        ) {
+                                        ...List.generate(item.submenus.length, (i) {
                                           final submenu = item.submenus[i];
-                                          final submenuSelected =
-                                              _selectedSubmenuIndex == i;
+                                          final submenuSelected = _selectedSubmenuIndex == i;
                                           final isSubmenuLocked =
-                                              item.submenuLockStates != null &&
-                                                      item
-                                                              .submenuLockStates!
-                                                              .length >
-                                                          i
+                                              item.submenuLockStates != null && item.submenuLockStates!.length > i
                                                   ? item.submenuLockStates![i]
                                                   : false;
 
                                           return Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 40,
-                                              top: 4,
-                                              bottom: 4,
-                                              right: 16,
-                                            ),
+                                            padding: const EdgeInsets.only(left: 40, top: 4, bottom: 4, right: 16),
                                             child: GestureDetector(
                                               onTap: () {
-                                                setState(
-                                                  () =>
-                                                      _selectedSubmenuIndex = i,
-                                                );
+                                                setState(() => _selectedSubmenuIndex = i);
                                               },
                                               child: Container(
                                                 height: 40,
@@ -349,17 +280,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                         submenu,
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          color:
-                                                              submenuSelected
-                                                                  ? Colors.red
-                                                                  : Colors
-                                                                      .black,
+                                                          color: submenuSelected ? Colors.red : Colors.black,
                                                           fontWeight:
-                                                              submenuSelected
-                                                                  ? FontWeight
-                                                                      .bold
-                                                                  : FontWeight
-                                                                      .normal,
+                                                              submenuSelected ? FontWeight.bold : FontWeight.normal,
                                                         ),
                                                       ),
                                                     ),
@@ -367,11 +290,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                     // Lock icon aligned to far right
                                                     // Lock icon for submenu
                                                     if (isSubmenuLocked)
-                                                      const Icon(
-                                                        Icons.lock,
-                                                        size: 16,
-                                                        color: Colors.red,
-                                                      ),
+                                                      const Icon(Icons.lock, size: 16, color: Colors.red),
                                                   ],
                                                 ),
                                               ),
@@ -394,19 +313,12 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                       defaultColor: Colors.green,
                       hoverColor: Colors.red,
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LogScreen()),
-                        );                      },
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LogScreen()));
+                      },
                     ),
                   ],
                 ),
-                Expanded(
-                  child: Container(
-                    color: Colors.grey.shade100,
-                    child: _buildScreenFor(selectedItem),
-                  ),
-                ),
+                Expanded(child: Container(color: Colors.grey.shade100, child: _buildScreenFor(selectedItem))),
               ],
             ),
           ),
@@ -420,9 +332,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   Widget _buildScreenFor(NavItem item) {
     if (_selectedSubmenuIndex != -1) {
       final submenu = sidebarItems[item.index].submenus[_selectedSubmenuIndex];
-      final isLocked =
-          sidebarItems[item.index].submenuLockStates?[_selectedSubmenuIndex] ??
-          true;
+      final isLocked = sidebarItems[item.index].submenuLockStates?[_selectedSubmenuIndex] ?? true;
 
       if (isLocked) {
         return const AbcScreen();
@@ -462,7 +372,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.notifications:
         return const Center(child: Text('Notifications Screen'));
       case NavItem.files:
-        return const Center(child: Text('Files Screen'));
+        return const Center(child: PreferencesScreen());
       case NavItem.settings:
         return const Center(child: Text('Settings Screen'));
     }
@@ -549,7 +459,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.settings:
         switch (submenu) {
           case 'Preferences':
-            return const Center(child: PreferencesScreen());
+            return const Center(child: Text('Settings > Preferences'));
           case 'Account':
             return const Center(child: Text('Settings > Account'));
           case 'Security':

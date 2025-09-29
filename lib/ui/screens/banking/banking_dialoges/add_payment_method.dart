@@ -87,7 +87,9 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
         ibnController.text.trim().isEmpty ||
         mobileNumber.text.trim().isEmpty ||
         bankAddress.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill in all required fields'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill in all required fields'), backgroundColor: Colors.red));
       return;
     }
 
@@ -162,29 +164,29 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.red),
                     onPressed: () async {
-                      final shouldClose = await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              backgroundColor: Colors.white,
-                              title: const Text("Are you sure?"),
-                              content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(false),
-                                  child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(true),
-                                  child: const Text("Close", style: TextStyle(color: Colors.red)),
-                                ),
-                              ],
-                            ),
-                      );
-                      if (shouldClose == true) {
-                        Navigator.of(context).pop();
-                      }
+                      // final shouldClose = await showDialog<bool>(
+                      //   context: context,
+                      //   builder:
+                      //       (context) => AlertDialog(
+                      //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      //         backgroundColor: Colors.white,
+                      //         title: const Text("Are you sure?"),
+                      //         content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                      //         actions: [
+                      //           TextButton(
+                      //             onPressed: () => Navigator.of(context).pop(false),
+                      //             child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
+                      //           ),
+                      //           TextButton(
+                      //             onPressed: () => Navigator.of(context).pop(true),
+                      //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                      //           ),
+                      //         ],
+                      //       ),
+                      // );
+                      // if (shouldClose == true) {
+                      Navigator.of(context).pop();
+                      // }
                     },
                   ),
                 ],
@@ -201,7 +203,7 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                   CustomTextField(label: "Account No", controller: accountNo, hintText: "xxxxxxxxx"),
                   CustomTextField(label: "IBN", controller: ibnController, hintText: "xxxxxxxxx"),
                   CustomTextField(label: "Mobile Number", controller: mobileNumber, hintText: "+972********"),
-                  CustomTextField(label: "Tag Add", controller: tagAdd, hintText: "NA",),
+                  CustomTextField(label: "Tag Add", controller: tagAdd, hintText: "NA"),
                   CustomTextField(label: "Bank Physical Address", controller: bankAddress, hintText: "xxxxxxx"),
                 ],
               ),
@@ -279,7 +281,10 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                         ),
                       if (isEditing) const SizedBox(width: 10),
                       CustomButton(
-                        text: provider.isLoading ? (isEditing ? "Updating..." : "Adding...") : (isEditing ? "Update" : "Submit"),
+                        text:
+                            provider.isLoading
+                                ? (isEditing ? "Updating..." : "Adding...")
+                                : (isEditing ? "Update" : "Submit"),
                         backgroundColor: isEditing ? Colors.blue : Colors.green,
                         onPressed: provider.isLoading ? () {} : _submitForm,
                       ),
@@ -349,7 +354,10 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                         Expanded(
                           child: Container(
                             height: 40,
-                            decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(6)),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             alignment: Alignment.centerLeft,
                             child: TextField(
@@ -402,7 +410,10 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                                 itemBuilder: (context, index) {
                                   return Container(
                                     margin: const EdgeInsets.only(bottom: 4),
-                                    decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
                                     child: ListTile(
                                       dense: true,
                                       // Makes tiles more compact
@@ -417,7 +428,14 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                                             IconButton(
                                               icon: const Icon(Icons.edit, size: 18, color: Colors.green),
                                               padding: EdgeInsets.zero,
-                                              onPressed: () => _showEditDialog(context, setState, institutes, index, editController),
+                                              onPressed:
+                                                  () => _showEditDialog(
+                                                    context,
+                                                    setState,
+                                                    institutes,
+                                                    index,
+                                                    editController,
+                                                  ),
                                             ),
                                             IconButton(
                                               icon: const Icon(Icons.delete, size: 18, color: Colors.red),
@@ -446,7 +464,13 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
     );
   }
 
-  void _showEditDialog(BuildContext context, StateSetter setState, List<String> institutes, int index, TextEditingController editController) {
+  void _showEditDialog(
+    BuildContext context,
+    StateSetter setState,
+    List<String> institutes,
+    int index,
+    TextEditingController editController,
+  ) {
     editController.text = institutes[index];
     showDialog(
       context: context,
@@ -474,7 +498,10 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(onPressed: () => Navigator.pop(editContext), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+                    TextButton(
+                      onPressed: () => Navigator.pop(editContext),
+                      child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                    ),
                     const SizedBox(width: 8),
                     CustomButton(
                       backgroundColor: Colors.blue,

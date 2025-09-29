@@ -25,6 +25,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
     _horizontalController.dispose();
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
@@ -37,7 +38,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
   bool _isHovering = false;
   DateTime selectedDateTime = DateTime.now();
 
-/*
+  /*
   Future<void> _pickDateTime(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -67,31 +68,13 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
   }
 */
 
-  final List<String> categories = [
-    'All',
-    'New',
-    'Pending',
-    'Completed',
-    'Stop',
-  ];
+  final List<String> categories = ['All', 'New', 'Pending', 'Completed', 'Stop'];
   String? selectedCategory;
-  final List<String> categories1 = [
-    'No Tags',
-    'Tag 001',
-    'Tag 002',
-    'Sample Tag',
-  ];
+  final List<String> categories1 = ['No Tags', 'Tag 001', 'Tag 002', 'Sample Tag'];
   String? selectedCategory1;
   final List<String> categories2 = ['All', 'Pending', 'Paid'];
   String? selectedCategory2;
-  final List<String> categories3 = [
-    'All',
-    'Toady',
-    'Yesterday',
-    'Last 7 Days',
-    'Last 30 Days',
-    'Custom Range',
-  ];
+  final List<String> categories3 = ['All', 'Toady', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +125,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                   setState(() => selectedCategory = newValue!);
                                 },
                               ),*/
-                              CustomDropdown(
+                              /*CustomDropdown(
                                 hintText: "Select Tags",
                                 selectedValue: selectedCategory1,
                                 items: categories1,
@@ -157,46 +140,33 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                 onChanged: (newValue) {
                                   setState(() => selectedCategory2 = newValue!);
                                 },
-                              ),
+                              ),*/
                             ],
                           ),
                         ),
                       ),
-                      /*Card(
-                        elevation: 8,
-                        color: Colors.blue,
+                      Card(
+                        elevation: 4,
+                        color: Colors.green,
                         shape: CircleBorder(),
-                        child: Builder(
-                          builder:
-                              (context) => Tooltip(
-                                message: 'Show menu',
-                                waitDuration: Duration(milliseconds: 2),
-                                child: GestureDetector(
-                                  key: _plusKey,
-                                  onTap: () async {
-                                    showOfficeSuppliesDialogue(context);
-                                  },
-                                  child: Container(
-                                    width: 30,
-                                    height: 30,
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                        child: Tooltip(
+                          message: 'Refresh',
+                          waitDuration: Duration(milliseconds: 2),
+                          child: GestureDetector(
+                            onTap: () {
+                              Provider.of<ExpenseProvider>(context, listen: false)
+                                  .fetchExpenses(expenseType: 'Office Supplies Expense');
+                            },
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              margin: const EdgeInsets.symmetric(horizontal: 5),
+                              decoration: const BoxDecoration(shape: BoxShape.circle),
+                              child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                            ),
+                          ),
                         ),
-                      ),*/
+                      ),
                     ],
                   ),
                 ),
@@ -212,9 +182,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                       }
 
                       if (provider.fetchState == RequestState.error) {
-                        return Center(
-                          child: Text(provider.fetchErrorMessage ?? "Error"),
-                        );
+                        return Center(child: Text(provider.fetchErrorMessage ?? "Error"));
                       }
 
                       if (provider.expenses.isEmpty) {
@@ -241,31 +209,26 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                 scrollDirection: Axis.vertical,
                                 controller: _verticalController,
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    minWidth: 1150,
-                                  ),
+                                  constraints: const BoxConstraints(minWidth: 1150),
                                   child: Table(
-                                    defaultVerticalAlignment:
-                                    TableCellVerticalAlignment.middle,
+                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                     columnWidths: const {
                                       0: FlexColumnWidth(1),
                                       1: FlexColumnWidth(1),
+                                      // 2: FlexColumnWidth(1),
                                       2: FlexColumnWidth(1),
                                       3: FlexColumnWidth(1),
                                       4: FlexColumnWidth(1),
                                       5: FlexColumnWidth(1),
-                                      6: FlexColumnWidth(1),
                                     },
                                     children: [
                                       // Header Row
                                       TableRow(
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.shade50,
-                                        ),
+                                        decoration: BoxDecoration(color: Colors.red.shade50),
                                         children: [
                                           _buildHeader("TID"),
                                           _buildHeader("Expenses Value"),
-                                          _buildHeader("Drop Down Tag"),
+                                          // _buildHeader("Drop Down Tag"),
                                           _buildHeader("Payment Status"),
                                           _buildHeader("Allocate"),
                                           _buildHeader("Note"),
@@ -273,72 +236,48 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                                         ],
                                       ),
                                       // Dynamic Rows
-                                      ...provider.expenses.asMap().entries.map((
-                                          entry,
-                                          ) {
+                                      ...provider.expenses.asMap().entries.map((entry) {
                                         final index = entry.key;
                                         final e = entry.value;
                                         return TableRow(
                                           decoration: BoxDecoration(
-                                            color:
-                                            index.isEven
-                                                ? Colors.grey.shade200
-                                                : Colors.grey.shade100,
+                                            color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
                                           ),
                                           children: [
-                                            _buildCell2(
-                                              e.expenseType,
-                                              e.tid,
-                                              copyable: true,
-                                            ),
+                                            _buildCell2(e.expenseType, e.tid, copyable: true),
                                             _buildCell(e.expenseAmount.toString()),
-                                            _buildCell('nil'),
+                                            // _buildCell('nil'),
                                             _buildCell(e.paymentStatus),
                                             _buildCell(e.allocatedAmount.toString()),
                                             _buildCell(e.note),
                                             _buildActionCell(
                                               onDelete: () async {
-                                                final expenseProvider =
-                                                Provider.of<
-                                                    ExpenseProvider
-                                                >(context, listen: false);
+                                                final expenseProvider = Provider.of<ExpenseProvider>(
+                                                  context,
+                                                  listen: false,
+                                                );
 
                                                 // Reset before new delete
                                                 expenseProvider.resetState();
 
-                                                await expenseProvider
-                                                    .deleteExpense(e.tid);
+                                                await expenseProvider.deleteExpense(e.tid);
 
-                                                if (expenseProvider.state ==
-                                                    RequestState.success) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
+                                                if (expenseProvider.state == RequestState.success) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                        expenseProvider
-                                                            .deleteResponse
-                                                            ?.message ??
+                                                        expenseProvider.deleteResponse?.message ??
                                                             "Expense deleted successfully",
                                                       ),
                                                     ),
                                                   );
 
                                                   // Refresh list
-                                                  expenseProvider
-                                                      .fetchExpenses(expenseType: 'Office Supplies Expense');
-                                                } else if (expenseProvider
-                                                    .state ==
-                                                    RequestState.error) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
+                                                  expenseProvider.fetchExpenses(expenseType: 'Office Supplies Expense');
+                                                } else if (expenseProvider.state == RequestState.error) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
                                                     SnackBar(
-                                                      content: Text(
-                                                        expenseProvider
-                                                            .errorMessage ??
-                                                            "Delete failed",
-                                                      ),
+                                                      content: Text(expenseProvider.errorMessage ?? "Delete failed"),
                                                     ),
                                                   );
                                                 }
@@ -401,20 +340,12 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -426,12 +357,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
     );
   }
 
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -443,32 +369,18 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
+                    Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
                     if (copyable)
                       GestureDetector(
                         onTap: () {
-                          Clipboard.setData(
-                            ClipboardData(text: "$text1\n$text2"),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Copied to clipboard'),
-                            ),
-                          );
+                          Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.copy,
-                            size: 14,
-                            color: Colors.blue[700],
-                          ),
+                          child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
                         ),
                       ),
                   ],
@@ -477,32 +389,18 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
               : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
+                  Flexible(child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54))),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 8,
-                          color: Colors.blue[700],
-                        ),
+                        child: Icon(Icons.copy, size: 8, color: Colors.blue[700]),
                       ),
                     ),
                 ],
@@ -520,11 +418,7 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
         padding: const EdgeInsets.only(left: 4.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -539,11 +433,11 @@ class _OfficeSuppliesExpanseState extends State<OfficeSuppliesExpanse> {
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
         ),
-        IconButton(
+        /*IconButton(
           icon: const Icon(Icons.delete, size: 20, color: Colors.blue),
           tooltip: 'delete',
           onPressed: onDelete ?? () {},
-        ),
+        ),*/
       ],
     );
   }

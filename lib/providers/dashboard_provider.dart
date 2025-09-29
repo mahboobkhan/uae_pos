@@ -10,18 +10,27 @@ class DashboardProvider extends ChangeNotifier {
   bool isClientsLoading = false;
   bool isProjectsLoading = false;
   bool isExpensesLoading = false;
+  bool isOverviewLoading = false;
 
   // Individual error messages for each chart
   String? paymentsErrorMessage;
   String? clientsErrorMessage;
   String? projectsErrorMessage;
   String? expensesErrorMessage;
+  String? overviewErrorMessage;
 
   // Individual success messages for each chart
   String? paymentsSuccessMessage;
   String? clientsSuccessMessage;
   String? projectsSuccessMessage;
   String? expensesSuccessMessage;
+  String? overviewSuccessMessage;
+
+  // Dashboard Overview Data
+  Map<String, dynamic>? dashboardStats;
+  Map<String, dynamic>? overviewSummary;
+  Map<String, dynamic>? overviewComparison;
+  Map<String, dynamic>? overviewPeriodInfo;
 
   // Payments Chart Data
   List<Map<String, dynamic>> paymentsChartData = [];
@@ -79,8 +88,13 @@ class DashboardProvider extends ChangeNotifier {
   String? expensesManager;
   String? expensesTag;
 
+  // Filter parameters for dashboard overview
+  String? overviewStartDate;
+  String? overviewEndDate;
+
   // Global loading state (only true when ALL are loading)
-  bool get isLoading => isPaymentsLoading || isClientsLoading || isProjectsLoading || isExpensesLoading;
+  bool get isLoading =>
+      isPaymentsLoading || isClientsLoading || isProjectsLoading || isExpensesLoading || isOverviewLoading;
 
   /// ✅ Get Payments Chart Data
   Future<void> getPaymentsChartData() async {
@@ -429,13 +443,80 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// ✅ Get Dashboard Overview Data
+  Future<void> getDashboardOverview() async {
+    isOverviewLoading = true;
+    overviewErrorMessage = null;
+    overviewSuccessMessage = null;
+    notifyListeners();
+
+    // Build query parameters for filtering
+    final Map<String, String> queryParams = {};
+    if (overviewStartDate != null && overviewStartDate!.isNotEmpty) {
+      queryParams['start_date'] = overviewStartDate!;
+    }
+    if (overviewEndDate != null && overviewEndDate!.isNotEmpty) {
+      queryParams['end_date'] = overviewEndDate!;
+    }
+
+    final url = Uri.parse("$baseUrl/get_overview.php").replace(queryParameters: queryParams);
+
+    try {
+      if (kDebugMode) {
+        print('Fetching dashboard overview data from: $url');
+      }
+
+      final response = await http.get(url);
+
+      if (kDebugMode) {
+        print('Dashboard overview response status: ${response.statusCode}');
+        print('Dashboard overview response body: ${response.body}');
+      }
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          dashboardStats = data['dashboard_stats'];
+          overviewSummary = data['summary'];
+          overviewComparison = data['comparison'];
+          overviewPeriodInfo = data['period_info'];
+          overviewSuccessMessage = "Dashboard overview data fetched successfully";
+          if (kDebugMode) {
+            print('Fetched dashboard overview data successfully');
+          }
+        } else {
+          dashboardStats = null;
+          overviewSummary = null;
+          overviewComparison = null;
+          overviewPeriodInfo = null;
+          overviewErrorMessage = data['message'] ?? "Failed to fetch dashboard overview data";
+          if (kDebugMode) {
+            print('Dashboard overview API returned error: $overviewErrorMessage');
+          }
+        }
+      } else {
+        overviewErrorMessage = "Error: ${response.statusCode} - ${response.reasonPhrase}";
+        if (kDebugMode) {
+          print('Dashboard overview HTTP error: $overviewErrorMessage');
+        }
+      }
+    } catch (e) {
+      overviewErrorMessage = "Network error: $e";
+      if (kDebugMode) {
+        print('Dashboard overview exception occurred: $e');
+      }
+    }
+
+    isOverviewLoading = false;
+    notifyListeners();
+  }
+
   /// ✅ Get All Dashboard Data
   Future<void> getAllDashboardData() async {
     try {
-      clearAllFilters();
-
-      // Fetch all chart data concurrently for better performance
+      // Fetch all dashboard data concurrently for better performance
       await Future.wait([
+        getDashboardOverview(),
         getPaymentsChartData(),
         getClientsChartData(),
         getProjectsChartData(),
@@ -519,6 +600,13 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Set filters for dashboard overview
+  void setOverviewFilters({String? startDate, String? endDate}) {
+    overviewStartDate = startDate;
+    overviewEndDate = endDate;
+    notifyListeners();
+  }
+
   /// Clear all filters
   void clearAllFilters() {
     // Clear payments filters
@@ -551,6 +639,10 @@ class DashboardProvider extends ChangeNotifier {
     expensesPaymentType = null;
     expensesManager = null;
     expensesTag = null;
+
+    // Clear overview filters
+    overviewStartDate = null;
+    overviewEndDate = null;
 
     notifyListeners();
   }
@@ -598,6 +690,13 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Clear overview filters
+  void clearOverviewFilters() {
+    overviewStartDate = null;
+    overviewEndDate = null;
+    notifyListeners();
+  }
+
   /// Clear individual messages
   void clearPaymentsMessages() {
     paymentsErrorMessage = null;
@@ -623,6 +722,12 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearOverviewMessages() {
+    overviewErrorMessage = null;
+    overviewSuccessMessage = null;
+    notifyListeners();
+  }
+
   /// Clear all messages
   void clearAllMessages() {
     paymentsErrorMessage = null;
@@ -633,6 +738,8 @@ class DashboardProvider extends ChangeNotifier {
     projectsSuccessMessage = null;
     expensesErrorMessage = null;
     expensesSuccessMessage = null;
+    overviewErrorMessage = null;
+    overviewSuccessMessage = null;
     notifyListeners();
   }
 
@@ -651,6 +758,10 @@ class DashboardProvider extends ChangeNotifier {
 
   Future<void> refreshExpensesData() async {
     await getExpensesChartData();
+  }
+
+  Future<void> refreshOverviewData() async {
+    await getDashboardOverview();
   }
 
   /// Helper methods to get specific data
@@ -683,4 +794,84 @@ class DashboardProvider extends ChangeNotifier {
   int get totalExpensesCount => expensesChartSummary?['total_expenses'] ?? 0;
   double get totalExpensesAmount => expensesChartSummary?['total_amount']?.toDouble() ?? 0.0;
   double get avgExpenseAmount => expensesChartSummary?['avg_expense_amount']?.toDouble() ?? 0.0;
+
+  // ===== Dashboard Overview formatted getters =====
+  String get dashboardRevenueFormatted {
+    return _getOverviewFormattedValue('revenue', fallbackKeys: ['total_revenue', 'revenue_amount']);
+  }
+
+  String get dashboardUsersFormatted {
+    return _getOverviewFormattedValue('users', fallbackKeys: ['total_users']);
+  }
+
+  String get dashboardClientsFormatted {
+    return _getOverviewFormattedValue('clients', fallbackKeys: ['total_clients']);
+  }
+
+  String get dashboardProjectsFormatted {
+    return _getOverviewFormattedValue('projects', fallbackKeys: ['total_projects']);
+  }
+
+  String get dashboardExpensesFormatted {
+    return _getOverviewFormattedValue('expenses', fallbackKeys: ['total_expenses', 'expenses_amount', 'total_amount']);
+  }
+
+  // Extract a numeric from overview maps trying multiple keys
+  num _getOverviewNumber(List<String> possibleKeys) {
+    num tryGet(Map<String, dynamic>? map, String key) {
+      final dynamic v = map != null ? map[key] : null;
+      if (v is num) return v;
+      if (v is String) {
+        final parsed = num.tryParse(v);
+        if (parsed != null) return parsed;
+      }
+      return 0;
+    }
+
+    for (final key in possibleKeys) {
+      final num fromStats = tryGet(dashboardStats, key);
+      if (fromStats != 0) return fromStats;
+    }
+    for (final key in possibleKeys) {
+      final num fromSummary = tryGet(overviewSummary, key);
+      if (fromSummary != 0) return fromSummary;
+    }
+    return 0;
+  }
+
+  // Format numbers like 1.2K, 3.4M, or plain without decimals when < 1000
+  String _formatCompactNumber(num value) {
+    final double d = value.toDouble();
+    if (d >= 1000000) {
+      return '${(d / 1000000).toStringAsFixed(1)}M';
+    } else if (d >= 1000) {
+      return '${(d / 1000).toStringAsFixed(1)}K';
+    }
+    if (d == d.roundToDouble()) {
+      return d.toInt().toString();
+    }
+    return d.toStringAsFixed(0);
+  }
+
+  // Prefer formatted_value from nested dashboard_stats → metric map; fallback to numeric keys
+  String _getOverviewFormattedValue(String metricKey, {List<String> fallbackKeys = const []}) {
+    final dynamic metric = dashboardStats != null ? dashboardStats![metricKey] : null;
+    if (metric is Map<String, dynamic>) {
+      final dynamic formatted = metric['formatted_value'];
+      if (formatted is String && formatted.isNotEmpty) {
+        return formatted;
+      }
+      final dynamic raw = metric['value'];
+      if (raw is num) return _formatCompactNumber(raw);
+      if (raw is String) {
+        final parsed = num.tryParse(raw);
+        if (parsed != null) return _formatCompactNumber(parsed);
+      }
+    }
+
+    // Fallback to legacy flat keys or summary
+    final List<String> keys = [metricKey, ...fallbackKeys];
+    final num value = _getOverviewNumber(keys);
+    return _formatCompactNumber(value);
+  }
 }

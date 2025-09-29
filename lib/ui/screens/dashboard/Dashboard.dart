@@ -11,15 +11,6 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  // Keep your existing static stats for top cards
-  final List<Map<String, dynamic>> stats = [
-    {'label': 'Revenue', 'value': '25K'},
-    {'label': 'Users', 'value': '1.2K'},
-    {'label': 'Orders', 'value': '320'},
-    {'label': 'Visits', 'value': '8.5K'},
-    {'label': 'Returns', 'value': '102'},
-  ];
-
   // Date filters for each chart
   DateTime? _paymentsStartDate;
   DateTime? _paymentsEndDate;
@@ -50,43 +41,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Keep your existing Top Cards (unchanged)
-              SizedBox(
-                height: 120,
-                child: Row(
-                  children:
-                      stats.map((stat) {
-                        return Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 6),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    stat['value'],
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      color: Colors.white,
-                                      fontFamily: 'Courier',
-                                      fontWeight: FontWeight.bold,
+              Consumer<DashboardProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isOverviewLoading) {
+                    return SizedBox(height: 120, child: Center(child: CircularProgressIndicator()));
+                  }
+
+                  final stats = [
+                    {'label': 'Revenue', 'value': provider.dashboardRevenueFormatted},
+                    {'label': 'Users', 'value': provider.dashboardUsersFormatted},
+                    {'label': 'Clients', 'value': provider.dashboardClientsFormatted},
+                    {'label': 'Projects', 'value': provider.dashboardProjectsFormatted},
+                    {'label': 'Expenses', 'value': provider.dashboardExpensesFormatted},
+                  ];
+
+                  return SizedBox(
+                    height: 120,
+                    child: Row(
+                      children:
+                          stats.map((stat) {
+                            return Expanded(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 6),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        stat['value'] ?? '',
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          color: Colors.white,
+                                          fontFamily: 'Courier',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(height: 8),
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        stat['label'] ?? '',
+                                        style: const TextStyle(fontSize: 14, color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 8),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(stat['label'], style: const TextStyle(fontSize: 14, color: Colors.white)),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                ),
+                              ),
+                            );
+                          }).toList(),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 32),
 

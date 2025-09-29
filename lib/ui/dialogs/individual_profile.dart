@@ -630,30 +630,30 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red),
                         onPressed: () async {
-                          final shouldClose = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  backgroundColor: Colors.white,
-                                  title: const Text("Are you sure?"),
-                                  content: const Text("Do you want to close this form? Unsaved changes may be lost."),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(false),
-                                      child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(true),
-                                      child: const Text("Close", style: TextStyle(color: Colors.red)),
-                                    ),
-                                  ],
-                                ),
-                          );
-
-                          if (shouldClose == true) {
-                            Navigator.of(context).pop(); // close the dialog
-                          }
+                          // final shouldClose = await showDialog<bool>(
+                          //   context: context,
+                          //   builder:
+                          //       (context) => AlertDialog(
+                          //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          //         backgroundColor: Colors.white,
+                          //         title: const Text("Are you sure?"),
+                          //         content: const Text("Do you want to close this form? Unsaved changes may be lost."),
+                          //         actions: [
+                          //           TextButton(
+                          //             onPressed: () => Navigator.of(context).pop(false),
+                          //             child: const Text("Keep Changes ", style: TextStyle(color: Colors.blue)),
+                          //           ),
+                          //           TextButton(
+                          //             onPressed: () => Navigator.of(context).pop(true),
+                          //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                          //           ),
+                          //         ],
+                          //       ),
+                          // );
+                          //
+                          // if (shouldClose == true) {
+                          Navigator.of(context).pop(); // close the dialog
+                          // }
                         },
                       ),
                     ],
@@ -666,27 +666,19 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  CustomTextField(label: "Client Name", hintText: "xyz", controller: clientNameController),
-                  CustomTextField(label: "Emirates ID ", controller: emiratesIdController, hintText: "1234"),
-                  CustomTextField(label: "Email ID ", controller: emailId, hintText: "456"),
-                  CustomTextField(label: "Contact Number ", controller: contactNumber, hintText: "xxxxxxxxx"),
-                  CustomTextField(label: "Contact Number 2", controller: contactNumber2, hintText: "xxxxxxxxx"),
-                  CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: "S.E.C.P"),
-                  CustomTextField(
-                    label: "E- Channel Login I'd",
-                    controller: channelLoginController,
-                    hintText: "S.E.C.P",
-                  ),
+                  CustomTextField(label: "Client Name", hintText: "", controller: clientNameController),
+                  CustomTextField(label: "Emirates ID ", controller: emiratesIdController, hintText: ""),
+                  CustomTextField(label: "Email ID ", controller: emailId, hintText: ""),
+                  CustomTextField(label: "Contact Number ", controller: contactNumber, hintText: ""),
+                  CustomTextField(label: "Contact Number 2", controller: contactNumber2, hintText: ""),
+                  CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: ""),
+                  CustomTextField(label: "E- Channel Login I'd", controller: channelLoginController, hintText: ""),
                   CustomTextField(
                     label: "E- Channel Login Password",
                     controller: channelPasswordController,
-                    hintText: "xxxxxxx",
+                    hintText: "",
                   ),
-                  CustomTextField(
-                    label: "Advance Payment TID",
-                    controller: advancePaymentController,
-                    hintText: "*****",
-                  ),
+                  CustomTextField(label: "Advance Payment TID", controller: advancePaymentController, hintText: ""),
                 ],
               ),
               SizedBox(height: 10),
@@ -704,7 +696,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                   ),
                   SizedBox(
                     width: 450,
-                    child: CustomTextField(label: "Note / Extra", controller: _noteController, hintText: 'xxxxx'),
+                    child: CustomTextField(label: "Note / Extra", controller: _noteController, hintText: ''),
                   ),
                 ],
               ),

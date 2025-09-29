@@ -13,8 +13,7 @@ class DialogueEditOfficeExpense extends StatefulWidget {
   const DialogueEditOfficeExpense({super.key, required this.expenseData});
 
   @override
-  State<DialogueEditOfficeExpense> createState() =>
-      _DialogueEditOfficeExpenseState();
+  State<DialogueEditOfficeExpense> createState() => _DialogueEditOfficeExpenseState();
 }
 
 class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
@@ -27,16 +26,10 @@ class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
   @override
   void initState() {
     super.initState();
-    expenseNameController = TextEditingController(
-      text: widget.expenseData["expense_name"],
-    );
-    expenseAmountController = TextEditingController(
-      text: widget.expenseData["expense_amount"].toString(),
-    );
+    expenseNameController = TextEditingController(text: widget.expenseData["expense_name"]);
+    expenseAmountController = TextEditingController(text: widget.expenseData["expense_amount"].toString());
     noteController = TextEditingController(text: widget.expenseData["note"]);
-    allocatedAmount = TextEditingController(
-      text: widget.expenseData["allocated_amount"]?.toString() ?? "",
-    );
+    allocatedAmount = TextEditingController(text: widget.expenseData["allocated_amount"]?.toString() ?? "");
   }
 
   @override
@@ -59,53 +52,49 @@ class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
                     children: [
                       const Text(
                         "Change the Dialog",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
                       ),
                       Spacer(),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red),
                         onPressed: () async {
-                          final shouldClose = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              backgroundColor: Colors.white,
-                              title: const Text("Are you sure?"),
-                              content: const Text(
-                                "Do you want to close this form? Unsaved changes may be lost.",
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () =>
-                                      Navigator.of(context).pop(false),
-                                  child: const Text(
-                                    "Keep Changes ",
-                                    style: TextStyle(color: Colors.blue),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.of(context).pop(true),
-                                  child: const Text(
-                                    "Close",
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-
-                          if (shouldClose == true) {
-                            Navigator.of(context).pop(); // close the dialog
-                          }
+                          // final shouldClose = await showDialog<bool>(
+                          //   context: context,
+                          //   builder:
+                          //       (context) => AlertDialog(
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(8),
+                          //     ),
+                          //     backgroundColor: Colors.white,
+                          //     title: const Text("Are you sure?"),
+                          //     content: const Text(
+                          //       "Do you want to close this form? Unsaved changes may be lost.",
+                          //     ),
+                          //     actions: [
+                          //       TextButton(
+                          //         onPressed:
+                          //             () =>
+                          //             Navigator.of(context).pop(false),
+                          //         child: const Text(
+                          //           "Keep Changes ",
+                          //           style: TextStyle(color: Colors.blue),
+                          //         ),
+                          //       ),
+                          //       TextButton(
+                          //         onPressed:
+                          //             () => Navigator.of(context).pop(true),
+                          //         child: const Text(
+                          //           "Close",
+                          //           style: TextStyle(color: Colors.red),
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // );
+                          //
+                          // if (shouldClose == true) {
+                          Navigator.of(context).pop(); // close the dialog
+                          // }
                         },
                       ),
                     ],
@@ -126,11 +115,7 @@ class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
                         hintText: 'Expense Amount',
                         keyboardType: TextInputType.number,
                       ),
-                      CustomTextField(
-                        controller: noteController,
-                        label: 'Note',
-                        hintText: 'Note',
-                      ),
+                      CustomTextField(controller: noteController, label: 'Note', hintText: 'Note'),
                       CustomTextField(
                         controller: allocatedAmount,
                         label: 'Allocated Amount',
@@ -148,9 +133,7 @@ class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          CustomButton(
-                            onPressed: () => Navigator.pop(context), text: 'Cancel',
-                          ),
+                          CustomButton(onPressed: () => Navigator.pop(context), text: 'Cancel'),
                           const SizedBox(width: 10),
                           CustomButton(
                             text: 'Save',

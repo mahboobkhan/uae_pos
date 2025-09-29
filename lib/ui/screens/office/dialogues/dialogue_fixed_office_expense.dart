@@ -12,12 +12,10 @@ class DialogueFixedOfficeExpense extends StatefulWidget {
   const DialogueFixedOfficeExpense({super.key});
 
   @override
-  State<DialogueFixedOfficeExpense> createState() =>
-      _DialogueFixedOfficeExpenseState();
+  State<DialogueFixedOfficeExpense> createState() => _DialogueFixedOfficeExpenseState();
 }
 
-class _DialogueFixedOfficeExpenseState
-    extends State<DialogueFixedOfficeExpense> {
+class _DialogueFixedOfficeExpenseState extends State<DialogueFixedOfficeExpense> {
   DateTime selectedDateTime = DateTime.now();
   String? selectedExpense;
 
@@ -40,9 +38,7 @@ class _DialogueFixedOfficeExpenseState
     _payByController = TextEditingController();
     _receivedByController = TextEditingController();
     _expanseNameController = TextEditingController();
-    _issueDateController = TextEditingController(
-      text: DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime),
-    );
+    _issueDateController = TextEditingController(text: DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime));
   }
 
   @override
@@ -79,9 +75,7 @@ class _DialogueFixedOfficeExpenseState
               onPressed: () {
                 setState(() {
                   selectedDateTime = tempDate;
-                  _issueDateController.text = DateFormat(
-                    "dd-MM-yyyy - hh:mm a",
-                  ).format(tempDate);
+                  _issueDateController.text = DateFormat("dd-MM-yyyy - hh:mm a").format(tempDate);
                 });
                 Navigator.pop(context);
               },
@@ -93,7 +87,7 @@ class _DialogueFixedOfficeExpenseState
     );
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Consumer<ExpenseProvider>(
       builder: (context, provider, child) {
@@ -114,52 +108,48 @@ class _DialogueFixedOfficeExpenseState
                     children: [
                       const Text(
                         "Fixed Office Expense",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
                       ),
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red),
                         onPressed: () async {
-                          final shouldClose = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  backgroundColor: Colors.white,
-                                  title: const Text("Are you sure?"),
-                                  content: const Text(
-                                    "Do you want to close this form? Unsaved changes may be lost.",
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(context).pop(false),
-                                      child: const Text(
-                                        "Keep Changes",
-                                        style: TextStyle(color: Colors.blue),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(context).pop(true),
-                                      child: const Text(
-                                        "Close",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                          );
-
-                          if (shouldClose == true) {
-                            Navigator.of(context).pop();
-                          }
+                          // final shouldClose = await showDialog<bool>(
+                          //   context: context,
+                          //   builder:
+                          //       (context) => AlertDialog(
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(8),
+                          //         ),
+                          //         backgroundColor: Colors.white,
+                          //         title: const Text("Are you sure?"),
+                          //         content: const Text(
+                          //           "Do you want to close this form? Unsaved changes may be lost.",
+                          //         ),
+                          //         actions: [
+                          //           TextButton(
+                          //             onPressed:
+                          //                 () => Navigator.of(context).pop(false),
+                          //             child: const Text(
+                          //               "Keep Changes",
+                          //               style: TextStyle(color: Colors.blue),
+                          //             ),
+                          //           ),
+                          //           TextButton(
+                          //             onPressed:
+                          //                 () => Navigator.of(context).pop(true),
+                          //             child: const Text(
+                          //               "Close",
+                          //               style: TextStyle(color: Colors.red),
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          // );
+                          //
+                          // if (shouldClose == true) {
+                          Navigator.of(context).pop();
+                          // }
                         },
                       ),
                     ],
@@ -171,26 +161,10 @@ class _DialogueFixedOfficeExpenseState
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      CustomTextField(
-                        label: "Expense Name",
-                        hintText: '',
-                        controller: _expanseNameController,
-                      ),
-                      CustomTextField(
-                        label: "Expense Value",
-                        controller: _expanseValueController,
-                        hintText: '500-AED',
-                      ),
-                      CustomTextField(
-                        label: "Pay By",
-                        controller: _payByController,
-                        hintText: '500',
-                      ),
-                      CustomTextField(
-                        label: "Received By",
-                        controller: _receivedByController,
-                        hintText: '500',
-                      ),
+                      CustomTextField(label: "Expense Name", hintText: '', controller: _expanseNameController),
+                      CustomTextField(label: "Expense Value", controller: _expanseValueController, hintText: '500-AED'),
+                      CustomTextField(label: "Pay By", controller: _payByController, hintText: '500'),
+                      CustomTextField(label: "Received By", controller: _receivedByController, hintText: '500'),
                       CustomTextField(
                         label: "Allocate Balance",
                         controller: _allocateBalanceController,
@@ -202,75 +176,56 @@ class _DialogueFixedOfficeExpenseState
                   const SizedBox(height: 20),
 
                   // Show loading and error states
-                  if (provider.state == RequestState.loading)
-                    const LinearProgressIndicator(),
+                  if (provider.state == RequestState.loading) const LinearProgressIndicator(),
 
                   if (provider.state == RequestState.error)
-                    Text(
-                      provider.errorMessage ?? "Something went wrong",
-                      style: const TextStyle(color: Colors.red),
-                    ),
+                    Text(provider.errorMessage ?? "Something went wrong", style: const TextStyle(color: Colors.red)),
 
                   if (provider.state == RequestState.success)
-                    Text(
-                      provider.response?.message ?? "Expense Created!",
-                      style: const TextStyle(color: Colors.green),
-                    ),
+                    Text(provider.response?.message ?? "Expense Created!", style: const TextStyle(color: Colors.green)),
 
                   const SizedBox(height: 20),
 
                   // Action Buttons
                   Row(
                     children: [
-                      CustomButton(
-                        text: "Stop",
-                        backgroundColor: Colors.red,
-                        onPressed: () {},
-                      ),
+                      CustomButton(text: "Stop", backgroundColor: Colors.red, onPressed: () {}),
+                      const SizedBox(width: 10),
+                      CustomButton(text: "Editing", backgroundColor: Colors.blue, onPressed: () {}),
                       const SizedBox(width: 10),
                       CustomButton(
-                        text: "Editing",
-                        backgroundColor: Colors.blue,
-                        onPressed: () {},
-                      ),
-                      const SizedBox(width: 10),
-                      CustomButton(
-                        text: provider.state == RequestState.loading
-                            ? "Submitting..."
-                            : "Submit",
+                        text: provider.state == RequestState.loading ? "Submitting..." : "Submit",
                         backgroundColor: Colors.green,
-                        onPressed: provider.state == RequestState.loading
-                            ? () {} // Empty function when loading
-                            : () {
-                          final expense = ExpenseRequest(
-                            expenseType: "Fixed Office Expense",
-                            expenseName: _expanseNameController.text.trim(),
-                            expenseAmount: double.tryParse(
-                                _expanseValueController.text.trim()) ?? 0,
-                            allocatedAmount: double.tryParse(
-                                _allocateBalanceController.text.trim()) ?? 0,
-                            note: _customNoteController.text.trim(),
-                            tag: "office",
-                            payByManager: _payByController.text.trim(),
-                            receivedByPerson: _receivedByController.text.trim(),
-                            editBy: "Admin",
-                            paymentStatus: "pending",
-                            expenseDate: DateFormat("yyyy-MM-dd HH:mm:ss").format(selectedDateTime),
-                          );
+                        onPressed:
+                            provider.state == RequestState.loading
+                                ? () {} // Empty function when loading
+                                : () {
+                                  final expense = ExpenseRequest(
+                                    expenseType: "Fixed Office Expense",
+                                    expenseName: _expanseNameController.text.trim(),
+                                    expenseAmount: double.tryParse(_expanseValueController.text.trim()) ?? 0,
+                                    allocatedAmount: double.tryParse(_allocateBalanceController.text.trim()) ?? 0,
+                                    note: _customNoteController.text.trim(),
+                                    tag: "office",
+                                    payByManager: _payByController.text.trim(),
+                                    receivedByPerson: _receivedByController.text.trim(),
+                                    editBy: "Admin",
+                                    paymentStatus: "pending",
+                                    expenseDate: DateFormat("yyyy-MM-dd HH:mm:ss").format(selectedDateTime),
+                                  );
 
-                          provider.createExpense(expense).then((_) {
-                            if (provider.state == RequestState.success) {
-                              Navigator.pop(context); // auto-close
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(provider.response?.message ??
-                                      "Expense Created!"),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            }
-                          });
-                        },
+                                  provider.createExpense(expense).then((_) {
+                                    if (provider.state == RequestState.success) {
+                                      Navigator.pop(context); // auto-close
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(provider.response?.message ?? "Expense Created!"),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    }
+                                  });
+                                },
                       ),
                       const Spacer(),
                       Material(
@@ -278,11 +233,7 @@ class _DialogueFixedOfficeExpenseState
                         color: Colors.blue,
                         shape: const CircleBorder(),
                         child: IconButton(
-                          icon: const Icon(
-                            Icons.print,
-                            color: Colors.white,
-                            size: 20,
-                          ),
+                          icon: const Icon(Icons.print, color: Colors.white, size: 20),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -318,11 +269,7 @@ class _DialogueFixedOfficeExpenseState
               labelText: "Date and Time",
               labelStyle: TextStyle(fontSize: 16, color: Colors.grey),
               border: OutlineInputBorder(),
-              suffixIcon: Icon(
-                Icons.calendar_month_outlined,
-                color: Colors.red,
-                size: 22,
-              ),
+              suffixIcon: Icon(Icons.calendar_month_outlined, color: Colors.red, size: 22),
             ),
           ),
         ),
@@ -331,11 +278,7 @@ class _DialogueFixedOfficeExpenseState
   }
 }
 
-Widget _buildTextField(
-  String label,
-  TextEditingController controller, {
-  double width = 220,
-}) {
+Widget _buildTextField(String label, TextEditingController controller, {double width = 220}) {
   return SizedBox(
     width: width,
     child: TextField(
@@ -345,21 +288,13 @@ Widget _buildTextField(
         labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
         labelText: label,
         border: const OutlineInputBorder(),
-        enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.red),
-        ),
+        enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
       ),
     ),
   );
 }
 
 void showFixedOfficeExpanseDialogue(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => const DialogueFixedOfficeExpense(),
-  );
+  showDialog(context: context, barrierDismissible: false, builder: (context) => const DialogueFixedOfficeExpense());
 }

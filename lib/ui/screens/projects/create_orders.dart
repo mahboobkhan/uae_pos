@@ -426,7 +426,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                                 child: SizedBox(
                                   height: 30,
                                   width: 30,
-                                  child: const Center(child: Icon(Icons.edit_outlined, color: Colors.white, size: 16)),
+                                  child: const Center(child: Icon(Icons.add, color: Colors.white, size: 16)),
                                 ),
                               ),
                             ),
