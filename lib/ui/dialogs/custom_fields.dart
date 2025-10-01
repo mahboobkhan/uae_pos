@@ -338,6 +338,8 @@ class CustomTextField1 extends StatelessWidget {
   final TextInputType keyboardType;
   final double? width;
   final String? text;
+  final bool enabled;
+
 
   const CustomTextField1({
     super.key,
@@ -346,36 +348,40 @@ class CustomTextField1 extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.width,
     this.text = '',
+    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width, // Agar null ho to parent width use karega
-      child: TextField(
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-          filled: true,
-          fillColor: Colors.white,
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
+    return IgnorePointer(
+      ignoring: !enabled,
+      child: SizedBox(
+        width: width, // Agar null ho to parent width use karega
+        child: TextField(
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+            filled: true,
+            fillColor: Colors.white,
+            enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red, width: 1),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 14,
+            ),
           ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 1),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 14,
-          ),
+          controller: TextEditingController(text: text),
+          keyboardType: keyboardType,
+          inputFormatters: [
+            if (keyboardType == TextInputType.number) FilteringTextInputFormatter.digitsOnly
+          ],
+          style: const TextStyle(fontSize: 16, color: Colors.black),
+          onChanged: onChanged,
         ),
-        controller: TextEditingController(text: text),
-        keyboardType: keyboardType,
-        inputFormatters: [
-          if (keyboardType == TextInputType.number) FilteringTextInputFormatter.digitsOnly
-        ],
-        style: const TextStyle(fontSize: 16, color: Colors.black),
-        onChanged: onChanged,
       ),
     );
   }

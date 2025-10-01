@@ -124,11 +124,12 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                 ),
                 const SizedBox(width: 24),
                 // Centered Search bar with button
-                Expanded(
+                Spacer(),
+                /*Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Material(
+                     *//* Material(
                         elevation: 4,
                         borderRadius: BorderRadius.circular(30),
                         child: Container(
@@ -161,10 +162,10 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                           decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(30)),
                           child: const Icon(Icons.search, color: Colors.white),
                         ),
-                      ),
+                      ),*//*
                     ],
                   ),
-                ),
+                ),*/
                 // User info right side
                 GestureDetector(
                   onTap: () {

@@ -16,6 +16,7 @@ import 'package:abc_consultant/providers/documents_provider.dart';
 import 'package:abc_consultant/providers/project_stage_provider.dart';
 import 'package:abc_consultant/providers/projects_provider.dart';
 import 'package:abc_consultant/providers/service_category_provider.dart';
+import 'package:abc_consultant/providers/short_service_category_provider.dart';
 import 'package:abc_consultant/providers/short_services_provider.dart';
 import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:abc_consultant/providers/update_ban_account_provider.dart';
@@ -69,6 +70,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => DocumentsProvider()),
         ChangeNotifierProvider(create: (_) => BankingPaymentMethodProvider()),
         ChangeNotifierProvider(create: (_) => BankingPaymentsProvider()),
+        ChangeNotifierProvider(create: (_) => ShortServiceCategoryProvider()),
       ],
 
       child: const MyApp(),
