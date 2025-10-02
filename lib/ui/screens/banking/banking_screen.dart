@@ -292,7 +292,7 @@ class _BankingScreenState extends State<BankingScreen> {
                           GestureDetector(
                             onTap: () => showBankTransactionDialog(context),
                             child: Tooltip(
-                              message: 'Client transaction',
+                              message: 'Client Transaction',
                               child: Container(
                                 width: 30,
                                 height: 30,
@@ -318,7 +318,7 @@ class _BankingScreenState extends State<BankingScreen> {
                           GestureDetector(
                             onTap: () => showEmployeeTypeDialog(context),
                             child: Tooltip(
-                              message: 'Employee type',
+                              message: 'Employee Transaction',
                               child: Container(
                                 width: 30,
                                 height: 30,
@@ -423,7 +423,7 @@ class _BankingScreenState extends State<BankingScreen> {
                                           _buildHeader("Date"),
                                           _buildHeader("Payment Ref"),
                                           _buildHeader("Type"),
-                                          _buildHeader("Client Ref"),
+                                          _buildHeader("Reference"),
                                           _buildHeader("Amount"),
                                           _buildHeader("Status"),
                                           // _buildHeader("Action"),

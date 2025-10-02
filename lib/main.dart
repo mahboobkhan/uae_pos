@@ -13,6 +13,7 @@ import 'package:abc_consultant/providers/desigination_provider.dart';
 import 'package:abc_consultant/providers/designation_delete_provider.dart';
 import 'package:abc_consultant/providers/designation_list_provider.dart';
 import 'package:abc_consultant/providers/documents_provider.dart';
+import 'package:abc_consultant/providers/employee_payments_provider.dart';
 import 'package:abc_consultant/providers/project_stage_provider.dart';
 import 'package:abc_consultant/providers/projects_provider.dart';
 import 'package:abc_consultant/providers/service_category_provider.dart';
@@ -71,6 +72,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => BankingPaymentMethodProvider()),
         ChangeNotifierProvider(create: (_) => BankingPaymentsProvider()),
         ChangeNotifierProvider(create: (_) => ShortServiceCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => EmployeePaymentsProvider()),
       ],
 
       child: const MyApp(),

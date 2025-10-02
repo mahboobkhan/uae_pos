@@ -1519,12 +1519,29 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
           SizedBox(height: 10),
 
-          // Application IDs
+          // Applications
           Wrap(
             spacing: 10,
             runSpacing: 10,
             children: [
-              if (stage['application_ids'] != null && stage['application_ids'] is List)
+              if (stage['applications'] != null && stage['applications'] is List)
+                ...(stage['applications'] as List).asMap().entries.map((entry) {
+                  final appIndex = entry.key;
+                  final app = entry.value;
+                  final appId = app['application']?.toString() ?? app['id']?.toString() ?? '';
+                  final appName = app['department']?.toString() ?? app['name']?.toString() ?? '';
+                  return SizedBox(
+                    width: 195,
+                    child: CustomTextField(
+                      label: appName.isNotEmpty ? appName : "Application ${appIndex + 1}",
+                      hintText: appId,
+                      controller: TextEditingController(text: appId),
+                      enabled: false,
+                    ),
+                  );
+                }).toList()
+              else if (stage['application_ids'] != null && stage['application_ids'] is List)
+                // Fallback for old format
                 ...(stage['application_ids'] as List).asMap().entries.map((entry) {
                   final appIndex = entry.key;
                   final appId = entry.value.toString();
@@ -1534,7 +1551,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       label: "Application ID-${appIndex + 1}",
                       hintText: appId,
                       controller: TextEditingController(text: appId),
-                      enabled: !isStageEnded,
+                      enabled: false,
                     ),
                   );
                 }).toList(),
@@ -1668,6 +1685,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     final stepCostController = TextEditingController();
     final additionalProfitController = TextEditingController();
     final applicationIdsController = TextEditingController();
+    final applicationNamesController = TextEditingController();
 
     showDialog(
       context: context,
@@ -1676,13 +1694,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             title: Text("Add New Stage"),
             content: SizedBox(
-              width: 400,
+              width: 500,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CustomTextField(label: "Service Department", controller: serviceDepartmentController, hintText: ""),
-                  // SizedBox(height: 16),
-                  /*CustomTextField(
+                  /*SizedBox(height: 16),
+                  CustomTextField(
                     label: "Step Cost",
                     controller: stepCostController,
                     hintText: "5000.00",
@@ -1695,12 +1713,18 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     hintText: "1200.00",
                     keyboardType: TextInputType.number,
                   ),*/
-                  SizedBox(height: 16),
+                  /*SizedBox(height: 16),
+                  CustomTextField(
+                    label: "Application Names/Departments (comma separated)",
+                    controller: applicationNamesController,
+                    hintText: "",
+                  ),
                   CustomTextField(
                     label: "Application IDs (comma separated)",
                     controller: applicationIdsController,
                     hintText: "APP-1, APP-2, APP-3",
-                  ),
+                  ),*/
+                  SizedBox(height: 16),
                 ],
               ),
             ),
@@ -1725,11 +1749,27 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           .where((id) => id.isNotEmpty)
                           .toList();
 
+                  final applicationNames =
+                      applicationNamesController.text
+                          .split(',')
+                          .map((name) => name.trim())
+                          .where((name) => name.isNotEmpty)
+                          .toList();
+
+                  // Create applications list with both ID and name
+                  List<Map<String, String>> applications = [];
+                  for (int i = 0; i < applicationIds.length; i++) {
+                    applications.add({
+                      "application": applicationIds[i],
+                      "department": i < applicationNames.length ? applicationNames[i] : applicationIds[i],
+                    });
+                  }
+
                   final provider = context.read<ProjectStageProvider>();
                   await provider.addProjectStage(
                     projectRefId: widget.projectData!['project_ref_id'],
                     serviceDepartment: serviceDepartmentController.text.trim(),
-                    applicationIds: applicationIds,
+                    applications: applications,
                     stepCost: stepCostController.text.trim(),
                     additionalProfit:
                         additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
@@ -1756,9 +1796,31 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   void _showEditStageDialog(BuildContext context, Map<String, dynamic> stage) {
     final stepCostController = TextEditingController(text: stage['step_cost'] ?? '');
     final additionalProfitController = TextEditingController(text: stage['additional_profit'] ?? '');
-    final applicationIdsController = TextEditingController(
-      text: stage['application_ids'] != null ? (stage['application_ids'] as List).join(', ') : '',
-    );
+
+    // Parse existing applications
+    String applicationIdsText = '';
+    String applicationNamesText = '';
+    if (stage['applications'] != null && stage['applications'] is List) {
+      final applications = stage['applications'] as List;
+      final ids = <String>[];
+      final names = <String>[];
+
+      for (final app in applications) {
+        if (app is Map<String, dynamic>) {
+          ids.add(app['application']?.toString() ?? app['id']?.toString() ?? '');
+          names.add(app['department']?.toString() ?? app['name']?.toString() ?? '');
+        }
+      }
+
+      applicationIdsText = ids.join(', ');
+      applicationNamesText = names.join(', ');
+    } else if (stage['application_ids'] != null) {
+      // Fallback for old format
+      applicationIdsText = (stage['application_ids'] as List).join(', ');
+    }
+
+    final applicationIdsController = TextEditingController(text: applicationIdsText);
+    final applicationNamesController = TextEditingController(text: applicationNamesText);
 
     showDialog(
       context: context,
@@ -1767,12 +1829,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             title: Text("Edit Stage"),
             content: SizedBox(
-              width: 400,
+              width: 500,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   InfoBoxNoColor(label: stage['service_department'] ?? 'N/A', value: 'Service Department (Read Only)'),
-                  SizedBox(height: 16),
+                  /*SizedBox(height: 16),
                   CustomTextField(
                     label: "Step Cost",
                     controller: stepCostController,
@@ -1785,13 +1847,19 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     controller: additionalProfitController,
                     hintText: "1200.00",
                     keyboardType: TextInputType.number,
-                  ),
+                  ),*/
                   SizedBox(height: 16),
-                  CustomTextField(
+                  /*CustomTextField(
                     label: "Application IDs (comma separated)",
                     controller: applicationIdsController,
                     hintText: "APP-1, APP-2, APP-3",
                   ),
+                  SizedBox(height: 16),
+                  CustomTextField(
+                    label: "Application Names/Departments (comma separated)",
+                    controller: applicationNamesController,
+                    hintText: "Main Panel Installation, Sub Panel Wiring, Final Load Testing",
+                  ),*/
                 ],
               ),
             ),
@@ -1811,13 +1879,29 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           .where((id) => id.isNotEmpty)
                           .toList();
 
+                  final applicationNames =
+                      applicationNamesController.text
+                          .split(',')
+                          .map((name) => name.trim())
+                          .where((name) => name.isNotEmpty)
+                          .toList();
+
+                  // Create applications list with both ID and name
+                  List<Map<String, String>> applications = [];
+                  for (int i = 0; i < applicationIds.length; i++) {
+                    applications.add({
+                      "id": applicationIds[i],
+                      "name": i < applicationNames.length ? applicationNames[i] : applicationIds[i],
+                    });
+                  }
+
                   final provider = context.read<ProjectStageProvider>();
                   await provider.updateProjectStage(
                     projectStageRefId: stage['project_stage_ref_id'],
                     stepCost: stepCostController.text.trim().isEmpty ? null : stepCostController.text.trim(),
                     additionalProfit:
                         additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
-                    applicationIds: applicationIds.isEmpty ? null : applicationIds,
+                    // applications: applications.isEmpty ? null : applications,
                   );
                   // After editing a stage, ensure project is in-progress if not locked
                   if (!_isProjectLocked) {
@@ -1840,19 +1924,26 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   /// Show add application dialog
   void _showAddApplicationDialog(BuildContext context, Map<String, dynamic> stage, ProjectStageProvider provider) {
     final applicationIdController = TextEditingController();
+    final applicationNameController = TextEditingController();
 
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text("Add Application ID"),
+            title: Text("Add Application"),
             content: SizedBox(
-              width: 300,
+              width: 400,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CustomTextField(label: "Application ID", controller: applicationIdController, hintText: "APP-4"),
+                  CustomTextField(
+                    label: "Application Name/Department",
+                    controller: applicationNameController,
+                    hintText: "",
+                  ),
+                  SizedBox(height: 16),
+                  CustomTextField(label: "Application ID", controller: applicationIdController, hintText: ""),
                 ],
               ),
             ),
@@ -1870,15 +1961,39 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     return;
                   }
 
-                  final currentIds = List<String>.from(stage['application_ids'] ?? []);
-                  currentIds.add(applicationIdController.text.trim());
+                  // Get current applications
+                  List<Map<String, String>> currentApplications = [];
+                  if (stage['applications'] != null && stage['applications'] is List) {
+                    for (final app in stage['applications']) {
+                      if (app is Map<String, dynamic>) {
+                        currentApplications.add({
+                          "application": app['application']?.toString() ?? app['application']?.toString() ?? '',
+                          "department": app['department']?.toString() ?? app['department']?.toString() ?? '',
+                        });
+                      }
+                    }
+                  } else if (stage['application_ids'] != null) {
+                    // Fallback for old format
+                    for (final id in stage['application_ids']) {
+                      currentApplications.add({"application": id.toString(), "department": id.toString()});
+                    }
+                  }
+
+                  // Add new application
+                  currentApplications.add({
+                    "application": applicationIdController.text.trim(),
+                    "department":
+                        applicationNameController.text.trim().isEmpty
+                            ? applicationIdController.text.trim()
+                            : applicationNameController.text.trim(),
+                  });
 
                   await provider.updateProjectStage(
                     projectStageRefId: stage['project_stage_ref_id'],
-                    applicationIds: currentIds,
+                    applications: currentApplications,
                   );
 
-                  // Refresh calculations after adding application ID
+                  // Refresh calculations after adding application
                   if (mounted) {
                     setState(() {});
                   }

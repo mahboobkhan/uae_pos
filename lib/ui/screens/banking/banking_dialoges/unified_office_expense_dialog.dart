@@ -296,11 +296,11 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                 controller: _expenseAmountController,
                                 hintText: '500-AED',
                               ),
-                              CustomTextField(
+                              /*CustomTextField(
                                 label: "Allocate Balance",
                                 controller: _allocateBalanceController,
                                 hintText: '500',
-                              ),
+                              ),*/
                             ],
                           ),
 
@@ -317,7 +317,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                 controller: _receivedByController,
                                 hintText: 'Received By',
                               ),
-                              _buildDateTimeField(),
+                              // _buildDateTimeField(),
                             ],
                           ),
 

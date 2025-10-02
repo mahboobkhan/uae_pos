@@ -5,7 +5,7 @@ enum NavItem {
   employees,
   banking,
   expenses,
-  notifications,
   files,
+  notifications,
   settings,
 }

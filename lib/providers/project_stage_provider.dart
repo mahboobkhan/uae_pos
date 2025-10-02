@@ -80,7 +80,7 @@ class ProjectStageProvider extends ChangeNotifier {
   Future<void> addProjectStage({
     required String projectRefId,
     required String serviceDepartment,
-    required List<String> applicationIds,
+    required List<Map<String, String>> applications,
     required String stepCost,
     String? additionalProfit,
   }) async {
@@ -94,7 +94,7 @@ class ProjectStageProvider extends ChangeNotifier {
     final Map<String, dynamic> bodyData = {
       "project_ref_id": projectRefId,
       "service_department": serviceDepartment,
-      "application_ids": applicationIds,
+      "applications": applications,
       "step_cost": stepCost,
     };
 
@@ -146,7 +146,7 @@ class ProjectStageProvider extends ChangeNotifier {
     required String projectStageRefId,
     String? endAt,
     String? stepCost,
-    List<String>? applicationIds,
+    List<Map<String, String>>? applications,
     String? additionalProfit,
   }) async {
     isLoading = true;
@@ -162,7 +162,7 @@ class ProjectStageProvider extends ChangeNotifier {
 
     if (endAt != null && endAt.isNotEmpty) bodyData["end_at"] = endAt;
     if (stepCost != null && stepCost.isNotEmpty) bodyData["step_cost"] = stepCost;
-    if (applicationIds != null && applicationIds.isNotEmpty) bodyData["application_ids"] = applicationIds;
+    if (applications != null && applications.isNotEmpty) bodyData["applications"] = applications;
     if (additionalProfit != null && additionalProfit.isNotEmpty) bodyData["additional_profit"] = additionalProfit;
 
     final body = json.encode(bodyData);

@@ -8,11 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/client_profile_provider.dart';
-import '../../providers/documents_provider.dart';
-import 'calender.dart';
-import 'custom_dialoges.dart';
-import 'custom_fields.dart';
+import '../../../providers/client_profile_provider.dart';
+import '../../../providers/documents_provider.dart';
+import '../../dialogs/calender.dart';
+import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/custom_fields.dart';
 
 Future<void> showIndividualProfileDialog(BuildContext context, {Map<String, dynamic>? clientData}) async {
   showDialog(
@@ -52,6 +52,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
   final TextEditingController contactNumber2 = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
+  final TextEditingController _createdDateController = TextEditingController();
 
   // Document related variables
   List<String> uploadedDocumentIds = [];
@@ -563,8 +564,23 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       channelPasswordController.text = (data['echannel_password'] ?? '').toString();
       selectedJobType3 = (data['client_work'] ?? 'Regular').toString();
 
+      // Set created date from client data if available, otherwise use current date
+      if (data['created_at'] != null && data['created_at'].toString().isNotEmpty) {
+        try {
+          final createdDate = DateTime.parse(data['created_at'].toString());
+          _createdDateController.text = DateFormat('dd-MM-yyyy').format(createdDate);
+        } catch (e) {
+          _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+        }
+      } else {
+        _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      }
+
       // Load existing documents if editing
       _loadClientDocuments();
+    } else {
+      // For new clients, set current date
+      _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     }
 
     // Reset provider state when dialog opens
@@ -608,7 +624,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                       SizedBox(
                         width: 160,
                         child: SmallDropdownField(
-                          label: " Type",
+                          label: "Client Type",
                           options: ['Regular', 'Walking'],
                           selectedValue: selectedJobType3,
                           onChanged: (value) {
@@ -623,7 +639,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                   Row(
                     children: [
                       Text(
-                        DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                        _createdDateController.text,
                         style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
@@ -661,6 +677,20 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                 ],
               ),
               Text(widget.clientData?["client_ref_id"] ?? "", style: TextStyle(fontSize: 12)),
+              /*const SizedBox(height: 12),
+              // Created Date Field
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomDateNotificationField(
+                    label: "Created Date",
+                    controller: _createdDateController,
+                    readOnly: true,
+                    hintText: "dd-MM-yyyy",
+                  ),
+                ],
+              ),*/
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,

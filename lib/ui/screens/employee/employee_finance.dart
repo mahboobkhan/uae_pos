@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import '../../../utils/clipboard_utils.dart';
+import '../../../providers/employee_payments_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/employe_profile.dart';
 import '../../dialogs/tags_class.dart';
@@ -18,6 +21,19 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
   final ScrollController _horizontalController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    // Load data when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final employeePaymentsProvider = context.read<EmployeePaymentsProvider>();
+        employeePaymentsProvider.clearFilters();
+        employeePaymentsProvider.getAllEmployeePayments();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _verticalController.dispose();
     _horizontalController.dispose();
@@ -30,22 +46,24 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
   final GlobalKey _plusKey = GlobalKey();
   final List<String> categories = [
     'All',
-    'Full time job',
-    'Half time job',
-    'Previous',
+    'salary',
+    'pay',
+    'bonus',
+    'advance',
+    'return',
   ];
   final List<String> categories1 = [
     'All',
-    'Name 1 - Manager',
-    'Name 1 - Manager',
-    'Name 1 - Manager',
-  ];
-  final List<String> categories2 = ['All', 'paid', 'Pending'];
-  final List<String> categories3 = [
-    'All',
     'This Month',
     'Last Month',
-    'Select on Calender',
+    'This Year',
+    'Last Year',
+  ];
+  final List<String> categories2 = ['All', 'Low Amount', 'High Amount'];
+  final List<String> categories3 = [
+    'All',
+    'Recent',
+    'Oldest',
   ];
 
   String? selectedCategory;
@@ -53,6 +71,26 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
   String? selectedCategory2;
   String? selectedCategory3;
   bool _isHovering = false;
+
+  String _formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '00-00-0000';
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('dd-MM-yyyy').format(dateTime);
+    } catch (e) {
+      return '00-00-0000';
+    }
+  }
+
+  String _formatTime(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return '00-00';
+    try {
+      DateTime dateTime = DateTime.parse(dateString);
+      return DateFormat('hh:mm a').format(dateTime);
+    } catch (e) {
+      return '00-00';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,120 +134,255 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                           children: [
                             CustomDropdown(
                               selectedValue: selectedCategory,
-                              hintText: "Employee Type",
+                              hintText: "Payment Type",
                               items: categories,
                               onChanged: (newValue) {
                                 setState(() => selectedCategory = newValue!);
+                                _applyFilters();
                               },
                             ),
                             CustomDropdown(
                               selectedValue: selectedCategory1,
-                              hintText: "Designation",
+                              hintText: "Date Range",
                               items: categories1,
                               onChanged: (newValue) {
                                 setState(() => selectedCategory1 = newValue!);
+                                _applyFilters();
                               },
                             ),
                             CustomDropdown(
                               selectedValue: selectedCategory2,
-                              hintText: "Payment Status",
+                              hintText: "Amount Range",
                               items: categories2,
                               onChanged: (newValue) {
                                 setState(() => selectedCategory2 = newValue!);
+                                _applyFilters();
                               },
                             ),
                           ],
                         ),
                       ),
                     ),
+                    Row(
+                      children: [
+                        // Clear Filters Button
+                        Card(
+                          elevation: 4,
+                          color: Colors.orange,
+                          shape: CircleBorder(),
+                          child: Tooltip(
+                            message: 'Clear Filters',
+                            waitDuration: Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              onTap: () {
+                                _clearFilters();
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                decoration: const BoxDecoration(shape: BoxShape.circle),
+                                child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Refresh Button
+                        Card(
+                          elevation: 4,
+                          color: Colors.green,
+                          shape: CircleBorder(),
+                          child: Tooltip(
+                            message: 'Refresh',
+                            waitDuration: Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              onTap: () {
+                                final employeePaymentsProvider = context.read<EmployeePaymentsProvider>();
+                                employeePaymentsProvider.getAllEmployeePayments();
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                decoration: const BoxDecoration(shape: BoxShape.circle),
+                                child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Container(
-                height: 400,
-                child: ScrollbarTheme(
-                  data: ScrollbarThemeData(
-                    thumbVisibility: MaterialStateProperty.all(true),
-                    thumbColor: MaterialStateProperty.all(Colors.grey),
-                    thickness: MaterialStateProperty.all(8),
-                    radius: const Radius.circular(4),
-                  ),
-                  child: Scrollbar(
-                    controller: _verticalController,
-                    thumbVisibility: true,
-                    child: Scrollbar(
-                      controller: _horizontalController,
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        controller: _horizontalController,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          controller: _verticalController,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 1200),
-                            child: Table(
-                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                              columnWidths: const {
-                                0: FlexColumnWidth(0.8),
-                                1: FlexColumnWidth(1),
-                                2: FlexColumnWidth(1),
-                                3: FlexColumnWidth(1.2),
-                                4: FlexColumnWidth(1.3),
-                                5: FlexColumnWidth(1.3),
-                                6: FlexColumnWidth(1.3),
+            // Employee Payments Table
+            Consumer<EmployeePaymentsProvider>(
+              builder: (context, employeePaymentsProvider, child) {
+                if (employeePaymentsProvider.isLoading) {
+                  return Container(
+                    height: 400,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Loading employee payments...'),
+                        ],
+                      ),
+                    ),
+                  );
+                }
 
-                              },
-                              children: [
-                                // Header Row
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.shade50,
-                                  ),
+                if (employeePaymentsProvider.errorMessage != null) {
+                  return Container(
+                    height: 400,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline, size: 64, color: Colors.red),
+                          SizedBox(height: 16),
+                          Text(
+                            employeePaymentsProvider.errorMessage!,
+                            style: TextStyle(color: Colors.red, fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => employeePaymentsProvider.getAllEmployeePayments(),
+                            child: Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final payments = employeePaymentsProvider.employeePayments;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Container(
+                    height: 400,
+                    child: ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbVisibility: MaterialStateProperty.all(true),
+                        thumbColor: MaterialStateProperty.all(Colors.grey),
+                        thickness: MaterialStateProperty.all(8),
+                        radius: const Radius.circular(4),
+                      ),
+                      child: Scrollbar(
+                        controller: _verticalController,
+                        thumbVisibility: true,
+                        child: Scrollbar(
+                          controller: _horizontalController,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            controller: _horizontalController,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: _verticalController,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: 1200),
+                                child: Table(
+                                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(0.8),
+                                    1: FlexColumnWidth(1),
+                                    2: FlexColumnWidth(1),
+                                    3: FlexColumnWidth(1.2),
+                                    4: FlexColumnWidth(1.3),
+                                    5: FlexColumnWidth(1.3),
+                                    6: FlexColumnWidth(1.3),
+                                  },
                                   children: [
-                                    _buildHeader("Date"),
-                                    _buildHeader("Employee Name "),
-                                    _buildHeader("Contact detail"),
-                                    _buildHeader("Salary"),
-                                    _buildHeader("Advance"),
-                                    _buildHeader("Bonuses "),
-                                    _buildHeader("Other Actions"),
-
+                                    // Header Row
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                      ),
+                                      children: [
+                                        _buildHeader("Date"),
+                                        _buildHeader("Employee Ref"),
+                                        _buildHeader("Payment Type"),
+                                        _buildHeader("Month/Year"),
+                                        _buildHeader("Amount"),
+                                        _buildHeader("Description"),
+                                        _buildHeader("Actions"),
+                                      ],
+                                    ),
+                                    if (payments.isNotEmpty)
+                                      ...payments.asMap().entries.map((entry) {
+                                        final index = entry.key;
+                                        final payment = entry.value;
+                                        return TableRow(
+                                          decoration: BoxDecoration(
+                                            color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
+                                          ),
+                                          children: [
+                                            _buildCell2(
+                                              _formatDate(payment['created_at'] ?? payment['updated_at']),
+                                              _formatTime(payment['created_at'] ?? payment['updated_at']),
+                                              copyable: false,
+                                            ),
+                                            _buildCell(
+                                              payment['employee_ref_id']?.toString() ?? 'N/A',
+                                              copyable: true,
+                                            ),
+                                            _buildCell(
+                                              employeePaymentsProvider.getPaymentTypeLabel(payment['type']?.toString() ?? ''),
+                                            ),
+                                            _buildCell(payment['month_year']?.toString() ?? 'N/A'),
+                                            _buildPriceWithAdd("AED-", employeePaymentsProvider.formatAmount(payment['amount'])),
+                                            _buildCell(payment['description']?.toString() ?? 'N/A'),
+                                            _buildCell("N/A"),
+                                          ],
+                                        );
+                                      }).toList()
+                                    else
+                                      TableRow(
+                                        children: List.generate(
+                                          7,
+                                          (index) => TableCell(
+                                            child: Container(
+                                              height: 60,
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
+                                                    SizedBox(height: 4),
+                                                    Text(
+                                                      'No employee payments available',
+                                                      style: TextStyle(
+                                                        color: Colors.grey.shade600,
+                                                        fontStyle: FontStyle.italic,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
-                                // Sample Row
-                                for (int i = 0; i < 20; i++)
-                                  TableRow(
-                                    decoration: BoxDecoration(
-                                      color: i.isEven
-                                          ? Colors.grey.shade200
-                                          : Colors.grey.shade100,
-                                    ),
-                                    children: [
-                                      _buildCell2("12-02-2025",
-                                        "02:59 pm",centerText2: true ),
-                                      _buildCell("User "),
-                                      _buildCell3("+9728888888", "@gmail.comx"),
-                                      _buildPriceWithAdd("AED-", "100000"),
-                                      _buildPriceWithAdd1("AED-", "300", ),
-                                      _buildPriceWithAdd("AED-", "2000",),
-                                      _buildCell("N/A"),
-
-                                    ],
-                                  ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            )
+                );
+              },
+            ),
 
           ],
         ),
@@ -447,6 +620,81 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
         ],
       ),
     );
+  }
+
+  /// Apply filters to employee payments
+  void _applyFilters() {
+    final employeePaymentsProvider = context.read<EmployeePaymentsProvider>();
+
+    // Convert UI filter values to API parameters
+    String? typeFilter;
+    String? startDateFilter;
+    String? endDateFilter;
+    String? sortByFilter;
+    String? sortOrderFilter;
+
+    // Payment type filter
+    if (selectedCategory != null && selectedCategory != 'All') {
+      typeFilter = selectedCategory!.toLowerCase();
+    }
+
+    // Date range filter
+    if (selectedCategory1 != null && selectedCategory1 != 'All') {
+      final now = DateTime.now();
+      switch (selectedCategory1) {
+        case 'This Month':
+          startDateFilter = DateFormat('yyyy-MM-dd').format(DateTime(now.year, now.month, 1));
+          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          break;
+        case 'Last Month':
+          final lastMonth = DateTime(now.year, now.month - 1, 1);
+          final lastMonthEnd = DateTime(now.year, now.month, 0);
+          startDateFilter = DateFormat('yyyy-MM-dd').format(lastMonth);
+          endDateFilter = DateFormat('yyyy-MM-dd').format(lastMonthEnd);
+          break;
+        case 'This Year':
+          startDateFilter = DateFormat('yyyy-MM-dd').format(DateTime(now.year, 1, 1));
+          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+          break;
+        case 'Last Year':
+          final lastYear = now.year - 1;
+          startDateFilter = DateFormat('yyyy-MM-dd').format(DateTime(lastYear, 1, 1));
+          endDateFilter = DateFormat('yyyy-MM-dd').format(DateTime(lastYear, 12, 31));
+          break;
+      }
+    }
+
+    // Sort filter
+    if (selectedCategory3 != null && selectedCategory3 != 'All') {
+      sortByFilter = 'created_at';
+      sortOrderFilter = selectedCategory3 == 'Recent' ? 'DESC' : 'ASC';
+    }
+
+    // Apply filters to provider
+    employeePaymentsProvider.setFilters(
+      type: typeFilter,
+      startDate: startDateFilter,
+      endDate: endDateFilter,
+      sortBy: sortByFilter,
+      sortOrder: sortOrderFilter,
+    );
+
+    // Refresh payments with filters
+    employeePaymentsProvider.getAllEmployeePayments();
+  }
+
+  /// Clear all filters
+  void _clearFilters() {
+    setState(() {
+      selectedCategory = null;
+      selectedCategory1 = null;
+      selectedCategory2 = null;
+      selectedCategory3 = null;
+    });
+
+    final employeePaymentsProvider = context.read<EmployeePaymentsProvider>();
+    employeePaymentsProvider.clearFilters();
+    employeePaymentsProvider.getAllEmployeePayments();
   }
 
 }

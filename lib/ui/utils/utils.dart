@@ -41,31 +41,19 @@ final List<SidebarItem> sidebarItems = [
   SidebarItem(
     icon: Icons.auto_graph_sharp,
     title: 'Office Expenses',
-    submenuKeys: [
-      'fixed_office_expanse',
-      'office_maintenance',
-      'office_supplies',
-      'miscellaneous',
-      'others',
-    ],
+    submenuKeys: ['fixed_office_expanse', 'office_maintenance', 'office_supplies', 'miscellaneous', 'others'],
     accessKey: 'office_expenses',
 
-    submenus: [
-      'Fixed office expanse',
-      'Office maintenance',
-      'Office Supplies',
-      'Miscellaneous',
-      'Others',
-    ],
+    submenus: ['Fixed office expanse', 'Office maintenance', 'Office Supplies', 'Miscellaneous', 'Others'],
   ),
-  SidebarItem(
+  /*SidebarItem(
     icon: Icons.notification_add_outlined,
     title: 'Notifications',
     submenuKeys: ['inbox', 'system', 'push'],
     accessKey: 'notifications',
 
     submenus: ['Inbox', 'System', 'Push'],
-  ),
+  ),*/
   SidebarItem(
     icon: Icons.file_download_done_sharp,
     title: 'Files Backup',
@@ -74,13 +62,13 @@ final List<SidebarItem> sidebarItems = [
 
     submenus: ['Download', 'Upload'],
   ),
-  SidebarItem(
+  /*SidebarItem(
     icon: Icons.settings_outlined,
     title: 'Settings',
     accessKey: 'settings',
     submenuKeys: ['preferences', 'account', 'security'],
     submenus: ['Preferences', 'Account', 'Security'],
-  ),
+  ),*/
 ];
 
 final List<SidebarItem> sidebarItemsAccess = [
@@ -122,29 +110,17 @@ final List<SidebarItem> sidebarItemsAccess = [
   SidebarItem(
     icon: Icons.auto_graph_sharp,
     title: 'Office Expenses',
-    submenuKeys: [
-      'fixed_office_expanse',
-      'office_maintenance',
-      'office_supplies',
-      'miscellaneous',
-      'others',
-    ],
+    submenuKeys: ['fixed_office_expanse', 'office_maintenance', 'office_supplies', 'miscellaneous', 'others'],
     accessKey: 'office_expenses',
-    submenus: [
-      'Fixed office expanse',
-      'Office maintenance',
-      'Office Supplies',
-      'Miscellaneous',
-      'Others',
-    ],
+    submenus: ['Fixed office expanse', 'Office maintenance', 'Office Supplies', 'Miscellaneous', 'Others'],
   ),
-  SidebarItem(
+  /*SidebarItem(
     icon: Icons.notification_add_outlined,
     title: 'Notifications',
     submenuKeys: ['inbox', 'system', 'push'],
     accessKey: 'notifications',
     submenus: ['Inbox', 'System', 'Push'],
-  ),
+  ),*/
   SidebarItem(
     icon: Icons.file_download_done_sharp,
     title: 'Files Backup',
@@ -152,13 +128,13 @@ final List<SidebarItem> sidebarItemsAccess = [
     accessKey: 'files_cash_flow',
     submenus: ['Download', 'Upload'],
   ),
-  SidebarItem(
+  /* SidebarItem(
     icon: Icons.settings_outlined,
     title: 'Settings',
     accessKey: 'settings',
     submenuKeys: ['preferences', 'account', 'security'],
     submenus: ['Preferences', 'Account', 'Security'],
-  ),
+  ),*/
 ];
 
 // --- Helpers ---

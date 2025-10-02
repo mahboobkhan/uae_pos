@@ -3,16 +3,16 @@ import 'package:abc_consultant/widgets/issue_date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/client_profile_provider.dart';
+import '../../providers/client_profile_provider.dart';
 
-class AddCompanyProfile extends StatefulWidget {
-  const AddCompanyProfile({super.key});
+class AddIndividualProfile extends StatefulWidget {
+  const AddIndividualProfile({super.key});
 
   @override
-  State<AddCompanyProfile> createState() => _AddCompanyProfileState();
+  State<AddIndividualProfile> createState() => _AddIndividualProfileState();
 }
 
-class _AddCompanyProfileState extends State<AddCompanyProfile> {
+class _AddIndividualProfileState extends State<AddIndividualProfile> {
   DateTime selectedDateTime = DateTime.now();
   DateTime? _startTime;
   DateTime? _endTime;
@@ -31,17 +31,11 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
 
   // API fields
   String? _name;
-  String? _tradeLicenseNo;
-  String? _companyCode;
-  String? _establishmentNo;
   String? _email;
   String? _phone1;
   String? _phone2;
   String? _physicalAddress;
   String? _extraNote;
-  String? _echannelName;
-  String? _echannelId;
-  String? _echannelPassword;
 
   Future<void> _selectDateTime() async {
     final DateTime? picked = await showDatePicker(
@@ -110,12 +104,11 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
               color: Colors.grey.shade300,
               border: Border.all(color: Colors.red, width: height * 0.01),
             ),
-            height: height * .95,
+            height: height * .70,
             width: width * .95,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: height * 0.02),
                 Row(
                   children: [
                     SizedBox(width: width * 0.02),
@@ -123,7 +116,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "Company Profile",
+                          "Individual Profile Profile",
                           style: TextStyle(
                             color: Colors.red,
                             fontSize: width * 0.015,
@@ -189,11 +182,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                     ),
                   ],
                 ),
-                // Rest of your dialog code remains exactly the same...
-                // ... [All your existing dialog content here] ...
-                SizedBox(height: height * 0.01),
-
-                // 2nd Row
+                SizedBox(height: height * 0.03),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -242,7 +231,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Trade License Number",
+                          "Emirate I'd",
                           style: TextStyle(
                             fontSize: width * 0.008,
                             color: Colors.red,
@@ -269,135 +258,12 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
-                            onChanged: (v) => _tradeLicenseNo = v.trim(),
                           ),
                         ),
                       ],
                     ),
                     SizedBox(width: width * 0.03),
                     //3rd feild
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Company Code",
-                          style: TextStyle(
-                            fontSize: width * 0.008,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SmoothGradientBorderContainer(
-                          child: TextField(
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "4567",
-                              hintStyle: TextStyle(
-                                fontSize: 13,
-                                color: Colors.red,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                left: 8,
-                                bottom: 15,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            onChanged: (v) => _companyCode = v.trim(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(width: width * 0.03),
-                    //4th  Feild
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Establishment Number",
-                          style: TextStyle(
-                            fontSize: width * 0.008,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SmoothGradientBorderContainer(
-                          child: TextField(
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "xxxxxxx",
-                              hintStyle: TextStyle(
-                                fontSize: 13,
-                                color: Colors.red,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                left: 8,
-                                bottom: 15,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            onChanged: (v) => _establishmentNo = v.trim(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(width: width * 0.03),
-                    //5th Feild
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Note Extra",
-                          style: TextStyle(
-                            fontSize: width * 0.008,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SmoothGradientBorderContainer(
-                          child: TextField(
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "",
-                              hintStyle: TextStyle(
-                                fontSize: 13,
-                                color: Colors.red,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                left: 8,
-                                bottom: 15,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            onChanged: (v) => _extraNote = v.trim(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: height * 0.03),
-                //3rd Row
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(width: width * 0.05),
-                    //6th Feild
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -435,7 +301,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                       ],
                     ),
                     SizedBox(width: width * 0.03),
-                    //7th Feild
+                    //4th  Feild
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -473,6 +339,132 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                       ],
                     ),
                     SizedBox(width: width * 0.03),
+                    //5th Feild
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Contact Number - 2",
+                          style: TextStyle(
+                            fontSize: width * 0.008,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SmoothGradientBorderContainer(
+                          child: TextField(
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            cursorHeight: height * 0.02,
+                            decoration: const InputDecoration(
+                              hintText: "",
+                              hintStyle: TextStyle(
+                                fontSize: 13,
+                                color: Colors.red,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              contentPadding: EdgeInsets.only(
+                                left: 8,
+                                bottom: 15,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (v) => _phone2 = v.trim(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                //**
+                //ADD SPACE
+                //
+                //
+                //
+                // */
+                SizedBox(height: height * 0.02),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(width: width * 0.05),
+                    //6th Feild
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Email I'd",
+                          style: TextStyle(
+                            fontSize: width * 0.008,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SmoothGradientBorderContainer(
+                          child: TextField(
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            cursorHeight: height * 0.02,
+                            decoration: const InputDecoration(
+                              hintText: "abc@xyz.com",
+                              hintStyle: TextStyle(
+                                fontSize: 13,
+                                color: Colors.red,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              contentPadding: EdgeInsets.only(
+                                left: 8,
+                                bottom: 15,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: width * 0.03),
+                    //7th Feild
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Contact Number",
+                          style: TextStyle(
+                            fontSize: width * 0.008,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SmoothGradientBorderContainer(
+                          child: TextField(
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            cursorHeight: height * 0.02,
+                            decoration: const InputDecoration(
+                              hintText: "+971",
+                              hintStyle: TextStyle(
+                                fontSize: 13,
+                                color: Colors.red,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              contentPadding: EdgeInsets.only(
+                                left: 8,
+                                bottom: 15,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: width * 0.03),
                     //8th feild
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,7 +497,6 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
-                            onChanged: (v) => _phone2 = v.trim(),
                           ),
                         ),
                       ],
@@ -553,20 +544,22 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                     SizedBox(width: width * 0.03),
                   ],
                 ),
-
-                //4th Row
+                //**ADD SPACE HERE
+                //
+                //
+                // */
+                SizedBox(height: height * 0.02),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     SizedBox(width: width * 0.05),
-                    //10th Feild
+                    //Note Extra Feild
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: height * 0.05),
                         Text(
-                          "E- Channel Name (Website Link)",
+                          "Note/Extra",
                           style: TextStyle(
                             fontSize: width * 0.008,
                             color: Colors.red,
@@ -581,7 +574,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                             ),
                             cursorHeight: height * 0.02,
                             decoration: const InputDecoration(
-                              hintText: "S.E.C.P",
+                              hintText: "",
                               hintStyle: TextStyle(
                                 fontSize: 13,
                                 color: Colors.red,
@@ -593,19 +586,29 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
-                            onChanged: (v) => _echannelName = v.trim(),
+                            onChanged: (v) => _extraNote = v.trim(),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(width: width * 0.03),
-                    //11th Feild
+                  ],
+                ),
+                //**ADD SPACE HERE
+                //
+                //
+                // */
+                SizedBox(height: height * 0.02),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(width: width * 0.05),
+                    //6th Feild
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: height * 0.05),
                         Text(
-                          "E-Channel Login i'd",
+                          "Advance Payment TiD",
                           style: TextStyle(
                             fontSize: width * 0.008,
                             color: Colors.red,
@@ -613,17 +616,20 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                           ),
                         ),
                         SmoothGradientBorderContainer(
+                          width: width * 0.10,
+                          color: Colors.green,
                           child: TextField(
                             style: TextStyle(
                               fontSize: 10,
+
                               fontWeight: FontWeight.bold,
                             ),
                             cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "abc@xyz.com",
+                            decoration: InputDecoration(
+                              hintText: "xxxxxx",
                               hintStyle: TextStyle(
                                 fontSize: 13,
-                                color: Colors.red,
+                                color: Colors.white,
                                 fontWeight: FontWeight.normal,
                               ),
                               contentPadding: EdgeInsets.only(
@@ -631,21 +637,29 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                                 bottom: 15,
                               ),
                               border: InputBorder.none,
-                              fillColor: Colors.transparent,
                             ),
-                            onChanged: (v) => _echannelId = v.trim(),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(width: width * 0.03),
-                    //12th feild
+                  ],
+                ),
+                //**ADD SPACE HERE
+                //
+                //
+                // */
+                SizedBox(height: height * 0.02),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(width: width * 0.05),
+                    //6th Feild
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: height * 0.05),
                         Text(
-                          "E- Channel Login Password",
+                          "Pending Payment TiD",
                           style: TextStyle(
                             fontSize: width * 0.008,
                             color: Colors.red,
@@ -653,17 +667,19 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                           ),
                         ),
                         SmoothGradientBorderContainer(
+                          color: Colors.green,
                           child: TextField(
                             style: TextStyle(
                               fontSize: 10,
+
                               fontWeight: FontWeight.bold,
                             ),
                             cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "xxxxxxxxxx",
+                            decoration: InputDecoration(
+                              hintText: "10000",
                               hintStyle: TextStyle(
                                 fontSize: 13,
-                                color: Colors.red,
+                                color: Colors.white,
                                 fontWeight: FontWeight.normal,
                               ),
                               contentPadding: EdgeInsets.only(
@@ -672,7 +688,45 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                               ),
                               border: InputBorder.none,
                             ),
-                            onChanged: (v) => _echannelPassword = v.trim(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: width * 0.05),
+                    //6th Feild
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Advance Payment TiD",
+                          style: TextStyle(
+                            fontSize: width * 0.008,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SmoothGradientBorderContainer(
+                          color: Colors.green,
+                          child: TextField(
+                            style: TextStyle(
+                              fontSize: 10,
+
+                              fontWeight: FontWeight.bold,
+                            ),
+                            cursorHeight: height * 0.02,
+                            decoration: InputDecoration(
+                              hintText: "xxxxxx",
+                              hintStyle: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              contentPadding: EdgeInsets.only(
+                                left: 8,
+                                bottom: 15,
+                              ),
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
                       ],
@@ -681,7 +735,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: height * 0.060),
+                        SizedBox(height: height * 0.015),
                         Text(
                           "Issue Date Notification",
                           style: TextStyle(
@@ -695,46 +749,17 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                           width: width * 0.1,
                           child: IssueDatePicker(
                             onDateTimeSelected: (dateTime) {
-                              _startTime = dateTime;
+                              _partnerStartTime = dateTime;
                             },
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(width: width * 0.02),
-                    // Doc Feild
+                    SizedBox(width: width * 0.03),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: height * 0.02),
-
-                        SmoothGradientBorderContainer(
-                          height: height * 0.03,
-                          width: width * 0.1,
-                          child: TextField(
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "Doc Name",
-                              hintStyle: TextStyle(
-                                fontSize: 10,
-
-                                color: Colors.red,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                left: 2,
-                                bottom: 19,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                        //Expiry date notification
-                        SizedBox(height: height * 0.01),
+                        SizedBox(height: height * 0.015),
                         Text(
                           "Expiry Date Notification",
                           style: TextStyle(
@@ -748,7 +773,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                           width: width * 0.1,
                           child: IssueDatePicker(
                             onDateTimeSelected: (dateTime) {
-                              _endTime = dateTime;
+                              _partnerEndTime = dateTime;
                             },
                           ),
                         ),
@@ -758,7 +783,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(height: height * 0.078),
+                        SizedBox(height: height * 0.034),
                         //tick icon
                         Icon(
                           Icons.check,
@@ -768,11 +793,10 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                       ],
                     ),
                     SizedBox(width: width * 0.005),
-
                     //upload button
                     Column(
                       children: [
-                        SizedBox(height: height * 0.07),
+                        SizedBox(height: height * 0.026),
                         MaterialButton(
                           onPressed: () {},
                           color: Colors.green.shade800,
@@ -804,557 +828,15 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                     ),
                   ],
                 ),
-                //**
-                //Partner Add Work
-                //*/
-                SizedBox(height: height * 0.015),
-                Container(
-                  height: height * 0.26,
-                  width: width * 0.90,
-                  color: Colors.white,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //Partner/Employee Record Heading
-                      SizedBox(height: height * 0.01),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(width: width * 0.04),
-                              Text(
-                                "Partner/Employee Records",
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: width * 0.010,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(width: width * 0.027),
-                              //DropDown PArtner type
-                              Column(
-                                children: [
-                                  SizedBox(height: height * 0.01),
-                                  _buildDropdown(
-                                    partnerType,
-                                    "Employee",
-                                    partnerTypeDropDown,
-                                    (newValue) {
-                                      setState(() {
-                                        partnerType = newValue!;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.027),
-                              //DropDown PArtner type
-                              Column(
-                                children: [
-                                  SizedBox(height: height * 0.01),
-                                  _buildDropdown(
-                                    partnerPosition,
-                                    "Save DropDown",
-                                    partnerPositionDropDown,
-                                    (newValue) {
-                                      setState(() {
-                                        partnerPosition = newValue!;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.027),
-                              //1st Feild Name
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Name",
-                                    style: TextStyle(
-                                      fontSize: width * 0.008,
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SmoothGradientBorderContainer(
-                                    child: TextField(
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      cursorHeight: height * 0.02,
-                                      decoration: const InputDecoration(
-                                        hintText: "Imran Khan",
-                                        hintStyle: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                        contentPadding: EdgeInsets.only(
-                                          left: 8,
-                                          bottom: 15,
-                                        ),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.03),
-                              //2nd feild Emirates ID
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Emirates IDs",
-                                    style: TextStyle(
-                                      fontSize: width * 0.008,
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SmoothGradientBorderContainer(
-                                    width: width * 0.1,
-                                    child: TextField(
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      cursorHeight: height * 0.02,
-                                      decoration: const InputDecoration(
-                                        hintText: "xxxxxxxxxx",
-                                        hintStyle: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                        contentPadding: EdgeInsets.only(
-                                          left: 8,
-                                          bottom: 15,
-                                        ),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.03),
-                              //2nd feild Emirates ID
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Work Permit No",
-                                    style: TextStyle(
-                                      fontSize: width * 0.008,
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SmoothGradientBorderContainer(
-                                    width: width * 0.1,
-                                    child: TextField(
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      cursorHeight: height * 0.02,
-                                      decoration: const InputDecoration(
-                                        hintText: "xxxxxxxxxx",
-                                        hintStyle: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                        contentPadding: EdgeInsets.only(
-                                          left: 8,
-                                          bottom: 15,
-                                        ),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(width: width * 0.034),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Feild Email ID
-                                  SizedBox(height: height * 0.03),
-                                  Text(
-                                    "Email I'd",
-                                    style: TextStyle(
-                                      fontSize: width * 0.008,
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SmoothGradientBorderContainer(
-                                    child: TextField(
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      cursorHeight: height * 0.02,
-                                      decoration: const InputDecoration(
-                                        hintText: "Imran Khan",
-                                        hintStyle: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                        contentPadding: EdgeInsets.only(
-                                          left: 8,
-                                          bottom: 15,
-                                        ),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.03),
-                              //Feild COntact Number
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: height * 0.03),
-                                  Text(
-                                    "Contact Number",
-                                    style: TextStyle(
-                                      fontSize: width * 0.008,
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SmoothGradientBorderContainer(
-                                    child: TextField(
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      cursorHeight: height * 0.02,
-                                      decoration: const InputDecoration(
-                                        hintText: "",
-                                        hintStyle: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                        contentPadding: EdgeInsets.only(
-                                          left: 8,
-                                          bottom: 15,
-                                        ),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              SizedBox(width: width * 0.03),
-                              // Doc Feild
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: height * 0.062),
-
-                                  SmoothGradientBorderContainer(
-                                    height: height * 0.03,
-                                    width: width * 0.1,
-                                    child: TextField(
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      cursorHeight: height * 0.02,
-                                      decoration: const InputDecoration(
-                                        hintText: "Doc Name",
-                                        hintStyle: TextStyle(
-                                          fontSize: 10,
-
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                        contentPadding: EdgeInsets.only(
-                                          left: 2,
-                                          bottom: 19,
-                                        ),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.03),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: height * 0.041),
-                                  Text(
-                                    "Issue Date Notification",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SmoothGradientBorderContainer(
-                                    height: height * 0.03,
-                                    width: width * 0.1,
-                                    child: IssueDatePicker(
-                                      onDateTimeSelected: (dateTime) {
-                                        _partnerStartTime = dateTime;
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.03),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: height * 0.041),
-                                  Text(
-                                    "Expiry Date Notification",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SmoothGradientBorderContainer(
-                                    height: height * 0.03,
-                                    width: width * 0.1,
-                                    child: IssueDatePicker(
-                                      onDateTimeSelected: (dateTime) {
-                                        _partnerEndTime = dateTime;
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.02),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(height: height * 0.07),
-                                  //tick icon
-                                  Icon(
-                                    Icons.check,
-                                    color: Colors.green.shade800,
-                                    size: width * 0.02,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: width * 0.005),
-                              //upload button
-                              Column(
-                                children: [
-                                  SizedBox(height: height * 0.05),
-                                  MaterialButton(
-                                    onPressed: () {},
-                                    color: Colors.green.shade800,
-                                    height: height * 0.06,
-                                    minWidth: width * 0.08,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-
-                                      children: [
-                                        Text(
-                                          "Upload File",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: width * 0.007,
-                                            fontWeight: FontWeight.bold,
-                                            decoration:
-                                                TextDecoration.underline,
-                                            decorationColor: Colors.white,
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.upload_file,
-                                          size: 14,
-                                          color: Colors.white,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                //**
-                //After Partner Part
-
+                //**ADD SPACE HERE
+                //
+                //
                 // */
-                SizedBox(height: height * 0.01),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(width: width * 0.02),
-                    Text(
-                      "Add More Employee",
-                      style: TextStyle(
-                        color: Colors.deepPurple,
-                        fontSize: width * 0.012,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(width: width * 0.25),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Feild Advance Payment TID
-                        Text(
-                          "Advance Payment TID",
-                          style: TextStyle(
-                            fontSize: width * 0.008,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SmoothGradientBorderContainer(
-                          color: Colors.green,
-                          child: TextField(
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "xxxxx",
-                              hintStyle: TextStyle(
-                                fontSize: 13,
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                left: 8,
-                                bottom: 15,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(width: width * 0.04),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Feild Advance Payment TID
-                        Text(
-                          "Pending Payments",
-                          style: TextStyle(
-                            fontSize: width * 0.008,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SmoothGradientBorderContainer(
-                          color: Colors.red,
-                          child: TextField(
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "9700",
-                              hintStyle: TextStyle(
-                                fontSize: 13,
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                left: 8,
-                                bottom: 15,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(width: width * 0.08),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Feild Advance Payment TID
-                        Text(
-                          "Advance Payment",
-                          style: TextStyle(
-                            fontSize: width * 0.008,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SmoothGradientBorderContainer(
-                          width: width * 0.16,
-                          color: Colors.green,
-                          child: TextField(
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            cursorHeight: height * 0.02,
-                            decoration: const InputDecoration(
-                              hintText: "1000",
-                              hintStyle: TextStyle(
-                                fontSize: 13,
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                left: 8,
-                                bottom: 15,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(width: width * 0.04),
+                    SizedBox(width: width * 0.05),
                     Text(
                       "Projects",
                       style: TextStyle(
@@ -1365,10 +847,15 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                     ),
                   ],
                 ),
+                //**ADD SPACE HERE
+                //
+                //
+                // */
+                SizedBox(height: height * 0.02),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(width: width * 0.04),
+                    SizedBox(width: width * 0.05),
                     MaterialButton(
                       minWidth: width * 0.09,
                       onPressed: () {},
@@ -1382,26 +869,19 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                         ),
                       ),
                     ),
-                    SizedBox(width: width * 0.04),
+                    SizedBox(width: width * 0.02),
                     MaterialButton(
                       minWidth: width * 0.09,
                       onPressed: () async {
                         final provider = context.read<ClientProfileProvider>();
                         await provider.addClient(
                           name: _name?.trim().isNotEmpty == true ? _name!.trim() : 'N/A',
-                          clientType: 'organization',
+                          clientType: 'individual',
                           clientWork: (companyDropDownType ?? 'Regular').toLowerCase(),
                           email: _email?.trim().isNotEmpty == true ? _email!.trim() : 'no-email@example.com',
                           phone1: _phone1?.trim().isNotEmpty == true ? _phone1!.trim() : '+000000000',
                           phone2: _phone2?.trim().isNotEmpty == true ? _phone2!.trim() : null,
-                          tags: null,
-                          tradeLicenseNo: _tradeLicenseNo,
-                          companyCode: _companyCode,
-                          establishmentNo: _establishmentNo,
                           physicalAddress: _physicalAddress,
-                          echannelName: _echannelName,
-                          echannelId: _echannelId,
-                          echannelPassword: _echannelPassword,
                           extraNote: _extraNote,
                         );
                         if (provider.errorMessage == null) {
@@ -1415,7 +895,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                           );
                         }
                       },
-                      color: Colors.blue.shade900,
+                      color: Colors.red,
                       child: Text(
                         "Submit",
                         style: TextStyle(
@@ -1436,14 +916,14 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
   }
 }
 
-void showAddCompanyProfileDialogue(BuildContext context) {
+void showAddIndividualProfileDialogue(BuildContext context) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (context) {
       return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        child: AddCompanyProfile(), // Embed your widget here
+        child: AddIndividualProfile(), // Embed your widget here
       );
     },
   );

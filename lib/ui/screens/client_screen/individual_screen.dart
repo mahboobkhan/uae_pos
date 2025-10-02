@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../dialogs/custom_fields.dart';
-import '../../dialogs/individual_profile.dart';
+import 'individual_profile.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
 import '../../dialogs/tags_class.dart';

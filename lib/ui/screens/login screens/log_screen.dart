@@ -28,9 +28,8 @@ class _LogScreenState extends State<LogScreen> {
     _loadSavedEmail();
     if (widget.email != null && widget.email!.isNotEmpty) {
       _emailController.text = widget.email!;
-    } else if (_emailController.text.isEmpty) {
-      // _emailController.text = 'yousafrana1212@gmail.com';
     }
+    // _emailController.text = 'yousafrana1212@gmail.com';
     // _passwordController.text = widget.password ?? 'Eline@52';
   }
 

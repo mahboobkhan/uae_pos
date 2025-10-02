@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import '../../providers/client_profile_provider.dart';
-import '../../providers/documents_provider.dart';
+import '../../../providers/client_profile_provider.dart';
+import '../../../providers/documents_provider.dart';
 
-import 'calender.dart';
-import 'custom_dialoges.dart';
-import 'custom_fields.dart';
+import '../../dialogs/calender.dart';
+import '../../dialogs/custom_dialoges.dart';
+import '../../dialogs/custom_fields.dart';
 
 Future<void> showCompanyProfileDialog(BuildContext context, {Map<String, dynamic>? clientData}) async {
   showDialog(
@@ -29,6 +29,7 @@ Future<void> showCompanyProfileDialog(BuildContext context, {Map<String, dynamic
 
 class CompanyProfile extends StatefulWidget {
   final Map<String, dynamic>? clientData;
+
   const CompanyProfile({super.key, this.clientData});
 
   @override
@@ -57,6 +58,7 @@ class CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController advancePayment = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
+  final TextEditingController _createdDateController = TextEditingController();
 
   // Document related variables
   List<String> uploadedDocumentIds = [];
@@ -132,7 +134,8 @@ class CompanyProfileState extends State<CompanyProfile> {
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif'],
         allowMultiple: false,
-        withData: true, // Always get file data for web compatibility
+        withData: true,
+        // Always get file data for web compatibility
         withReadStream: false,
         allowCompression: true,
       );
@@ -573,8 +576,23 @@ class CompanyProfileState extends State<CompanyProfile> {
       channelPasswordController.text = (data['echannel_password'] ?? '').toString();
       selectedJobType3 = (data['client_work'] ?? 'Regular').toString();
 
+      // Set created date from client data if available, otherwise use current date
+      if (data['created_at'] != null && data['created_at'].toString().isNotEmpty) {
+        try {
+          final createdDate = DateTime.parse(data['created_at'].toString());
+          _createdDateController.text = DateFormat('dd-MM-yyyy').format(createdDate);
+        } catch (e) {
+          _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+        }
+      } else {
+        _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      }
+
       // Load existing documents if editing
       _loadClientDocuments();
+    } else {
+      // For new clients, set current date
+      _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     }
 
     // Reset provider state when dialog opens
@@ -618,8 +636,8 @@ class CompanyProfileState extends State<CompanyProfile> {
                       SizedBox(
                         width: 160,
                         child: SmallDropdownField(
-                          label: "Employee type",
-                          options: ['Cleaning', 'Consultining', 'Reparing'],
+                          label: "Client Type",
+                          options: ['Regular', 'Walking'],
                           selectedValue: selectedJobType3,
                           onChanged: (value) {
                             setState(() {
@@ -633,7 +651,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   Row(
                     children: [
                       Text(
-                        DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                        _createdDateController.text,
                         style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
@@ -684,21 +702,35 @@ class CompanyProfileState extends State<CompanyProfile> {
                 ],
               ),
               Text(
-                'ORN.0001-0000002', // Static example ID
+                '', // Static example ID
                 style: TextStyle(fontSize: 12),
               ),
+             /* const SizedBox(height: 12),
+              // Created Date Field
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  CustomDateNotificationField(
+                    label: "Created Date",
+                    controller: _createdDateController,
+                    readOnly: true,
+                    hintText: "dd-MM-yyyy",
+                  ),
+                ],
+              ),*/
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  CustomTextField(label: "Company Name", hintText: "xyz", controller: companyNameController),
-                  CustomTextField(label: "Trade Licence Number ", controller: tradeLicenseController, hintText: "1234"),
-                  CustomTextField(label: "Company Code ", controller: companyCodeController, hintText: "456"),
+                  CustomTextField(label: "Company Name", hintText: "", controller: companyNameController),
+                  CustomTextField(label: "Trade Licence Number ", controller: tradeLicenseController, hintText: ""),
+                  CustomTextField(label: "Company Code ", controller: companyCodeController, hintText: ""),
                   CustomTextField(
                     label: "Establishment Number ",
                     controller: establishmentNumberController,
-                    hintText: "xxxxxxxxx",
+                    hintText: "",
                   ),
                 ],
               ),
@@ -710,31 +742,19 @@ class CompanyProfileState extends State<CompanyProfile> {
                 children: [
                   CustomTextField(label: "Note Extra ", controller: extraNoteController, hintText: "xxxxxxxxx"),
                   CustomTextField(label: "Email I'd ", controller: emailId2Controller, hintText: "@gmail.com"),
-                  CustomTextField(
-                    label: "Contact Number ",
-                    controller: contactNumberController,
-                    hintText: "+973xxxxxxxxxx",
-                  ),
-                  CustomTextField(
-                    label: "Contact Number 2",
-                    controller: contactNumber2Controller,
-                    hintText: "+973xxxxxxxxxx",
-                  ),
+                  CustomTextField(label: "Contact Number ", controller: contactNumberController, hintText: ""),
+                  CustomTextField(label: "Contact Number 2", controller: contactNumber2Controller, hintText: ""),
                   CustomTextField(
                     label: "Physical Address",
                     controller: physicalAddressController,
                     hintText: "Address,house,street,town,post code",
                   ),
                   CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: "S.E.C.P"),
-                  CustomTextField(
-                    label: "E- Channel Login I'd",
-                    controller: channelLoginController,
-                    hintText: "S.E.C.P",
-                  ),
+                  CustomTextField(label: "E- Channel Login I'd", controller: channelLoginController, hintText: ""),
                   CustomTextField(
                     label: "E- Channel Login Password",
                     controller: channelPasswordController,
-                    hintText: "xxxxxxx",
+                    hintText: "",
                   ),
                 ],
               ),

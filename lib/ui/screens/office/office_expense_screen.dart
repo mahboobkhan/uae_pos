@@ -79,9 +79,46 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
           return Center(child: Text(expensesProvider.errorMessage ?? "Error"));
         }
 
-        /*if (expensesProvider.expenses.isEmpty) {
-          return const Center(child: Text("No expenses found"));
-        }*/
+        if (expensesProvider.expenses.isEmpty) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.receipt_long,
+                    size: 80,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "No Office Expenses Found",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // You can add navigation to add expense dialog here
+                      // For now, just refresh the data
+                      Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text("Refresh"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
         return Scaffold(
           body: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -406,13 +443,13 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                     columnWidths: const {
                                       0: FlexColumnWidth(0.8),
-                                      1: FlexColumnWidth(1.5),
-                                      2: FlexColumnWidth(1.5),
-                                      3: FlexColumnWidth(1.4),
+                                      1: FlexColumnWidth(1.3),
+                                      2: FlexColumnWidth(1.3),
+                                      3: FlexColumnWidth(1.1),
                                       // 4: FlexColumnWidth(1),
                                       4: FlexColumnWidth(1),
                                       5: FlexColumnWidth(1),
-                                      6: FlexColumnWidth(1),
+                                      6: FlexColumnWidth(0.5),
                                     },
                                     children: [
                                       // Header Row

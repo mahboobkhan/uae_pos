@@ -4,11 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../utils/clipboard_utils.dart';
-import '../../dialogs/company_profile.dart';
+import 'company_profile.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
-import '../../dialogs/individual_profile.dart';
+import 'individual_profile.dart';
 import '../../dialogs/tags_class.dart';
 import '../../dialogs/employee_list_dialog.dart';
 import '../../../providers/client_profile_provider.dart';

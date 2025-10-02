@@ -368,13 +368,13 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           controller: _workingHoursController,
                           enabled: _isEditing,
                         ),
-                        TextButton(
+                        /*TextButton(
                           onPressed: () {},
                           child: Text(
                             "Add More",
                             style: TextStyle(color: Colors.red),
                           ),
-                        ),
+                        ),*/
                       ],
                     ),
                     SizedBox(height: 10),

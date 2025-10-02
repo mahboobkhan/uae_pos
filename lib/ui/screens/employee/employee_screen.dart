@@ -57,9 +57,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
   ];
 
-
-  String? selectedCategory ='All';
-  String? selectedCategory1= 'All';
+  String? selectedCategory = 'All';
+  String? selectedCategory1 = 'All';
   bool _isHovering = false;
 
   // Get unique employee types from the data
@@ -67,13 +66,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     if (provider.employees == null || provider.employees!.isEmpty) {
       return ['All'];
     }
-    
-    final types = provider.employees!
-        .map((e) => e.employeeType)
-        .where((type) => type.isNotEmpty)
-        .toSet()
-        .toList();
-    
+
+    final types =
+        provider.employees!
+            .map((e) => e.employeeType)
+            .where((type) => type.isNotEmpty)
+            .toSet()
+            .toList();
+
     return ['All', ...types];
   }
 
@@ -82,13 +82,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     if (provider.employees == null || provider.employees!.isEmpty) {
       return ['All'];
     }
-    
-    final designations = provider.employees!
-        .map((e) => e.empDesignation)
-        .where((designation) => designation.isNotEmpty)
-        .toSet()
-        .toList();
-    
+
+    final designations =
+        provider.employees!
+            .map((e) => e.empDesignation)
+            .where((designation) => designation.isNotEmpty)
+            .toSet()
+            .toList();
+
     return ['All', ...designations];
   }
 
@@ -100,15 +101,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
     return provider.employees!.where((employee) {
       // Filter by employee type
-      if (selectedCategory != 'All' && employee.employeeType != selectedCategory) {
+      if (selectedCategory != 'All' &&
+          employee.employeeType != selectedCategory) {
         return false;
       }
-      
+
       // Filter by designation
-      if (selectedCategory1 != 'All' && employee.empDesignation != selectedCategory1) {
+      if (selectedCategory1 != 'All' &&
+          employee.empDesignation != selectedCategory1) {
         return false;
       }
-      
+
       return true;
     }).toList();
   }
@@ -125,7 +128,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
@@ -170,17 +172,25 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                   CustomDropdown(
                                     selectedValue: selectedCategory,
                                     hintText: "Employee Type",
-                                    items: getUniqueEmployeeTypes(employeeProvider),
+                                    items: getUniqueEmployeeTypes(
+                                      employeeProvider,
+                                    ),
                                     onChanged: (newValue) {
-                                      setState(() => selectedCategory = newValue!);
+                                      setState(
+                                        () => selectedCategory = newValue!,
+                                      );
                                     },
                                   ),
                                   CustomDropdown(
                                     selectedValue: selectedCategory1,
                                     hintText: "Designation",
-                                    items: getUniqueDesignations(employeeProvider),
+                                    items: getUniqueDesignations(
+                                      employeeProvider,
+                                    ),
                                     onChanged: (newValue) {
-                                      setState(() => selectedCategory1 = newValue!);
+                                      setState(
+                                        () => selectedCategory1 = newValue!,
+                                      );
                                     },
                                   ),
                                 ],
@@ -202,16 +212,23 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       if (employeeProvider.isLoading) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      
-                      if (employeeProvider.employees == null || employeeProvider.employees!.isEmpty) {
+
+                      if (employeeProvider.employees == null ||
+                          employeeProvider.employees!.isEmpty) {
                         return const Center(child: Text('No employees found'));
                       }
 
                       // Get filtered employees based on selected filters
-                      final filteredEmployees = getFilteredEmployees(employeeProvider);
-                      
+                      final filteredEmployees = getFilteredEmployees(
+                        employeeProvider,
+                      );
+
                       if (filteredEmployees.isEmpty) {
-                        return const Center(child: Text('No employees match the selected filters'));
+                        return const Center(
+                          child: Text(
+                            'No employees match the selected filters',
+                          ),
+                        );
                       }
 
                       return ScrollbarTheme(
@@ -234,20 +251,23 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                 scrollDirection: Axis.vertical,
                                 controller: _verticalController,
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(minWidth: 1200),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 1200,
+                                  ),
                                   child: Table(
-                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                    defaultVerticalAlignment:
+                                        TableCellVerticalAlignment.middle,
                                     columnWidths: const {
                                       0: FlexColumnWidth(0.8),
                                       1: FlexColumnWidth(1.2),
-                                      2: FlexColumnWidth(1.2),
-                                      3: FlexColumnWidth(1),
-                                      4: FlexColumnWidth(1.5),
+                                      // 2: FlexColumnWidth(1.2),
+                                      2: FlexColumnWidth(1),
+                                      3: FlexColumnWidth(1.5),
+                                      4: FlexColumnWidth(1.3),
                                       5: FlexColumnWidth(1.3),
-                                      6: FlexColumnWidth(1.3),
-                                      7: FlexColumnWidth(1),
+                                      6: FlexColumnWidth(1),
+                                      7: FlexColumnWidth(1.5),
                                       8: FlexColumnWidth(1.5),
-                                      9: FlexColumnWidth(1.5),
                                     },
                                     children: [
                                       // Header Row
@@ -258,54 +278,73 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                         children: [
                                           _buildHeader("Date"),
                                           _buildHeader("Employee Detail "),
-                                          _buildHeader("Tags Details"),
+                                          // _buildHeader("Tags Details"),
                                           _buildHeader("Designation"),
                                           _buildHeader("Payment Mode"),
                                           _buildHeader("Salary"),
                                           _buildHeader("Advance"),
                                           _buildHeader("Phone Number"),
                                           _buildHeader("Edit"),
-
-
                                         ],
                                       ),
                                       // Dynamic Data Rows
-                                      ...filteredEmployees.asMap().entries.map((entry){
+                                      ...filteredEmployees.asMap().entries.map((
+                                        entry,
+                                      ) {
                                         final index = entry.key;
                                         final employee = entry.value;
                                         // final index = filteredEmployees.indexOf(employee);
                                         return TableRow(
                                           decoration: BoxDecoration(
-                                            color: index.isEven
-                                                ? Colors.grey.shade200
-                                                : Colors.grey.shade100,
+                                            color:
+                                                index.isEven
+                                                    ? Colors.grey.shade200
+                                                    : Colors.grey.shade100,
                                           ),
                                           children: [
-                                            _buildCell2(_formatDateForDisplay(employee.lastUpdatedDate), "", centerText2: true),
+                                            _buildCell2(
+                                              _formatDateForDisplay(
+                                                employee.lastUpdatedDate,
+                                              ),
+                                              "",
+                                              centerText2: true,
+                                            ),
                                             _buildCell(employee.employeeName),
-                                            TagsCellWidget(initialTags: currentTags), // Using static tags as requested
+                                            // TagsCellWidget(initialTags: currentTags), // Using static tags as requested
                                             _buildCell(employee.empDesignation),
                                             _buildCell2(
-                                                employee.paymentMethod.isEmpty ? "N/A" : employee.paymentMethod,
-                                                ""
+                                              employee.paymentMethod.isEmpty
+                                                  ? "N/A"
+                                                  : employee.paymentMethod,
+                                              "",
                                             ),
 
-                                            _buildPriceWithAdd("AED-", employee.salary ?? "0"),
-                                            _buildPriceWithAdd1(
-                                              "AED-", 
-                                              employee.salaryCurrentMonth?.advanceSalary ?? "0"
+                                            _buildPriceWithAdd(
+                                              "AED-",
+                                              employee.salary ?? "0",
                                             ),
-                                            _buildCell(employee.emirateId.isEmpty ? "N/A" : employee.emirateId),
+                                            _buildPriceWithAdd1(
+                                              "AED-",
+                                              employee
+                                                      .salaryCurrentMonth
+                                                      ?.advanceSalary ??
+                                                  "0",
+                                            ),
+                                            _buildCell(
+                                              employee.emirateId.isEmpty
+                                                  ? "N/A"
+                                                  : employee.emirateId,
+                                            ),
                                             _buildActionCell(
                                               onDraft: () async {
                                                 print(entry);
                                                 final result =
-                                                await EmployeeProfileDialog(
-                                                  context,
-                                                  entry,
-                                                  employeeProvider.data,
-                                                  //  bankAccount,
-                                                );
+                                                    await EmployeeProfileDialog(
+                                                      context,
+                                                      entry,
+                                                      employeeProvider.data,
+                                                      //  bankAccount,
+                                                    );
                                                 if (result != null) {
                                                   // Optionally update UI or local state with returned values
                                                   // For example, you could show a toast/snackbar or trigger a refresh
@@ -327,13 +366,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     },
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
       ),
     );
   }
+
   Widget _buildActionCell({VoidCallback? onDraft}) {
     return Row(
       children: [
@@ -352,21 +392,25 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     child: Text(
       text,
       style: const TextStyle(
-          color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+        color: Colors.red,
+        fontWeight: FontWeight.bold,
+        fontSize: 12,
+      ),
     ),
   );
 
-  Widget _buildCell2(String text1, String text2,
-      {bool copyable = false, bool centerText2 = false}) =>
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(text1, style: const TextStyle(fontSize: 12)),
-          ],
-        ),
-      );
+  Widget _buildCell2(
+    String text1,
+    String text2, {
+    bool copyable = false,
+    bool centerText2 = false,
+  }) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [Text(text1, style: const TextStyle(fontSize: 12))],
+    ),
+  );
 
   Widget _buildCell(String text, {bool copyable = false}) => Padding(
     padding: const EdgeInsets.all(8.0),
@@ -374,9 +418,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(
-          child: Text(text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis),
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 12),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         if (copyable)
           GestureDetector(
@@ -395,7 +441,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     ),
   );
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(
+    String curr,
+    String price, {
+    bool showPlus = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
@@ -404,32 +454,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             curr,
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
-          const Spacer(),
-          if (showPlus)
-            Container(
-              width: 15,
-              height: 15,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
-              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+          Text(
+            price,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.green,
+              fontWeight: FontWeight.bold,
             ),
-        ],
-      ),
-    );
-  }
-  Widget _buildPriceWithAdd1(String curr, String price, {bool showPlus = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Row(
-        children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.red,fontWeight: FontWeight.bold),),
           const Spacer(),
           if (showPlus)
             Container(
@@ -446,5 +478,40 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-
+  Widget _buildPriceWithAdd1(
+    String curr,
+    String price, {
+    bool showPlus = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Text(
+            curr,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            price,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Spacer(),
+          if (showPlus)
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue),
+              ),
+              child: const Icon(Icons.add, size: 13, color: Colors.blue),
+            ),
+        ],
+      ),
+    );
+  }
 }

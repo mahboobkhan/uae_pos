@@ -30,6 +30,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
 
   // Payment types updated to new naming
   final List<String> paymentMethods = ['Cash', 'Cheque', 'Bank'];
+
   // payment type
   final List<String> paymentTypes = ['Receive', 'Return', 'Expense'];
 
@@ -96,6 +97,13 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       _noteController = TextEditingController();
       _stepCostController = TextEditingController();
       _additionalCostController = TextEditingController();
+
+      // Set default username for received by
+      getCurrentUserName().then((name) {
+        if (mounted) {
+          _receivedByController.text = name;
+        }
+      });
     }
 
     // Load data when dialog opens
@@ -262,6 +270,10 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                                       value,
                                   orElse: () => {},
                                 );
+                                // Auto-fill payment by with client name
+                                if (selectedProjectData != null && selectedProjectData!['client_id']?['name'] != null) {
+                                  _paymentByController.text = selectedProjectData!['client_id']['name'];
+                                }
                                 // Load project stages when project is selected
                                 if (selectedProjectData != null) {
                                   final projectStageProvider = context.read<ProjectStageProvider>();
@@ -271,6 +283,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                                 }
                               } else {
                                 selectedProjectData = null;
+                                // Clear payment by when no project is selected
+                                _paymentByController.clear();
                               }
                             });
                           },
@@ -285,8 +299,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       child: Consumer<ProjectStageProvider>(
                         builder: (context, projectStageProvider, child) {
                           // Filter stages that are not ended
-                          final activeStages =
-                              projectStageProvider.projectStages.where((stage) => stage['end_at'] == null).toList();
+                          // final activeStages =
+                          //     projectStageProvider.projectStages.where((stage) => stage['end_at'] == null).toList();
+                          final activeStages = projectStageProvider.projectStages.toList();
 
                           return CustomDropdownField(
                             label: "Project Stage",
@@ -332,6 +347,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       label: "Received By",
                       controller: _receivedByController,
                       hintText: 'Manager',
+                      enabled: false,
                     ),
                   ),
                 ],
@@ -347,7 +363,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: CustomTextField(
-                        label: "Additional Cost",
+                        label: "Additional Profits",
                         controller: _additionalCostController,
                         hintText: '0.00',
                       ),
