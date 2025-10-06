@@ -4,14 +4,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../employee/AllEmployeeData.dart';
-import '../../employee/EmployeeProvider.dart';
-import '../../employee/employee_models.dart';
-import '../../providers/signup_provider.dart';
-import '../../providers/update_ban_account_provider.dart';
-import 'calender.dart';
-import 'custom_dialoges.dart';
-import 'custom_fields.dart';
+import '../../../../employee/AllEmployeeData.dart';
+import '../../../../employee/EmployeeProvider.dart';
+import '../../../../employee/employee_models.dart';
+import '../../../../providers/signup_provider.dart';
+import '../../../../providers/update_ban_account_provider.dart';
+import '../../../../providers/employee_payments_provider.dart';
+import '../../../dialogs/calender.dart';
+import '../../../dialogs/custom_dialoges.dart';
+import '../../../dialogs/custom_fields.dart';
 
 Future<Map<String, dynamic>?> EmployeeProfileDialog(
   BuildContext context,
@@ -94,6 +95,10 @@ class _EmployeProfileState extends State<EmployeProfile> {
   bool _isSubmitting = false;
   bool _isContractActive = false;
   bool _isEditing = false;
+  
+  // Salary statistics
+  Map<String, dynamic>? _salaryStats;
+  bool _isLoadingStats = false;
 
   @override
   void initState() {
@@ -113,6 +118,9 @@ class _EmployeProfileState extends State<EmployeProfile> {
     });
     // Initialize form with current employee data
     _initializeFormData();
+    
+    // Fetch salary statistics
+    _fetchSalaryStats();
   }
 
   @override
@@ -120,16 +128,18 @@ class _EmployeProfileState extends State<EmployeProfile> {
     final bankList =
         widget.data!.allBanks.map((d) => d.bankName.trim()).toList();
     return SafeArea(
-      child: Consumer3<
+      child: Consumer4<
         UpdateUserBankAccountProvider,
         EmployeeProvider,
-        SignupProvider
+        SignupProvider,
+        EmployeePaymentsProvider
       >(
         builder: (
           ctx,
           updateUserBankAccountProvider,
           employeeProvider,
           signupProvider,
+          employeePaymentsProvider,
           _,
         ) {
           return Dialog(
@@ -325,7 +335,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           hintText: "abc@gmail.com",
                           controller: _emailIdController,
                           readOnly: true,
-                          enabled: _isEditing,
+                          enabled: false,
                         ),
 
                         CustomDateField(
@@ -465,49 +475,30 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           children: [
                             InfoBox(
                               value: "Remaining Salary",
-                              label:
-                                  widget
-                                              .singleEmployee
-                                              .value
-                                              .salaryCurrentMonth
-                                              ?.remainingSalary !=
-                                          null
-                                      ? "AED-${widget.singleEmployee.value.salaryCurrentMonth!.remainingSalary}"
-                                      : "AED-0",
+                              label: _isLoadingStats 
+                                  ? "Loading..."
+                                  : "AED-${_getRemainingSalary().toStringAsFixed(2)}",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
                               value: "Advance Payment",
-                              label:
-                                  widget
-                                              .singleEmployee
-                                              .value
-                                              .salaryCurrentMonth
-                                              ?.advanceSalary !=
-                                          null
-                                      ? "AED-${widget.singleEmployee.value.salaryCurrentMonth!.advanceSalary}"
-                                      : "AED-0",
+                              label: _isLoadingStats 
+                                  ? "Loading..."
+                                  : "AED-${_getAdvancePayment().toStringAsFixed(2)}",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
                               value: "Total Salary",
-                              label:
-                                  widget
-                                              .singleEmployee
-                                              .value
-                                              .salaryCurrentMonth
-                                              ?.totalSalary !=
-                                          null
-                                      ? "AED-${widget.singleEmployee.value.salaryCurrentMonth!.totalSalary}"
-                                      : "AED-0",
+                              label: _isLoadingStats 
+                                  ? "Loading..."
+                                  : "AED-${_getTotalSalary().toStringAsFixed(2)}",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
-                              value: "Base Salary",
-                              label:
-                                  widget.singleEmployee.value.salary != null
-                                      ? "AED-${widget.singleEmployee.value.salary}"
-                                      : "AED-0",
+                              value: "Return Amount",
+                              label: _isLoadingStats 
+                                  ? "Loading..."
+                                  : "AED-${_getReturnAmount().toStringAsFixed(2)}",
                               color: Colors.blue.shade50,
                             ),
                           ],
@@ -805,11 +796,73 @@ class _EmployeProfileState extends State<EmployeProfile> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// Fetch salary statistics for the employee
+  Future<void> _fetchSalaryStats() async {
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoadingStats = true;
+    });
+
+    try {
+      final employeePaymentsProvider = Provider.of<EmployeePaymentsProvider>(
+        context,
+        listen: false,
+      );
+      
+      final employeeRefId = widget.singleEmployee.value.userId.toString();
+      final stats = await employeePaymentsProvider.getEmployeeSalaryStats(employeeRefId);
+      
+      if (mounted) {
+        setState(() {
+          _salaryStats = stats;
+          _isLoadingStats = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingStats = false;
+        });
+      }
+      print('Error fetching salary stats: $e');
+    }
+  }
+
+  /// Get remaining salary from stats
+  double _getRemainingSalary() {
+    if (_salaryStats == null || _salaryStats!['statistics'] == null) return 0.0;
+    final stats = _salaryStats!['statistics'];
+    return double.tryParse(stats['remaining_salary']?.toString() ?? '0') ?? 0.0;
+  }
+
+  /// Get advance payment from stats
+  double _getAdvancePayment() {
+    if (_salaryStats == null || _salaryStats!['statistics'] == null) return 0.0;
+    final stats = _salaryStats!['statistics'];
+    return double.tryParse(stats['total_advance_given']?.toString() ?? '0') ?? 0.0;
+  }
+
+  /// Get total salary from stats
+  double _getTotalSalary() {
+    if (_salaryStats == null || _salaryStats!['statistics'] == null) return 0.0;
+    final stats = _salaryStats!['statistics'];
+    return double.tryParse(stats['total_salary_declared']?.toString() ?? '0') ?? 0.0;
+  }
+
+  /// Get return amount from stats
+  double _getReturnAmount() {
+    if (_salaryStats == null || _salaryStats!['statistics'] == null) return 0.0;
+    final stats = _salaryStats!['statistics'];
+    return double.tryParse(stats['total_advance_returned']?.toString() ?? '0') ?? 0.0;
+  }
+
   // Method to refresh form when dialog is reopened
   void _refreshFormOnReopen() {
     if (mounted) {
       setState(() {
         _ensureLatestData();
+        _fetchSalaryStats(); // Also refresh salary statistics
       });
     }
   }
@@ -855,6 +908,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
       if (mounted) {
         setState(() {
           _initializeFormData();
+          _fetchSalaryStats(); // Also refresh salary statistics
         });
       }
     } catch (e) {}
@@ -887,6 +941,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
         // Reinitialize the form with the latest data
         setState(() {
           _initializeFormData();
+          _fetchSalaryStats(); // Also refresh salary statistics
         });
       }
     } catch (e) {}

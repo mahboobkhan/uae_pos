@@ -502,6 +502,12 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       return;
     }
 
+    // Validate project stage selection if payment type is Receive
+    if (selectedPaymentType == 'Receive' && selectedProjectStage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select project stage for Receive payment type')));
+      return;
+    }
+
     // Validate bank selection if payment method is Bank
     if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a bank for bank payment')));
@@ -567,6 +573,12 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     // Validate required fields
     if (selectedPaymentMethod == null || selectedPaymentType == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all required fields')));
+      return;
+    }
+
+    // Validate project stage selection if payment type is Receive
+    if (selectedPaymentType == 'Receive' && selectedProjectStage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select project stage for Receive payment type')));
       return;
     }
 

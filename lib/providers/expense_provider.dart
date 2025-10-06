@@ -22,10 +22,12 @@ class ExpenseProvider extends ChangeNotifier {
   List<ExpenseData> _expenses = [];
   int _totalExpenses = 0;
   double _totalExpenseAmount = 0.0;
+  List<ExpenseTypeBreakdown> _expenseTypeBreakdown = [];
 
   List<ExpenseData> get expenses => _expenses;
   int get totalExpenses => _totalExpenses;
   double get totalExpenseAmount => _totalExpenseAmount;
+  List<ExpenseTypeBreakdown> get expenseTypeBreakdown => _expenseTypeBreakdown;
 
   // Error handling
   String? _errorMessage;
@@ -126,9 +128,20 @@ class ExpenseProvider extends ChangeNotifier {
             _expenses = parsed.data;
             _totalExpenses = data['total_expenses'] ?? 0;
             _totalExpenseAmount = (data['total_expense_amount'] ?? 0).toDouble();
+            
+            // Parse expense type breakdown
+            if (data['expense_type_breakdown'] != null) {
+              _expenseTypeBreakdown = (data['expense_type_breakdown'] as List)
+                  .map((json) => ExpenseTypeBreakdown.fromJson(json))
+                  .toList();
+            } else {
+              _expenseTypeBreakdown = [];
+            }
+            
             print("Step 4: Expenses Parsed -> ${_expenses.length}");
             print("Step 4: Total Expenses -> $_totalExpenses");
             print("Step 4: Total Amount -> $_totalExpenseAmount");
+            print("Step 4: Expense Type Breakdown -> ${_expenseTypeBreakdown.length} types");
             _setFetchState(RequestState.success);
           } else {
             _fetchErrorMessage = data['message'] ?? 'Unknown API error';
@@ -565,6 +578,26 @@ class ExpensesResponse {
       status: json["status"] ?? "error",
       count: json["count"] ?? 0,
       data: (json["data"] as List).map((e) => ExpenseData.fromJson(e)).toList(),
+    );
+  }
+}
+
+class ExpenseTypeBreakdown {
+  final String expenseType;
+  final int count;
+  final double totalAmount;
+
+  ExpenseTypeBreakdown({
+    required this.expenseType,
+    required this.count,
+    required this.totalAmount,
+  });
+
+  factory ExpenseTypeBreakdown.fromJson(Map<String, dynamic> json) {
+    return ExpenseTypeBreakdown(
+      expenseType: json['expense_type'] ?? '',
+      count: json['count'] ?? 0,
+      totalAmount: double.tryParse(json['total_amount']?.toString() ?? '0') ?? 0.0,
     );
   }
 }

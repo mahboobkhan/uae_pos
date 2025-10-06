@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../utils/clipboard_utils.dart';
 import '../../../providers/employee_payments_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
-import '../../dialogs/employe_profile.dart';
+import 'employee_dialoges/employe_profile.dart';
 import '../../dialogs/tags_class.dart';
 
 class EmployeeFinance extends StatefulWidget {

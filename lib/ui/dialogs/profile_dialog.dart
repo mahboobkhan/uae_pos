@@ -156,7 +156,7 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
                     textStyle: const TextStyle(fontSize: 12),
                   ),
                 ),
-                labelWithArrow('Finance History'),
+                // labelWithArrow('Finance History'),
               ],
             );
           },
@@ -174,7 +174,7 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
               backgroundColor: Colors.red,
               child: Icon(Icons.person, color: Colors.white, size: 50),
             ),
-            Positioned(
+           /* Positioned(
               bottom: 4,
               right: 4,
               child: Container(
@@ -185,12 +185,12 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
                 padding: const EdgeInsets.all(4),
                 child: const Icon(Icons.edit, size: 16, color: Colors.white),
               ),
-            ),
+            ),*/
           ],
         ),
       ),
 
-      // Info icon
+     /* // Info icon
       Positioned(
         top: 55,
         right: 20,
@@ -198,7 +198,7 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
           content: const Text('The image size is 12mb'),
           child: const Icon(Icons.error_outline, size: 20, color: Colors.red),
         ),
-      ),
+      ),*/
     ],
   );
 }

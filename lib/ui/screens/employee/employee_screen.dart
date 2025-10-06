@@ -7,7 +7,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
 import '../../dialogs/custom_dialoges.dart';
-import '../../dialogs/employe_profile.dart';
+import 'employee_dialoges/employe_profile.dart';
 import '../../dialogs/tags_class.dart';
 
 class EmployeeScreen extends StatefulWidget {

@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class EmployeePaymentsProvider extends ChangeNotifier {
-  final String baseUrl = "https://abcwebservices.com/api/banking/empolyee_payments";
+  final String baseUrl =
+      "https://abcwebservices.com/api/banking/empolyee_payments";
 
   bool isLoading = false;
   String? errorMessage;
@@ -20,7 +21,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
   String? typeFilter; // salary, pay, bonus, advance, return
   String? startDateFilter;
   String? endDateFilter;
-  String? sortByFilter; // id, employee_payment_ref_id, employee_ref_id, month_year, amount, type, created_at, updated_at
+  String?
+  sortByFilter; // id, employee_payment_ref_id, employee_ref_id, month_year, amount, type, created_at, updated_at
   String? sortOrderFilter; // ASC, DESC
   int currentPage = 1;
   int itemsPerPage = 20;
@@ -47,7 +49,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
     if (paymentRefIdFilter != null && paymentRefIdFilter!.isNotEmpty) {
       queryParams['payment_ref_id'] = paymentRefIdFilter!;
     }
-    if (employeePaymentRefIdFilter != null && employeePaymentRefIdFilter!.isNotEmpty) {
+    if (employeePaymentRefIdFilter != null &&
+        employeePaymentRefIdFilter!.isNotEmpty) {
       queryParams['employee_payment_ref_id'] = employeePaymentRefIdFilter!;
     }
     if (monthYearFilter != null && monthYearFilter!.isNotEmpty) {
@@ -69,7 +72,9 @@ class EmployeePaymentsProvider extends ChangeNotifier {
       queryParams['order_dir'] = sortOrderFilter!;
     }
 
-    final url = Uri.parse("$baseUrl/get_employee_payments.php").replace(queryParameters: queryParams);
+    final url = Uri.parse(
+      "$baseUrl/get_employee_payments.php",
+    ).replace(queryParameters: queryParams);
 
     try {
       if (kDebugMode) {
@@ -113,7 +118,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
           }
         }
       } else {
-        errorMessage = "Error: ${response.statusCode} - ${response.reasonPhrase}";
+        errorMessage =
+            "Error: ${response.statusCode} - ${response.reasonPhrase}";
         if (kDebugMode) {
           print('HTTP error: $errorMessage');
         }
@@ -250,7 +256,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
       final data = json.decode(response.body);
 
       if (data['status'] == 'success') {
-        successMessage = data['message'] ?? "Employee payment added successfully";
+        successMessage =
+            data['message'] ?? "Employee payment added successfully";
         if (kDebugMode) {
           print('Payment Reference ID: ${data['employee_payment_ref_id']}');
           print('Payment ID: ${data['id']}');
@@ -290,7 +297,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
     String? bankRefId,
   }) async {
     if (id == null && employeePaymentRefId == null) {
-      errorMessage = "Either ID or Employee Payment Reference ID is required for update";
+      errorMessage =
+          "Either ID or Employee Payment Reference ID is required for update";
       notifyListeners();
       return;
     }
@@ -313,7 +321,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
       bodyData["employee_ref_id"] = employeeRefId;
     }
     if (paymentRefId != null) {
-      bodyData["payment_ref_id"] = paymentRefId.isNotEmpty ? paymentRefId : null;
+      bodyData["payment_ref_id"] =
+          paymentRefId.isNotEmpty ? paymentRefId : null;
     }
     if (monthYear != null && monthYear.isNotEmpty) {
       bodyData["month_year"] = monthYear;
@@ -398,7 +407,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
       final data = json.decode(response.body);
 
       if (data['status'] == 'success') {
-        successMessage = data['message'] ?? "Employee payment updated successfully";
+        successMessage =
+            data['message'] ?? "Employee payment updated successfully";
         await getAllEmployeePayments(); // Refresh list
       } else {
         errorMessage = data['message'] ?? "Failed to update employee payment";
@@ -415,9 +425,13 @@ class EmployeePaymentsProvider extends ChangeNotifier {
   }
 
   /// ✅ Delete Employee Payment
-  Future<void> deleteEmployeePayment({String? id, String? employeePaymentRefId}) async {
+  Future<void> deleteEmployeePayment({
+    String? id,
+    String? employeePaymentRefId,
+  }) async {
     if (id == null && employeePaymentRefId == null) {
-      errorMessage = "Either ID or Employee Payment Reference ID is required for deletion";
+      errorMessage =
+          "Either ID or Employee Payment Reference ID is required for deletion";
       notifyListeners();
       return;
     }
@@ -457,7 +471,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
       final data = json.decode(response.body);
 
       if (data['status'] == 'success') {
-        successMessage = data['message'] ?? "Employee payment deleted successfully";
+        successMessage =
+            data['message'] ?? "Employee payment deleted successfully";
         await getAllEmployeePayments(); // Refresh list
       } else {
         errorMessage = data['message'] ?? "Failed to delete employee payment";
@@ -554,7 +569,7 @@ class EmployeePaymentsProvider extends ChangeNotifier {
   Map<String, dynamic>? getPaymentById(String id) {
     try {
       return employeePayments.firstWhere(
-            (payment) => payment['id'].toString() == id,
+        (payment) => payment['id'].toString() == id,
       );
     } catch (e) {
       return null;
@@ -565,7 +580,7 @@ class EmployeePaymentsProvider extends ChangeNotifier {
   Map<String, dynamic>? getPaymentByRefId(String refId) {
     try {
       return employeePayments.firstWhere(
-            (payment) => payment['employee_payment_ref_id'] == refId,
+        (payment) => payment['employee_payment_ref_id'] == refId,
       );
     } catch (e) {
       return null;
@@ -618,19 +633,20 @@ class EmployeePaymentsProvider extends ChangeNotifier {
     return employeePayments
         .where((payment) => payment['employee_ref_id'] == employeeRefId)
         .fold(0.0, (sum, payment) {
-      double amount = (payment['amount'] ?? 0).toDouble();
-      return sum + amount;
-    });
+          double amount = (payment['amount'] ?? 0).toDouble();
+          return sum + amount;
+        });
   }
 
   /// ✅ Calculate total amount by type
   double getTotalAmountByType(String type) {
-    return employeePayments
-        .where((payment) => payment['type'] == type)
-        .fold(0.0, (sum, payment) {
-      double amount = (payment['amount'] ?? 0).toDouble();
-      return sum + amount;
-    });
+    return employeePayments.where((payment) => payment['type'] == type).fold(
+      0.0,
+      (sum, payment) {
+        double amount = (payment['amount'] ?? 0).toDouble();
+        return sum + amount;
+      },
+    );
   }
 
   /// ✅ Calculate total amount by month/year
@@ -638,30 +654,34 @@ class EmployeePaymentsProvider extends ChangeNotifier {
     return employeePayments
         .where((payment) => payment['month_year'] == monthYear)
         .fold(0.0, (sum, payment) {
-      double amount = (payment['amount'] ?? 0).toDouble();
-      return sum + amount;
-    });
+          double amount = (payment['amount'] ?? 0).toDouble();
+          return sum + amount;
+        });
   }
 
   /// ✅ Calculate net advances (advance - returns) for an employee
   double getNetAdvancesByEmployee(String employeeRefId) {
     double totalAdvances = employeePayments
-        .where((payment) =>
-    payment['employee_ref_id'] == employeeRefId &&
-        payment['type'] == 'advance')
+        .where(
+          (payment) =>
+              payment['employee_ref_id'] == employeeRefId &&
+              payment['type'] == 'advance',
+        )
         .fold(0.0, (sum, payment) {
-      double amount = (payment['amount'] ?? 0).toDouble();
-      return sum + amount;
-    });
+          double amount = (payment['amount'] ?? 0).toDouble();
+          return sum + amount;
+        });
 
     double totalReturns = employeePayments
-        .where((payment) =>
-    payment['employee_ref_id'] == employeeRefId &&
-        payment['type'] == 'return')
+        .where(
+          (payment) =>
+              payment['employee_ref_id'] == employeeRefId &&
+              payment['type'] == 'return',
+        )
         .fold(0.0, (sum, payment) {
-      double amount = (payment['amount'] ?? 0).toDouble();
-      return sum + amount;
-    });
+          double amount = (payment['amount'] ?? 0).toDouble();
+          return sum + amount;
+        });
 
     return totalAdvances - totalReturns;
   }
@@ -678,10 +698,7 @@ class EmployeePaymentsProvider extends ChangeNotifier {
       return sum + amount;
     });
 
-    return {
-      'total_amount': totalAmount,
-      'count': employeePayments.length,
-    };
+    return {'total_amount': totalAmount, 'count': employeePayments.length};
   }
 
   /// ✅ Get unique employees from payments
@@ -709,9 +726,8 @@ class EmployeePaymentsProvider extends ChangeNotifier {
   /// ✅ Format amount for display
   String formatAmount(dynamic amount) {
     if (amount == null) return '0.00';
-    double value = amount is String
-        ? double.tryParse(amount) ?? 0.0
-        : amount.toDouble();
+    double value =
+        amount is String ? double.tryParse(amount) ?? 0.0 : amount.toDouble();
     return value.toStringAsFixed(2);
   }
 
@@ -796,8 +812,18 @@ class EmployeePaymentsProvider extends ChangeNotifier {
         int? month = int.tryParse(parts[0]);
         if (month != null && month >= 1 && month <= 12) {
           const months = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
           ];
           return months[month - 1];
         }
@@ -815,5 +841,145 @@ class EmployeePaymentsProvider extends ChangeNotifier {
       return monthYear.split('-').last;
     }
     return monthYear;
+  }
+
+  /// ✅ Get Employee Salary Statistics
+  Future<Map<String, dynamic>?> getEmployeeSalaryStats(
+    String employeeRefId,
+  ) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    final url = Uri.parse(
+      "$baseUrl/get_sallary_detail_by_user.php",
+    ).replace(queryParameters: {'employee_ref_id': employeeRefId});
+
+    try {
+      if (kDebugMode) {
+        print('Fetching salary stats from: $url');
+      }
+
+      final response = await http.get(url);
+
+      if (kDebugMode) {
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          isLoading = false;
+          notifyListeners();
+          return data;
+        } else {
+          errorMessage = data['message'] ?? "Failed to fetch salary statistics";
+          if (kDebugMode) {
+            print('API returned error: $errorMessage');
+          }
+        }
+      } else {
+        errorMessage =
+            "Error: ${response.statusCode} - ${response.reasonPhrase}";
+        if (kDebugMode) {
+          print('HTTP error: $errorMessage');
+        }
+      }
+    } catch (e) {
+      errorMessage = "Network error: $e";
+      if (kDebugMode) {
+        print('Exception occurred: $e');
+      }
+    }
+
+    isLoading = false;
+    notifyListeners();
+    return null;
+  }
+
+  /// ✅ Format salary statistics for display
+  Map<String, String> formatSalaryStats(Map<String, dynamic> stats) {
+    if (stats['statistics'] == null) return {};
+
+    final statistics = stats['statistics'];
+    return {
+      'Salary Declared': formatCurrency(statistics['total_salary_declared']),
+      'Salary Paid': formatCurrency(statistics['total_salary_paid']),
+      'Remaining Salary': formatCurrency(statistics['remaining_salary']),
+      'Total Bonus': formatCurrency(statistics['total_bonus']),
+      'Advance Given': formatCurrency(statistics['total_advance_given']),
+      'Advance Returned': formatCurrency(statistics['total_advance_returned']),
+      'Advance Outstanding': formatCurrency(statistics['advance_outstanding']),
+      'Total To Receive': formatCurrency(statistics['total_to_receive']),
+      'Net Remaining': formatCurrency(statistics['net_remaining_amount']),
+    };
+  }
+
+  /// ✅ Check if employee has outstanding advance
+  bool hasOutstandingAdvance(Map<String, dynamic>? stats) {
+    if (stats == null || stats['summary'] == null) return false;
+    return stats['summary']['has_outstanding_advance'] ?? false;
+  }
+
+  /// ✅ Check if employee has pending salary
+  bool hasPendingSalary(Map<String, dynamic>? stats) {
+    if (stats == null || stats['summary'] == null) return false;
+    return stats['summary']['has_pending_salary'] ?? false;
+  }
+
+  /// ✅ Get outstanding advance amount
+  double getOutstandingAdvance(Map<String, dynamic>? stats) {
+    if (stats == null || stats['statistics'] == null) return 0.0;
+    String advanceAmount = stats['statistics']['advance_outstanding'] ?? '0.00';
+    return double.tryParse(advanceAmount) ?? 0.0;
+  }
+
+  /// ✅ Get total salary declared
+  double getTotalSalaryDeclared(Map<String, dynamic>? stats) {
+    if (stats == null || stats['statistics'] == null) return 0.0;
+    String salaryDeclared =
+        stats['statistics']['total_salary_declared'] ?? '0.00';
+    return double.tryParse(salaryDeclared) ?? 0.0;
+  }
+
+  /// ✅ Get total salary paid
+  double getTotalSalaryPaid(Map<String, dynamic>? stats) {
+    if (stats == null || stats['statistics'] == null) return 0.0;
+    String salaryPaid = stats['statistics']['total_salary_paid'] ?? '0.00';
+    return double.tryParse(salaryPaid) ?? 0.0;
+  }
+
+  /// ✅ Get remaining salary (declared - paid)
+  double getRemainingSalary(Map<String, dynamic>? stats) {
+    if (stats == null || stats['statistics'] == null) return 0.0;
+    String remainingSalary = stats['statistics']['remaining_salary'] ?? '0.00';
+    return double.tryParse(remainingSalary) ?? 0.0;
+  }
+
+  /// ✅ Get net remaining amount (final amount to pay)
+  double getNetRemainingAmount(Map<String, dynamic>? stats) {
+    if (stats == null || stats['statistics'] == null) return 0.0;
+    String netRemaining = stats['statistics']['net_remaining_amount'] ?? '0.00';
+    return double.tryParse(netRemaining) ?? 0.0;
+  }
+
+  /// ✅ Get total amount to receive (salary + bonus)
+  double getTotalToReceive(Map<String, dynamic>? stats) {
+    if (stats == null || stats['statistics'] == null) return 0.0;
+    String totalToReceive = stats['statistics']['total_to_receive'] ?? '0.00';
+    return double.tryParse(totalToReceive) ?? 0.0;
+  }
+
+  /// ✅ Get payment explanation text
+  String getPaymentExplanation(Map<String, dynamic>? stats) {
+    if (stats == null || stats['explanation'] == null) return '';
+
+    final explanation = stats['explanation'];
+    return '''
+${explanation['remaining_salary'] ?? ''}
+${explanation['advance_outstanding'] ?? ''}
+${explanation['net_remaining_amount'] ?? ''}
+    '''.trim();
   }
 }

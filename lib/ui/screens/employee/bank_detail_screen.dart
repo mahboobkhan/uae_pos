@@ -9,7 +9,7 @@ import '../../../providers/update_ban_account_provider.dart';
 import '../../../utils/clipboard_utils.dart';
 import '../../../utils/request_state.dart';
 import '../../dialogs/custom_dialoges.dart';
-import 'employee_dialoges/edit_dialog.dart';
+import '../../dialogs/edit_dialog.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -272,7 +272,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                             ),
                           ),
                         ),
-                        Row(
+                        /*Row(
                           children: [
                             Card(
                               elevation: 8,
@@ -294,7 +294,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                               ),
                             ),
                           ],
-                        ),
+                        ),*/
                       ],
                     );
                   },

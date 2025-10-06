@@ -85,7 +85,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       _receivedByController = TextEditingController();
       _serviceTIDController = TextEditingController();
       _noteController = TextEditingController();
-      _monthYearController = TextEditingController();
+      _monthYearController = TextEditingController(text: DateFormat('MMMM yyyy').format(DateTime.now()));
 
       /*// Set default username for received by
       getCurrentUserName().then((name) {
@@ -121,20 +121,20 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
   Widget build(BuildContext context) {
     return Consumer<EmployeePaymentsProvider>(
       builder: (context, provider, child) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: ConstrainedBox(
+        return Dialog(
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1200, maxHeight: 700),
             child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
                     children: [
                       Text(
                         widget.isEditMode ? "Edit Employee Payment" : "Employee Payment Management",
@@ -230,11 +230,11 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                  Row(
-                    children: [
+                          Row(
+                            children: [
                               Icon(_getPaymentTypeIcon(selectedEmployeeType!), color: Colors.red, size: 20),
                               const SizedBox(width: 8),
-                      Text(
+                              Text(
                                 capitalizeFirstLetter(selectedEmployeeType!),
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
                               ),
@@ -455,9 +455,9 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                             Text(
                               "Please select a payment type to continue",
                               style: TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -514,49 +514,49 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
     return Wrap(
       spacing: 16,
       runSpacing: 16,
-                children: [
-                  CustomDropdownField(
+      children: [
+        CustomDropdownField(
           label: "Payment Method",
-                    selectedValue: selectedPaymentMethod,
+          selectedValue: selectedPaymentMethod,
           options: ['Cash', 'Cheque', 'Bank'],
-                    onChanged: (value) {
-                      setState(() {
-                        selectedPaymentMethod = value;
-                        if (value != 'Bank') {
-                          selectedBank = null;
-                          _serviceTIDController.clear();
-                        }
-                      });
-                    },
-                  ),
+          onChanged: (value) {
+            setState(() {
+              selectedPaymentMethod = value;
+              if (value != 'Bank') {
+                selectedBank = null;
+                _serviceTIDController.clear();
+              }
+            });
+          },
+        ),
         // Bank and Service TID (only show when payment method is Bank)
-                  if (selectedPaymentMethod == 'Bank') ...[
-                    Consumer<BankingPaymentMethodProvider>(
-                      builder: (context, paymentMethodProvider, child) {
-                        final banks =
-                            paymentMethodProvider.paymentMethods
-                                .map((pm) => pm['bank_name']?.toString() ?? '')
-                                .where((name) => name.isNotEmpty)
-                                .toSet()
-                                .toList();
+        if (selectedPaymentMethod == 'Bank') ...[
+          Consumer<BankingPaymentMethodProvider>(
+            builder: (context, paymentMethodProvider, child) {
+              final banks =
+                  paymentMethodProvider.paymentMethods
+                      .map((pm) => pm['bank_name']?.toString() ?? '')
+                      .where((name) => name.isNotEmpty)
+                      .toSet()
+                      .toList();
 
-                        return CustomDropdownField(
-                          label: 'Select Bank',
-                          selectedValue: selectedBank,
-                          options: ['Select Bank', ...banks],
-                          onChanged: (value) {
-                            setState(() {
-                              selectedBank = value == 'Select Bank' ? null : value;
-                            });
-                          },
-                        );
-                      },
-                    ),
+              return CustomDropdownField(
+                label: 'Select Bank',
+                selectedValue: selectedBank,
+                options: ['Select Bank', ...banks],
+                onChanged: (value) {
+                  setState(() {
+                    selectedBank = value == 'Select Bank' ? null : value;
+                  });
+                },
+              );
+            },
+          ),
           CustomTextField(label: "Service TID", controller: _serviceTIDController, hintText: 'Bank Transaction ID'),
         ],
-                  if (selectedPaymentMethod == 'Cheque') ...[
-                    CustomTextField(label: "Cheque No", controller: _serviceTIDController, hintText: 'Cheque No'),
-                  ],
+        if (selectedPaymentMethod == 'Cheque') ...[
+          CustomTextField(label: "Cheque No", controller: _serviceTIDController, hintText: 'Cheque No'),
+        ],
       ],
     );
   }
@@ -945,14 +945,14 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       // Validate payment method for non-salary transactions
       if (selectedPaymentMethod == null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a payment method')));
-      return;
-    }
+        return;
+      }
 
-    // Validate bank selection if payment method is Bank
-    if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a bank for bank payment')));
-      return;
-    }
+      // Validate bank selection if payment method is Bank
+      if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a bank for bank payment')));
+        return;
+      }
     }
 
     final amount = double.tryParse(_amountController.text);
@@ -978,8 +978,14 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       receivedBy: selectedEmployeeType != 'salary' ? _receivedByController.text.trim() : null,
       status: selectedEmployeeType != 'salary' ? 'completed' : null,
       paymentMethod: selectedEmployeeType != 'salary' ? selectedPaymentMethod : null,
-      chequeNo: selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Cheque' ? _serviceTIDController.text.trim() : null,
-      transactionId: selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank' ? _serviceTIDController.text.trim() : null,
+      chequeNo:
+          selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Cheque'
+              ? _serviceTIDController.text.trim()
+              : null,
+      transactionId:
+          selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank'
+              ? _serviceTIDController.text.trim()
+              : null,
       bankRefId: selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank' ? selectedBank : null,
     );
 
@@ -1019,14 +1025,14 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       // Validate payment method for non-salary transactions
       if (selectedPaymentMethod == null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a payment method')));
-      return;
-    }
+        return;
+      }
 
-    // Validate bank selection if payment method is Bank
-    if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a bank for bank payment')));
-      return;
-    }
+      // Validate bank selection if payment method is Bank
+      if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a bank for bank payment')));
+        return;
+      }
     }
 
     final amount = double.tryParse(_amountController.text);
@@ -1054,8 +1060,14 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       receivedBy: selectedEmployeeType != 'salary' ? _receivedByController.text.trim() : null,
       status: selectedEmployeeType != 'salary' ? 'completed' : null,
       paymentMethod: selectedEmployeeType != 'salary' ? selectedPaymentMethod : null,
-      chequeNo: selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Cheque' ? _serviceTIDController.text.trim() : null,
-      transactionId: selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank' ? _serviceTIDController.text.trim() : null,
+      chequeNo:
+          selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Cheque'
+              ? _serviceTIDController.text.trim()
+              : null,
+      transactionId:
+          selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank'
+              ? _serviceTIDController.text.trim()
+              : null,
       bankRefId: selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank' ? selectedBank : null,
     );
 

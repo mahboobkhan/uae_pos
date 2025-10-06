@@ -2,8 +2,8 @@ import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:abc_consultant/ui/dialogs/custom_fields.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../employee/AllEmployeeData.dart';
-import '../../../../employee/employee_models.dart';
+import '../../employee/AllEmployeeData.dart';
+import '../../employee/employee_models.dart';
 
 class BankAccountEditDialog extends StatefulWidget {
   final BankAccount bankAccount;

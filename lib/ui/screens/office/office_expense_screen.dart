@@ -30,6 +30,43 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
     }
   }
 
+  /// Get shortened expense type name for display
+  String _getShortExpenseTypeName(String fullName) {
+    switch (fullName) {
+      case 'Fixed Office Expense':
+        return 'Fixed Office';
+      case 'Office Maintenance Expense':
+        return 'Maintenance';
+      case 'Miscellaneous Office Expense':
+        return 'Miscellaneous';
+      case 'Office Supplies Expense':
+        return 'Supplies';
+      case 'Dynamic Attribute Office Expense':
+        return 'Dynamic';
+      default:
+        return fullName.length > 15
+            ? '${fullName.substring(0, 15)}...'
+            : fullName;
+    }
+  }
+
+  /// Get expense type amount in format "amount / total"
+  String _getExpenseTypeAmount(String expenseType, dynamic expensesProvider) {
+    // Find the breakdown for this expense type
+    final matchingBreakdowns = expensesProvider.expenseTypeBreakdown.where(
+      (item) => item.expenseType == expenseType,
+    );
+
+    double typeAmount = 0.0;
+    if (matchingBreakdowns.isNotEmpty) {
+      typeAmount = matchingBreakdowns.first.totalAmount;
+    }
+
+    double totalAmount = expensesProvider.totalExpenseAmount;
+
+    return '${formatNumber(typeAmount)} / ${formatNumber(totalAmount)}';
+  }
+
   @override
   void dispose() {
     _verticalController.dispose();
@@ -56,6 +93,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
   // Dynamic stats will be generated from ExpenseProvider data
 
   DateTime selectedDateTime = DateTime.now();
+
   // Expense Type filter only
   final List<String> expenseTypeOptions = [
     'All',
@@ -85,11 +123,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.receipt_long,
-                    size: 80,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(Icons.receipt_long, size: 80, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
                     "No Office Expenses Found",
@@ -104,14 +138,20 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                     onPressed: () {
                       // You can add navigation to add expense dialog here
                       // For now, just refresh the data
-                      Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
+                      Provider.of<ExpenseProvider>(
+                        context,
+                        listen: false,
+                      ).fetchExpenses();
                     },
                     icon: const Icon(Icons.refresh),
                     label: const Text("Refresh"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -129,7 +169,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                   height: 120,
                   child: Row(
                     children: [
-                      // Total Expenses Count
+                      // Fixed Office Expense
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -140,13 +180,19 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             shadowColor: Colors.black,
                             child: Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FittedBox(
                                     child: Text(
-                                      expensesProvider.totalExpenses.toString(),
+                                      _getExpenseTypeAmount(
+                                        'Fixed Office Expense',
+                                        expensesProvider,
+                                      ),
                                       style: const TextStyle(
                                         fontSize: 28,
                                         color: Colors.white,
@@ -157,7 +203,13 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   const FittedBox(
-                                    child: Text('Total Count', style: TextStyle(fontSize: 14, color: Colors.white)),
+                                    child: Text(
+                                      'Fixed Office',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -165,7 +217,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                           ),
                         ),
                       ),
-                      // Total Expense Amount
+                      // Office Maintenance Expense
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -176,13 +228,19 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             shadowColor: Colors.black,
                             child: Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FittedBox(
                                     child: Text(
-                                      formatNumber(expensesProvider.totalExpenseAmount),
+                                      _getExpenseTypeAmount(
+                                        'Office Maintenance Expense',
+                                        expensesProvider,
+                                      ),
                                       style: const TextStyle(
                                         fontSize: 28,
                                         color: Colors.white,
@@ -193,7 +251,13 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   const FittedBox(
-                                    child: Text('Total Amount', style: TextStyle(fontSize: 14, color: Colors.white)),
+                                    child: Text(
+                                      'Office Maintenance',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -201,7 +265,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                           ),
                         ),
                       ),
-                      // Placeholder for additional stats if needed
+                      // Miscellaneous Office Expense
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -212,13 +276,19 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             shadowColor: Colors.black,
                             child: Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FittedBox(
                                     child: Text(
-                                      'N/A',
+                                      _getExpenseTypeAmount(
+                                        'Miscellaneous Office Expense',
+                                        expensesProvider,
+                                      ),
                                       style: const TextStyle(
                                         fontSize: 28,
                                         color: Colors.white,
@@ -229,7 +299,13 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   const FittedBox(
-                                    child: Text('Revenue', style: TextStyle(fontSize: 14, color: Colors.white)),
+                                    child: Text(
+                                      'Miscellaneous',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -237,7 +313,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                           ),
                         ),
                       ),
-                      // Placeholder for additional stats if needed
+                      // Office Supplies Expense
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -248,13 +324,19 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             shadowColor: Colors.black,
                             child: Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FittedBox(
                                     child: Text(
-                                      'N/A',
+                                      _getExpenseTypeAmount(
+                                        'Office Supplies Expense',
+                                        expensesProvider,
+                                      ),
                                       style: const TextStyle(
                                         fontSize: 28,
                                         color: Colors.white,
@@ -265,7 +347,13 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   const FittedBox(
-                                    child: Text('Visits', style: TextStyle(fontSize: 14, color: Colors.white)),
+                                    child: Text(
+                                      'Office Supplies',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -273,7 +361,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                           ),
                         ),
                       ),
-                      // Placeholder for additional stats if needed
+                      // Dynamic Attribute Office Expense
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -284,13 +372,19 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             shadowColor: Colors.black,
                             child: Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   FittedBox(
                                     child: Text(
-                                      'N/A',
+                                      _getExpenseTypeAmount(
+                                        'Dynamic Attribute Office Expense',
+                                        expensesProvider,
+                                      ),
                                       style: const TextStyle(
                                         fontSize: 28,
                                         color: Colors.white,
@@ -301,7 +395,13 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   const FittedBox(
-                                    child: Text('Returns', style: TextStyle(fontSize: 14, color: Colors.white)),
+                                    child: Text(
+                                      'Other',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -350,12 +450,20 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                   selectedValue: selectedExpenseType,
                                   items: expenseTypeOptions,
                                   onChanged: (newValue) {
-                                    setState(() => selectedExpenseType = newValue!);
-                                    final provider = Provider.of<ExpenseProvider>(context, listen: false);
+                                    setState(
+                                      () => selectedExpenseType = newValue!,
+                                    );
+                                    final provider =
+                                        Provider.of<ExpenseProvider>(
+                                          context,
+                                          listen: false,
+                                        );
                                     if (newValue == 'All' || newValue == null) {
                                       provider.fetchExpenses();
                                     } else {
-                                      provider.fetchExpenses(expenseType: newValue);
+                                      provider.fetchExpenses(
+                                        expenseType: newValue,
+                                      );
                                     }
                                   },
                                 ),
@@ -372,14 +480,27 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             waitDuration: Duration(milliseconds: 2),
                             child: GestureDetector(
                               onTap: () {
-                                Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
+                                Provider.of<ExpenseProvider>(
+                                  context,
+                                  listen: false,
+                                ).fetchExpenses();
                               },
                               child: Container(
                                 width: 30,
                                 height: 30,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: const BoxDecoration(shape: BoxShape.circle),
-                                child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                ),
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.refresh,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -396,14 +517,27 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                 setState(() {
                                   selectedExpenseType = null;
                                 });
-                                Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
+                                Provider.of<ExpenseProvider>(
+                                  context,
+                                  listen: false,
+                                ).fetchExpenses();
                               },
                               child: Container(
                                 width: 30,
                                 height: 30,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: const BoxDecoration(shape: BoxShape.circle),
-                                child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                ),
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.clear,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -434,13 +568,17 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                               controller: _horizontalController,
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(
-                                  minWidth: MediaQuery.of(context).size.width, // dynamic width
+                                  minWidth:
+                                      MediaQuery.of(
+                                        context,
+                                      ).size.width, // dynamic width
                                 ),
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.vertical,
                                   controller: _verticalController,
                                   child: Table(
-                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                    defaultVerticalAlignment:
+                                        TableCellVerticalAlignment.middle,
                                     columnWidths: const {
                                       0: FlexColumnWidth(0.8),
                                       1: FlexColumnWidth(1.3),
@@ -454,7 +592,9 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                     children: [
                                       // Header Row
                                       TableRow(
-                                        decoration: BoxDecoration(color: Colors.red.shade50),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.shade50,
+                                        ),
                                         children: [
                                           _buildHeader("Date"),
                                           _buildHeader("Name"),
@@ -467,75 +607,112 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                                         ],
                                       ),
                                       // Sample Data Rows
-                                      ...expensesProvider.expenses.asMap().entries.map((entry) {
+                                      ...expensesProvider.expenses.asMap().entries.map((
+                                        entry,
+                                      ) {
                                         final index = entry.key;
                                         final e = entry.value;
                                         return TableRow(
                                           decoration: BoxDecoration(
-                                            color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
+                                            color:
+                                                index.isEven
+                                                    ? Colors.grey.shade200
+                                                    : Colors.grey.shade100,
                                           ),
                                           children: [
                                             _buildCell2(e.updatedAt, ''),
                                             _buildCell(e.expenseName),
-                                            _buildCell(e.expenseAmount.toString()),
+                                            _buildCell(
+                                              e.expenseAmount.toString(),
+                                            ),
                                             _buildCell(e.expenseType),
                                             _buildCell(e.note),
                                             // TagsCellWidget(initialTags: currentTags),
                                             _buildCell(e.editBy),
                                             _buildActionCell(
                                               onEdit: () async {
-                                                final result = await showUnifiedOfficeExpenseDialog(
-                                                  context,
-                                                  expenseData: {
-                                                    "tid": e.tid,
-                                                    "expense_type": e.expenseType,
-                                                    "expense_name": e.expenseName,
-                                                    "expense_amount": e.expenseAmount,
-                                                    "note": e.note,
-                                                    "tag": e.tag,
-                                                    "payment_status": e.paymentStatus,
-                                                    "allocated_amount": e.allocatedAmount,
-                                                    "pay_by_manager": e.payByManager,
-                                                    "received_by_person": e.receivedByPerson,
-                                                    "service_tid": e.serviceTid,
-                                                    "payment_type": e.paymentType,
-                                                    "bank_ref_id": e.bankRefId,
-                                                    "expense_date": e.expenseDate,
-                                                  },
-                                                  isEditMode: true,
-                                                );
+                                                final result =
+                                                    await showUnifiedOfficeExpenseDialog(
+                                                      context,
+                                                      expenseData: {
+                                                        "tid": e.tid,
+                                                        "expense_type":
+                                                            e.expenseType,
+                                                        "expense_name":
+                                                            e.expenseName,
+                                                        "expense_amount":
+                                                            e.expenseAmount,
+                                                        "note": e.note,
+                                                        "tag": e.tag,
+                                                        "payment_status":
+                                                            e.paymentStatus,
+                                                        "allocated_amount":
+                                                            e.allocatedAmount,
+                                                        "pay_by_manager":
+                                                            e.payByManager,
+                                                        "received_by_person":
+                                                            e.receivedByPerson,
+                                                        "service_tid":
+                                                            e.serviceTid,
+                                                        "payment_type":
+                                                            e.paymentType,
+                                                        "bank_ref_id":
+                                                            e.bankRefId,
+                                                        "expense_date":
+                                                            e.expenseDate,
+                                                      },
+                                                      isEditMode: true,
+                                                    );
 
                                                 if (result == true) {
-                                                  Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
+                                                  Provider.of<ExpenseProvider>(
+                                                    context,
+                                                    listen: false,
+                                                  ).fetchExpenses();
                                                 }
                                               },
                                               onDelete: () async {
-                                                final expenseProvider = Provider.of<ExpenseProvider>(
-                                                  context,
-                                                  listen: false,
-                                                );
+                                                final expenseProvider =
+                                                    Provider.of<
+                                                      ExpenseProvider
+                                                    >(context, listen: false);
 
                                                 // Reset before new delete
                                                 expenseProvider.resetState();
 
-                                                await expenseProvider.deleteExpense(e.tid);
+                                                await expenseProvider
+                                                    .deleteExpense(e.tid);
 
-                                                if (expenseProvider.state == RequestState.success) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                if (expenseProvider.state ==
+                                                    RequestState.success) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                        expenseProvider.deleteResponse?.message ??
+                                                        expenseProvider
+                                                                .deleteResponse
+                                                                ?.message ??
                                                             "Expense deleted successfully",
                                                       ),
                                                     ),
                                                   );
 
                                                   // Refresh list
-                                                  expenseProvider.fetchExpenses();
-                                                } else if (expenseProvider.state == RequestState.error) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                  expenseProvider
+                                                      .fetchExpenses();
+                                                } else if (expenseProvider
+                                                        .state ==
+                                                    RequestState.error) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
                                                     SnackBar(
-                                                      content: Text(expenseProvider.errorMessage ?? "Delete failed"),
+                                                      content: Text(
+                                                        expenseProvider
+                                                                .errorMessage ??
+                                                            "Delete failed",
+                                                      ),
                                                     ),
                                                   );
                                                 }
@@ -569,12 +746,20 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -621,14 +806,23 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
         padding: const EdgeInsets.only(left: 4.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
           textAlign: TextAlign.center,
         ),
       ),
     );
   }
 
-  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
+  Widget _buildCell2(
+    String text1,
+    String text2, {
+    bool copyable = false,
+    bool centerText2 = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
       child: Column(
@@ -641,19 +835,31 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
+                    child: Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
+                    ),
                   ),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied to clipboard')),
+                        );
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4),
-                        child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
+                        child: Icon(
+                          Icons.copy,
+                          size: 14,
+                          color: Colors.blue[700],
+                        ),
                       ),
                     ),
                 ],
@@ -661,18 +867,32 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
               : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54))),
+                  Flexible(
+                    child: Text(
+                      text2,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
+                        Clipboard.setData(
+                          ClipboardData(text: "$text1\n$text2"),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied to clipboard')),
+                        );
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4),
-                        child: Icon(Icons.copy, size: 8, color: Colors.blue[700]),
+                        child: Icon(
+                          Icons.copy,
+                          size: 8,
+                          color: Colors.blue[700],
+                        ),
                       ),
                     ),
                 ],
@@ -688,7 +908,12 @@ class _HoverableTag extends StatefulWidget {
   final Color color;
   final VoidCallback onDelete;
 
-  const _HoverableTag({Key? key, required this.tag, required this.color, required this.onDelete}) : super(key: key);
+  const _HoverableTag({
+    Key? key,
+    required this.tag,
+    required this.color,
+    required this.onDelete,
+  }) : super(key: key);
 
   @override
   State<_HoverableTag> createState() => _HoverableTagState();
@@ -708,10 +933,17 @@ class _HoverableTagState extends State<_HoverableTag> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             margin: const EdgeInsets.only(top: 6, right: 2),
-            decoration: BoxDecoration(color: widget.color, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: widget.color,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Text(
               widget.tag,
-              style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 12),
+              style: const TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+              ),
             ),
           ),
           if (_hovering)
@@ -720,7 +952,9 @@ class _HoverableTagState extends State<_HoverableTag> {
               right: 5,
               child: GestureDetector(
                 onTap: widget.onDelete,
-                child: Container(child: const Icon(Icons.close, size: 12, color: Colors.black)),
+                child: Container(
+                  child: const Icon(Icons.close, size: 12, color: Colors.black),
+                ),
               ),
             ),
         ],
