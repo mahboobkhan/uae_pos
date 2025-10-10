@@ -425,7 +425,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "EDIT SHORT SERVICE",
+                        "Edit Short Service",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(
@@ -444,7 +444,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      CustomTextField1(label: 'MANAGER NAME', text: managerName, onChanged: (val) => managerName = val),
+                      CustomTextField1(label: 'Assign Employee', text: managerName, onChanged: (val) => managerName = val),
                       const SizedBox(height: 20),
 
                       Row(

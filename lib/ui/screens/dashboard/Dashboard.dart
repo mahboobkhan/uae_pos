@@ -1,3 +1,4 @@
+import 'package:abc_consultant/utils/app_colors.dart';
 import 'package:abc_consultant/utils/clipboard_utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: Container(
                                 margin: const EdgeInsets.symmetric(horizontal: 6),
                                 padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                                decoration: BoxDecoration(color:AppColors.redColor, borderRadius: BorderRadius.circular(12)),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -275,9 +276,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: Colors.red, size: 48),
+            Icon(Icons.error_outline, color: AppColors.redColor, size: 48),
             SizedBox(height: 8),
-            Text('Error loading payments data', style: TextStyle(color: Colors.red)),
+            Text('Error loading payments data', style: TextStyle(color: AppColors.redColor)),
             SizedBox(height: 4),
             Text(
               provider.paymentsErrorMessage!,
@@ -315,8 +316,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             spots: spots,
             isCurved: true,
             dotData: FlDotData(show: true),
-            color: Colors.red,
-            belowBarData: BarAreaData(show: true, color: Colors.red.withOpacity(0.3)),
+            color: AppColors.redColor,
+            belowBarData: BarAreaData(show: true, color: AppColors.redColor.withOpacity(0.3)),
           ),
         ],
         titlesData: FlTitlesData(
@@ -355,9 +356,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: Colors.red, size: 48),
+            Icon(Icons.error_outline, color: AppColors.redColor, size: 48),
             SizedBox(height: 8),
-            Text('Error loading clients data', style: TextStyle(color: Colors.red)),
+            Text('Error loading clients data', style: TextStyle(color: AppColors.redColor)),
           ],
         ),
       );
@@ -376,7 +377,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final dayData = provider.clientsChartData[i];
       final double count = ((dayData['total_clients'] ?? 0) as num).toDouble();
       if (count > maxCount) maxCount = count;
-      barGroups.add(BarChartGroupData(x: i, barRods: [BarChartRodData(toY: count, color: Colors.red)]));
+      barGroups.add(BarChartGroupData(x: i, barRods: [BarChartRodData(toY: count, color: AppColors.redColor)]));
       final String date = (dayData['date'] ?? '').toString();
       xLabels.add(date.isNotEmpty && date.length >= 10 ? date.substring(5) : date);
     }
@@ -444,9 +445,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: Colors.red, size: 48),
+            Icon(Icons.error_outline, color: AppColors.redColor, size: 48),
             SizedBox(height: 8),
-            Text('Error loading projects data', style: TextStyle(color: Colors.red)),
+            Text('Error loading projects data', style: TextStyle(color: AppColors.redColor)),
           ],
         ),
       );
@@ -458,7 +459,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Convert projects status distribution to pie chart
     List<PieChartSectionData> sections = [];
-    List<Color> colors = [Colors.green, Colors.blue, Colors.orange, Colors.red, Colors.purple];
+    List<Color> colors = [Colors.green, Colors.blue, Colors.orange, AppColors.redColor, Colors.purple];
 
     for (int i = 0; i < provider.projectsStatusDistribution!.length; i++) {
       final statusData = provider.projectsStatusDistribution![i];
@@ -483,7 +484,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildProjectsLegend(DashboardProvider provider) {
     final data = provider.projectsStatusDistribution ?? [];
     if (data.isEmpty) return const SizedBox.shrink();
-    final List<Color> colors = [Colors.green, Colors.blue, Colors.orange, Colors.red, Colors.purple];
+    final List<Color> colors = [Colors.green, Colors.blue, Colors.orange, AppColors.redColor, Colors.purple];
 
     final List<Widget> items = [];
     for (int i = 0; i < data.length; i++) {
@@ -509,9 +510,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: Colors.red, size: 48),
+            Icon(Icons.error_outline, color: AppColors.redColor, size: 48),
             SizedBox(height: 8),
-            Text('Error loading expenses data', style: TextStyle(color: Colors.red)),
+            Text('Error loading expenses data', style: TextStyle(color: AppColors.redColor)),
           ],
         ),
       );
@@ -523,7 +524,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Convert expenses type distribution to pie chart
     List<PieChartSectionData> sections = [];
-    List<Color> colors = [Colors.red, Colors.blue, Colors.green, Colors.yellow, Colors.purple];
+    List<Color> colors = [AppColors.redColor, Colors.blue, Colors.green, Colors.yellow, Colors.purple];
 
     for (int i = 0; i < provider.expensesTypeDistribution!.length; i++) {
       final typeData = provider.expensesTypeDistribution![i];
@@ -648,7 +649,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildExpensesLegend(DashboardProvider provider) {
     final data = provider.expensesTypeDistribution ?? [];
     if (data.isEmpty) return const SizedBox.shrink();
-    final List<Color> colors = [Colors.red, Colors.blue, Colors.green, Colors.yellow, Colors.purple];
+    final List<Color> colors = [AppColors.redColor, Colors.blue, Colors.green, Colors.yellow, Colors.purple];
 
     final List<Widget> items = [];
     for (int i = 0; i < data.length; i++) {

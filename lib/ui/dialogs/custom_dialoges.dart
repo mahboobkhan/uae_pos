@@ -167,7 +167,7 @@ void showServicesProjectPopup(BuildContext context) {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              "ADD SHORT SERVICE",
+                              "Add Short Service",
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -176,13 +176,13 @@ void showServicesProjectPopup(BuildContext context) {
                             ),
                             const SizedBox(height: 20),
                             CustomTextField1(
-                              label: 'CLIENT NAME',
+                              label: 'Client Name',
                               onChanged: (val) => clientName = val,
                             ),
                             const SizedBox(height: 12),
 
                             CustomDropdownWithRightAdd(
-                              label: 'SERVICE CATEGORY',
+                              label: 'Service Category',
                               value: selectedServiceCategory,
                               items: serviceOptions,
                               onChanged: (val) => setState(() => selectedServiceCategory = val),
@@ -209,7 +209,7 @@ void showServicesProjectPopup(BuildContext context) {
                                 } else {
                                   return CustomTextField1(
                                     enabled: false,
-                                    label: 'MANAGER NAME',
+                                    label: 'Assign Employee',
                                     onChanged: (val) => managerName = val,
                                     text: snapshot.data ?? "",
                                   );

@@ -815,7 +815,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "EDIT SHORT SERVICE",
+                        "Edit Short Service",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(
@@ -823,16 +823,16 @@ class _ProjectScreenState extends State<ProjectScreen> {
                         style: const TextStyle(fontSize: 12, color: Colors.black54),
                       ),
                       const SizedBox(height: 20),
-                      CustomTextField1(label: 'CLIENT NAME', text: clientName, onChanged: (val) => clientName = val),
+                      CustomTextField1(label: 'Client Name', text: clientName, onChanged: (val) => clientName = val),
                       const SizedBox(height: 12),
                       CustomTextField1(
-                        label: 'COST (AED)',
+                        label: 'Cost (AED)',
                         keyboardType: TextInputType.number,
                         text: cost,
                         onChanged: (val) => cost = val,
                       ),
                       const SizedBox(height: 12),
-                      CustomTextField1(label: 'MANAGER NAME', text: managerName, onChanged: (val) => managerName = val),
+                      CustomTextField1(label: 'Assign Employee', text: managerName, onChanged: (val) => managerName = val),
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
