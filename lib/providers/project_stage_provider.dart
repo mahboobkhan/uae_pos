@@ -100,7 +100,6 @@ class ProjectStageProvider extends ChangeNotifier {
 
     if (extraNotes != null && extraNotes.isNotEmpty) bodyData["extra_notes"] = extraNotes;
 
-
     if (additionalProfit != null && additionalProfit.isNotEmpty) {
       bodyData["additional_profit"] = additionalProfit;
     }
@@ -158,7 +157,7 @@ class ProjectStageProvider extends ChangeNotifier {
 
     final Map<String, dynamic> bodyData = {"project_stage_ref_id": projectStageRefId};
 
-    if (endAt != null && endAt.isNotEmpty) bodyData["end_at"] = endAt;
+    bodyData["end_at"] = endAt;
     if (stepCost != null && stepCost.isNotEmpty) bodyData["step_cost"] = stepCost;
     if (applications != null && applications.isNotEmpty) bodyData["applications"] = applications;
     if (extraNotes != null && extraNotes.isNotEmpty) bodyData["extra_notes"] = extraNotes;

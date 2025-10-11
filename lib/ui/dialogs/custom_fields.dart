@@ -387,6 +387,62 @@ class CustomTextField1 extends StatelessWidget {
   }
 }
 
+class CustomDropdown1 extends StatelessWidget {
+  final String label;
+  final String? value;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+  final double? width;
+  final bool enabled;
+
+  const CustomDropdown1({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+    this.width,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: !enabled,
+      child: Container(
+        width: width,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(4),
+          color: Colors.white,
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            isExpanded: true,
+            hint: Text(
+              label,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            value: value,
+            items: items.map((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(
+                  item,
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              );
+            }).toList(),
+            onChanged: enabled ? onChanged : null,
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class InfoBox extends StatelessWidget {
   final String label;
   final String value;

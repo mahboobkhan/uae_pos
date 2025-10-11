@@ -73,7 +73,9 @@ class ShortServiceCategoryProvider extends ChangeNotifier {
 
   /// ✅ Add Short Service Category
   Future<void> addShortServiceCategory({
+    required String userRefId,
     required String categoryName,
+    required String quotation,
     required String description,
     String status = "active",
   }) async {
@@ -85,7 +87,9 @@ class ShortServiceCategoryProvider extends ChangeNotifier {
     final url = Uri.parse("$baseUrl/add_short_service_category.php");
 
     final body = json.encode({
+      "user_ref_id": userRefId,
       "category_name": categoryName,
+      "quotation": quotation,
       "description": description,
       "status": status,
     });

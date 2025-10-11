@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -337,7 +338,7 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                                               employeePaymentsProvider.getPaymentTypeLabel(payment['type']?.toString() ?? ''),
                                             ),
                                             _buildCell(payment['month_year']?.toString() ?? 'N/A'),
-                                            _buildPriceWithAdd("AED-", employeePaymentsProvider.formatAmount(payment['amount'])),
+                                            _buildPriceWithAdd( employeePaymentsProvider.formatAmount(payment['amount'])),
                                             _buildCell(payment['description']?.toString() ?? 'N/A'),
                                             _buildCell("N/A"),
                                           ],
@@ -409,16 +410,13 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
   }
 
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd( String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(' $price',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
           const Spacer(),
           if (showPlus)
             Container(

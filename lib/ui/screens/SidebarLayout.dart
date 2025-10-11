@@ -50,7 +50,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   NavItem selectedItem = NavItem.dashboard;
 
   int _selectedSidebarIndex = 0;
-  int _selectedSubmenuIndex = 1;
+  int _selectedSubmenuIndex = 0;
 
   @override
   void initState() {

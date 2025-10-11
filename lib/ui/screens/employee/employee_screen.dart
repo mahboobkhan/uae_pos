@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/desigination_provider.dart';
-import '../../../providers/signup_provider.dart';
+
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
+import '../../../providers/signup_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import 'employee_dialoges/employe_profile.dart';
-import '../../dialogs/tags_class.dart';
 
 class EmployeeScreen extends StatefulWidget {
   const EmployeeScreen({super.key});
@@ -67,12 +67,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       return ['All'];
     }
 
-    final types =
-        provider.employees!
-            .map((e) => e.employeeType)
-            .where((type) => type.isNotEmpty)
-            .toSet()
-            .toList();
+    final types = provider.employees!.map((e) => e.employeeType).where((type) => type.isNotEmpty).toSet().toList();
 
     return ['All', ...types];
   }
@@ -101,14 +96,12 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
     return provider.employees!.where((employee) {
       // Filter by employee type
-      if (selectedCategory != 'All' &&
-          employee.employeeType != selectedCategory) {
+      if (selectedCategory != 'All' && employee.employeeType != selectedCategory) {
         return false;
       }
 
       // Filter by designation
-      if (selectedCategory1 != 'All' &&
-          employee.empDesignation != selectedCategory1) {
+      if (selectedCategory1 != 'All' && employee.empDesignation != selectedCategory1) {
         return false;
       }
 
@@ -150,14 +143,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     borderRadius: BorderRadius.circular(2),
                     boxShadow:
                         _isHovering
-                            ? [
-                              BoxShadow(
-                                color: Colors.blue,
-                                blurRadius: 4,
-                                spreadRadius: 0.1,
-                                offset: Offset(0, 1),
-                              ),
-                            ]
+                            ? [BoxShadow(color: Colors.blue, blurRadius: 4, spreadRadius: 0.1, offset: Offset(0, 1))]
                             : [],
                   ),
                   child: Consumer<EmployeeProvider>(
@@ -172,25 +158,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                   CustomDropdown(
                                     selectedValue: selectedCategory,
                                     hintText: "Employee Type",
-                                    items: getUniqueEmployeeTypes(
-                                      employeeProvider,
-                                    ),
+                                    items: getUniqueEmployeeTypes(employeeProvider),
                                     onChanged: (newValue) {
-                                      setState(
-                                        () => selectedCategory = newValue!,
-                                      );
+                                      setState(() => selectedCategory = newValue!);
                                     },
                                   ),
                                   CustomDropdown(
                                     selectedValue: selectedCategory1,
                                     hintText: "Designation",
-                                    items: getUniqueDesignations(
-                                      employeeProvider,
-                                    ),
+                                    items: getUniqueDesignations(employeeProvider),
                                     onChanged: (newValue) {
-                                      setState(
-                                        () => selectedCategory1 = newValue!,
-                                      );
+                                      setState(() => selectedCategory1 = newValue!);
                                     },
                                   ),
                                 ],
@@ -213,22 +191,15 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                         return const Center(child: CircularProgressIndicator());
                       }
 
-                      if (employeeProvider.employees == null ||
-                          employeeProvider.employees!.isEmpty) {
+                      if (employeeProvider.employees == null || employeeProvider.employees!.isEmpty) {
                         return const Center(child: Text('No employees found'));
                       }
 
                       // Get filtered employees based on selected filters
-                      final filteredEmployees = getFilteredEmployees(
-                        employeeProvider,
-                      );
+                      final filteredEmployees = getFilteredEmployees(employeeProvider);
 
                       if (filteredEmployees.isEmpty) {
-                        return const Center(
-                          child: Text(
-                            'No employees match the selected filters',
-                          ),
-                        );
+                        return const Center(child: Text('No employees match the selected filters'));
                       }
 
                       return ScrollbarTheme(
@@ -251,12 +222,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                 scrollDirection: Axis.vertical,
                                 controller: _verticalController,
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    minWidth: 1200,
-                                  ),
+                                  constraints: const BoxConstraints(minWidth: 1200),
                                   child: Table(
-                                    defaultVerticalAlignment:
-                                        TableCellVerticalAlignment.middle,
+                                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                     columnWidths: const {
                                       0: FlexColumnWidth(0.8),
                                       1: FlexColumnWidth(1.2),
@@ -272,9 +240,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                     children: [
                                       // Header Row
                                       TableRow(
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.shade50,
-                                        ),
+                                        decoration: BoxDecoration(color: Colors.red.shade50),
                                         children: [
                                           _buildHeader("Date"),
                                           _buildHeader("Employee Detail "),
@@ -288,24 +254,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                         ],
                                       ),
                                       // Dynamic Data Rows
-                                      ...filteredEmployees.asMap().entries.map((
-                                        entry,
-                                      ) {
+                                      ...filteredEmployees.asMap().entries.map((entry) {
                                         final index = entry.key;
                                         final employee = entry.value;
                                         // final index = filteredEmployees.indexOf(employee);
                                         return TableRow(
                                           decoration: BoxDecoration(
-                                            color:
-                                                index.isEven
-                                                    ? Colors.grey.shade200
-                                                    : Colors.grey.shade100,
+                                            color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
                                           ),
                                           children: [
                                             _buildCell2(
-                                              _formatDateForDisplay(
-                                                employee.lastUpdatedDate,
-                                              ),
+                                              _formatDateForDisplay(employee.lastUpdatedDate),
                                               "",
                                               centerText2: true,
                                             ),
@@ -313,38 +272,22 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                             // TagsCellWidget(initialTags: currentTags), // Using static tags as requested
                                             _buildCell(employee.empDesignation),
                                             _buildCell2(
-                                              employee.paymentMethod.isEmpty
-                                                  ? "N/A"
-                                                  : employee.paymentMethod,
+                                              employee.paymentMethod.isEmpty ? "N/A" : employee.paymentMethod,
                                               "",
                                             ),
 
-                                            _buildPriceWithAdd(
-                                              "AED-",
-                                              employee.salary ?? "0",
-                                            ),
-                                            _buildPriceWithAdd1(
-                                              "AED-",
-                                              employee
-                                                      .salaryCurrentMonth
-                                                      ?.advanceSalary ??
-                                                  "0",
-                                            ),
-                                            _buildCell(
-                                              employee.emirateId.isEmpty
-                                                  ? "N/A"
-                                                  : employee.emirateId,
-                                            ),
+                                            _buildPriceWithAdd(employee.salary ?? "0"),
+                                            _buildPriceWithAdd1(employee.salaryCurrentMonth?.advanceSalary ?? "0"),
+                                            _buildCell(employee.emirateId.isEmpty ? "N/A" : employee.emirateId),
                                             _buildActionCell(
                                               onDraft: () async {
                                                 print(entry);
-                                                final result =
-                                                    await EmployeeProfileDialog(
-                                                      context,
-                                                      entry,
-                                                      employeeProvider.data,
-                                                      //  bankAccount,
-                                                    );
+                                                final result = await EmployeeProfileDialog(
+                                                  context,
+                                                  entry,
+                                                  employeeProvider.data,
+                                                  //  bankAccount,
+                                                );
                                                 if (result != null) {
                                                   // Optionally update UI or local state with returned values
                                                   // For example, you could show a toast/snackbar or trigger a refresh
@@ -354,7 +297,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                             ),
                                           ],
                                         );
-                                      }).toList(),
+                                      }),
                                     ],
                                   ),
                                 ),
@@ -376,12 +319,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   Widget _buildActionCell({VoidCallback? onDraft}) {
     return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.edit, size: 23, color: Colors.blue),
-          onPressed: onDraft ?? () {},
-        ),
-      ],
+      children: [IconButton(icon: const Icon(Icons.edit, size: 23, color: Colors.blue), onPressed: onDraft ?? () {})],
     );
   }
 
@@ -389,22 +327,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     height: 40,
     alignment: Alignment.centerLeft,
     padding: const EdgeInsets.only(left: 8.0),
-    child: Text(
-      text,
-      style: const TextStyle(
-        color: Colors.red,
-        fontWeight: FontWeight.bold,
-        fontSize: 12,
-      ),
-    ),
+    child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
   );
 
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) => Padding(
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,20 +343,12 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 12),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+        Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
         if (copyable)
           GestureDetector(
             onTap: () {
               Clipboard.setData(ClipboardData(text: text));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Copied to clipboard')),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
             },
             child: Padding(
               padding: const EdgeInsets.only(left: 8),
@@ -441,36 +359,19 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     ),
   );
 
-  Widget _buildPriceWithAdd(
-    String curr,
-    String price, {
-    bool showPlus = false,
-  }) {
+  Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            price,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.green,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(' $price', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(
               width: 15,
               height: 15,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.blue)),
               child: const Icon(Icons.add, size: 13, color: Colors.blue),
             ),
         ],
@@ -478,36 +379,19 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  Widget _buildPriceWithAdd1(
-    String curr,
-    String price, {
-    bool showPlus = false,
-  }) {
+  Widget _buildPriceWithAdd1(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            price,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(' $price', style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(
               width: 15,
               height: 15,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.blue)),
               child: const Icon(Icons.add, size: 13, color: Colors.blue),
             ),
         ],

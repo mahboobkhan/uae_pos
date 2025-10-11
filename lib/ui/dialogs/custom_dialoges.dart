@@ -126,16 +126,28 @@ Future<String> getUserName() async {
 
 }
 
-// Services Project
+// Services Project - Support for multiple services
 void showServicesProjectPopup(BuildContext context) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
+      // List to hold multiple services
+      List<Map<String, dynamic>> services = [];
+      
+      // Current service being edited
       String clientName = '';
       String? selectedServiceCategory;
-      String cost = '';
+      String quotation = '';
       String managerName = '';
+      String? selectedPaymentMethod;
+      String? selectedPaymentStatus;
+      String transactionId = '';
+      String bankRefId = '';
+      String chequeNo = '';
+
+      final List<String> paymentMethods = ['cash', 'bank', 'cheque'];
+      final List<String> paymentStatuses = ['pending', 'completed'];
 
       return Consumer<ShortServiceCategoryProvider>(
         builder: (context, categoryProvider, child) {
@@ -153,110 +165,437 @@ void showServicesProjectPopup(BuildContext context) {
 
           return StatefulBuilder(
             builder: (context, setState) {
+              // Helper to add service to list
+              void addServiceToList() {
+                if (clientName.isNotEmpty && 
+                    selectedServiceCategory != null &&
+                    quotation.isNotEmpty &&
+                    managerName.isNotEmpty) {
+                  
+                  Map<String, dynamic> service = {
+                    "client_name": clientName,
+                    "service_category_name": selectedServiceCategory,
+                    "quotation": double.tryParse(quotation) ?? 0.0,
+                    "manager_name": managerName,
+                  };
+
+                  // Add optional payment fields
+                  if (selectedPaymentMethod != null) service["payment_method"] = selectedPaymentMethod;
+                  if (selectedPaymentStatus != null) service["payment_status"] = selectedPaymentStatus;
+                  if (transactionId.isNotEmpty) service["transaction_id"] = transactionId;
+                  if (bankRefId.isNotEmpty) service["bank_ref_id"] = bankRefId;
+                  if (chequeNo.isNotEmpty) service["cheque_no"] = chequeNo;
+
+                  setState(() {
+                    services.add(service);
+                    // Clear form
+                    clientName = '';
+                    selectedServiceCategory = null;
+                    quotation = '';
+                    selectedPaymentMethod = null;
+                    selectedPaymentStatus = null;
+                    transactionId = '';
+                    bankRefId = '';
+                    chequeNo = '';
+                  });
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Service added to list'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please fill all required fields'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                }
+              }
+
               return AlertDialog(
                 backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 content: SizedBox(
-                  width: 400,
+                  width: 600,
                   child: Stack(
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 6.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Add Short Service",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            CustomTextField1(
-                              label: 'Client Name',
-                              onChanged: (val) => clientName = val,
-                            ),
-                            const SizedBox(height: 12),
-
-                            CustomDropdownWithRightAdd(
-                              label: 'Service Category',
-                              value: selectedServiceCategory,
-                              items: serviceOptions,
-                              onChanged: (val) => setState(() => selectedServiceCategory = val),
-                              onAddPressed: () {
-                                showServiceCategoryManagementDialog(context);
-                              },
-                            ),
-                            const SizedBox(height: 12),
-
-                            CustomTextField1(
-                              label: 'Cost (AED)',
-                              keyboardType: TextInputType.number,
-                              onChanged: (val) => cost = val,
-                            ),
-                            const SizedBox(height: 12),
-
-                            FutureBuilder<String>(
-                              future: getUserName(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return CircularProgressIndicator(); // or placeholder widget
-                                } else if (snapshot.hasError) {
-                                  return Text('Error: ${snapshot.error}');
-                                } else {
-                                  return CustomTextField1(
-                                    enabled: false,
-                                    label: 'Assign Employee',
-                                    onChanged: (val) => managerName = val,
-                                    text: snapshot.data ?? "",
-                                  );
-                                }
-                              },
-                            ),
-                            const SizedBox(height: 20),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('Cancel'),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Add Short Service(s)",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
                                 ),
-                                const SizedBox(width: 12),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
+                              ),
+                              if (services.isNotEmpty)
+                                Text(
+                                  "${services.length} service(s) added",
+                                  style: const TextStyle(fontSize: 12, color: Colors.green),
+                                ),
+                              const SizedBox(height: 16),
+                              
+                              // Display list of added services
+                              if (services.isNotEmpty) ...[
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.grey.shade300),
                                   ),
-                                  onPressed: () async {
-                                    if (clientName.isNotEmpty && 
-                                        selectedServiceCategory != null &&
-                                        cost.isNotEmpty &&
-                                        managerName.isNotEmpty) {
-                                      
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text(
+                                            "Added Services:",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          if (managerName.isNotEmpty)
+                                            Text(
+                                              "Manager: $managerName",
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black54,
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ...services.asMap().entries.map((entry) {
+                                        final index = entry.key;
+                                        final service = entry.value;
+                                        return Container(
+                                          margin: const EdgeInsets.only(bottom: 8),
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(6),
+                                            border: Border.all(color: Colors.grey.shade300),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "${index + 1}. ",
+                                                          style: const TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.blue,
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Text(
+                                                            service['client_name'] ?? 'N/A',
+                                                            style: const TextStyle(
+                                                              fontSize: 12,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.black,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Text(
+                                                            "Service: ${service['service_category_name'] ?? 'N/A'}",
+                                                            style: const TextStyle(
+                                                              fontSize: 11,
+                                                              color: Colors.black87,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "AED ${service['quotation']?.toString() ?? '0'}",
+                                                          style: const TextStyle(
+                                                            fontSize: 11,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.green,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    if (service['payment_method'] != null) ...[
+                                                      const SizedBox(height: 4),
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            "Payment: ${service['payment_method']} ",
+                                                            style: const TextStyle(
+                                                              fontSize: 10,
+                                                              color: Colors.black54,
+                                                            ),
+                                                          ),
+                                                          if (service['payment_status'] != null)
+                                                            Container(
+                                                              padding: const EdgeInsets.symmetric(
+                                                                horizontal: 6,
+                                                                vertical: 2,
+                                                              ),
+                                                              decoration: BoxDecoration(
+                                                                color: service['payment_status'] == 'completed'
+                                                                    ? Colors.green.shade100
+                                                                    : Colors.orange.shade100,
+                                                                borderRadius: BorderRadius.circular(4),
+                                                              ),
+                                                              child: Text(
+                                                                service['payment_status'],
+                                                                style: TextStyle(
+                                                                  fontSize: 9,
+                                                                  color: service['payment_status'] == 'completed'
+                                                                      ? Colors.green.shade800
+                                                                      : Colors.orange.shade800,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ],
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                                                padding: EdgeInsets.zero,
+                                                constraints: const BoxConstraints(),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    services.removeAt(index);
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                const Divider(),
+                                const SizedBox(height: 8),
+                              ],
+                              
+                              const Text(
+                                "Add New Service:",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              
+                              // Client Name
+                              CustomTextField1(
+                                label: 'Client Name *',
+                                text: clientName,
+                                onChanged: (val) => clientName = val,
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Service Category
+                              CustomDropdownWithRightAdd(
+                                label: 'Service Category *',
+                                value: selectedServiceCategory,
+                                items: serviceOptions,
+                                onChanged: (val) => setState(() => selectedServiceCategory = val),
+                                onAddPressed: () {
+                                  showServiceCategoryManagementDialog(context);
+                                },
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Quotation
+                              CustomTextField1(
+                                label: 'Quotation (AED) *',
+                                text: quotation,
+                                keyboardType: TextInputType.number,
+                                onChanged: (val) => quotation = val,
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Manager Name
+                              FutureBuilder<String>(
+                                future: getUserName(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  } else if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  } else {
+                                    if (managerName.isEmpty && snapshot.data != null) {
+                                      managerName = snapshot.data!;
+                                    }
+                                    return CustomTextField1(
+                                      enabled: false,
+                                      label: 'Assign Employee *',
+                                      text: managerName,
+                                      onChanged: (val) => managerName = val,
+                                    );
+                                  }
+                                },
+                              ),
+                              const SizedBox(height: 16),
+
+                              const Text(
+                                "Payment Details (Optional)",
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+                              ),
+                              const SizedBox(height: 8),
+
+                              // Payment Method
+                              CustomDropdown1(
+                                label: 'Payment Method',
+                                value: selectedPaymentMethod,
+                                items: paymentMethods,
+                                onChanged: (val) => setState(() => selectedPaymentMethod = val),
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Payment Status
+                              CustomDropdown1(
+                                label: 'Payment Status',
+                                value: selectedPaymentStatus,
+                                items: paymentStatuses,
+                                onChanged: (val) => setState(() => selectedPaymentStatus = val),
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Show conditional fields based on payment method
+                              if (selectedPaymentMethod == 'bank') ...[
+                                CustomTextField1(
+                                  label: 'Transaction ID',
+                                  text: transactionId,
+                                  onChanged: (val) => transactionId = val,
+                                ),
+                                const SizedBox(height: 12),
+                                CustomTextField1(
+                                  label: 'Bank Ref ID',
+                                  text: bankRefId,
+                                  onChanged: (val) => bankRefId = val,
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                              if (selectedPaymentMethod == 'cheque') ...[
+                                CustomTextField1(
+                                  label: 'Cheque No',
+                                  text: chequeNo,
+                                  onChanged: (val) => chequeNo = val,
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+
+                              const SizedBox(height: 16),
+
+                              // Add Another Button
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  icon: const Icon(Icons.add, color: Colors.blue),
+                                  label: const Text('Add Another Service', style: TextStyle(color: Colors.blue)),
+                                  onPressed: addServiceToList,
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Colors.blue),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+
+                              // Submit buttons
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      // Add current service if filled
+                                      if (clientName.isNotEmpty && 
+                                          selectedServiceCategory != null &&
+                                          quotation.isNotEmpty &&
+                                          managerName.isNotEmpty) {
+                                        addServiceToList();
+                                      }
+
+                                      // Submit all services
+                                      if (services.isEmpty) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Please add at least one service'),
+                                            backgroundColor: Colors.orange,
+                                          ),
+                                        );
+                                        return;
+                                      }
+
                                       try {
+                                        // Get user_ref_id from SharedPreferences
+                                        final prefs = await SharedPreferences.getInstance();
+                                        final userRefId = prefs.getString('ref_id') ?? '';
+                                        
+                                        if (userRefId.isEmpty) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('User not logged in'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          return;
+                                        }
+
                                         final provider = context.read<ShortServicesProvider>();
                                         await provider.addShortService(
-                                          clientName: clientName,
-                                          serviceCategoryName: selectedServiceCategory!,
-                                          cost: cost,
-                                          managerName: managerName,
+                                          userRefId: userRefId,
+                                          services: services,
                                         );
                                         
                                         if (provider.errorMessage == null) {
                                           Navigator.of(context).pop();
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text(provider.successMessage ?? 'Service added successfully'),
+                                              content: Text(provider.successMessage ?? '${services.length} service(s) added successfully'),
                                               backgroundColor: Colors.green,
                                             ),
                                           );
@@ -276,23 +615,16 @@ void showServicesProjectPopup(BuildContext context) {
                                           ),
                                         );
                                       }
-                                    } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Please fill all fields'),
-                                          backgroundColor: Colors.orange,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Submit',
-                                    style: TextStyle(color: Colors.white),
+                                    },
+                                    child: const Text(
+                                      'Submit',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       // Close Icon
@@ -384,6 +716,7 @@ void showServiceCategoryManagementDialog(BuildContext context) {
 
 Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider categoryProvider, StateSetter setState) {
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController quotationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
   return Container(
@@ -397,14 +730,14 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
         Row(
           children: [
             Expanded(
+              flex: 2,
               child: TextField(
                 controller: nameController,
-
                 decoration: const InputDecoration(
-                  labelText: 'Short Service Category Name',
-                  labelStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                  labelText: 'Category Name',
+                  labelStyle: TextStyle(fontSize: 14, color: Colors.grey),
                   border: OutlineInputBorder(),
-                  focusedBorder:  OutlineInputBorder(
+                  focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.red, width: 1),
                   ),
                   isDense: true,
@@ -412,17 +745,35 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
               ),
             ),
             const SizedBox(width: 8),
-            /*Expanded(
+            Expanded(
               child: TextField(
-                controller: descriptionController,
+                controller: quotationController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Description',
+                  labelText: 'Quotation',
+                  labelStyle: TextStyle(fontSize: 14, color: Colors.grey),
                   border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 1),
+                  ),
                   isDense: true,
                 ),
               ),
-            ),*/
+            ),
           ],
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: descriptionController,
+          decoration: const InputDecoration(
+            labelText: 'Description (Optional)',
+            labelStyle: TextStyle(fontSize: 14, color: Colors.grey),
+            border: OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red, width: 1),
+            ),
+            isDense: true,
+          ),
         ),
         const SizedBox(height: 8),
         SizedBox(
@@ -436,14 +787,31 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
               ),
             ),
             onPressed: categoryProvider.isLoading ? null : () async {
-              if (nameController.text.trim().isNotEmpty ) {
+              if (nameController.text.trim().isNotEmpty && quotationController.text.trim().isNotEmpty) {
+                // Get user_ref_id from SharedPreferences
+                final prefs = await SharedPreferences.getInstance();
+                final userRefId = prefs.getString('ref_id') ?? '';
+                
+                if (userRefId.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('User not logged in'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                
                 await categoryProvider.addShortServiceCategory(
+                  userRefId: userRefId,
                   categoryName: nameController.text.trim(),
+                  quotation: quotationController.text.trim(),
                   description: descriptionController.text.trim(),
                 );
                 
                 if (categoryProvider.errorMessage == null) {
                   nameController.clear();
+                  quotationController.clear();
                   descriptionController.clear();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -462,7 +830,7 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Please fill all fields'),
+                    content: Text('Please fill category name and quotation'),
                     backgroundColor: Colors.orange,
                   ),
                 );

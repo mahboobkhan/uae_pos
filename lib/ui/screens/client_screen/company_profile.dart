@@ -71,10 +71,8 @@ class CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController documentIssueDateController = TextEditingController();
   final TextEditingController documentExpiryDateController = TextEditingController();
 
-  String? selectedPlatform;
-  List<String> platformList = ['Bank', 'Violet', 'Other'];
-  String? selectedJobType3;
-  String? selectedJobType4;
+  String? selectedWorkType;
+
   final TextEditingController _dateTimeController = TextEditingController();
 
   void _pickDateTime2() {
@@ -574,7 +572,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       channelNameController.text = (data['echannel_name'] ?? '').toString();
       channelLoginController.text = (data['echannel_id'] ?? '').toString();
       channelPasswordController.text = (data['echannel_password'] ?? '').toString();
-      selectedJobType3 = (data['client_work'] ?? 'Regular').toString();
+      selectedWorkType = (data['client_work'] ?? 'N/A').toString();
 
       // Set created date from client data if available, otherwise use current date
       if (data['created_at'] != null && data['created_at'].toString().isNotEmpty) {
@@ -637,11 +635,11 @@ class CompanyProfileState extends State<CompanyProfile> {
                         width: 160,
                         child: SmallDropdownField(
                           label: "Client Type",
-                          options: ['Regular', 'Walking'],
-                          selectedValue: selectedJobType3,
+                          options: ['N/A','Regular', 'Walking'],
+                          selectedValue: selectedWorkType,
                           onChanged: (value) {
                             setState(() {
-                              selectedJobType3 = value;
+                              selectedWorkType = value;
                             });
                           },
                         ),
@@ -981,7 +979,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                                   ? contactNumber2Controller.text.trim()
                                   : null,
                           clientType: 'organization',
-                          clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
+                          clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
                           tradeLicenseNo:
                               tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
                           companyCode:
@@ -1011,7 +1009,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                           name:
                               companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
                           clientType: 'establishment',
-                          clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
+                          clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
                           email:
                               emailId2Controller.text.trim().isNotEmpty
                                   ? emailId2Controller.text.trim()

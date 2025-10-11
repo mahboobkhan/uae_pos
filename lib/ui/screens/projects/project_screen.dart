@@ -6,6 +6,7 @@ import 'package:abc_consultant/providers/projects_provider.dart';
 import 'package:abc_consultant/providers/short_services_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -445,7 +446,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                                     _buildHeader("Pending"),
                                                     _buildHeader("Quotation"),
                                                     _buildHeader("Steps Cost"),
-                                                    _buildHeader("Manage"),
+                                                    _buildHeader("Assign Employee"),
                                                     _buildHeader("More Actions"),
                                                   ],
                                                 ),
@@ -520,13 +521,13 @@ class _ProjectScreenState extends State<ProjectScreen> {
     );
   }
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(' $price', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(
@@ -756,9 +757,9 @@ class _ProjectScreenState extends State<ProjectScreen> {
         _buildCell3(clientName, clientDetails, copyable: true),
         _buildCell(status),
         _buildCell2(stageMain, stageSub.isEmpty ? ' ' : stageSub),
-        _buildPriceWithAdd("AED-", pendingAmount),
-        _buildPriceWithAdd("AED-", quotationAmount),
-        isProject ? _buildPriceWithAdd("AED-", stepsCost) : _buildCell('N/A'),
+        _buildPriceWithAdd(pendingAmount),
+        _buildPriceWithAdd(quotationAmount),
+        isProject ? _buildPriceWithAdd(stepsCost) : _buildCell('N/A'),
         _buildCell(managerName),
         _buildActionCell(
           onEdit: () {
@@ -846,13 +847,13 @@ class _ProjectScreenState extends State<ProjectScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                             ),
                             onPressed: () async {
-                              if (clientName.isNotEmpty && cost.isNotEmpty && managerName.isNotEmpty) {
+                              /*if (clientName.isNotEmpty && cost.isNotEmpty && managerName.isNotEmpty) {
                                 try {
                                   final provider = context.read<ShortServicesProvider>();
                                   await provider.updateShortService(
                                     refId: service['ref_id'],
                                     clientName: clientName,
-                                    cost: cost,
+                                    quotation: cost,
                                     managerName: managerName,
                                   );
 
@@ -881,7 +882,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                     backgroundColor: Colors.orange,
                                   ),
                                 );
-                              }
+                              }*/
                             },
                             child: const Text('Update', style: TextStyle(color: Colors.white)),
                           ),

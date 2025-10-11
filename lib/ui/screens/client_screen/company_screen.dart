@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -499,11 +500,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                             copyable: true,
                                           ),
                                           _buildCell(client['project_stats']['project_status'] ?? 'N/A'),
-                                          _buildPriceWithAdd(
-                                            'AED-',
-                                            client['project_stats']['pending_amount'] ?? 'N/A',
-                                          ),
-                                          _buildPriceWithAdd('AED-', client['project_stats']['paid_amount'] ?? 'N/A'),
+                                          _buildPriceWithAdd(client['project_stats']['pending_amount'] ?? 'N/A'),
+                                          _buildPriceWithAdd(client['project_stats']['paid_amount'] ?? 'N/A'),
                                           _buildActionCell(
                                             onEdit: () async {
                                               await showCompanyProfileDialog(context, clientData: client);
@@ -663,13 +661,13 @@ class _CompanyScreenState extends State<CompanyScreen> {
     );
   }
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(price, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(

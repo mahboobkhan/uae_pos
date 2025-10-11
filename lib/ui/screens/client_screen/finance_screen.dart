@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -299,20 +300,20 @@ class _FinanceScreenState extends State<FinanceScreen> {
                                               ),
                                               _buildCell(payment['type']?.toString().toUpperCase() ?? 'N/A'),
                                               _buildCell(payment['client_ref']?.toString() ?? 'N/A', copyable: true),
-                                              _buildCell(bankingProvider.formatAmount(payment['paid_amount']) ?? 'N/A'),
+                                              _buildPriceWithAdd(bankingProvider.formatAmount(payment['paid_amount']) ?? 'N/A',showPlus: false),
                                               _buildCell(
                                                 payment['status']?.toString().toUpperCase() ?? 'N/A',
                                                 copyable: false,
                                               ),
                                             ],
                                           );
-                                        }).toList()
+                                        })
                                        else
                                          TableRow(
                                            children: List.generate(
                                              6,
                                              (index) => TableCell(
-                                              child: Container(
+                                              child: SizedBox(
                                                 height: 60,
                                                 child: Center(
                                                   child: Column(
@@ -451,13 +452,13 @@ class _FinanceScreenState extends State<FinanceScreen> {
     );
   }
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(' $price', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(

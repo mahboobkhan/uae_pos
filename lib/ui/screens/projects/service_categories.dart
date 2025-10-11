@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import '../../../providers/service_category_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
@@ -30,19 +32,10 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () =>
-          Provider.of<ServiceCategoryProvider>(
-            context,
-            listen: false,
-          ).getServiceCategories(),
-    );
+    Future.microtask(() => Provider.of<ServiceCategoryProvider>(context, listen: false).getServiceCategories());
   }
 
-  void _showAddServiceCategoryDialog(
-    BuildContext context, {
-    Map<String, dynamic>? editData,
-  }) {
+  void _showAddServiceCategoryDialog(BuildContext context, {Map<String, dynamic>? editData}) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -54,9 +47,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
 
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           actionsAlignment: MainAxisAlignment.start,
 
           content: SizedBox(
@@ -70,14 +61,8 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        editData == null
-                            ? "Add Service Category"
-                            : "Edit Service Category",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                        editData == null ? "Add Service Category" : "Edit Service Category",
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       const SizedBox(height: 20),
 
@@ -108,30 +93,19 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 10,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                           ),
                           onPressed: () async {
                             if (editData == null) {
-                              await Provider.of<ServiceCategoryProvider>(
-                                context,
-                                listen: false,
-                              ).addServiceCategory(
+                              await Provider.of<ServiceCategoryProvider>(context, listen: false).addServiceCategory(
                                 serviceName: serviceName,
                                 quotation: quotation,
                                 serviceProviderName: serviceProviderName,
                                 date: DateTime.now().toIso8601String(),
                               );
                             } else {
-                              await Provider.of<ServiceCategoryProvider>(
-                                context,
-                                listen: false,
-                              ).updateServiceCategory(
+                              await Provider.of<ServiceCategoryProvider>(context, listen: false).updateServiceCategory(
                                 refId: refId!,
                                 serviceName: serviceName,
                                 quotation: quotation,
@@ -141,10 +115,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                             }
                             Navigator.of(context).pop();
                           },
-                          child: Text(
-                            editData == null ? 'Create' : 'Update',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          child: Text(editData == null ? 'Create' : 'Update', style: TextStyle(color: Colors.white)),
                         ),
                       ),
                     ],
@@ -240,9 +211,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                         hintText: "Institutes",
                                         items: categories2,
                                         onChanged: (newValue) {
-                                          setState(
-                                            () => selectedCategory2 = newValue!,
-                                          );
+                                          setState(() => selectedCategory2 = newValue!);
                                         },
                                       ),
                                     ],
@@ -259,31 +228,18 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                       builder:
                                           (context) => Tooltip(
                                             message: 'Add Service Category',
-                                            waitDuration: const Duration(
-                                              milliseconds: 2,
-                                            ),
+                                            waitDuration: const Duration(milliseconds: 2),
                                             child: GestureDetector(
                                               onTap: () {
-                                                _showAddServiceCategoryDialog(
-                                                  context,
-                                                );
+                                                _showAddServiceCategoryDialog(context);
                                               },
                                               child: Container(
                                                 width: 30,
                                                 height: 30,
-                                                margin:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                    ),
-                                                decoration: const BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                ),
+                                                margin: const EdgeInsets.symmetric(horizontal: 10),
+                                                decoration: const BoxDecoration(shape: BoxShape.circle),
                                                 child: const Center(
-                                                  child: Icon(
-                                                    Icons.add,
-                                                    color: Colors.white,
-                                                    size: 20,
-                                                  ),
+                                                  child: Icon(Icons.add, color: Colors.white, size: 20),
                                                 ),
                                               ),
                                             ),
@@ -302,9 +258,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                           child: ScrollbarTheme(
                             data: ScrollbarThemeData(
                               thumbVisibility: MaterialStateProperty.all(true),
-                              thumbColor: MaterialStateProperty.all(
-                                Colors.grey,
-                              ),
+                              thumbColor: MaterialStateProperty.all(Colors.grey),
                               thickness: MaterialStateProperty.all(8),
                               radius: const Radius.circular(4),
                             ),
@@ -321,12 +275,9 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                     scrollDirection: Axis.vertical,
                                     controller: _verticalController,
                                     child: ConstrainedBox(
-                                      constraints: const BoxConstraints(
-                                        minWidth: 1150,
-                                      ),
+                                      constraints: const BoxConstraints(minWidth: 1150),
                                       child: Table(
-                                        defaultVerticalAlignment:
-                                            TableCellVerticalAlignment.middle,
+                                        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                         columnWidths: const {
                                           0: FlexColumnWidth(1),
                                           1: FlexColumnWidth(1),
@@ -337,129 +288,75 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                         },
                                         children: [
                                           TableRow(
-                                            decoration: BoxDecoration(
-                                              color: Colors.red.shade50,
-                                            ),
+                                            decoration: BoxDecoration(color: Colors.red.shade50),
                                             children: [
                                               _buildHeader("Date"),
-                                              _buildHeader(
-                                                "Service Beneficiary",
-                                              ),
+                                              _buildHeader("Service Department"),
                                               _buildHeader("Service"),
                                               _buildHeader("Quotation"),
                                               _buildHeader("Ref Id"),
                                               _buildHeader("More Actions"),
                                             ],
                                           ),
-                                          if (provider
-                                              .serviceCategories
-                                              .isEmpty)
+                                          if (provider.serviceCategories.isEmpty)
                                             TableRow(
                                               children: [
                                                 for (int i = 0; i < 6; i++)
                                                   Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          12.0,
-                                                        ),
+                                                    padding: const EdgeInsets.all(12.0),
                                                     child: Center(
                                                       child: Text(
-                                                        i == 2
-                                                            ? 'No data available'
-                                                            : '',
-                                                        style: const TextStyle(
-                                                          color: Colors.grey,
-                                                        ),
+                                                        i == 2 ? 'No data available' : '',
+                                                        style: const TextStyle(color: Colors.grey),
                                                       ),
                                                     ),
                                                   ),
                                               ],
                                             )
                                           else
-                                            for (
-                                              int i = 0;
-                                              i <
-                                                  provider
-                                                      .serviceCategories
-                                                      .length;
-                                              i++
-                                            )
+                                            for (int i = 0; i < provider.serviceCategories.length; i++)
                                               TableRow(
                                                 decoration: BoxDecoration(
-                                                  color:
-                                                      i.isEven
-                                                          ? Colors.grey.shade200
-                                                          : Colors
-                                                              .grey
-                                                              .shade100,
+                                                  color: i.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
                                                 ),
                                                 children: [
                                                   _buildCell2(
-                                                    _formatDate(
-                                                      provider
-                                                          .serviceCategories[i]['date'],
-                                                    ),
-                                                    _formatTime(
-                                                      provider
-                                                          .serviceCategories[i]['date'],
-                                                    ),
+                                                    _formatDate(provider.serviceCategories[i]['date']),
+                                                    _formatTime(provider.serviceCategories[i]['date']),
                                                     centerText2: true,
                                                   ),
                                                   _buildCell3(
-                                                    provider.serviceCategories[i]['service_provider_name'] ??
-                                                        '',
-                                                    provider.serviceCategories[i]['ref_id'] ??
-                                                        '',
+                                                    provider.serviceCategories[i]['service_provider_name'] ?? '',
+                                                    provider.serviceCategories[i]['ref_id'] ?? '',
                                                     copyable: true,
                                                   ),
+                                                  _buildCell(provider.serviceCategories[i]['service_name']),
+                                                  _buildPriceWithAdd(provider.serviceCategories[i]['quotation'] ?? ''),
                                                   _buildCell(
-                                                    provider
-                                                        .serviceCategories[i]['service_name'],
-                                                  ),
-                                                  _buildPriceWithAdd(
-                                                    "AED-",
-                                                    provider.serviceCategories[i]['quotation'] ??
-                                                        '',
-                                                  ),
-                                                  _buildCell(
-                                                    provider.serviceCategories[i]['ref_id'] ??
-                                                        '',
+                                                    provider.serviceCategories[i]['ref_id'] ?? '',
                                                     copyable: true,
                                                   ),
                                                   _buildActionCell(
                                                     onEdit: () {
                                                       _showAddServiceCategoryDialog(
                                                         context,
-                                                        editData:
-                                                            provider
-                                                                .serviceCategories[i],
+                                                        editData: provider.serviceCategories[i],
                                                       );
                                                     },
                                                     onDelete: () async {
-                                                      final shouldDelete = await showDialog<
-                                                        bool
-                                                      >(
+                                                      final shouldDelete = await showDialog<bool>(
                                                         context: context,
                                                         builder:
-                                                            (
-                                                              context,
-                                                            ) => const ConfirmationDialog(
-                                                              title:
-                                                                  'Confirm Deletion',
-                                                              content:
-                                                                  'Are you sure you want to delete this?',
-                                                              cancelText:
-                                                                  'Cancel',
-                                                              confirmText:
-                                                                  'Delete',
+                                                            (context) => const ConfirmationDialog(
+                                                              title: 'Confirm Deletion',
+                                                              content: 'Are you sure you want to delete this?',
+                                                              cancelText: 'Cancel',
+                                                              confirmText: 'Delete',
                                                             ),
                                                       );
-                                                      if (shouldDelete ==
-                                                          true) {
+                                                      if (shouldDelete == true) {
                                                         provider.deleteServiceCategory(
-                                                          refId:
-                                                              provider
-                                                                  .serviceCategories[i]['ref_id'],
+                                                          refId: provider.serviceCategories[i]['ref_id'],
                                                         );
                                                       }
                                                     },
@@ -494,47 +391,27 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
     );
   }
 
-  Widget _buildPriceWithAdd(
-    String curr,
-    String price, {
-    bool showPlus = false,
-  }) {
+  Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            price,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.green,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+
+          Text(' $price', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(
               width: 15,
               height: 15,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.blue)),
               child: const Icon(Icons.add, size: 13, color: Colors.blue),
             ),
         ],
@@ -542,12 +419,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
     );
   }
 
-  Widget _buildCell2(
-    String text1,
-    String text2, {
-    bool copyable = false,
-    bool centerText2 = false,
-  }) {
+  Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 8),
       child: Column(
@@ -560,31 +432,19 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
+                    child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
                   ),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Icon(
-                          Icons.copy,
-                          size: 14,
-                          color: Colors.blue[700],
-                        ),
+                        child: Icon(Icons.copy, size: 14, color: Colors.blue[700]),
                       ),
                     ),
                 ],
@@ -592,32 +452,18 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
               : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Flexible(
-                    child: Text(
-                      text2,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
+                  Flexible(child: Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54))),
                   if (copyable)
                     GestureDetector(
                       onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: "$text1\n$text2"),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
+                        Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.copy,
-                          size: 8,
-                          color: Colors.blue[700],
-                        ),
+                        child: Icon(Icons.copy, size: 8, color: Colors.blue[700]),
                       ),
                     ),
                 ],
@@ -638,17 +484,12 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                text2,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
-              ),
+              Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
               if (copyable)
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -662,11 +503,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
     );
   }
 
-  Widget _buildActionCell({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-    VoidCallback? onDraft,
-  }) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onDraft}) {
     return Row(
       children: [
         /* IconButton(
@@ -689,20 +526,12 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),

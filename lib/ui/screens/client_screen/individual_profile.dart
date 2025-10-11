@@ -544,7 +544,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
     );
   }
 
-  String? selectedJobType3;
+  String? selectedWorkType;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? selectedJobType2;
@@ -563,7 +563,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       channelNameController.text = (data['echannel_name'] ?? '').toString();
       channelLoginController.text = (data['echannel_id'] ?? '').toString();
       channelPasswordController.text = (data['echannel_password'] ?? '').toString();
-      selectedJobType3 = (data['client_work'] ?? 'Regular').toString();
+      selectedWorkType = (data['client_work'] ?? 'N/A').toString();
 
       // Set created date from client data if available, otherwise use current date
       if (data['created_at'] != null && data['created_at'].toString().isNotEmpty) {
@@ -626,11 +626,11 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                         width: 160,
                         child: SmallDropdownField(
                           label: "Client Type",
-                          options: ['Regular', 'Walking'],
-                          selectedValue: selectedJobType3,
+                          options: ['N/A','Regular', 'Walking'],
+                          selectedValue: selectedWorkType,
                           onChanged: (value) {
                             setState(() {
-                              selectedJobType3 = value;
+                              selectedWorkType = value;
                             });
                           },
                         ),
@@ -985,7 +985,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                               phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : null,
                               phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
                               clientType: 'individual',
-                              clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
+                              clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
                               physicalAddress:
                                   _physicalAddressController.text.trim().isNotEmpty
                                       ? _physicalAddressController.text.trim()
@@ -1012,7 +1012,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                                       ? clientNameController.text.trim()
                                       : 'N/A',
                               clientType: 'individual',
-                              clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
+                              clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
                               email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : 'no-email@example.com',
                               phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : '+000000000',
                               phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,

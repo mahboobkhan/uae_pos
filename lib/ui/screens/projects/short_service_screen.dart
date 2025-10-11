@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../providers/short_services_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
@@ -342,8 +344,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                               ),
                                               _buildCell(service['service_category_name'] ?? 'N/A'),
                                               _buildPriceWithAdd(
-                                                "AED-",
-                                                service['pending_payment'] ?? service['cost'] ?? '0',
+                                                service['quotation']?.toString() ?? service['pending_payment']?.toString() ?? service['cost']?.toString() ?? '0',
                                               ),
                                               _buildCell(service['manager_name'] ?? 'N/A'),
                                               _buildCell(service['ref_id'] ?? 'N/A', copyable: true),
@@ -402,13 +403,27 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
   }
 
   /// Edit short service
-  void _editShortService(BuildContext context, Map<String, dynamic> service) {
+  void _editShortService(BuildContext context, Map<String, dynamic> service) async {
+    // Get user_ref_id from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final userRefId = prefs.getString('ref_id') ?? '';
+    
+    if (userRefId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User not logged in'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         String clientName = service['client_name'] ?? '';
-        String cost = service['cost'] ?? service['pending_payment'] ?? '';
+        String quotation = service['quotation']?.toString() ?? service['cost']?.toString() ?? service['pending_payment']?.toString() ?? '';
         String managerName = service['manager_name'] ?? '';
 
         return AlertDialog(
@@ -437,10 +452,10 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                       const SizedBox(height: 12),
 
                       CustomTextField1(
-                        label: 'COST (AED)',
+                        label: 'QUOTATION (AED)',
                         keyboardType: TextInputType.number,
-                        text: cost,
-                        onChanged: (val) => cost = val,
+                        text: quotation,
+                        onChanged: (val) => quotation = val,
                       ),
                       const SizedBox(height: 12),
 
@@ -459,13 +474,14 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                             ),
                             onPressed: () async {
-                              if (clientName.isNotEmpty && cost.isNotEmpty && managerName.isNotEmpty) {
+                              if (clientName.isNotEmpty && quotation.isNotEmpty && managerName.isNotEmpty) {
                                 try {
                                   final provider = context.read<ShortServicesProvider>();
                                   await provider.updateShortService(
+                                    userRefId: userRefId,
                                     refId: service['ref_id'],
                                     clientName: clientName,
-                                    cost: cost,
+                                    quotation: quotation,
                                     managerName: managerName,
                                   );
 
@@ -534,8 +550,25 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     );
 
     if (shouldDelete == true) {
+      // Get user_ref_id from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final userRefId = prefs.getString('ref_id') ?? '';
+      
+      if (userRefId.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User not logged in'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
       final provider = context.read<ShortServicesProvider>();
-      await provider.deleteShortService(refId: service['ref_id']);
+      await provider.deleteShortService(
+        userRefId: userRefId,
+        refId: service['ref_id'],
+      );
     }
   }
 
@@ -661,13 +694,13 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     );
   }
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(" $price", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(

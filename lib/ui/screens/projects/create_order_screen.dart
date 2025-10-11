@@ -214,7 +214,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     }
   }
 
-  bool get _isProjectLocked => _projectStatus == 'completed' || _projectStatus == 'stop';
+  bool get _isProjectLocked => false; // Remove project locking to allow editing at any stage
 
   Future<void> _updateProjectStatus(String newStatus) async {
     if (widget.projectData == null) return;
@@ -224,7 +224,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       if (provider.errorMessage == null) {
         setState(() {
           _projectStatus = newStatus;
-          _isEditMode = false;
           _successMessage = provider.successMessage ?? 'Status updated';
           _errorMessage = null;
         });
@@ -524,7 +523,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         Row(
                           children: [
                             // Edit Mode Toggle Button
-                            if (widget.projectData != null && !_isProjectLocked)
+                            if (widget.projectData != null)
                               ElevatedButton.icon(
                                 onPressed: _isSubmitting ? null : _toggleEditMode,
                                 icon: Icon(_isEditMode ? Icons.lock : Icons.edit, size: 16),
@@ -639,7 +638,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           ],
                         ),
                       ),
-                    if (_isProjectLocked)
+                    if (_projectStatus == 'completed' || _projectStatus == 'stop')
                       Container(
                         padding: EdgeInsets.all(12),
                         margin: EdgeInsets.only(bottom: 16),
@@ -891,21 +890,26 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 _errorMessage = null;
                                 _successMessage = null;
                               });
-                              // Reset form data
                               _initializeFormData();
                             },
+                          ),
+                        ] else if (_projectStatus == 'completed' || _projectStatus == 'stop') ...[
+                          CustomButton(
+                            text: "Reopen Project",
+                            backgroundColor: Colors.green,
+                            onPressed: () => _updateProjectStatus('in-progress'),
                           ),
                         ] else ...[
                           CustomButton(
                             text: "Stop",
                             backgroundColor: Colors.red,
-                            onPressed: _isProjectLocked ? () {} : () => _updateProjectStatus('stop'),
+                            onPressed: () => _updateProjectStatus('stop'),
                           ),
                           const SizedBox(width: 10),
                           CustomButton(
                             text: "Complete",
                             backgroundColor: Colors.blue,
-                            onPressed: _isProjectLocked ? () {} : () => _updateProjectStatus('completed'),
+                            onPressed: () => _updateProjectStatus('completed'),
                           ),
                         ],
 
@@ -958,8 +962,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
                             ),
                             Spacer(),
-                            if (widget.projectData != null && !_isProjectLocked)
-                              if (widget.projectData != null && !_isProjectLocked)
+                            if (widget.projectData != null)
+                              if (widget.projectData != null)
                                 ElevatedButton.icon(
                                   onPressed: () => _showAddStageDialog(context),
                                   icon: Icon(Icons.add, size: 16),
@@ -1075,21 +1079,39 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             ),
                           )
                         else if (projectStageProvider.projectStages.isNotEmpty)
-                          ...projectStageProvider.projectStages.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final stage = entry.value;
-                            final isLastStage = projectStageProvider.isLastStage(stage['project_stage_ref_id']);
-                            final isStageEnded = projectStageProvider.isStageEnded(stage);
+                          ReorderableListView(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            onReorder: (oldIndex, newIndex) {
+                              setState(() {
+                                if (newIndex > oldIndex) {
+                                  newIndex -= 1;
+                                }
+                                final item = projectStageProvider.projectStages.removeAt(oldIndex);
+                                projectStageProvider.projectStages.insert(newIndex, item);
 
-                            return _buildStageCard(
-                              context,
-                              stage,
-                              index + 1,
-                              isLastStage,
-                              isStageEnded,
-                              projectStageProvider,
-                            );
-                          }).toList()
+                                // Update stage numbers after reordering
+                                for (var i = 0; i < projectStageProvider.projectStages.length; i++) {
+                                  final stage = projectStageProvider.projectStages[i];
+                                  stage['stage_number'] = i + 1;
+                                }
+                              });
+                            },
+                            children: projectStageProvider.projectStages.asMap().entries.map((entry) {
+                              final stage = entry.value;
+                              return KeyedSubtree(
+                                key: ValueKey(stage['project_stage_ref_id']),
+                                child: _buildStageCard(
+                                  context,
+                                  stage,
+                                  entry.key + 1,
+                                  projectStageProvider.isLastStage(stage['project_stage_ref_id']),
+                                  projectStageProvider.isStageEnded(stage),
+                                  projectStageProvider,
+                                ),
+                              );
+                            }).toList(),
+                          )
                         else
                           SizedBox(
                             height: 200,
@@ -1487,7 +1509,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               Spacer(),
-              if (!isStageEnded && !_isProjectLocked)
+              if (!isStageEnded)
                 Row(
                   children: [
                     IconButton(
@@ -1558,7 +1580,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       ),
                     );
                   }),
-                if (!isStageEnded && !_isProjectLocked)
+                if (!isStageEnded)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10.0),
                     child: TextButton(
@@ -1572,7 +1594,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               ],
             ),
             SizedBox(height: 10),
-          ] else if (!isStageEnded && !_isProjectLocked) ...[
+          ] else if (!isStageEnded) ...[
             TextButton(
               onPressed: () => _showAddApplicationDialog(context, stage, provider),
               child: Text(
@@ -1605,7 +1627,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     ),
                   );
                 }),
-                if (!isStageEnded && !_isProjectLocked)
+                if (!isStageEnded)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10.0),
                     child: TextButton(
@@ -1619,7 +1641,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               ],
             ),
             SizedBox(height: 10),
-          ] else if (!isStageEnded && !_isProjectLocked) ...[
+          ] else if (!isStageEnded) ...[
             TextButton(
               onPressed: () => _showAddExtraNoteDialog(context, stage, provider),
               child: Text(
@@ -1676,11 +1698,23 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           ),
 
           // Action Buttons (show on any stage that is not ended)
-          if (!isStageEnded && !_isProjectLocked) ...[
+          if (isStageEnded) ...[
             SizedBox(height: 20),
             Row(
               children: [
-                // Show End Stage button for any non-ended stage
+                CustomButton(
+                  text: "Reopen Stage",
+                  backgroundColor: Colors.green,
+                  icon: Icons.refresh,
+                  onPressed: () => _reopenStage(context, stage, provider),
+                ),
+                const Spacer(),
+              ],
+            ),
+          ] else ...[
+            SizedBox(height: 20),
+            Row(
+              children: [
                 CustomButton(
                   text: "End Stage",
                   backgroundColor: Colors.red,
@@ -1688,8 +1722,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                   onPressed: () => _endStage(context, stage, provider),
                 ),
                 const SizedBox(width: 10),
-
-                // Show Edit Stage button for any non-ended stage
                 CustomButton(
                   text: "Edit Stage",
                   backgroundColor: Colors.blue,
@@ -1697,7 +1729,6 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                   onPressed: () => _showEditStageDialog(context, stage),
                 ),
                 const SizedBox(width: 10),
-
                 // Show Add Next Stage button only on last stage
                 if (isLastStage)
                   CustomButton(
@@ -2102,6 +2133,40 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       await provider.updateProjectStage(projectStageRefId: stage['project_stage_ref_id'], endAt: endTime);
 
       // Refresh calculations after ending stage
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  /// Reopen stage
+  void _reopenStage(BuildContext context, Map<String, dynamic> stage, ProjectStageProvider provider) async {
+    final shouldReopen = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text("Reopen Stage?"),
+        content: Text("Are you sure you want to reopen this stage?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("Reopen", style: TextStyle(color: Colors.green)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldReopen == true) {
+      await provider.updateProjectStage(
+        projectStageRefId: stage['project_stage_ref_id'],
+        endAt: null, // Set end_at to null to reopen the stage
+      );
+
+      // Refresh calculations after reopening stage
       if (mounted) {
         setState(() {});
       }

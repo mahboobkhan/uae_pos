@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -596,9 +597,9 @@ class _CreateOrdersState extends State<CreateOrders> {
                                             project['stage_totals']['latest_stage_ref_id'] ?? 'N/A',
                                             getDaysDifference(project['created_at']),
                                           ),
-                                          _buildPriceWithAdd("AED-", calculatePendingPayment(project)),
-                                          _buildPriceWithAdd("AED-", project['quotation'] ?? '0'),
-                                          _buildPriceWithAdd("AED-", getTotalStepsCost(project)),
+                                          _buildPriceWithAdd(calculatePendingPayment(project)),
+                                          _buildPriceWithAdd(project['quotation'] ?? '0'),
+                                          _buildPriceWithAdd(getTotalStepsCost(project)),
                                           _buildCell(project['user_id']?['name'] ?? 'N/A'),
                                           _buildActionCell(
                                             onDelete: () => _deleteProject(context, project),
@@ -607,7 +608,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                                           ),
                                         ],
                                       );
-                                    }).toList()
+                                    })
                                   else if (!projectsProvider.isLoading)
                                     TableRow(
                                       children: List.generate(
@@ -691,13 +692,13 @@ class _CreateOrdersState extends State<CreateOrders> {
     );
   }
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(' $price', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(

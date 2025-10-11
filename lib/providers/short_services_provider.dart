@@ -71,12 +71,10 @@ class ShortServicesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// ✅ Add Short Service
+  /// ✅ Add Short Service (Single or Multiple)
   Future<void> addShortService({
-    required String clientName,
-    required String serviceCategoryName,
-    required String cost,
-    required String managerName,
+    required String userRefId,
+    required List<Map<String, dynamic>> services,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -86,10 +84,8 @@ class ShortServicesProvider extends ChangeNotifier {
     final url = Uri.parse("$baseUrl/add_short_service.php");
 
     final body = json.encode({
-      "client_name": clientName,
-      "service_category_name": serviceCategoryName,
-      "cost": cost,
-      "manager_name": managerName,
+      "user_ref_id": userRefId,
+      "services": services,
     });
 
     try {
@@ -130,10 +126,16 @@ class ShortServicesProvider extends ChangeNotifier {
 
   /// ✅ Update Short Service
   Future<void> updateShortService({
+    required String userRefId,
     required String refId,
     required String clientName,
-    required String cost,
+    required String quotation,
     required String managerName,
+    String? paymentMethod,
+    String? paymentStatus,
+    String? transactionId,
+    String? bankRefId,
+    String? chequeNo,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -142,12 +144,22 @@ class ShortServicesProvider extends ChangeNotifier {
 
     final url = Uri.parse("$baseUrl/update_short_service.php");
 
-    final body = json.encode({
+    final Map<String, dynamic> requestBody = {
+      "user_ref_id": userRefId,
       "ref_id": refId,
       "client_name": clientName,
-      "cost": cost,
+      "quotation": quotation,
       "manager_name": managerName,
-    });
+    };
+
+    // Add optional payment fields if provided
+    if (paymentMethod != null) requestBody["payment_method"] = paymentMethod;
+    if (paymentStatus != null) requestBody["payment_status"] = paymentStatus;
+    if (transactionId != null) requestBody["transaction_id"] = transactionId;
+    if (bankRefId != null) requestBody["bank_ref_id"] = bankRefId;
+    if (chequeNo != null) requestBody["cheque_no"] = chequeNo;
+
+    final body = json.encode(requestBody);
 
     try {
       if (kDebugMode) {
@@ -186,7 +198,10 @@ class ShortServicesProvider extends ChangeNotifier {
   }
 
   /// ✅ Delete Short Service
-  Future<void> deleteShortService({required String refId}) async {
+  Future<void> deleteShortService({
+    required String userRefId,
+    required String refId,
+  }) async {
     isLoading = true;
     errorMessage = null;
     successMessage = null;
@@ -194,7 +209,10 @@ class ShortServicesProvider extends ChangeNotifier {
 
     final url = Uri.parse("$baseUrl/delete_short_service.php");
 
-    final body = json.encode({"ref_id": refId});
+    final body = json.encode({
+      "user_ref_id": userRefId,
+      "ref_id": refId,
+    });
 
     try {
       if (kDebugMode) {

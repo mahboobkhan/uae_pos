@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -167,8 +168,8 @@ class _ClientMainState extends State<ClientMain> {
         {'label': 'Total Clients', 'value': '0'},
         {'label': 'Individual', 'value': '0'},
         {'label': 'Establishment', 'value': '0'},
-        {'label': 'Pending Amount', 'value': 'AED 0.00'},
-        {'label': 'Received Amount', 'value': 'AED 0.00'},
+        {'label': 'Pending Amount', 'value': '0.00'},
+        {'label': 'Received Amount', 'value': '0.00'},
       ];
     }
 
@@ -176,8 +177,8 @@ class _ClientMainState extends State<ClientMain> {
       {'label': 'Total Clients', 'value': summary['total_clients']?.toString() ?? '0'},
       {'label': 'Individual', 'value': summary['total_individual']?.toString() ?? '0'},
       {'label': 'Establishment', 'value': summary['total_establishment']?.toString() ?? '0'},
-      {'label': 'Pending Amount', 'value': 'AED ${summary['total_pending_amount']?.toString() ?? '0.00'}'},
-      {'label': 'Received Amount', 'value': 'AED ${summary['total_received_amount']?.toString() ?? '0.00'}'},
+      {'label': 'Pending Amount', 'value': ' ${summary['total_pending_amount']?.toString() ?? '0.00'}'},
+      {'label': 'Received Amount', 'value': ' ${summary['total_received_amount']?.toString() ?? '0.00'}'},
     ];
   }
 
@@ -410,7 +411,10 @@ class _ClientMainState extends State<ClientMain> {
                                           ),
                                           items: [
                                             const PopupMenuItem<String>(value: 'Individual', child: Text('Individual')),
-                                            const PopupMenuItem<String>(value: 'Establishment', child: Text('Establishment')),
+                                            const PopupMenuItem<String>(
+                                              value: 'Establishment',
+                                              child: Text('Establishment'),
+                                            ),
                                           ],
                                         );
 
@@ -587,11 +591,8 @@ class _ClientMainState extends State<ClientMain> {
                                           ),
                                           // _buildCell((client['phone1'] ?? client['email'] ?? 'N/A').toString()),
                                           _buildCell(client['project_stats']['project_status'] ?? 'N/A'),
-                                          _buildPriceWithAdd(
-                                            'AED-',
-                                            client['project_stats']['pending_amount'] ?? 'N/A',
-                                          ),
-                                          _buildPriceWithAdd('AED-', client['project_stats']['paid_amount'] ?? 'N/A'),
+                                          _buildPriceWithAdd(client['project_stats']['pending_amount'] ?? 'N/A'),
+                                          _buildPriceWithAdd(client['project_stats']['paid_amount'] ?? 'N/A'),
                                           _buildActionCell(
                                             onEdit: () async {
                                               final type = (client['client_type'] as String?)?.toLowerCase() ?? '';
@@ -804,13 +805,13 @@ class _ClientMainState extends State<ClientMain> {
     );
   }
 
-  Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
+  Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
+          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          Text(' $price', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(
