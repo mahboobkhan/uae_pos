@@ -13,7 +13,7 @@ class ClientProfileProvider extends ChangeNotifier {
   Map<String, dynamic>? clientsSummary = {};
   
   // Filter properties
-  String? clientTypeFilter; // 'individual' or 'organization'
+  String? clientTypeFilter; // 'individual' or 'establishment'
   String? typeFilter; // 'regular' or 'walking'
   String? startDateFilter;
   String? endDateFilter;
@@ -95,7 +95,7 @@ class ClientProfileProvider extends ChangeNotifier {
 
   Future<String?> addClient({
     required String name,
-    required String clientType, // organization | individual
+    required String clientType, // establishment | individual
     required String clientWork,
     required String email,
     required String phone1,

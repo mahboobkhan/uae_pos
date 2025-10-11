@@ -565,7 +565,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                                       _buildHeader("Pending"),
                                       _buildHeader("Quotation"),
                                       _buildHeader("Steps Cost"),
-                                      _buildHeader("Manage"),
+                                      _buildHeader("Assign Employee"),
                                       _buildHeader("More Actions"),
                                     ],
                                   ),

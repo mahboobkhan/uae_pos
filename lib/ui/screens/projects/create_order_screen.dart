@@ -793,7 +793,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           label: "Order Quote Price",
                           controller: _fundsController,
                           hintText: '500',
-                          enabled: false,
+                          enabled: _isEditMode,
                         ),
 
                         /*Consumer<ProjectStageProvider>(
@@ -1511,64 +1511,124 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             children: [
               _buildDateTimeField(),
               // _buildDateTimeField(),
-              InfoBoxNoColor(label: stage['service_department'] ?? 'N/A', value: 'Services Department'),
-              SizedBox(width: 220), // Placeholder for status dropdowns
-              SizedBox(width: 220),
-              SizedBox(width: 220),
+              InfoBox(
+                label: stage['service_department'] ?? 'N/A',
+                value: 'Services Department',
+                color: Colors.orange.shade100,
+              ),
             ],
           ),
           SizedBox(height: 10),
 
-          // Applications
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              if (stage['applications'] != null && stage['applications'] is List)
-                ...(stage['applications'] as List).asMap().entries.map((entry) {
-                  final appIndex = entry.key;
-                  final app = entry.value;
-                  final appId = app['application']?.toString() ?? app['id']?.toString() ?? '';
-                  final appName = app['department']?.toString() ?? app['name']?.toString() ?? '';
-                  return SizedBox(
-                    width: 195,
-                    child: CustomTextField(
-                      label: appName.isNotEmpty ? appName : "Application ${appIndex + 1}",
-                      hintText: appId,
-                      controller: TextEditingController(text: appId),
-                      enabled: false,
-                    ),
-                  );
-                }).toList()
-              else if (stage['application_ids'] != null && stage['application_ids'] is List)
-                // Fallback for old format
-                ...(stage['application_ids'] as List).asMap().entries.map((entry) {
-                  final appIndex = entry.key;
-                  final appId = entry.value.toString();
-                  return SizedBox(
-                    width: 195,
-                    child: CustomTextField(
-                      label: "Application ID-${appIndex + 1}",
-                      hintText: appId,
-                      controller: TextEditingController(text: appId),
-                      enabled: false,
-                    ),
-                  );
-                }).toList(),
-              if (!isStageEnded && !_isProjectLocked)
-                Padding(
-                  padding: const EdgeInsets.only(top: 5.0),
-                  child: TextButton(
-                    onPressed: () => _showAddApplicationDialog(context, stage, provider),
-                    child: Text(
-                      'Add more',
-                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 15),
+          // Applications Section
+          if ((stage['applications'] != null && (stage['applications'] as List).isNotEmpty) ||
+              (stage['application_ids'] != null && (stage['application_ids'] as List).isNotEmpty)) ...[
+            Text("Application IDs", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                if (stage['applications'] != null && stage['applications'] is List)
+                  ...(stage['applications'] as List).asMap().entries.map((entry) {
+                    final appIndex = entry.key;
+                    final app = entry.value;
+                    final appId = app['application']?.toString() ?? app['id']?.toString() ?? '';
+                    final appName = app['department']?.toString() ?? app['name']?.toString() ?? '';
+                    return SizedBox(
+                      width: 195,
+                      child: InfoBox(
+                        value: appName.isNotEmpty ? appName : "Application ${appIndex + 1}",
+                        label: appId,
+                        color: Colors.blue.shade100,
+                      ),
+                    );
+                  })
+                else if (stage['application_ids'] != null && stage['application_ids'] is List)
+                  // Fallback for old format
+                  ...(stage['application_ids'] as List).asMap().entries.map((entry) {
+                    final appIndex = entry.key;
+                    final appId = entry.value.toString();
+                    return SizedBox(
+                      width: 195,
+                      child: InfoBox(
+                        value: "Application ID-${appIndex + 1}",
+                        label: appId,
+                        color: Colors.blue.shade100,
+                      ),
+                    );
+                  }),
+                if (!isStageEnded && !_isProjectLocked)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: TextButton(
+                      onPressed: () => _showAddApplicationDialog(context, stage, provider),
+                      child: Text(
+                        'Add Application',
+                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          SizedBox(height: 10),
+              ],
+            ),
+            SizedBox(height: 10),
+          ] else if (!isStageEnded && !_isProjectLocked) ...[
+            TextButton(
+              onPressed: () => _showAddApplicationDialog(context, stage, provider),
+              child: Text(
+                'Add Application',
+                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+            ),
+            SizedBox(height: 10),
+          ],
+
+          // Extra Notes Section
+          if (stage['extra_notes'] != null && (stage['extra_notes'] as List).isNotEmpty) ...[
+            Text("Extra Notes", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                ...(stage['extra_notes'] as List).asMap().entries.map((entry) {
+                  final noteIndex = entry.key;
+                  final note = entry.value;
+                  final noteTitle = note['title']?.toString() ?? '';
+                  final noteDescription = note['description']?.toString() ?? '';
+                  return SizedBox(
+                    width: 195,
+                    child: InfoBox(
+                      value: noteTitle.isNotEmpty ? noteTitle : "Note ${noteIndex + 1}",
+                      label: noteDescription,
+                      color: Colors.green.shade100,
+                    ),
+                  );
+                }),
+                if (!isStageEnded && !_isProjectLocked)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: TextButton(
+                      onPressed: () => _showAddExtraNoteDialog(context, stage, provider),
+                      child: Text(
+                        'Add Extra Note',
+                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(height: 10),
+          ] else if (!isStageEnded && !_isProjectLocked) ...[
+            TextButton(
+              onPressed: () => _showAddExtraNoteDialog(context, stage, provider),
+              child: Text(
+                'Add Extra Note',
+                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+            ),
+            SizedBox(height: 10),
+          ],
 
           // Cost and Profit
           Wrap(
@@ -1684,14 +1744,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     final serviceDepartmentController = TextEditingController();
     final stepCostController = TextEditingController();
     final additionalProfitController = TextEditingController();
-    final applicationIdsController = TextEditingController();
-    final applicationNamesController = TextEditingController();
 
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            backgroundColor: Colors.white,
             title: Text("Add New Stage"),
             content: SizedBox(
               width: 500,
@@ -1699,7 +1758,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CustomTextField(label: "Service Department", controller: serviceDepartmentController, hintText: ""),
-                  /*SizedBox(height: 16),
+                  SizedBox(height: 16),
                   CustomTextField(
                     label: "Step Cost",
                     controller: stepCostController,
@@ -1712,7 +1771,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     controller: additionalProfitController,
                     hintText: "1200.00",
                     keyboardType: TextInputType.number,
-                  ),*/
+                  ),
                   /*SizedBox(height: 16),
                   CustomTextField(
                     label: "Application Names/Departments (comma separated)",
@@ -1723,6 +1782,18 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     label: "Application IDs (comma separated)",
                     controller: applicationIdsController,
                     hintText: "APP-1, APP-2, APP-3",
+                  ),
+                  SizedBox(height: 16),
+                  CustomTextField(
+                    label: "Extra Note Titles (comma separated)",
+                    controller: extraNotesTitlesController,
+                    hintText: "Note 1, Note 2",
+                  ),
+                  SizedBox(height: 16),
+                  CustomTextField(
+                    label: "Extra Note Descriptions (comma separated)",
+                    controller: extraNotesDescriptionsController,
+                    hintText: "Description 1, Description 2",
                   ),*/
                   SizedBox(height: 16),
                 ],
@@ -1742,34 +1813,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     return;
                   }
 
-                  final applicationIds =
-                      applicationIdsController.text
-                          .split(',')
-                          .map((id) => id.trim())
-                          .where((id) => id.isNotEmpty)
-                          .toList();
-
-                  final applicationNames =
-                      applicationNamesController.text
-                          .split(',')
-                          .map((name) => name.trim())
-                          .where((name) => name.isNotEmpty)
-                          .toList();
-
-                  // Create applications list with both ID and name
-                  List<Map<String, String>> applications = [];
-                  for (int i = 0; i < applicationIds.length; i++) {
-                    applications.add({
-                      "application": applicationIds[i],
-                      "department": i < applicationNames.length ? applicationNames[i] : applicationIds[i],
-                    });
-                  }
 
                   final provider = context.read<ProjectStageProvider>();
                   await provider.addProjectStage(
                     projectRefId: widget.projectData!['project_ref_id'],
                     serviceDepartment: serviceDepartmentController.text.trim(),
-                    applications: applications,
                     stepCost: stepCostController.text.trim(),
                     additionalProfit:
                         additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
@@ -1797,36 +1845,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     final stepCostController = TextEditingController(text: stage['step_cost'] ?? '');
     final additionalProfitController = TextEditingController(text: stage['additional_profit'] ?? '');
 
-    // Parse existing applications
-    String applicationIdsText = '';
-    String applicationNamesText = '';
-    if (stage['applications'] != null && stage['applications'] is List) {
-      final applications = stage['applications'] as List;
-      final ids = <String>[];
-      final names = <String>[];
-
-      for (final app in applications) {
-        if (app is Map<String, dynamic>) {
-          ids.add(app['application']?.toString() ?? app['id']?.toString() ?? '');
-          names.add(app['department']?.toString() ?? app['name']?.toString() ?? '');
-        }
-      }
-
-      applicationIdsText = ids.join(', ');
-      applicationNamesText = names.join(', ');
-    } else if (stage['application_ids'] != null) {
-      // Fallback for old format
-      applicationIdsText = (stage['application_ids'] as List).join(', ');
-    }
-
-    final applicationIdsController = TextEditingController(text: applicationIdsText);
-    final applicationNamesController = TextEditingController(text: applicationNamesText);
-
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            backgroundColor: Colors.white,
             title: Text("Edit Stage"),
             content: SizedBox(
               width: 500,
@@ -1834,7 +1858,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   InfoBoxNoColor(label: stage['service_department'] ?? 'N/A', value: 'Service Department (Read Only)'),
-                  /*SizedBox(height: 16),
+                  SizedBox(height: 16),
                   CustomTextField(
                     label: "Step Cost",
                     controller: stepCostController,
@@ -1847,19 +1871,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     controller: additionalProfitController,
                     hintText: "1200.00",
                     keyboardType: TextInputType.number,
-                  ),*/
-                  SizedBox(height: 16),
-                  /*CustomTextField(
-                    label: "Application IDs (comma separated)",
-                    controller: applicationIdsController,
-                    hintText: "APP-1, APP-2, APP-3",
                   ),
-                  SizedBox(height: 16),
-                  CustomTextField(
-                    label: "Application Names/Departments (comma separated)",
-                    controller: applicationNamesController,
-                    hintText: "Main Panel Installation, Sub Panel Wiring, Final Load Testing",
-                  ),*/
                 ],
               ),
             ),
@@ -1872,36 +1884,12 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 text: "Update Stage",
                 backgroundColor: Colors.blue,
                 onPressed: () async {
-                  final applicationIds =
-                      applicationIdsController.text
-                          .split(',')
-                          .map((id) => id.trim())
-                          .where((id) => id.isNotEmpty)
-                          .toList();
-
-                  final applicationNames =
-                      applicationNamesController.text
-                          .split(',')
-                          .map((name) => name.trim())
-                          .where((name) => name.isNotEmpty)
-                          .toList();
-
-                  // Create applications list with both ID and name
-                  List<Map<String, String>> applications = [];
-                  for (int i = 0; i < applicationIds.length; i++) {
-                    applications.add({
-                      "id": applicationIds[i],
-                      "name": i < applicationNames.length ? applicationNames[i] : applicationIds[i],
-                    });
-                  }
-
                   final provider = context.read<ProjectStageProvider>();
                   await provider.updateProjectStage(
                     projectStageRefId: stage['project_stage_ref_id'],
                     stepCost: stepCostController.text.trim().isEmpty ? null : stepCostController.text.trim(),
                     additionalProfit:
                         additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
-                    // applications: applications.isEmpty ? null : applications,
                   );
                   // After editing a stage, ensure project is in-progress if not locked
                   if (!_isProjectLocked) {
@@ -1931,6 +1919,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       builder:
           (context) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            backgroundColor: Colors.white,
             title: Text("Add Application"),
             content: SizedBox(
               width: 400,
@@ -1994,6 +1983,86 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                   );
 
                   // Refresh calculations after adding application
+                  if (mounted) {
+                    setState(() {});
+                  }
+
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+    );
+  }
+
+  /// Show add extra note dialog
+  void _showAddExtraNoteDialog(BuildContext context, Map<String, dynamic> stage, ProjectStageProvider provider) {
+    final noteTitleController = TextEditingController();
+    final noteDescriptionController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            backgroundColor: Colors.white,
+            title: Text("Add Extra Note"),
+            content: SizedBox(
+              width: 400,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomTextField(label: "Note Title", controller: noteTitleController, hintText: "Enter note title"),
+                  SizedBox(height: 16),
+                  CustomTextField(
+                    label: "Note Description",
+                    controller: noteDescriptionController,
+                    hintText: "Enter note description",
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+              ),
+              CustomButton(
+                text: "Add",
+                backgroundColor: Colors.green,
+                onPressed: () async {
+                  if (noteTitleController.text.trim().isEmpty || noteDescriptionController.text.trim().isEmpty) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text("Please enter both title and description")));
+                    return;
+                  }
+
+                  // Get current extra notes
+                  List<Map<String, String>> currentExtraNotes = [];
+                  if (stage['extra_notes'] != null && stage['extra_notes'] is List) {
+                    for (final note in stage['extra_notes']) {
+                      if (note is Map<String, dynamic>) {
+                        currentExtraNotes.add({
+                          "title": note['title']?.toString() ?? '',
+                          "description": note['description']?.toString() ?? '',
+                        });
+                      }
+                    }
+                  }
+
+                  // Add new note
+                  currentExtraNotes.add({
+                    "title": noteTitleController.text.trim(),
+                    "description": noteDescriptionController.text.trim(),
+                  });
+
+                  await provider.updateProjectStage(
+                    projectStageRefId: stage['project_stage_ref_id'],
+                    extraNotes: currentExtraNotes,
+                  );
+
+                  // Refresh calculations after adding note
                   if (mounted) {
                     setState(() {});
                   }

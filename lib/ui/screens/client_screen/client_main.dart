@@ -3,16 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/client_profile_provider.dart';
 import '../../../utils/clipboard_utils.dart';
-import 'company_profile.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
-import 'individual_profile.dart';
-import '../../dialogs/tags_class.dart';
 import '../../dialogs/employee_list_dialog.dart';
-import '../../../providers/client_profile_provider.dart';
-import '../../../providers/client_organization_employee_provider.dart';
+import 'company_profile.dart';
+import 'individual_profile.dart';
 
 class ClientMain extends StatefulWidget {
   const ClientMain({super.key});
@@ -59,14 +57,14 @@ class _ClientMainState extends State<ClientMain> {
   String? dateValue;
   String? profileAddCategory;
 
-  final List<String> categories = ['All', 'Individual', 'Organization'];
+  final List<String> categories = ['All', 'Individual', 'Establishment'];
   String? selectedCategory;
   final List<String> categories1 = ['All', 'Regular', 'Walking'];
   String? selectedCategory1;
 
   final List<String> categories2 = ['All', 'Pending', 'Paid'];
   String? selectedCategory2;
-  final List<String> categories4 = ['Individual', 'Company'];
+  final List<String> categories4 = ['Individual', 'Establishment'];
   String selectedCategory4 = '';
 
   final List<String> categories3 = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
@@ -74,10 +72,10 @@ class _ClientMainState extends State<ClientMain> {
 
   // Dynamic stats will be generated from clientsSummary data
 
-  bool _isOrganization(String? type) {
+  bool _isEstablishment(String? type) {
     final t = (type ?? '').toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
-    // handles "Organization", "Organisation", "Company", "Org", etc.
-    return t == 'organization' || t == 'organisation' || t == 'company' || t == 'org';
+    // handles "establishment", "Company", "Org", etc.
+    return t == 'establishment' || t == 'company' || t == 'org';
   }
 
   // Apply filters to the clients
@@ -168,7 +166,7 @@ class _ClientMainState extends State<ClientMain> {
       return [
         {'label': 'Total Clients', 'value': '0'},
         {'label': 'Individual', 'value': '0'},
-        {'label': 'Organization', 'value': '0'},
+        {'label': 'Establishment', 'value': '0'},
         {'label': 'Pending Amount', 'value': 'AED 0.00'},
         {'label': 'Received Amount', 'value': 'AED 0.00'},
       ];
@@ -177,7 +175,7 @@ class _ClientMainState extends State<ClientMain> {
     return [
       {'label': 'Total Clients', 'value': summary['total_clients']?.toString() ?? '0'},
       {'label': 'Individual', 'value': summary['total_individual']?.toString() ?? '0'},
-      {'label': 'Organization', 'value': summary['total_organization']?.toString() ?? '0'},
+      {'label': 'Establishment', 'value': summary['total_establishment']?.toString() ?? '0'},
       {'label': 'Pending Amount', 'value': 'AED ${summary['total_pending_amount']?.toString() ?? '0.00'}'},
       {'label': 'Received Amount', 'value': 'AED ${summary['total_received_amount']?.toString() ?? '0.00'}'},
     ];
@@ -411,15 +409,15 @@ class _ClientMainState extends State<ClientMain> {
                                             offset.dy,
                                           ),
                                           items: [
-                                            const PopupMenuItem<String>(value: 'Company', child: Text('Company')),
                                             const PopupMenuItem<String>(value: 'Individual', child: Text('Individual')),
+                                            const PopupMenuItem<String>(value: 'Establishment', child: Text('Establishment')),
                                           ],
                                         );
 
                                         if (selected != null) {
                                           setState(() => selectedCategory4 = selected);
 
-                                          if (selected == 'Company') {
+                                          if (selected == 'Establishment') {
                                             await showCompanyProfileDialog(context);
                                           } else if (selected == 'Individual') {
                                             await showIndividualProfileDialog(context);
@@ -502,7 +500,7 @@ class _ClientMainState extends State<ClientMain> {
                 ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
+                child: SizedBox(
                   height: 400,
                   child: ScrollbarTheme(
                     data: ScrollbarThemeData(
@@ -627,7 +625,7 @@ class _ClientMainState extends State<ClientMain> {
                                               }
                                             },
                                             onAddEmployee:
-                                                _isOrganization(client['client_type']?.toString())
+                                                _isEstablishment(client['client_type']?.toString())
                                                     ? () async {
                                                       final clientRefId = client['client_ref_id']?.toString() ?? '';
                                                       final clientName = client['name']?.toString() ?? 'Unknown';
@@ -650,13 +648,13 @@ class _ClientMainState extends State<ClientMain> {
                                           ),
                                         ],
                                       );
-                                    }).toList()
+                                    })
                                   else
                                     TableRow(
                                       children: List.generate(
                                         7,
                                         (i) => TableCell(
-                                          child: Container(
+                                          child: SizedBox(
                                             height: 60,
                                             child: Center(
                                               child: Column(

@@ -122,7 +122,8 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif'],
         allowMultiple: false,
-        withData: true, // Always get file data for web compatibility
+        withData: true,
+        // Always get file data for web compatibility
         withReadStream: false,
         allowCompression: true,
       );

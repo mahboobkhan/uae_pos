@@ -3,15 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/client_profile_provider.dart';
 import '../../../utils/clipboard_utils.dart';
-import 'company_profile.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
 import '../../dialogs/employee_list_dialog.dart';
-import '../../dialogs/tags_class.dart';
-import '../../../providers/client_profile_provider.dart';
-import '../../../providers/client_organization_employee_provider.dart';
+import 'company_profile.dart';
 
 class CompanyScreen extends StatefulWidget {
   const CompanyScreen({super.key});
@@ -31,8 +29,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
       if (!mounted) return;
       try {
         final provider = context.read<ClientProfileProvider>();
-        // Set filter to only show organization clients
-        provider.setFilters(clientType: 'organization');
+        // Set filter to only show establishment clients
+        provider.setFilters(clientType: 'Establishment');
         provider.getAllClients();
       } catch (e) {
         // ignore provider lookup errors on early build
@@ -57,7 +55,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
   final List<String> categories3 = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
   String? selectedCategory3;
 
-  // Apply filters to the organization clients
+  // Apply filters to the establishment clients
   void _applyFilters() {
     final clientProvider = context.read<ClientProfileProvider>();
 
@@ -97,9 +95,9 @@ class _CompanyScreenState extends State<CompanyScreen> {
       }
     }
 
-    // Apply filters to provider (always keep organization filter)
+    // Apply filters to provider (always keep establishment filter)
     clientProvider.setFilters(
-      clientType: 'organization', // Always filter for organizations
+      clientType: 'establishment', // Always filter for establishment
       type: typeFilter,
       startDate: startDateFilter,
       endDate: endDateFilter,
@@ -119,16 +117,16 @@ class _CompanyScreenState extends State<CompanyScreen> {
 
     final clientProvider = context.read<ClientProfileProvider>();
     clientProvider.clearFilters();
-    // Re-apply organization filter
-    clientProvider.setFilters(clientType: 'organization');
+    // Re-apply establishment filter
+    clientProvider.setFilters(clientType: 'establishment');
     clientProvider.getAllClients();
   }
 
-  // Get stats from clients summary for organizations only
+  // Get stats from clients summary for establishment only
   List<Map<String, dynamic>> _getStatsFromSummary(Map<String, dynamic>? summary) {
     if (summary == null) {
       return [
-        {'label': 'Total Organizations', 'value': '0'},
+        {'label': 'Total Establishments', 'value': '0'},
         {'label': 'Regular', 'value': '0'},
         {'label': 'Walking', 'value': '0'},
         {'label': 'Pending Amount', 'value': 'AED 0.00'},
@@ -137,7 +135,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
     }
 
     return [
-      {'label': 'Total Organizations', 'value': summary['total_organization']?.toString() ?? '0'},
+      {'label': 'Total Establishments', 'value': summary['total_establishment']?.toString() ?? '0'},
       {'label': 'Regular', 'value': '0'}, // You might need to add this to your API
       {'label': 'Walking', 'value': '0'}, // You might need to add this to your API
       {'label': 'Pending Amount', 'value': 'AED ${summary['total_pending_amount']?.toString() ?? '0.00'}'},
@@ -159,7 +157,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-/*
+              /*
               /// ---- Stats Boxes ----
               SizedBox(
                 height: 120,
@@ -276,7 +274,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                       // Apply custom date range filter
                                       final clientProvider = context.read<ClientProfileProvider>();
                                       clientProvider.setFilters(
-                                        clientType: 'organization',
+                                        clientType: 'establishment',
                                         startDate: DateFormat('yyyy-MM-dd').format(start),
                                         endDate: DateFormat('yyyy-MM-dd').format(end),
                                       );
@@ -486,7 +484,9 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                           _buildCell(
                                             (client['client_type'] ?? '').toString().isEmpty
                                                 ? 'N/A'
-                                                : ClipboardUtils.capitalizeFirstLetter(client['client_type'].toString()),
+                                                : ClipboardUtils.capitalizeFirstLetter(
+                                                  client['client_type'].toString(),
+                                                ),
                                           ),
                                           _buildCell3(
                                             client['name']?.toString() ?? 'N/A',
@@ -498,9 +498,12 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                             client['email']?.toString() ?? 'N/A',
                                             copyable: true,
                                           ),
-                                          _buildCell(client['project_stats']['project_status']??'N/A'),
-                                          _buildPriceWithAdd('AED-', client['project_stats']['pending_amount']??'N/A'),
-                                          _buildPriceWithAdd('AED-', client['project_stats']['paid_amount']??'N/A'),
+                                          _buildCell(client['project_stats']['project_status'] ?? 'N/A'),
+                                          _buildPriceWithAdd(
+                                            'AED-',
+                                            client['project_stats']['pending_amount'] ?? 'N/A',
+                                          ),
+                                          _buildPriceWithAdd('AED-', client['project_stats']['paid_amount'] ?? 'N/A'),
                                           _buildActionCell(
                                             onEdit: () async {
                                               await showCompanyProfileDialog(context, clientData: client);
@@ -561,7 +564,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                                   Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
                                                   SizedBox(height: 4),
                                                   Text(
-                                                    'No organizations found',
+                                                    'No Establishment found',
                                                     style: TextStyle(
                                                       color: Colors.grey.shade600,
                                                       fontStyle: FontStyle.italic,
@@ -598,20 +601,12 @@ class _CompanyScreenState extends State<CompanyScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -634,17 +629,12 @@ class _CompanyScreenState extends State<CompanyScreen> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                text2,
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
-              ),
+              Text(text2, style: const TextStyle(fontSize: 10, color: Colors.black54)),
               if (copyable)
                 GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: "$text1\n$text2"));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4),
@@ -666,37 +656,26 @@ class _CompanyScreenState extends State<CompanyScreen> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
     );
   }
 
-
   Widget _buildPriceWithAdd(String curr, String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Text(
-            curr,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.green,fontWeight: FontWeight.bold),),
+          Text(curr, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          Text(price, style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(
               width: 15,
               height: 15,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.blue),
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.blue)),
               child: const Icon(Icons.add, size: 13, color: Colors.blue),
             ),
         ],
@@ -713,11 +692,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
           onPressed: onEdit ?? () {},
         ),
         if (onAddEmployee != null)
-          IconButton(
-            icon: Icon(Icons.people, color: Colors.green),
-            tooltip: 'Add Employee',
-            onPressed: onAddEmployee,
-          ),
+          IconButton(icon: Icon(Icons.people, color: Colors.green), tooltip: 'Add Employee', onPressed: onAddEmployee),
       ],
     );
   }
@@ -728,12 +703,7 @@ class _HoverableTag extends StatefulWidget {
   final Color color;
   final VoidCallback onDelete;
 
-  const _HoverableTag({
-    Key? key,
-    required this.tag,
-    required this.color,
-    required this.onDelete,
-  }) : super(key: key);
+  const _HoverableTag({Key? key, required this.tag, required this.color, required this.onDelete}) : super(key: key);
 
   @override
   State<_HoverableTag> createState() => _HoverableTagState();
@@ -753,17 +723,10 @@ class _HoverableTagState extends State<_HoverableTag> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             margin: const EdgeInsets.only(top: 6, right: 2),
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: widget.color, borderRadius: BorderRadius.circular(12)),
             child: Text(
               widget.tag,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 12),
             ),
           ),
           if (_hovering)
@@ -772,9 +735,7 @@ class _HoverableTagState extends State<_HoverableTag> {
               right: 5,
               child: GestureDetector(
                 onTap: widget.onDelete,
-                child: Container(
-                  child: const Icon(Icons.close, size: 12, color: Colors.black),
-                ),
+                child: Container(child: const Icon(Icons.close, size: 12, color: Colors.black)),
               ),
             ),
         ],

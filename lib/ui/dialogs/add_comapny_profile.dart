@@ -123,7 +123,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "Company Profile",
+                          "Establishment Profile",
                           style: TextStyle(
                             color: Colors.red,
                             fontSize: width * 0.015,
@@ -204,7 +204,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Company Name",
+                          "Establishment Name",
                           style: TextStyle(
                             fontSize: width * 0.008,
                             color: Colors.red,
@@ -280,7 +280,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Company Code",
+                          "Establishment Code",
                           style: TextStyle(
                             fontSize: width * 0.008,
                             color: Colors.red,

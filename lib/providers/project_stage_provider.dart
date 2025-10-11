@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -80,9 +79,10 @@ class ProjectStageProvider extends ChangeNotifier {
   Future<void> addProjectStage({
     required String projectRefId,
     required String serviceDepartment,
-    required List<Map<String, String>> applications,
     required String stepCost,
     String? additionalProfit,
+    List<Map<String, String>>? applications,
+    List<Map<String, String>>? extraNotes,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -98,6 +98,9 @@ class ProjectStageProvider extends ChangeNotifier {
       "step_cost": stepCost,
     };
 
+    if (extraNotes != null && extraNotes.isNotEmpty) bodyData["extra_notes"] = extraNotes;
+
+
     if (additionalProfit != null && additionalProfit.isNotEmpty) {
       bodyData["additional_profit"] = additionalProfit;
     }
@@ -110,11 +113,7 @@ class ProjectStageProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: body,
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -147,6 +146,7 @@ class ProjectStageProvider extends ChangeNotifier {
     String? endAt,
     String? stepCost,
     List<Map<String, String>>? applications,
+    List<Map<String, String>>? extraNotes,
     String? additionalProfit,
   }) async {
     isLoading = true;
@@ -156,13 +156,12 @@ class ProjectStageProvider extends ChangeNotifier {
 
     final url = Uri.parse("$baseUrl/update_project_stage.php");
 
-    final Map<String, dynamic> bodyData = {
-      "project_stage_ref_id": projectStageRefId,
-    };
+    final Map<String, dynamic> bodyData = {"project_stage_ref_id": projectStageRefId};
 
     if (endAt != null && endAt.isNotEmpty) bodyData["end_at"] = endAt;
     if (stepCost != null && stepCost.isNotEmpty) bodyData["step_cost"] = stepCost;
     if (applications != null && applications.isNotEmpty) bodyData["applications"] = applications;
+    if (extraNotes != null && extraNotes.isNotEmpty) bodyData["extra_notes"] = extraNotes;
     if (additionalProfit != null && additionalProfit.isNotEmpty) bodyData["additional_profit"] = additionalProfit;
 
     final body = json.encode(bodyData);
@@ -173,11 +172,7 @@ class ProjectStageProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: body,
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -226,11 +221,7 @@ class ProjectStageProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: body,
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');

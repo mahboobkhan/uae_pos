@@ -629,7 +629,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   Row(
                     children: [
                       const Text(
-                        'Company Profile',
+                        'Establishment Profile',
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
                       ),
                       const SizedBox(width: 12),
@@ -724,9 +724,9 @@ class CompanyProfileState extends State<CompanyProfile> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  CustomTextField(label: "Company Name", hintText: "", controller: companyNameController),
+                  CustomTextField(label: "Establishment Name", hintText: "", controller: companyNameController),
                   CustomTextField(label: "Trade Licence Number ", controller: tradeLicenseController, hintText: ""),
-                  CustomTextField(label: "Company Code ", controller: companyCodeController, hintText: ""),
+                  CustomTextField(label: "Establishment Code ", controller: companyCodeController, hintText: ""),
                   CustomTextField(
                     label: "Establishment Number ",
                     controller: establishmentNumberController,
@@ -1010,7 +1010,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                         await provider.addClient(
                           name:
                               companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
-                          clientType: 'organization',
+                          clientType: 'establishment',
                           clientWork: (selectedJobType3 ?? 'Regular').toLowerCase(),
                           email:
                               emailId2Controller.text.trim().isNotEmpty

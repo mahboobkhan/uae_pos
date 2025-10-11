@@ -402,7 +402,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
         break;
       case NavItem.clients:
         switch (submenu) {
-          case 'Company':
+          case 'Establishment':
             return const Center(child: CompanyScreen());
           case 'Individuals':
             return const Center(child: IndividualScreen());

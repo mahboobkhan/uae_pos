@@ -22,7 +22,7 @@ final List<SidebarItem> sidebarItems = [
     title: 'Clients',
     accessKey: 'clients',
     submenuKeys: ['company', 'individuals', 'finance_history'],
-    submenus: ['Company', 'Individuals', 'Finance History'],
+    submenus: ['Establishment', 'Individuals', 'Finance History'],
   ),
   SidebarItem(
     icon: Icons.person_pin_outlined,
@@ -91,7 +91,7 @@ final List<SidebarItem> sidebarItemsAccess = [
     title: 'Clients',
     accessKey: 'clients',
     submenuKeys: ['company', 'individuals', 'finance_history'],
-    submenus: ['Company', 'Individuals', 'Finance History'],
+    submenus: ['Establishment', 'Individuals', 'Finance History'],
   ),
   SidebarItem(
     icon: Icons.person_pin_outlined,
