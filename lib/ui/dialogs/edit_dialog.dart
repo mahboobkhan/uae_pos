@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../employee/AllEmployeeData.dart';
 import '../../employee/employee_models.dart';
+import '../../utils/pin_verification_util.dart';
 
 class BankAccountEditDialog extends StatefulWidget {
   final BankAccount bankAccount;
@@ -84,25 +85,33 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
     super.dispose();
   }
 
-  void _saveChanges() {
+  void _saveChanges() async {
     if (_formKey.currentState!.validate()) {
-      // Create updated bank account
-      final updatedBankAccount = BankAccount(
-        id: widget.bankAccount.id,
-        userId: widget.bankAccount.userId,
-        titleName: _titleNameController.text.trim(),
-        bankName: _selectedBank ?? '', // Use the selected bank from dropdown
-        branchCode: _branchCodeController.text.trim(),
-        bankAccountNumber: _bankAccountNumberController.text.trim(),
-        ibanNumber: _ibanNumberController.text.trim(),
-        contactNumber: _contactNumberController.text.trim(),
-        emailId: _emailIdController.text.trim(),
-        bankAddress: _bankAddressController.text.trim(),
-        additionalNote: _additionalNoteController.text.trim(),
-        createdBy: widget.bankAccount.createdBy,
-        createdDate: widget.bankAccount.createdDate,
+      // Show PIN verification before saving changes
+      await PinVerificationUtil.executeWithPinVerification(
+        context,
+        () {
+          // Create updated bank account
+          final updatedBankAccount = BankAccount(
+            id: widget.bankAccount.id,
+            userId: widget.bankAccount.userId,
+            titleName: _titleNameController.text.trim(),
+            bankName: _selectedBank ?? '', // Use the selected bank from dropdown
+            branchCode: _branchCodeController.text.trim(),
+            bankAccountNumber: _bankAccountNumberController.text.trim(),
+            ibanNumber: _ibanNumberController.text.trim(),
+            contactNumber: _contactNumberController.text.trim(),
+            emailId: _emailIdController.text.trim(),
+            bankAddress: _bankAddressController.text.trim(),
+            additionalNote: _additionalNoteController.text.trim(),
+            createdBy: widget.bankAccount.createdBy,
+            createdDate: widget.bankAccount.createdDate,
+          );
+          widget.onSave(updatedBankAccount);
+        },
+        title: "Save Bank Account Changes",
+        message: "Please enter your PIN to save the bank account changes",
       );
-      widget.onSave(updatedBankAccount);
     }
   }
 
