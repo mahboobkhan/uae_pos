@@ -13,6 +13,7 @@ import '../../../providers/documents_provider.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
+import '../../../utils/pin_verification_util.dart';
 
 Future<void> showCompanyProfileDialog(BuildContext context, {Map<String, dynamic>? clientData}) async {
   showDialog(
@@ -74,6 +75,9 @@ class CompanyProfileState extends State<CompanyProfile> {
   String? selectedWorkType;
 
   final TextEditingController _dateTimeController = TextEditingController();
+
+  // Edit mode state
+  bool _isEditMode = false;
 
   void _pickDateTime2() {
     showDialog(
@@ -637,6 +641,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                           label: "Client Type",
                           options: ['N/A','Regular', 'Walking'],
                           selectedValue: selectedWorkType,
+                          enabled: _isEditMode,
                           onChanged: (value) {
                             setState(() {
                               selectedWorkType = value;
@@ -722,13 +727,14 @@ class CompanyProfileState extends State<CompanyProfile> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  CustomTextField(label: "Establishment Name", hintText: "", controller: companyNameController),
-                  CustomTextField(label: "Trade Licence Number ", controller: tradeLicenseController, hintText: ""),
-                  CustomTextField(label: "Establishment Code ", controller: companyCodeController, hintText: ""),
+                  CustomTextField(label: "Establishment Name", hintText: "", controller: companyNameController, enabled: _isEditMode),
+                  CustomTextField(label: "Trade Licence Number ", controller: tradeLicenseController, hintText: "", enabled: _isEditMode),
+                  CustomTextField(label: "Establishment Code ", controller: companyCodeController, hintText: "", enabled: _isEditMode),
                   CustomTextField(
                     label: "Establishment Number ",
                     controller: establishmentNumberController,
                     hintText: "",
+                    enabled: _isEditMode,
                   ),
                 ],
               ),
@@ -738,21 +744,23 @@ class CompanyProfileState extends State<CompanyProfile> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  CustomTextField(label: "Note Extra ", controller: extraNoteController, hintText: "xxxxxxxxx"),
-                  CustomTextField(label: "Email I'd ", controller: emailId2Controller, hintText: "@gmail.com"),
-                  CustomTextField(label: "Contact Number ", controller: contactNumberController, hintText: ""),
-                  CustomTextField(label: "Contact Number 2", controller: contactNumber2Controller, hintText: ""),
+                  CustomTextField(label: "Note Extra ", controller: extraNoteController, hintText: "xxxxxxxxx", enabled: _isEditMode),
+                  CustomTextField(label: "Email I'd ", controller: emailId2Controller, hintText: "@gmail.com", enabled: _isEditMode),
+                  CustomTextField(label: "Contact Number ", controller: contactNumberController, hintText: "", enabled: _isEditMode),
+                  CustomTextField(label: "Contact Number 2", controller: contactNumber2Controller, hintText: "", enabled: _isEditMode),
                   CustomTextField(
                     label: "Physical Address",
                     controller: physicalAddressController,
                     hintText: "Address,house,street,town,post code",
+                    enabled: _isEditMode,
                   ),
-                  CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: "S.E.C.P"),
-                  CustomTextField(label: "E- Channel Login I'd", controller: channelLoginController, hintText: ""),
+                  CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: "S.E.C.P", enabled: _isEditMode),
+                  CustomTextField(label: "E- Channel Login I'd", controller: channelLoginController, hintText: "", enabled: _isEditMode),
                   CustomTextField(
                     label: "E- Channel Login Password",
                     controller: channelPasswordController,
                     hintText: "",
+                    enabled: _isEditMode,
                   ),
                 ],
               ),
@@ -945,123 +953,142 @@ class CompanyProfileState extends State<CompanyProfile> {
               SizedBox(height: 20),
               Row(
                 children: [
-                  CustomButton(text: "Editing", backgroundColor: Colors.blue, onPressed: () {}),
-                  const SizedBox(width: 10),
                   CustomButton(
-                    text: "Submit",
-                    backgroundColor: Colors.green,
-                    onPressed: () async {
-                      final provider = context.read<ClientProfileProvider>();
-                      final isEdit =
-                          widget.clientData != null &&
-                          (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
-
-                      // Combine existing and new document IDs
-                      final allDocumentIds = [
-                        ...clientDocuments
-                            .map((doc) => doc['document_ref_id']?.toString())
-                            .where((id) => id != null)
-                            .cast<String>(),
-                        ...uploadedDocumentIds,
-                      ];
-
-                      if (isEdit) {
-                        await provider.updateClient(
-                          clientRefId: widget.clientData!['client_ref_id'].toString(),
-                          name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : null,
-                          email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : null,
-                          phone1:
-                              contactNumberController.text.trim().isNotEmpty
-                                  ? contactNumberController.text.trim()
-                                  : null,
-                          phone2:
-                              contactNumber2Controller.text.trim().isNotEmpty
-                                  ? contactNumber2Controller.text.trim()
-                                  : null,
-                          clientType: 'organization',
-                          clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
-                          tradeLicenseNo:
-                              tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
-                          companyCode:
-                              companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
-                          establishmentNo:
-                              establishmentNumberController.text.trim().isNotEmpty
-                                  ? establishmentNumberController.text.trim()
-                                  : null,
-                          physicalAddress:
-                              physicalAddressController.text.trim().isNotEmpty
-                                  ? physicalAddressController.text.trim()
-                                  : null,
-                          echannelName:
-                              channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
-                          echannelId:
-                              channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
-                          echannelPassword:
-                              channelPasswordController.text.trim().isNotEmpty
-                                  ? channelPasswordController.text.trim()
-                                  : null,
-                          extraNote:
-                              extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
-                          documents: allDocumentIds,
-                        );
-                      } else {
-                        await provider.addClient(
-                          name:
-                              companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
-                          clientType: 'establishment',
-                          clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
-                          email:
-                              emailId2Controller.text.trim().isNotEmpty
-                                  ? emailId2Controller.text.trim()
-                                  : 'no-email@example.com',
-                          phone1:
-                              contactNumberController.text.trim().isNotEmpty
-                                  ? contactNumberController.text.trim()
-                                  : '+000000000',
-                          phone2:
-                              contactNumber2Controller.text.trim().isNotEmpty
-                                  ? contactNumber2Controller.text.trim()
-                                  : null,
-                          tradeLicenseNo:
-                              tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
-                          companyCode:
-                              companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
-                          establishmentNo:
-                              establishmentNumberController.text.trim().isNotEmpty
-                                  ? establishmentNumberController.text.trim()
-                                  : null,
-                          physicalAddress:
-                              physicalAddressController.text.trim().isNotEmpty
-                                  ? physicalAddressController.text.trim()
-                                  : null,
-                          echannelName:
-                              channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
-                          echannelId:
-                              channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
-                          echannelPassword:
-                              channelPasswordController.text.trim().isNotEmpty
-                                  ? channelPasswordController.text.trim()
-                                  : null,
-                          extraNote:
-                              extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
-                          documents: allDocumentIds,
-                        );
-                      }
-
-                      if (provider.errorMessage == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created')),
-                          ),
-                        );
-                        Navigator.of(context).pop();
-                      } else {
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)));
-                      }
-                    },
+                    text: _isEditMode ? "Cancel" : "Edit", 
+                    backgroundColor: _isEditMode ? Colors.grey : Colors.blue, 
+                    onPressed: () {
+                      setState(() {
+                        _isEditMode = !_isEditMode;
+                      });
+                    }
                   ),
+                  const SizedBox(width: 10),
+                  if (_isEditMode)
+                    CustomButton(
+                      text: "Submit",
+                      backgroundColor: Colors.green,
+                      onPressed: () async {
+                        // Show PIN verification before submitting
+                        await PinVerificationUtil.executeWithPinVerification(
+                          context,
+                          () async {
+                            final provider = context.read<ClientProfileProvider>();
+                            final isEdit =
+                                widget.clientData != null &&
+                                (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
+
+                            // Combine existing and new document IDs
+                            final allDocumentIds = [
+                              ...clientDocuments
+                                  .map((doc) => doc['document_ref_id']?.toString())
+                                  .where((id) => id != null)
+                                  .cast<String>(),
+                              ...uploadedDocumentIds,
+                            ];
+
+                            if (isEdit) {
+                              await provider.updateClient(
+                                clientRefId: widget.clientData!['client_ref_id'].toString(),
+                                name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : null,
+                                email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : null,
+                                phone1:
+                                    contactNumberController.text.trim().isNotEmpty
+                                        ? contactNumberController.text.trim()
+                                        : null,
+                                phone2:
+                                    contactNumber2Controller.text.trim().isNotEmpty
+                                        ? contactNumber2Controller.text.trim()
+                                        : null,
+                                clientType: 'organization',
+                                clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
+                                tradeLicenseNo:
+                                    tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
+                                companyCode:
+                                    companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
+                                establishmentNo:
+                                    establishmentNumberController.text.trim().isNotEmpty
+                                        ? establishmentNumberController.text.trim()
+                                        : null,
+                                physicalAddress:
+                                    physicalAddressController.text.trim().isNotEmpty
+                                        ? physicalAddressController.text.trim()
+                                        : null,
+                                echannelName:
+                                    channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                                echannelId:
+                                    channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                                echannelPassword:
+                                    channelPasswordController.text.trim().isNotEmpty
+                                        ? channelPasswordController.text.trim()
+                                        : null,
+                                extraNote:
+                                    extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
+                                documents: allDocumentIds,
+                              );
+                            } else {
+                              await provider.addClient(
+                                name:
+                                    companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
+                                clientType: 'establishment',
+                                clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
+                                email:
+                                    emailId2Controller.text.trim().isNotEmpty
+                                        ? emailId2Controller.text.trim()
+                                        : 'no-email@example.com',
+                                phone1:
+                                    contactNumberController.text.trim().isNotEmpty
+                                        ? contactNumberController.text.trim()
+                                        : '+000000000',
+                                phone2:
+                                    contactNumber2Controller.text.trim().isNotEmpty
+                                        ? contactNumber2Controller.text.trim()
+                                        : null,
+                                tradeLicenseNo:
+                                    tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
+                                companyCode:
+                                    companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
+                                establishmentNo:
+                                    establishmentNumberController.text.trim().isNotEmpty
+                                        ? establishmentNumberController.text.trim()
+                                        : null,
+                                physicalAddress:
+                                    physicalAddressController.text.trim().isNotEmpty
+                                        ? physicalAddressController.text.trim()
+                                        : null,
+                                echannelName:
+                                    channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                                echannelId:
+                                    channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                                echannelPassword:
+                                    channelPasswordController.text.trim().isNotEmpty
+                                        ? channelPasswordController.text.trim()
+                                        : null,
+                                extraNote:
+                                    extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
+                                documents: allDocumentIds,
+                              );
+                            }
+
+                            if (provider.errorMessage == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created')),
+                                ),
+                              );
+                              Navigator.of(context).pop();
+                            } else {
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)));
+                            }
+                          },
+                          title: widget.clientData != null ? "Update Establishment" : "Create Establishment",
+                          message: widget.clientData != null 
+                              ? "Please enter your PIN to update this establishment"
+                              : "Please enter your PIN to create this establishment",
+                        );
+                      },
+                    ),
                 ],
               ),
             ],
