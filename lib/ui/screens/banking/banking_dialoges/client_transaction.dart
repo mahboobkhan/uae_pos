@@ -353,8 +353,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 ],
               ),
               const SizedBox(height: 15),
-              // Fourth Row - Step Cost and Additional Cost (only for Receive payment type)
-              if (selectedPaymentType == 'Receive') ...[
+              // Show Step Cost and Additional Profit fields only for Expense type
+              if (selectedPaymentType == 'Expense') ...[
                 Row(
                   children: [
                     Expanded(
@@ -535,6 +535,13 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     // Map payment type to in/out
     String paymentTypeValue = selectedPaymentType == 'Receive' ? 'in' : 'out';
 
+    final double? stepCostVal = (selectedPaymentType == 'Expense' && _stepCostController.text.isNotEmpty)
+        ? double.tryParse(_stepCostController.text)
+        : null;
+    final double? additionalProfitVal = (selectedPaymentType == 'Expense' && _additionalCostController.text.isNotEmpty)
+        ? double.tryParse(_additionalCostController.text)
+        : null;
+
     await bankingProvider.addBankingPayment(
       type: 'project',
       typeRef: projectRefId,
@@ -553,9 +560,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
           selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty
               ? _serviceTIDController.text
               : null,
-      stepCost: _stepCostController.text.isNotEmpty ? double.tryParse(_stepCostController.text) : null,
-      additionalProfit:
-          _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
+      stepCost: stepCostVal,
+      additionalProfit: additionalProfitVal,
       projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
     );
 
@@ -605,6 +611,13 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     // Map payment type to in/out
     String paymentTypeValue = selectedPaymentType == 'Receive' ? 'in' : 'out';
 
+    final double? stepCostUpdateVal = (selectedPaymentType == 'Expense' && _stepCostController.text.isNotEmpty)
+        ? double.tryParse(_stepCostController.text)
+        : null;
+    final double? additionalCostUpdateVal = (selectedPaymentType == 'Expense' && _additionalCostController.text.isNotEmpty)
+        ? double.tryParse(_additionalCostController.text)
+        : null;
+
     await bankingProvider.updateBankingPayment(
       id: widget.paymentData!['id']?.toString(),
       paymentRefId: widget.paymentData!['payment_ref_id']?.toString(),
@@ -621,10 +634,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
           selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty
               ? _serviceTIDController.text
               : null,
-      // Add step cost and additional cost if available
-      stepCost: _stepCostController.text.isNotEmpty ? double.tryParse(_stepCostController.text) : null,
-      additionalCost:
-          _additionalCostController.text.isNotEmpty ? double.tryParse(_additionalCostController.text) : null,
+      // Include step/additional only for Expense type
+      stepCost: stepCostUpdateVal,
+      additionalCost: additionalCostUpdateVal,
       projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
     );
 
