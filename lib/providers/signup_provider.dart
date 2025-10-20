@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../ui/screens/SidebarLayout.dart';
 import '../ui/screens/login screens/forgot_screen.dart';
 import '../ui/screens/login screens/verification_screen.dart';
+import '../ui/screens/SidebarLayout.dart';
 import '../widgets/loading_dialog.dart';
 
 extension _AccessNormalize on Map<String, dynamic> {
@@ -439,7 +439,11 @@ class SignupProvider with ChangeNotifier {
             ),
           );
         } else {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SidebarLayout()));
+          // Navigate directly to home screen - PIN verification will be shown there
+          Navigator.pushReplacement(
+            context, 
+            MaterialPageRoute(builder: (context) => SidebarLayout())
+          );
         }
       } else {
         print('loginwork status error ${jsonResponse['message']} ');
