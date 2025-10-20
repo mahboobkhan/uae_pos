@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/service_category_provider.dart';
+import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 
@@ -97,25 +98,34 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                           ),
                           onPressed: () async {
-                            if (editData == null) {
-                              await Provider.of<ServiceCategoryProvider>(context, listen: false).addServiceCategory(
-                                serviceName: serviceName,
-                                quotation: quotation,
-                                serviceProviderName: serviceProviderName,
-                                date: DateTime.now().toIso8601String(),
-                              );
-                            } else {
-                              await Provider.of<ServiceCategoryProvider>(context, listen: false).updateServiceCategory(
-                                refId: refId!,
-                                serviceName: serviceName,
-                                quotation: quotation,
-                                serviceProviderName: serviceProviderName,
-                                date: DateTime.now().toIso8601String(),
-                              );
-                            }
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(editData == null ? 'Create' : 'Update', style: TextStyle(color: Colors.white)),
+                            // Show PIN verification before creating/updating
+                            await PinVerificationUtil.executeWithPinVerification(
+                              context,
+                                  () async {
+                                if (editData == null) {
+                                  await Provider.of<ServiceCategoryProvider>(context, listen: false).addServiceCategory(
+                                    serviceName: serviceName,
+                                    quotation: quotation,
+                                    serviceProviderName: serviceProviderName,
+                                    date: DateTime.now().toIso8601String(),
+                                  );
+                                } else {
+                                  await Provider.of<ServiceCategoryProvider>(context, listen: false).updateServiceCategory(
+                                    refId: refId!,
+                                    serviceName: serviceName,
+                                    quotation: quotation,
+                                    serviceProviderName: serviceProviderName,
+                                    date: DateTime.now().toIso8601String(),
+                                  );
+                                }
+                                Navigator.of(context).pop();
+                              },
+                              title: editData == null ? "Create Service Category" : "Update Service Category",
+                              message: editData == null
+                                  ? "Please enter your PIN to create this service category"
+                                  : "Please enter your PIN to update this service category",
+                            );
+                          },                          child: Text(editData == null ? 'Create' : 'Update', style: TextStyle(color: Colors.white)),
                         ),
                       ),
                     ],

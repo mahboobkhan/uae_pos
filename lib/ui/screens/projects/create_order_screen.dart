@@ -10,6 +10,7 @@ import '../../../providers/service_category_provider.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
+import '../../../utils/pin_verification_util.dart';
 
 class DropdownItem {
   final String id;
@@ -1726,7 +1727,15 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                   text: "Edit Stage",
                   backgroundColor: Colors.blue,
                   icon: Icons.lock_open,
-                  onPressed: () => _showEditStageDialog(context, stage),
+                  onPressed: () async {
+                    // Show PIN verification before opening edit dialog
+                    await PinVerificationUtil.executeWithPinVerification(
+                      context,
+                      () => _showEditStageDialog(context, stage),
+                      title: "Edit Stage",
+                      message: "Please enter your PIN to edit this stage",
+                    );
+                  },
                 ),
                 const SizedBox(width: 10),
                 // Show Add Next Stage button only on last stage
@@ -1915,24 +1924,32 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 text: "Update Stage",
                 backgroundColor: Colors.blue,
                 onPressed: () async {
-                  final provider = context.read<ProjectStageProvider>();
-                  await provider.updateProjectStage(
-                    projectStageRefId: stage['project_stage_ref_id'],
-                    stepCost: stepCostController.text.trim().isEmpty ? null : stepCostController.text.trim(),
-                    additionalProfit:
-                        additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
+                  // Show PIN verification before updating
+                  await PinVerificationUtil.executeWithPinVerification(
+                    context,
+                    () async {
+                      final provider = context.read<ProjectStageProvider>();
+                      await provider.updateProjectStage(
+                        projectStageRefId: stage['project_stage_ref_id'],
+                        stepCost: stepCostController.text.trim().isEmpty ? null : stepCostController.text.trim(),
+                        additionalProfit:
+                            additionalProfitController.text.trim().isEmpty ? null : additionalProfitController.text.trim(),
+                      );
+                      // After editing a stage, ensure project is in-progress if not locked
+                      if (!_isProjectLocked) {
+                        await _updateProjectStatus('in-progress');
+                      }
+
+                      // Refresh calculations after updating stage
+                      if (mounted) {
+                        setState(() {});
+                      }
+
+                      Navigator.pop(context);
+                    },
+                    title: "Update Stage",
+                    message: "Please enter your PIN to update this stage",
                   );
-                  // After editing a stage, ensure project is in-progress if not locked
-                  if (!_isProjectLocked) {
-                    await _updateProjectStatus('in-progress');
-                  }
-
-                  // Refresh calculations after updating stage
-                  if (mounted) {
-                    setState(() {});
-                  }
-
-                  Navigator.pop(context);
                 },
               ),
             ],
