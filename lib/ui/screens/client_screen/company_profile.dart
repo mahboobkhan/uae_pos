@@ -77,7 +77,30 @@ class CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController _dateTimeController = TextEditingController();
 
   // Edit mode state
-  bool _isEditMode = false;
+  bool _isEditMode = true;
+
+  // Snapshot of original values for change detection on edit
+  Map<String, String?> _originalValues = {};
+
+  bool _hasEditsMade() {
+    // Normalize helper
+    String? norm(String? v) => (v ?? '').trim();
+    return (
+      norm(companyNameController.text) != norm(_originalValues['name']) ||
+      norm(tradeLicenseController.text) != norm(_originalValues['trade_license_no']) ||
+      norm(companyCodeController.text) != norm(_originalValues['company_code']) ||
+      norm(establishmentNumberController.text) != norm(_originalValues['establishment_no']) ||
+      norm(extraNoteController.text) != norm(_originalValues['extra_note']) ||
+      norm(emailId2Controller.text) != norm(_originalValues['email']) ||
+      norm(contactNumberController.text) != norm(_originalValues['phone1']) ||
+      norm(contactNumber2Controller.text) != norm(_originalValues['phone2']) ||
+      norm(physicalAddressController.text) != norm(_originalValues['physical_address']) ||
+      norm(channelNameController.text) != norm(_originalValues['echannel_name']) ||
+      norm(channelLoginController.text) != norm(_originalValues['echannel_id']) ||
+      norm(channelPasswordController.text) != norm(_originalValues['echannel_password']) ||
+      norm(selectedWorkType) != norm(_originalValues['client_work'])
+    );
+  }
 
   void _pickDateTime2() {
     showDialog(
@@ -578,6 +601,23 @@ class CompanyProfileState extends State<CompanyProfile> {
       channelPasswordController.text = (data['echannel_password'] ?? '').toString();
       selectedWorkType = (data['client_work'] ?? 'N/A').toString();
 
+      // Capture original values snapshot for change detection
+      _originalValues = {
+        'name': (data['name'] ?? '').toString(),
+        'trade_license_no': (data['trade_license_no'] ?? '').toString(),
+        'company_code': (data['company_code'] ?? '').toString(),
+        'establishment_no': (data['establishment_no'] ?? '').toString(),
+        'extra_note': (data['extra_note'] ?? '').toString(),
+        'email': (data['email'] ?? '').toString(),
+        'phone1': (data['phone1'] ?? '').toString(),
+        'phone2': (data['phone2'] ?? '').toString(),
+        'physical_address': (data['physical_address'] ?? '').toString(),
+        'echannel_name': (data['echannel_name'] ?? '').toString(),
+        'echannel_id': (data['echannel_id'] ?? '').toString(),
+        'echannel_password': (data['echannel_password'] ?? '').toString(),
+        'client_work': (data['client_work'] ?? '').toString(),
+      };
+
       // Set created date from client data if available, otherwise use current date
       if (data['created_at'] != null && data['created_at'].toString().isNotEmpty) {
         try {
@@ -659,6 +699,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                                 channelNameController.clear();
                                 channelLoginController.clear();
                                 channelPasswordController.clear();
+
                               }
                             });
                           },
@@ -969,25 +1010,18 @@ class CompanyProfileState extends State<CompanyProfile> {
               Row(
                 children: [
                   CustomButton(
-                    text: _isEditMode ? "Cancel" : "Edit", 
-                    backgroundColor: _isEditMode ? Colors.grey : Colors.blue, 
+                    text: "Cancel",
+                    backgroundColor: Colors.grey,
                     onPressed: () {
-                      setState(() {
-                        _isEditMode = !_isEditMode;
-                      });
+                      Navigator.of(context).pop();
                     }
                   ),
                   const SizedBox(width: 10),
-                  if (_isEditMode)
-                    CustomButton(
-                      text: "Submit",
-                      backgroundColor: Colors.green,
-                      onPressed: () async {
-                        // Show PIN verification before submitting
-                        await PinVerificationUtil.executeWithPinVerification(
-                          context,
-                          () async {
-                            final provider = context.read<ClientProfileProvider>();
+                  CustomButton(
+                    text: "Submit",
+                    backgroundColor: Colors.green,
+                    onPressed: () async {
+                          final provider = context.read<ClientProfileProvider>();
                             final isEdit =
                                 widget.clientData != null &&
                                 (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
@@ -1003,8 +1037,9 @@ class CompanyProfileState extends State<CompanyProfile> {
 
                             final bool isNA = (selectedWorkType == 'N/A');
 
-                            if (isEdit) {
-                              await provider.updateClient(
+                            Future<void> performSave() async {
+                              if (isEdit) {
+                                await provider.updateClient(
                                 clientRefId: widget.clientData!['client_ref_id'].toString(),
                                 name: isNA ? null : (companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : null),
                                 email: isNA ? null : (emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : null),
@@ -1049,9 +1084,9 @@ class CompanyProfileState extends State<CompanyProfile> {
                                 extraNote:
                                     isNA ? null : (extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null),
                                 documents: allDocumentIds,
-                              );
-                            } else {
-                              await provider.addClient(
+                                );
+                              } else {
+                                await provider.addClient(
                                 name: isNA
                                     ? 'N/A'
                                     : (companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A'),
@@ -1101,7 +1136,22 @@ class CompanyProfileState extends State<CompanyProfile> {
                                 extraNote:
                                     isNA ? null : (extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null),
                                 documents: allDocumentIds,
+                                );
+                              }
+                            }
+
+                            // If editing and changes were made, require PIN verification
+                            if (isEdit && _hasEditsMade()) {
+                              await PinVerificationUtil.executeWithPinVerification(
+                                context,
+                                () async {
+                                  await performSave();
+                                },
+                                title: "Update Establishment",
+                                message: "Please enter your PIN to update this establishment",
                               );
+                            } else {
+                              await performSave();
                             }
 
                             if (provider.errorMessage == null) {
@@ -1116,14 +1166,8 @@ class CompanyProfileState extends State<CompanyProfile> {
                                 context,
                               ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)));
                             }
-                          },
-                          title: widget.clientData != null ? "Update Establishment" : "Create Establishment",
-                          message: widget.clientData != null 
-                              ? "Please enter your PIN to update this establishment"
-                              : "Please enter your PIN to create this establishment",
-                        );
-                      },
-                    ),
+                    },
+                  ),
                 ],
               ),
             ],
