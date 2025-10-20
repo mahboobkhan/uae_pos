@@ -37,7 +37,11 @@ import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
 
 class SidebarLayout extends StatefulWidget {
-  SidebarLayout({super.key});
+  final NavItem? initialItem;
+  final int? initialSubmenuIndex;
+  final bool showPinDialog;
+
+  SidebarLayout({super.key, this.initialItem, this.initialSubmenuIndex, this.showPinDialog = true});
 
   @override
   State<SidebarLayout> createState() => _SidebarLayoutState();
@@ -58,10 +62,23 @@ class _SidebarLayoutState extends State<SidebarLayout> {
 
     _loadUserIdAndFetchAccess();
     
-    // Show PIN verification dialog after the screen loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showPinVerificationDialog();
-    });
+    // Show PIN verification dialog after the screen loads (if enabled)
+    if (widget.showPinDialog == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showPinVerificationDialog();
+      });
+    }
+
+    // Initialize selected item/submenu from constructor, if provided
+    if (widget.initialItem != null) {
+      selectedItem = widget.initialItem!;
+      _selectedSidebarIndex = selectedItem.index;
+    }
+    if (widget.initialSubmenuIndex != null) {
+      _selectedSubmenuIndex = widget.initialSubmenuIndex!;
+    } else {
+      _selectedSubmenuIndex = -1;
+    }
   }
 
   Future<void> _loadUserIdAndFetchAccess() async {

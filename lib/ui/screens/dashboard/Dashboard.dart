@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/dashboard_provider.dart';
+import 'package:abc_consultant/providers/banking_payments_provider.dart';
+import 'package:abc_consultant/ui/screens/SidebarLayout.dart';
+import 'package:abc_consultant/ui/Model/NavItem.dart';
+import 'package:abc_consultant/providers/client_profile_provider.dart';
+import 'package:abc_consultant/providers/projects_provider.dart';
+import 'package:abc_consultant/providers/expense_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -62,37 +68,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children:
                           stats.map((stat) {
                             return Expanded(
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 6),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.redColor,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        stat['value'] ?? '',
-                                        style: const TextStyle(
-                                          fontSize: 28,
-                                          color: Colors.white,
-                                          fontFamily: 'Courier',
-                                          fontWeight: FontWeight.bold,
+                              child: GestureDetector(
+                                onTap: () {
+                                  final String label = (stat['label'] ?? '').toString().toLowerCase();
+                                  NavItem target = NavItem.dashboard;
+                                  if (label.contains('revenue')) {
+                                    target = NavItem.banking;
+                                  } else if (label.contains('users')) {
+                                    target = NavItem.employees;
+                                  } else if (label.contains('clients')) {
+                                    target = NavItem.clients;
+                                  } else if (label.contains('projects')) {
+                                    target = NavItem.projects;
+                                  } else if (label.contains('expenses')) {
+                                    target = NavItem.expenses;
+                                  }
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => SidebarLayout(initialItem: target, showPinDialog: false),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 6),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.redColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          stat['value'] ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 28,
+                                            color: Colors.white,
+                                            fontFamily: 'Courier',
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        stat['label'] ?? '',
-                                        style: const TextStyle(fontSize: 14, color: Colors.white),
+                                      const SizedBox(height: 8),
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          stat['label'] ?? '',
+                                          style: const TextStyle(fontSize: 14, color: Colors.white),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -314,6 +342,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return LineChart(
       LineChartData(
+        lineTouchData: LineTouchData(
+          handleBuiltInTouches: true,
+          touchCallback: (event, touchResponse) {
+            if (event is FlTapUpEvent) {
+              final spotsList = touchResponse?.lineBarSpots;
+              if (spotsList != null && spotsList.isNotEmpty) {
+                final int tappedIndex = spotsList.first.x.toInt();
+                if (tappedIndex >= 0 && tappedIndex < provider.paymentsChartData.length) {
+                  final String tappedDate = (provider.paymentsChartData[tappedIndex]['date'] ?? '').toString();
+                  if (tappedDate.isNotEmpty) {
+                    // Apply date filter on BankingPaymentsProvider and navigate to BankingScreen
+                    try {
+                      final bankingProvider = context.read<BankingPaymentsProvider>();
+                      bankingProvider.setFilters(dateFrom: tappedDate, dateTo: tappedDate);
+                      bankingProvider.getAllBankingPayments();
+                    } catch (_) {}
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => SidebarLayout(initialItem: NavItem.banking, showPinDialog: false),
+                      ),
+                    );
+                  }
+                }
+              }
+            }
+          },
+        ),
         lineBarsData: [
           LineChartBarData(
             spots: spots,
@@ -400,6 +455,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return BarChart(
       BarChartData(
+        barTouchData: BarTouchData(
+          enabled: true,
+          handleBuiltInTouches: true,
+          touchCallback: (event, response) {
+            if (event is FlTapUpEvent) {
+              final int index = response?.spot?.touchedBarGroupIndex ?? -1;
+              if (index >= 0 && index < provider.clientsChartData.length) {
+                final String tappedDate = (provider.clientsChartData[index]['date'] ?? '').toString();
+                try {
+                  final clientsProv = context.read<ClientProfileProvider>();
+                  // apply date as start/end to show that day
+                  clientsProv.setFilters(
+                    startDate: tappedDate,
+                    endDate: tappedDate,
+                  );
+                  clientsProv.getAllClients();
+                } catch (_) {}
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => SidebarLayout(initialItem: NavItem.clients, showPinDialog: false),
+                  ),
+                );
+              }
+            }
+          },
+        ),
         barGroups: barGroups,
         minY: 0,
         maxY: computedMaxY,
@@ -463,10 +544,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Convert projects status distribution to pie chart
     List<PieChartSectionData> sections = [];
     List<Color> colors = [Colors.green, Colors.blue, Colors.orange, AppColors.redColor, Colors.purple];
+    final List<String> statusOrder = [];
 
     for (int i = 0; i < provider.projectsStatusDistribution!.length; i++) {
       final statusData = provider.projectsStatusDistribution![i];
       final percentage = (statusData['percentage'] ?? 0).toDouble();
+      final String status = (statusData['status'] ?? '').toString();
+      statusOrder.add(status);
 
       if (percentage > 0) {
         sections.add(
@@ -478,9 +562,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
       }
-    }
 
-    return PieChart(PieChartData(sections: sections, sectionsSpace: 4, centerSpaceRadius: 40));
+    }
+    return PieChart(
+      PieChartData(
+        sections: sections,
+        sectionsSpace: 4,
+        centerSpaceRadius: 40,
+        pieTouchData: PieTouchData(
+          enabled: true,
+          touchCallback: (event, response) {
+            if (event is FlTapUpEvent) {
+              final int? idx = response?.touchedSection?.touchedSectionIndex;
+              if (idx != null && idx >= 0 && idx < statusOrder.length) {
+                final String tappedStatus = statusOrder[idx];
+                try {
+                  final projProv = context.read<ProjectsProvider>();
+                  projProv.setFilters(status: tappedStatus);
+                  projProv.getCombinedProjectsAndShortServices();
+                } catch (_) {}
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => SidebarLayout(initialItem: NavItem.projects, showPinDialog: false),
+                  ),
+                );
+              }
+            }
+          },
+        ),
+      ),
+    );
   }
 
   // Legend for Projects Pie
@@ -528,10 +639,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Convert expenses type distribution to pie chart
     List<PieChartSectionData> sections = [];
     List<Color> colors = [AppColors.redColor, Colors.blue, Colors.green, Colors.yellow, Colors.purple];
+    final List<String> typeOrder = [];
 
     for (int i = 0; i < provider.expensesTypeDistribution!.length; i++) {
       final typeData = provider.expensesTypeDistribution![i];
       final percentage = (typeData['percentage'] ?? 0).toDouble();
+      final String type = (typeData['type'] ?? '').toString();
+      typeOrder.add(type);
 
       if (percentage > 0) {
         sections.add(
@@ -545,7 +659,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     }
 
-    return PieChart(PieChartData(sections: sections, sectionsSpace: 4, centerSpaceRadius: 40));
+    return PieChart(
+      PieChartData(
+        sections: sections,
+        sectionsSpace: 4,
+        centerSpaceRadius: 40,
+        pieTouchData: PieTouchData(
+          enabled: true,
+          touchCallback: (event, response) {
+            if (event is FlTapUpEvent) {
+              final int? idx = response?.touchedSection?.touchedSectionIndex;
+              if (idx != null && idx >= 0 && idx < typeOrder.length) {
+                final String tappedType = typeOrder[idx];
+                try {
+                  final expProv = context.read<ExpenseProvider>();
+                  expProv.fetchExpenses(expenseType: tappedType);
+                } catch (_) {}
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => SidebarLayout(initialItem: NavItem.expenses, showPinDialog: false),
+                  ),
+                );
+              }
+            }
+          },
+        ),
+      ),
+    );
   }
 
   // Updated graph header with individual date filters
