@@ -27,6 +27,14 @@ class _BankingScreenState extends State<BankingScreen> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
 
+  String _formatCompact(num value) {
+    final double d = value.toDouble();
+    if (d >= 1000000) return '${(d / 1000000).toStringAsFixed(1)}M';
+    if (d >= 1000) return '${(d / 1000).toStringAsFixed(1)}K';
+    if (d == d.roundToDouble()) return d.toInt().toString();
+    return d.toStringAsFixed(0);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -99,11 +107,11 @@ class _BankingScreenState extends State<BankingScreen> {
                 builder: (context, bankingProvider, child) {
                   final summary = bankingProvider.getSummaryStats();
                   final stats = [
-                    {'label': 'TOTAL PAYMENTS', 'value': summary['total_payments'].toString()},
-                    {'label': 'CASH IN', 'value': bankingProvider.formatAmount(summary['total_income'])},
-                    {'label': 'CASH OUT', 'value': bankingProvider.formatAmount(summary['total_expense'])},
-                    {'label': 'PENDING', 'value': summary['pending_payments'].toString()},
-                    {'label': 'COMPLETED', 'value': summary['completed_payments'].toString()},
+                    {'label': 'TOTAL PAYMENTS', 'value': _formatCompact((summary['total_payments'] ?? 0) as num)},
+                    {'label': 'CASH IN', 'value': _formatCompact((summary['total_income'] ?? 0) as num)},
+                    {'label': 'CASH OUT', 'value': _formatCompact((summary['total_expense'] ?? 0) as num)},
+                    {'label': 'PENDING', 'value': _formatCompact((summary['pending_payments'] ?? 0) as num)},
+                    {'label': 'COMPLETED', 'value': _formatCompact((summary['completed_payments'] ?? 0) as num)},
                   ];
 
                   return SizedBox(

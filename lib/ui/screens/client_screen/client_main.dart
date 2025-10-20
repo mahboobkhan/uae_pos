@@ -170,22 +170,42 @@ class _ClientMainState extends State<ClientMain> {
 
   // Get stats from clients summary
   List<Map<String, dynamic>> _getStatsFromSummary(Map<String, dynamic>? summary) {
+    String _formatCompact(num value) {
+      final double d = value.toDouble();
+      if (d >= 1000000) {
+        return '${(d / 1000000).toStringAsFixed(1)}M';
+      } else if (d >= 1000) {
+        return '${(d / 1000).toStringAsFixed(1)}K';
+      }
+      if (d == d.roundToDouble()) return d.toInt().toString();
+      return d.toStringAsFixed(0);
+    }
+
     if (summary == null) {
       return [
         {'label': 'Total Clients', 'value': '0'},
         {'label': 'Individual', 'value': '0'},
         {'label': 'Establishment', 'value': '0'},
-        {'label': 'Pending Amount', 'value': '0.00'},
-        {'label': 'Received Amount', 'value': '0.00'},
+        {'label': 'Pending Amount', 'value': '0'},
+        {'label': 'Received Amount', 'value': '0'},
       ];
     }
 
+    num _toNum(dynamic v) {
+      if (v is num) return v;
+      if (v is String) {
+        final parsed = num.tryParse(v);
+        if (parsed != null) return parsed;
+      }
+      return 0;
+    }
+
     return [
-      {'label': 'Total Clients', 'value': summary['total_clients']?.toString() ?? '0'},
-      {'label': 'Individual', 'value': summary['total_individual']?.toString() ?? '0'},
-      {'label': 'Establishment', 'value': summary['total_establishment']?.toString() ?? '0'},
-      {'label': 'Pending Amount', 'value': ' ${summary['total_pending_amount']?.toString() ?? '0.00'}'},
-      {'label': 'Received Amount', 'value': ' ${summary['total_received_amount']?.toString() ?? '0.00'}'},
+      {'label': 'Total Clients', 'value': _formatCompact(_toNum(summary['total_clients']))},
+      {'label': 'Individual', 'value': _formatCompact(_toNum(summary['total_individual']))},
+      {'label': 'Establishment', 'value': _formatCompact(_toNum(summary['total_establishment']))},
+      {'label': 'Pending Amount', 'value': _formatCompact(_toNum(summary['total_pending_amount']))},
+      {'label': 'Received Amount', 'value': _formatCompact(_toNum(summary['total_received_amount']))},
     ];
   }
 
