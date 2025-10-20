@@ -645,6 +645,21 @@ class CompanyProfileState extends State<CompanyProfile> {
                           onChanged: (value) {
                             setState(() {
                               selectedWorkType = value;
+                              // If user selects N/A, clear all optional fields so they submit as nulls
+                              if (value == 'N/A') {
+                                companyNameController.clear();
+                                tradeLicenseController.clear();
+                                companyCodeController.clear();
+                                establishmentNumberController.clear();
+                                extraNoteController.clear();
+                                emailId2Controller.clear();
+                                contactNumberController.clear();
+                                contactNumber2Controller.clear();
+                                physicalAddressController.clear();
+                                channelNameController.clear();
+                                channelLoginController.clear();
+                                channelPasswordController.clear();
+                              }
                             });
                           },
                         ),
@@ -986,85 +1001,105 @@ class CompanyProfileState extends State<CompanyProfile> {
                               ...uploadedDocumentIds,
                             ];
 
+                            final bool isNA = (selectedWorkType == 'N/A');
+
                             if (isEdit) {
                               await provider.updateClient(
                                 clientRefId: widget.clientData!['client_ref_id'].toString(),
-                                name: companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : null,
-                                email: emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : null,
-                                phone1:
-                                    contactNumberController.text.trim().isNotEmpty
+                                name: isNA ? null : (companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : null),
+                                email: isNA ? null : (emailId2Controller.text.trim().isNotEmpty ? emailId2Controller.text.trim() : null),
+                                phone1: isNA
+                                    ? null
+                                    : (contactNumberController.text.trim().isNotEmpty
                                         ? contactNumberController.text.trim()
-                                        : null,
-                                phone2:
-                                    contactNumber2Controller.text.trim().isNotEmpty
+                                        : null),
+                                phone2: isNA
+                                    ? null
+                                    : (contactNumber2Controller.text.trim().isNotEmpty
                                         ? contactNumber2Controller.text.trim()
-                                        : null,
+                                        : null),
                                 clientType: 'organization',
-                                clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
+                                clientWork: isNA ? null : (selectedWorkType ?? 'Regular').toLowerCase(),
                                 tradeLicenseNo:
-                                    tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
+                                    isNA ? null : (tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null),
                                 companyCode:
-                                    companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
+                                    isNA ? null : (companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null),
                                 establishmentNo:
-                                    establishmentNumberController.text.trim().isNotEmpty
-                                        ? establishmentNumberController.text.trim()
-                                        : null,
+                                    isNA
+                                        ? null
+                                        : (establishmentNumberController.text.trim().isNotEmpty
+                                            ? establishmentNumberController.text.trim()
+                                            : null),
                                 physicalAddress:
-                                    physicalAddressController.text.trim().isNotEmpty
-                                        ? physicalAddressController.text.trim()
-                                        : null,
+                                    isNA
+                                        ? null
+                                        : (physicalAddressController.text.trim().isNotEmpty
+                                            ? physicalAddressController.text.trim()
+                                            : null),
                                 echannelName:
-                                    channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                                    isNA ? null : (channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null),
                                 echannelId:
-                                    channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                                    isNA ? null : (channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null),
                                 echannelPassword:
-                                    channelPasswordController.text.trim().isNotEmpty
-                                        ? channelPasswordController.text.trim()
-                                        : null,
+                                    isNA
+                                        ? null
+                                        : (channelPasswordController.text.trim().isNotEmpty
+                                            ? channelPasswordController.text.trim()
+                                            : null),
                                 extraNote:
-                                    extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
+                                    isNA ? null : (extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null),
                                 documents: allDocumentIds,
                               );
                             } else {
                               await provider.addClient(
-                                name:
-                                    companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A',
+                                name: isNA
+                                    ? 'N/A'
+                                    : (companyNameController.text.trim().isNotEmpty ? companyNameController.text.trim() : 'N/A'),
                                 clientType: 'establishment',
-                                clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
-                                email:
-                                    emailId2Controller.text.trim().isNotEmpty
+                                clientWork: isNA ? '' : (selectedWorkType ?? 'Regular').toLowerCase(),
+                                email: isNA
+                                    ? ''
+                                    : (emailId2Controller.text.trim().isNotEmpty
                                         ? emailId2Controller.text.trim()
-                                        : 'no-email@example.com',
-                                phone1:
-                                    contactNumberController.text.trim().isNotEmpty
+                                        : 'no-email@example.com'),
+                                phone1: isNA
+                                    ? ''
+                                    : (contactNumberController.text.trim().isNotEmpty
                                         ? contactNumberController.text.trim()
-                                        : '+000000000',
-                                phone2:
-                                    contactNumber2Controller.text.trim().isNotEmpty
+                                        : '+000000000'),
+                                phone2: isNA
+                                    ? null
+                                    : (contactNumber2Controller.text.trim().isNotEmpty
                                         ? contactNumber2Controller.text.trim()
-                                        : null,
+                                        : null),
                                 tradeLicenseNo:
-                                    tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null,
+                                    isNA ? null : (tradeLicenseController.text.trim().isNotEmpty ? tradeLicenseController.text.trim() : null),
                                 companyCode:
-                                    companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null,
+                                    isNA ? null : (companyCodeController.text.trim().isNotEmpty ? companyCodeController.text.trim() : null),
                                 establishmentNo:
-                                    establishmentNumberController.text.trim().isNotEmpty
-                                        ? establishmentNumberController.text.trim()
-                                        : null,
+                                    isNA
+                                        ? null
+                                        : (establishmentNumberController.text.trim().isNotEmpty
+                                            ? establishmentNumberController.text.trim()
+                                            : null),
                                 physicalAddress:
-                                    physicalAddressController.text.trim().isNotEmpty
-                                        ? physicalAddressController.text.trim()
-                                        : null,
+                                    isNA
+                                        ? null
+                                        : (physicalAddressController.text.trim().isNotEmpty
+                                            ? physicalAddressController.text.trim()
+                                            : null),
                                 echannelName:
-                                    channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null,
+                                    isNA ? null : (channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null),
                                 echannelId:
-                                    channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null,
+                                    isNA ? null : (channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null),
                                 echannelPassword:
-                                    channelPasswordController.text.trim().isNotEmpty
-                                        ? channelPasswordController.text.trim()
-                                        : null,
+                                    isNA
+                                        ? null
+                                        : (channelPasswordController.text.trim().isNotEmpty
+                                            ? channelPasswordController.text.trim()
+                                            : null),
                                 extraNote:
-                                    extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null,
+                                    isNA ? null : (extraNoteController.text.trim().isNotEmpty ? extraNoteController.text.trim() : null),
                                 documents: allDocumentIds,
                               );
                             }
