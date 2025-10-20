@@ -67,7 +67,26 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
   final TextEditingController documentExpiryDateController = TextEditingController();
 
   // Edit mode state
-  bool _isEditMode = false;
+  bool _isEditMode = true;
+
+  // Original values for change detection
+  Map<String, String?> _originalValues = {};
+
+  bool _hasEditsMade() {
+    String? norm(String? v) => (v ?? '').trim();
+    return (
+      norm(clientNameController.text) != norm(_originalValues['name']) ||
+      norm(emailId.text) != norm(_originalValues['email']) ||
+      norm(contactNumber.text) != norm(_originalValues['phone1']) ||
+      norm(contactNumber2.text) != norm(_originalValues['phone2']) ||
+      norm(_physicalAddressController.text) != norm(_originalValues['physical_address']) ||
+      norm(_noteController.text) != norm(_originalValues['extra_note']) ||
+      norm(channelNameController.text) != norm(_originalValues['echannel_name']) ||
+      norm(channelLoginController.text) != norm(_originalValues['echannel_id']) ||
+      norm(channelPasswordController.text) != norm(_originalValues['echannel_password']) ||
+      norm(selectedWorkType) != norm(_originalValues['client_work'])
+    );
+  }
 
   void _pickDateTime2() {
     showDialog(
@@ -569,6 +588,19 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       channelPasswordController.text = (data['echannel_password'] ?? '').toString();
       selectedWorkType = (data['client_work'] ?? 'N/A').toString();
 
+      _originalValues = {
+        'name': (data['name'] ?? '').toString(),
+        'email': (data['email'] ?? '').toString(),
+        'phone1': (data['phone1'] ?? '').toString(),
+        'phone2': (data['phone2'] ?? '').toString(),
+        'physical_address': (data['physical_address'] ?? '').toString(),
+        'extra_note': (data['extra_note'] ?? '').toString(),
+        'echannel_name': (data['echannel_name'] ?? '').toString(),
+        'echannel_id': (data['echannel_id'] ?? '').toString(),
+        'echannel_password': (data['echannel_password'] ?? '').toString(),
+        'client_work': (data['client_work'] ?? '').toString(),
+      };
+
       // Set created date from client data if available, otherwise use current date
       if (data['created_at'] != null && data['created_at'].toString().isNotEmpty) {
         try {
@@ -957,129 +989,90 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                   ],
                 ),
 
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      CustomButton(
-                        text: _isEditMode ? "Cancel" : "Edit", 
-                        backgroundColor: _isEditMode ? Colors.grey : Colors.blue, 
-                        onPressed: () {
-                          setState(() {
-                            _isEditMode = !_isEditMode;
-                          });
+                  CustomButton(
+                    text: "Cancel",
+                    backgroundColor: Colors.grey,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }
+                  ),
+                  const SizedBox(width: 10),
+                  CustomButton(
+                    text: "Submit",
+                    backgroundColor: Colors.green,
+                    onPressed: () async {
+                      final provider = context.read<ClientProfileProvider>();
+                      final isEdit = widget.clientData != null &&
+                          (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
+
+                      final allDocumentIds = [
+                        ...clientDocuments.map((doc) => doc['document_ref_id']?.toString()).where((id) => id != null).cast<String>(),
+                        ...uploadedDocumentIds,
+                      ];
+
+                      final bool isNA = (selectedWorkType == 'N/A');
+
+                      Future<void> performSave() async {
+                        if (isEdit) {
+                          await provider.updateClient(
+                            clientRefId: widget.clientData!['client_ref_id'].toString(),
+                            name: isNA ? null : (clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : null),
+                            email: isNA ? null : (emailId.text.trim().isNotEmpty ? emailId.text.trim() : null),
+                            phone1: isNA ? null : (contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : null),
+                            phone2: isNA ? null : (contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null),
+                            clientType: 'individual',
+                            clientWork: isNA ? null : (selectedWorkType ?? 'Regular').toLowerCase(),
+                            physicalAddress: isNA ? null : (_physicalAddressController.text.trim().isNotEmpty ? _physicalAddressController.text.trim() : null),
+                            echannelName: isNA ? null : (channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null),
+                            echannelId: isNA ? null : (channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null),
+                            echannelPassword: isNA ? null : (channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null),
+                            extraNote: isNA ? null : (_noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null),
+                            documents: allDocumentIds,
+                          );
+                        } else {
+                          await provider.addClient(
+                            name: isNA ? 'N/A' : (clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : 'N/A'),
+                            clientType: 'individual',
+                            clientWork: isNA ? '' : (selectedWorkType ?? 'Regular').toLowerCase(),
+                            email: isNA ? '' : (emailId.text.trim().isNotEmpty ? emailId.text.trim() : 'no-email@example.com'),
+                            phone1: isNA ? '' : (contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : '+000000000'),
+                            phone2: isNA ? null : (contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null),
+                            physicalAddress: isNA ? null : (_physicalAddressController.text.trim().isNotEmpty ? _physicalAddressController.text.trim() : null),
+                            echannelName: isNA ? null : (channelNameController.text.trim().isNotEmpty ? channelNameController.text.trim() : null),
+                            echannelId: isNA ? null : (channelLoginController.text.trim().isNotEmpty ? channelLoginController.text.trim() : null),
+                            echannelPassword: isNA ? null : (channelPasswordController.text.trim().isNotEmpty ? channelPasswordController.text.trim() : null),
+                            extraNote: isNA ? null : (_noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null),
+                            documents: allDocumentIds,
+                          );
                         }
-                      ),
-                      const SizedBox(width: 10),
-                      if (_isEditMode)
-                        CustomButton(
-                          text: "Submit",
-                          backgroundColor: Colors.green,
-                          onPressed: () async {
-                            // Show PIN verification before submitting
-                            await PinVerificationUtil.executeWithPinVerification(
-                              context,
-                              () async {
-                                final provider = context.read<ClientProfileProvider>();
-                                final isEdit =
-                                    widget.clientData != null &&
-                                    (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
+                      }
 
-                                // Combine existing and new document IDs
-                                final allDocumentIds = [
-                                  ...clientDocuments
-                                      .map((doc) => doc['document_ref_id']?.toString())
-                                      .where((id) => id != null)
-                                      .cast<String>(),
-                                  ...uploadedDocumentIds,
-                                ];
-
-                                if (isEdit) {
-                                  await provider.updateClient(
-                                    clientRefId: widget.clientData!['client_ref_id'].toString(),
-                                    name:
-                                        clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : null,
-                                    email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : null,
-                                    phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : null,
-                                    phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
-                                    clientType: 'individual',
-                                    clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
-                                    physicalAddress:
-                                        _physicalAddressController.text.trim().isNotEmpty
-                                            ? _physicalAddressController.text.trim()
-                                            : null,
-                                    echannelName:
-                                        channelNameController.text.trim().isNotEmpty
-                                            ? channelNameController.text.trim()
-                                            : null,
-                                    echannelId:
-                                        channelLoginController.text.trim().isNotEmpty
-                                            ? channelLoginController.text.trim()
-                                            : null,
-                                    echannelPassword:
-                                        channelPasswordController.text.trim().isNotEmpty
-                                            ? channelPasswordController.text.trim()
-                                            : null,
-                                    extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
-                                    documents: allDocumentIds,
-                                  );
-                                } else {
-                                  await provider.addClient(
-                                    name:
-                                        clientNameController.text.trim().isNotEmpty
-                                            ? clientNameController.text.trim()
-                                            : 'N/A',
-                                    clientType: 'individual',
-                                    clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
-                                    email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : 'no-email@example.com',
-                                    phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : '+000000000',
-                                    phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
-                                    physicalAddress:
-                                        _physicalAddressController.text.trim().isNotEmpty
-                                            ? _physicalAddressController.text.trim()
-                                            : null,
-                                    echannelName:
-                                        channelNameController.text.trim().isNotEmpty
-                                            ? channelNameController.text.trim()
-                                            : null,
-                                    echannelId:
-                                        channelLoginController.text.trim().isNotEmpty
-                                            ? channelLoginController.text.trim()
-                                            : null,
-                                    echannelPassword:
-                                        channelPasswordController.text.trim().isNotEmpty
-                                            ? channelPasswordController.text.trim()
-                                            : null,
-                                    extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
-                                    documents: allDocumentIds,
-                                  );
-                                }
-
-                                if (provider.errorMessage == null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'),
-                                      ),
-                                    ),
-                                  );
-                                  Navigator.of(context).pop();
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
-                                  );
-                                }
-                              },
-                              title: widget.clientData != null ? "Update Client" : "Create Client",
-                              message: widget.clientData != null 
-                                  ? "Please enter your PIN to update this client"
-                                  : "Please enter your PIN to create this client",
-                            );
+                      if (isEdit && _hasEditsMade()) {
+                        await PinVerificationUtil.executeWithPinVerification(
+                          context,
+                          () async {
+                            await performSave();
                           },
-                        ),
-                    ],
+                          title: "Update Client",
+                          message: "Please enter your PIN to update this client",
+                        );
+                      } else {
+                        await performSave();
+                      }
+
+                      if (provider.errorMessage == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'))),
+                        );
+                        Navigator.of(context).pop();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
+                        );
+                      }
+                    },
                   ),
                 ],
               ),

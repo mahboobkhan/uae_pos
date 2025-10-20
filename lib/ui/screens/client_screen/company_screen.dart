@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/client_profile_provider.dart';
 import '../../../utils/clipboard_utils.dart';
+import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
@@ -504,7 +505,14 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                           _buildPriceWithAdd(client['project_stats']['paid_amount'] ?? 'N/A'),
                                           _buildActionCell(
                                             onEdit: () async {
-                                              await showCompanyProfileDialog(context, clientData: client);
+                                              await PinVerificationUtil.executeWithPinVerification(
+                                                context,
+                                                () async {
+                                                  await showCompanyProfileDialog(context, clientData: client);
+                                                },
+                                                title: 'Edit Establishment',
+                                                message: 'Please enter your PIN to edit this establishment',
+                                              );
                                             },
                                             onDelete: () async {
                                               final shouldDelete = await showDialog<bool>(

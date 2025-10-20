@@ -58,7 +58,7 @@ class _ClientMainState extends State<ClientMain> {
   String? dateValue;
   String? profileAddCategory;
 
-  final List<String> categories = ['All', 'Individual', 'Establishment'];
+  final List<String> categories = ['All', 'Individual', 'Establishment', 'N/A'];
   String? selectedCategory;
   final List<String> categories1 = ['All', 'Regular', 'Walking'];
   String? selectedCategory1;
@@ -88,6 +88,13 @@ class _ClientMainState extends State<ClientMain> {
     String? typeFilter;
     String? startDateFilter;
     String? endDateFilter;
+
+    // If Client Type is N/A, clear all filters and reload
+    if (selectedCategory == 'N/A') {
+      clientProvider.clearFilters();
+      clientProvider.getAllClients();
+      return;
+    }
 
     // Client type filter
     if (selectedCategory != null && selectedCategory != 'All') {

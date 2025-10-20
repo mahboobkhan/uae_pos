@@ -685,22 +685,6 @@ class CompanyProfileState extends State<CompanyProfile> {
                           onChanged: (value) {
                             setState(() {
                               selectedWorkType = value;
-                              // If user selects N/A, clear all optional fields so they submit as nulls
-                              if (value == 'N/A') {
-                                companyNameController.clear();
-                                tradeLicenseController.clear();
-                                companyCodeController.clear();
-                                establishmentNumberController.clear();
-                                extraNoteController.clear();
-                                emailId2Controller.clear();
-                                contactNumberController.clear();
-                                contactNumber2Controller.clear();
-                                physicalAddressController.clear();
-                                channelNameController.clear();
-                                channelLoginController.clear();
-                                channelPasswordController.clear();
-
-                              }
                             });
                           },
                         ),

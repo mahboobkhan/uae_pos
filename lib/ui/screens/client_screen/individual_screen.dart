@@ -10,6 +10,7 @@ import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
 import 'individual_profile.dart';
+import '../../../utils/pin_verification_util.dart';
 
 class IndividualScreen extends StatefulWidget {
   const IndividualScreen({super.key});
@@ -503,7 +504,14 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                           _buildPriceWithAdd(client['project_stats']['paid_amount'] ?? 'N/A'),
                                           _buildActionCell(
                                             onEdit: () async {
-                                              await showIndividualProfileDialog(context, clientData: client);
+                                              await PinVerificationUtil.executeWithPinVerification(
+                                                context,
+                                                () async {
+                                                  await showIndividualProfileDialog(context, clientData: client);
+                                                },
+                                                title: 'Edit Client',
+                                                message: 'Please enter your PIN to edit this client',
+                                              );
                                             },
                                             onDelete: () async {
                                               final shouldDelete = await showDialog<bool>(
