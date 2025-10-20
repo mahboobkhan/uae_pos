@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../providers/banking_payment_method_provider.dart';
 import '../../../dialogs/custom_dialoges.dart';
 import '../../../dialogs/custom_fields.dart';
+import '../../../../utils/pin_verification_util.dart';
 
 String? selectedPlatform;
 List<String> platformList = ['Bank', 'Violet', 'Other'];
@@ -93,47 +94,57 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
       return;
     }
 
-    final provider = context.read<BankingPaymentMethodProvider>();
+    // Show PIN verification before submitting
+    await PinVerificationUtil.executeWithPinVerification(
+      context,
+      () async {
+        final provider = context.read<BankingPaymentMethodProvider>();
 
-    // Parse tags
-    List<String> tags = [];
-    if (tagAdd.text.trim().isNotEmpty) {
-      tags = tagAdd.text.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
-    }
+        // Parse tags
+        List<String> tags = [];
+        if (tagAdd.text.trim().isNotEmpty) {
+          tags = tagAdd.text.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
+        }
 
-    if (isEditing) {
-      // Update existing payment method
-      await provider.updatePaymentMethod(
-        paymentMethodRefId: widget.paymentMethodData!['payment_method_ref_id'],
-        bankName: bankName.text.trim(),
-        accountTitle: titleName.text.trim(),
-        accountNum: accountNo.text.trim(),
-        iban: ibnController.text.trim(),
-        registeredPhone: mobileNumber.text.trim(),
-        registeredEmail: emailController.text.trim(),
-        bankAddress: bankAddress.text.trim(),
-        tags: tags.isNotEmpty ? tags : null,
-      );
-    } else {
-      // Add new payment method
-      await provider.addPaymentMethod(
-        userId: "USR-123",
-        // TODO: Get actual user ID from auth
-        bankName: bankName.text.trim(),
-        accountTitle: titleName.text.trim(),
-        accountNum: accountNo.text.trim(),
-        iban: ibnController.text.trim(),
-        registeredPhone: mobileNumber.text.trim(),
-        registeredEmail: emailController.text.trim(),
-        bankAddress: bankAddress.text.trim(),
-        tags: tags.isNotEmpty ? tags : null,
-      );
-    }
+        if (isEditing) {
+          // Update existing payment method
+          await provider.updatePaymentMethod(
+            paymentMethodRefId: widget.paymentMethodData!['payment_method_ref_id'],
+            bankName: bankName.text.trim(),
+            accountTitle: titleName.text.trim(),
+            accountNum: accountNo.text.trim(),
+            iban: ibnController.text.trim(),
+            registeredPhone: mobileNumber.text.trim(),
+            registeredEmail: emailController.text.trim(),
+            bankAddress: bankAddress.text.trim(),
+            tags: tags.isNotEmpty ? tags : null,
+          );
+        } else {
+          // Add new payment method
+          await provider.addPaymentMethod(
+            userId: "USR-123",
+            // TODO: Get actual user ID from auth
+            bankName: bankName.text.trim(),
+            accountTitle: titleName.text.trim(),
+            accountNum: accountNo.text.trim(),
+            iban: ibnController.text.trim(),
+            registeredPhone: mobileNumber.text.trim(),
+            registeredEmail: emailController.text.trim(),
+            bankAddress: bankAddress.text.trim(),
+            tags: tags.isNotEmpty ? tags : null,
+          );
+        }
 
-    // Close dialog if successful
-    if (provider.successMessage != null) {
-      Navigator.of(context).pop();
-    }
+        // Close dialog if successful
+        if (provider.successMessage != null) {
+          Navigator.of(context).pop();
+        }
+      },
+      title: isEditing ? "Update Payment Method" : "Add Payment Method",
+      message: isEditing 
+          ? "Please enter your PIN to update this payment method"
+          : "Please enter your PIN to add this payment method",
+    );
   }
 
   @override
