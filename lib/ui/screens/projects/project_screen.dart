@@ -1,6 +1,4 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
-import 'package:abc_consultant/ui/dialogs/tags_class.dart';
-import 'package:abc_consultant/ui/screens/projects/create_order_dialog.dart';
 import 'package:abc_consultant/ui/screens/projects/create_order_screen.dart';
 import 'package:abc_consultant/providers/projects_provider.dart';
 import 'package:abc_consultant/providers/short_services_provider.dart';
@@ -9,9 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
+import '../../../utils/pin_verification_util.dart';
 
 class ProjectScreen extends StatefulWidget {
   final VoidCallback onNavigateToCreateOrder;
@@ -82,7 +82,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
   final List<String> categories4 = ['Services Project', 'Short Services'];
   String selectedCategory4 = '';
 
-  final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
 
   void _clearFilters(ProjectsProvider provider) {
@@ -781,7 +780,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
                   ),
             ).then((shouldDelete) {
               if (shouldDelete == true) {
-                // TODO: Implement delete functionality
                 print("Item deleted: $refId");
               }
             });
@@ -847,42 +845,55 @@ class _ProjectScreenState extends State<ProjectScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                             ),
                             onPressed: () async {
-                              /*if (clientName.isNotEmpty && cost.isNotEmpty && managerName.isNotEmpty) {
-                                try {
-                                  final provider = context.read<ShortServicesProvider>();
-                                  await provider.updateShortService(
-                                    refId: service['ref_id'],
-                                    clientName: clientName,
-                                    quotation: cost,
-                                    managerName: managerName,
-                                  );
+                              // Show PIN verification before updating
+                              await PinVerificationUtil.executeWithPinVerification(
+                                context,
+                                () async {
+                                  if (clientName.isNotEmpty && cost.isNotEmpty && managerName.isNotEmpty) {
+                                    try {
+                                      // Get user ID from SharedPreferences
+                                      final prefs = await SharedPreferences.getInstance();
+                                      final userId = prefs.getString('user_id') ?? '';
+                                      
+                                      final provider = context.read<ShortServicesProvider>();
+                                      await provider.updateShortService(
+                                        userRefId: userId,
+                                        refId: service['ref_id'],
+                                        clientName: clientName,
+                                        quotation: cost,
+                                        managerName: managerName,
+                                      );
 
-                                  if (provider.errorMessage == null) {
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(provider.successMessage ?? 'Service updated successfully'),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
+                                      if (provider.errorMessage == null) {
+                                        Navigator.of(context).pop();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(provider.successMessage ?? 'Service updated successfully'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text(provider.errorMessage!), backgroundColor: Colors.red),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                                    }
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(provider.errorMessage!), backgroundColor: Colors.red),
+                                      const SnackBar(
+                                        content: Text('Please fill all fields'),
+                                        backgroundColor: Colors.orange,
+                                      ),
                                     );
                                   }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(
-                                    context,
-                                  ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Please fill all fields'),
-                                    backgroundColor: Colors.orange,
-                                  ),
-                                );
-                              }*/
+                                },
+                                title: "Update Short Service",
+                                message: "Please enter your PIN to update this short service",
+                              );
                             },
                             child: const Text('Update', style: TextStyle(color: Colors.white)),
                           ),

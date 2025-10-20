@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/short_services_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
+import '../../../utils/pin_verification_util.dart';
 
 class ShortServiceScreen extends StatefulWidget {
   const ShortServiceScreen({super.key});
@@ -406,7 +407,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
   void _editShortService(BuildContext context, Map<String, dynamic> service) async {
     // Get user_ref_id from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    final userRefId = prefs.getString('ref_id') ?? '';
+    final userRefId = prefs.getString('user_id') ?? '';
     
     if (userRefId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -474,43 +475,51 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                             ),
                             onPressed: () async {
-                              if (clientName.isNotEmpty && quotation.isNotEmpty && managerName.isNotEmpty) {
-                                try {
-                                  final provider = context.read<ShortServicesProvider>();
-                                  await provider.updateShortService(
-                                    userRefId: userRefId,
-                                    refId: service['ref_id'],
-                                    clientName: clientName,
-                                    quotation: quotation,
-                                    managerName: managerName,
-                                  );
+                              // Show PIN verification before updating
+                              await PinVerificationUtil.executeWithPinVerification(
+                                context,
+                                () async {
+                                  if (clientName.isNotEmpty && quotation.isNotEmpty && managerName.isNotEmpty) {
+                                    try {
+                                      final provider = context.read<ShortServicesProvider>();
+                                      await provider.updateShortService(
+                                        userRefId: userRefId,
+                                        refId: service['ref_id'],
+                                        clientName: clientName,
+                                        quotation: quotation,
+                                        managerName: managerName,
+                                      );
 
-                                  if (provider.errorMessage == null) {
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(provider.successMessage ?? 'Service updated successfully'),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
+                                      if (provider.errorMessage == null) {
+                                        Navigator.of(context).pop();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(provider.successMessage ?? 'Service updated successfully'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text(provider.errorMessage!), backgroundColor: Colors.red),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                                    }
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(provider.errorMessage!), backgroundColor: Colors.red),
+                                      const SnackBar(
+                                        content: Text('Please fill all fields'),
+                                        backgroundColor: Colors.orange,
+                                      ),
                                     );
                                   }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(
-                                    context,
-                                  ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Please fill all fields'),
-                                    backgroundColor: Colors.orange,
-                                  ),
-                                );
-                              }
+                                },
+                                title: "Update Short Service",
+                                message: "Please enter your PIN to update this short service",
+                              );
                             },
                             child: const Text('Update', style: TextStyle(color: Colors.white)),
                           ),
