@@ -13,6 +13,7 @@ import '../../../providers/documents_provider.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
+import '../../../utils/pin_verification_util.dart';
 
 Future<void> showIndividualProfileDialog(BuildContext context, {Map<String, dynamic>? clientData}) async {
   showDialog(
@@ -64,6 +65,9 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
   final TextEditingController documentNameController = TextEditingController();
   final TextEditingController documentIssueDateController = TextEditingController();
   final TextEditingController documentExpiryDateController = TextEditingController();
+
+  // Edit mode state
+  bool _isEditMode = false;
 
   void _pickDateTime2() {
     showDialog(
@@ -628,6 +632,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                           label: "Client Type",
                           options: ['N/A','Regular', 'Walking'],
                           selectedValue: selectedWorkType,
+                          enabled: _isEditMode,
                           onChanged: (value) {
                             setState(() {
                               selectedWorkType = value;
@@ -697,19 +702,20 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  CustomTextField(label: "Client Name", hintText: "", controller: clientNameController),
-                  CustomTextField(label: "Emirates ID ", controller: emiratesIdController, hintText: ""),
-                  CustomTextField(label: "Email ID ", controller: emailId, hintText: ""),
-                  CustomTextField(label: "Contact Number ", controller: contactNumber, hintText: ""),
-                  CustomTextField(label: "Contact Number 2", controller: contactNumber2, hintText: ""),
-                  CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: ""),
-                  CustomTextField(label: "E- Channel Login I'd", controller: channelLoginController, hintText: ""),
+                  CustomTextField(label: "Client Name", hintText: "", controller: clientNameController, enabled: _isEditMode),
+                  CustomTextField(label: "Emirates ID ", controller: emiratesIdController, hintText: "", enabled: _isEditMode),
+                  CustomTextField(label: "Email ID ", controller: emailId, hintText: "", enabled: _isEditMode),
+                  CustomTextField(label: "Contact Number ", controller: contactNumber, hintText: "", enabled: _isEditMode),
+                  CustomTextField(label: "Contact Number 2", controller: contactNumber2, hintText: "", enabled: _isEditMode),
+                  CustomTextField(label: "E- Channel Name", controller: channelNameController, hintText: "", enabled: _isEditMode),
+                  CustomTextField(label: "E- Channel Login I'd", controller: channelLoginController, hintText: "", enabled: _isEditMode),
                   CustomTextField(
                     label: "E- Channel Login Password",
                     controller: channelPasswordController,
                     hintText: "",
+                    enabled: _isEditMode,
                   ),
-                  CustomTextField(label: "Advance Payment TID", controller: advancePaymentController, hintText: ""),
+                  CustomTextField(label: "Advance Payment TID", controller: advancePaymentController, hintText: "", enabled: _isEditMode),
                 ],
               ),
               SizedBox(height: 10),
@@ -723,11 +729,12 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                       label: "Physical Address",
                       hintText: "Address,house,street,town,post code",
                       controller: _physicalAddressController,
+                      enabled: _isEditMode,
                     ),
                   ),
                   SizedBox(
                     width: 450,
-                    child: CustomTextField(label: "Note / Extra", controller: _noteController, hintText: ''),
+                    child: CustomTextField(label: "Note / Extra", controller: _noteController, hintText: '', enabled: _isEditMode),
                   ),
                 ],
               ),
@@ -956,103 +963,122 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                 children: [
                   Row(
                     children: [
-                      CustomButton(text: "Editing", backgroundColor: Colors.red, onPressed: () {}),
-                      const SizedBox(width: 10),
                       CustomButton(
-                        text: "Submit",
-                        backgroundColor: Colors.green,
-                        onPressed: () async {
-                          final provider = context.read<ClientProfileProvider>();
-                          final isEdit =
-                              widget.clientData != null &&
-                              (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
-
-                          // Combine existing and new document IDs
-                          final allDocumentIds = [
-                            ...clientDocuments
-                                .map((doc) => doc['document_ref_id']?.toString())
-                                .where((id) => id != null)
-                                .cast<String>(),
-                            ...uploadedDocumentIds,
-                          ];
-
-                          if (isEdit) {
-                            await provider.updateClient(
-                              clientRefId: widget.clientData!['client_ref_id'].toString(),
-                              name:
-                                  clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : null,
-                              email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : null,
-                              phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : null,
-                              phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
-                              clientType: 'individual',
-                              clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
-                              physicalAddress:
-                                  _physicalAddressController.text.trim().isNotEmpty
-                                      ? _physicalAddressController.text.trim()
-                                      : null,
-                              echannelName:
-                                  channelNameController.text.trim().isNotEmpty
-                                      ? channelNameController.text.trim()
-                                      : null,
-                              echannelId:
-                                  channelLoginController.text.trim().isNotEmpty
-                                      ? channelLoginController.text.trim()
-                                      : null,
-                              echannelPassword:
-                                  channelPasswordController.text.trim().isNotEmpty
-                                      ? channelPasswordController.text.trim()
-                                      : null,
-                              extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
-                              documents: allDocumentIds,
-                            );
-                          } else {
-                            await provider.addClient(
-                              name:
-                                  clientNameController.text.trim().isNotEmpty
-                                      ? clientNameController.text.trim()
-                                      : 'N/A',
-                              clientType: 'individual',
-                              clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
-                              email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : 'no-email@example.com',
-                              phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : '+000000000',
-                              phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
-                              physicalAddress:
-                                  _physicalAddressController.text.trim().isNotEmpty
-                                      ? _physicalAddressController.text.trim()
-                                      : null,
-                              echannelName:
-                                  channelNameController.text.trim().isNotEmpty
-                                      ? channelNameController.text.trim()
-                                      : null,
-                              echannelId:
-                                  channelLoginController.text.trim().isNotEmpty
-                                      ? channelLoginController.text.trim()
-                                      : null,
-                              echannelPassword:
-                                  channelPasswordController.text.trim().isNotEmpty
-                                      ? channelPasswordController.text.trim()
-                                      : null,
-                              extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
-                              documents: allDocumentIds,
-                            );
-                          }
-
-                          if (provider.errorMessage == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'),
-                                ),
-                              ),
-                            );
-                            Navigator.of(context).pop();
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
-                            );
-                          }
-                        },
+                        text: _isEditMode ? "Cancel" : "Edit", 
+                        backgroundColor: _isEditMode ? Colors.grey : Colors.blue, 
+                        onPressed: () {
+                          setState(() {
+                            _isEditMode = !_isEditMode;
+                          });
+                        }
                       ),
+                      const SizedBox(width: 10),
+                      if (_isEditMode)
+                        CustomButton(
+                          text: "Submit",
+                          backgroundColor: Colors.green,
+                          onPressed: () async {
+                            // Show PIN verification before submitting
+                            await PinVerificationUtil.executeWithPinVerification(
+                              context,
+                              () async {
+                                final provider = context.read<ClientProfileProvider>();
+                                final isEdit =
+                                    widget.clientData != null &&
+                                    (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
+
+                                // Combine existing and new document IDs
+                                final allDocumentIds = [
+                                  ...clientDocuments
+                                      .map((doc) => doc['document_ref_id']?.toString())
+                                      .where((id) => id != null)
+                                      .cast<String>(),
+                                  ...uploadedDocumentIds,
+                                ];
+
+                                if (isEdit) {
+                                  await provider.updateClient(
+                                    clientRefId: widget.clientData!['client_ref_id'].toString(),
+                                    name:
+                                        clientNameController.text.trim().isNotEmpty ? clientNameController.text.trim() : null,
+                                    email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : null,
+                                    phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : null,
+                                    phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
+                                    clientType: 'individual',
+                                    clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
+                                    physicalAddress:
+                                        _physicalAddressController.text.trim().isNotEmpty
+                                            ? _physicalAddressController.text.trim()
+                                            : null,
+                                    echannelName:
+                                        channelNameController.text.trim().isNotEmpty
+                                            ? channelNameController.text.trim()
+                                            : null,
+                                    echannelId:
+                                        channelLoginController.text.trim().isNotEmpty
+                                            ? channelLoginController.text.trim()
+                                            : null,
+                                    echannelPassword:
+                                        channelPasswordController.text.trim().isNotEmpty
+                                            ? channelPasswordController.text.trim()
+                                            : null,
+                                    extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+                                    documents: allDocumentIds,
+                                  );
+                                } else {
+                                  await provider.addClient(
+                                    name:
+                                        clientNameController.text.trim().isNotEmpty
+                                            ? clientNameController.text.trim()
+                                            : 'N/A',
+                                    clientType: 'individual',
+                                    clientWork: (selectedWorkType ?? 'Regular').toLowerCase(),
+                                    email: emailId.text.trim().isNotEmpty ? emailId.text.trim() : 'no-email@example.com',
+                                    phone1: contactNumber.text.trim().isNotEmpty ? contactNumber.text.trim() : '+000000000',
+                                    phone2: contactNumber2.text.trim().isNotEmpty ? contactNumber2.text.trim() : null,
+                                    physicalAddress:
+                                        _physicalAddressController.text.trim().isNotEmpty
+                                            ? _physicalAddressController.text.trim()
+                                            : null,
+                                    echannelName:
+                                        channelNameController.text.trim().isNotEmpty
+                                            ? channelNameController.text.trim()
+                                            : null,
+                                    echannelId:
+                                        channelLoginController.text.trim().isNotEmpty
+                                            ? channelLoginController.text.trim()
+                                            : null,
+                                    echannelPassword:
+                                        channelPasswordController.text.trim().isNotEmpty
+                                            ? channelPasswordController.text.trim()
+                                            : null,
+                                    extraNote: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+                                    documents: allDocumentIds,
+                                  );
+                                }
+
+                                if (provider.errorMessage == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created'),
+                                      ),
+                                    ),
+                                  );
+                                  Navigator.of(context).pop();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
+                                  );
+                                }
+                              },
+                              title: widget.clientData != null ? "Update Client" : "Create Client",
+                              message: widget.clientData != null 
+                                  ? "Please enter your PIN to update this client"
+                                  : "Please enter your PIN to create this client",
+                            );
+                          },
+                        ),
                     ],
                   ),
                 ],
