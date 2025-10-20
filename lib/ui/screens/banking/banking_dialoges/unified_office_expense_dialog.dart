@@ -7,6 +7,7 @@ import '../../../../providers/expense_provider.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_fields.dart';
+import '../../../../utils/pin_verification_util.dart';
 
 class UnifiedOfficeExpenseDialog extends StatefulWidget {
   final Map<String, dynamic>? expenseData; // For edit mode
@@ -87,6 +88,48 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
     _serviceTIDController.text = data['service_tid'] ?? '';
     _noteController.text = data['note'] ?? '';
     _issueDateController.text = DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime);
+  }
+
+  bool _hasChanges() {
+    if (!widget.isEditMode || widget.expenseData == null) return false;
+    final data = widget.expenseData!;
+
+    bool textChanged(String key, TextEditingController controller) {
+      final original = (data[key] ?? '').toString();
+      return controller.text.trim() != original.trim();
+    }
+
+    bool valueChanged(String key, String? current) {
+      final original = (data[key] ?? '').toString();
+      return (current ?? '').trim() != original.trim();
+    }
+
+    // Compare important fields
+    if (valueChanged('expense_type', selectedExpenseType)) return true;
+    if (textChanged('expense_name', _expenseNameController)) return true;
+    if (data['expense_amount']?.toString() != _expenseAmountController.text.trim()) return true;
+    if (textChanged('allocated_amount', _allocateBalanceController)) return true;
+    if (textChanged('note', _noteController)) return true;
+    if (textChanged('pay_by_manager', _payByController)) return true;
+    if (textChanged('received_by_person', _receivedByController)) return true;
+    if (valueChanged('payment_type', selectedPaymentType)) return true;
+    // bank can be stored under different keys; check both
+    final originalBank = (data['bank_ref_id'] ?? data['bank'] ?? '').toString();
+    if ((selectedBank ?? '').trim() != originalBank.trim()) return true;
+    if (textChanged('service_tid', _serviceTIDController)) return true;
+
+    // Date change
+    final originalDate = data['expense_date'];
+    if (originalDate != null) {
+      final originalParsed = originalDate is String ? DateTime.tryParse(originalDate) : originalDate as DateTime?;
+      if (originalParsed != null) {
+        final currentStr = DateFormat("yyyy-MM-dd HH:mm:ss").format(selectedDateTime);
+        final originalStr = DateFormat("yyyy-MM-dd HH:mm:ss").format(originalParsed);
+        if (currentStr != originalStr) return true;
+      }
+    }
+
+    return false;
   }
 
   @override
@@ -454,8 +497,28 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                 onPressed:
                                     provider.state == RequestState.loading
                                         ? () {}
-                                        : () {
-                                          _submitExpense(provider);
+                                        : () async {
+                                          if (widget.isEditMode && _hasChanges()) {
+                                            await PinVerificationUtil.executeWithPinVerification(
+                                              context,
+                                              () {
+                                                _submitExpense(provider);
+                                              },
+                                              title: 'Update Office Expense',
+                                              message: 'Enter your PIN to update this expense',
+                                            );
+                                          } else {
+                                            if (widget.isEditMode) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('No changes detected.'),
+                                                  backgroundColor: Colors.orange,
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            _submitExpense(provider);
+                                          }
                                         },
                               ),
                             ],

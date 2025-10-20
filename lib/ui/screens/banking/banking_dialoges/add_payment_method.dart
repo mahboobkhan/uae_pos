@@ -123,7 +123,6 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
           // Add new payment method
           await provider.addPaymentMethod(
             userId: "USR-123",
-            // TODO: Get actual user ID from auth
             bankName: bankName.text.trim(),
             accountTitle: titleName.text.trim(),
             accountNum: accountNo.text.trim(),
