@@ -470,22 +470,22 @@ void showServicesProjectPopup(BuildContext context) {
                                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
                               ),
                               const SizedBox(height: 8),
-
                               // Payment Method
-                              CustomDropdown1(
+                              CustomDropdownField(
                                 label: 'Payment Method',
-                                value: selectedPaymentMethod,
-                                items: paymentMethods,
+                                selectedValue: selectedPaymentMethod,
+                                options: paymentMethods,
                                 onChanged: (val) => setState(() => selectedPaymentMethod = val),
+                                width: double.infinity,
                               ),
                               const SizedBox(height: 12),
-
                               // Payment Status
-                              CustomDropdown1(
+                              CustomDropdownField(
                                 label: 'Payment Status',
-                                value: selectedPaymentStatus,
-                                items: paymentStatuses,
+                                selectedValue: selectedPaymentStatus,
+                                options: paymentStatuses,
                                 onChanged: (val) => setState(() => selectedPaymentStatus = val),
+                                width: double.infinity,
                               ),
                               const SizedBox(height: 12),
 
