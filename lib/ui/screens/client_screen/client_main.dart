@@ -58,7 +58,7 @@ class _ClientMainState extends State<ClientMain> {
   String? dateValue;
   String? profileAddCategory;
 
-  final List<String> categories = ['All', 'Individual', 'Establishment', 'N/A'];
+  final List<String> categories = ['All', 'Individual', 'Establishment'];
   String? selectedCategory;
   final List<String> categories1 = ['All', 'Regular', 'Walking'];
   String? selectedCategory1;

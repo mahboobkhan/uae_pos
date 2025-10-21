@@ -96,9 +96,9 @@ class _IndividualScreenState extends State<IndividualScreen> {
       }
     }
 
-    // Apply filters to provider (always keep individual filter)
+    // Apply filters to provider (no client_type filter - use client-side filtering)
     clientProvider.setFilters(
-      clientType: 'individual', // Always filter for individuals
+      clientType: null, // No API filter - use client-side filtering
       type: typeFilter,
       startDate: startDateFilter,
       endDate: endDateFilter,
@@ -118,8 +118,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
 
     final clientProvider = context.read<ClientProfileProvider>();
     clientProvider.clearFilters();
-    // Re-apply individual filter
-    clientProvider.setFilters(clientType: 'individual');
+    // No need to re-apply individual filter - client-side filtering handles it
     clientProvider.getAllClients();
   }
 
@@ -158,6 +157,45 @@ class _IndividualScreenState extends State<IndividualScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header to clarify this shows only individual clients
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  border: Border.all(color: Colors.green.shade200),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.person, color: Colors.green.shade700, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Individual Clients Only',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                          Text(
+                            'This screen shows only individual/personal clients. Establishment clients are filtered out.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.green.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               /*
               /// ---- Stats Boxes ----
               SizedBox(
@@ -275,7 +313,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                       // Apply custom date range filter
                                       final clientProvider = context.read<ClientProfileProvider>();
                                       clientProvider.setFilters(
-                                        clientType: 'individual',
+                                        clientType: null, // No client_type filter
                                         startDate: DateFormat('yyyy-MM-dd').format(start),
                                         endDate: DateFormat('yyyy-MM-dd').format(end),
                                       );
@@ -473,8 +511,8 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                       _buildHeader("Other Actions"),
                                     ],
                                   ),
-                                  if (clientProvider.filteredClients.isNotEmpty)
-                                    ...clientProvider.filteredClients.asMap().entries.map((entry) {
+                                  if (clientProvider.individualClients.isNotEmpty)
+                                    ...clientProvider.individualClients.asMap().entries.map((entry) {
                                       final index = entry.key;
                                       final client = entry.value;
                                       return TableRow(
@@ -551,11 +589,20 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                                   Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
                                                   SizedBox(height: 4),
                                                   Text(
-                                                    'No individuals found',
+                                                    'No Individual Clients Found',
                                                     style: TextStyle(
                                                       color: Colors.grey.shade600,
                                                       fontStyle: FontStyle.italic,
                                                       fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'Only individual clients are shown here',
+                                                    style: TextStyle(
+                                                      color: Colors.grey.shade500,
+                                                      fontStyle: FontStyle.italic,
+                                                      fontSize: 10,
                                                     ),
                                                   ),
                                                 ],

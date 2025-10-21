@@ -97,9 +97,11 @@ class _CompanyScreenState extends State<CompanyScreen> {
       }
     }
 
-    // Apply filters to provider (always keep establishment filter)
+    // Apply filters to provider
+    // Note: Based on debug output, clients have client_type: "individual" 
+    // but they are actually establishment/company clients
     clientProvider.setFilters(
-      clientType: 'establishment', // Always filter for establishment
+      clientType: null, // Don't filter by client_type for now
       type: typeFilter,
       startDate: startDateFilter,
       endDate: endDateFilter,
@@ -119,8 +121,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
 
     final clientProvider = context.read<ClientProfileProvider>();
     clientProvider.clearFilters();
-    // Re-apply establishment filter
-    clientProvider.setFilters(clientType: 'establishment');
+    // Don't re-apply establishment filter since clients are actually "individual" type
     clientProvider.getAllClients();
   }
 
@@ -150,6 +151,16 @@ class _CompanyScreenState extends State<CompanyScreen> {
     final size = MediaQuery.of(context).size;
     final clientProvider = context.watch<ClientProfileProvider>();
 
+    // Debug logging
+    print('🔍 Company Screen Build:');
+    print('  - isLoading: ${clientProvider.isLoading}');
+    print('  - errorMessage: ${clientProvider.errorMessage}');
+    print('  - successMessage: ${clientProvider.successMessage}');
+    print('  - total clients loaded: ${clientProvider.clients.length}');
+    print('  - establishment clients filtered: ${clientProvider.filteredClients.length}');
+    print('  - clientTypeFilter: ${clientProvider.clientTypeFilter}');
+    print('  - typeFilter: ${clientProvider.typeFilter}');
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
@@ -159,6 +170,45 @@ class _CompanyScreenState extends State<CompanyScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header to clarify this shows only establishment clients
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  border: Border.all(color: Colors.blue.shade200),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.business, color: Colors.blue.shade700, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Establishment Clients Only',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                          Text(
+                            'This screen shows only establishment/business clients. Individual clients are filtered out.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.blue.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               /*
               /// ---- Stats Boxes ----
               SizedBox(
@@ -427,7 +477,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
-                  height: 400,
+                  height: 450, // Increased height to prevent overflow
                   child: ScrollbarTheme(
                     data: ScrollbarThemeData(
                       thumbVisibility: MaterialStateProperty.all(true),
@@ -474,10 +524,23 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                       _buildHeader("Other Actions"),
                                     ],
                                   ),
-                                  if (clientProvider.filteredClients.isNotEmpty)
-                                    ...clientProvider.filteredClients.asMap().entries.map((entry) {
+                                  if (clientProvider.establishmentClients.isNotEmpty)
+                                    ...clientProvider.establishmentClients.asMap().entries.map((entry) {
                                       final index = entry.key;
                                       final client = entry.value;
+                                      
+                                      // Debug: Print client data structure
+                                      if (index == 0) { // Only print for first client to avoid spam
+                                        print('🔍 First client data structure:');
+                                        print('  - client keys: ${client.keys.toList()}');
+                                        print('  - client data: $client');
+                                        if (client['project_stats'] != null) {
+                                          print('  - project_stats: ${client['project_stats']}');
+                                        } else {
+                                          print('  - project_stats: null');
+                                        }
+                                      }
+                                      
                                       return TableRow(
                                         decoration: BoxDecoration(
                                           color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
@@ -500,9 +563,21 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                             client['email']?.toString() ?? 'N/A',
                                             copyable: true,
                                           ),
-                                          _buildCell(client['project_stats']['project_status'] ?? 'N/A'),
-                                          _buildPriceWithAdd(client['project_stats']['pending_amount'] ?? 'N/A'),
-                                          _buildPriceWithAdd(client['project_stats']['paid_amount'] ?? 'N/A'),
+                                          _buildCell(
+                                            client['project_stats'] != null 
+                                                ? (client['project_stats']['project_status'] ?? 'N/A')
+                                                : 'N/A'
+                                          ),
+                                          _buildPriceWithAdd(
+                                            client['project_stats'] != null 
+                                                ? (client['project_stats']['pending_amount'] ?? 'N/A')
+                                                : 'N/A'
+                                          ),
+                                          _buildPriceWithAdd(
+                                            client['project_stats'] != null 
+                                                ? (client['project_stats']['paid_amount'] ?? 'N/A')
+                                                : 'N/A'
+                                          ),
                                           _buildActionCell(
                                             onEdit: () async {
                                               await PinVerificationUtil.executeWithPinVerification(
@@ -570,11 +645,20 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                                   Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
                                                   SizedBox(height: 4),
                                                   Text(
-                                                    'No Establishment found',
+                                                    'No Establishment Clients Found',
                                                     style: TextStyle(
                                                       color: Colors.grey.shade600,
                                                       fontStyle: FontStyle.italic,
                                                       fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'Only establishment clients are shown here',
+                                                    style: TextStyle(
+                                                      color: Colors.grey.shade500,
+                                                      fontStyle: FontStyle.italic,
+                                                      fontSize: 10,
                                                     ),
                                                   ),
                                                 ],

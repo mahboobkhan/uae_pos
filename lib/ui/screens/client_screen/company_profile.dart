@@ -679,7 +679,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                         width: 160,
                         child: SmallDropdownField(
                           label: "Client Type",
-                          options: ['N/A','Regular', 'Walking'],
+                          options: ['Regular', 'Walking'],
                           selectedValue: selectedWorkType,
                           enabled: _isEditMode,
                           onChanged: (value) {

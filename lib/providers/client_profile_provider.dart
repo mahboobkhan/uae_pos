@@ -302,10 +302,106 @@ class ClientProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Get filtered clients (now handled by API)
+  // Get filtered clients based on context
   List<Map<String, dynamic>> get filteredClients {
-    // Since filtering is now handled by the API, we just return all clients
-    // The API will return only the filtered results
+    // If clientTypeFilter is set, use API-level filtering
+    if (clientTypeFilter != null) {
+      return clients; // API already filtered by client_type
+    }
+    
+    // Otherwise, return all clients (for Client Main Screen)
     return clients;
+  }
+
+  // Get establishment clients only (for Company Screen)
+  List<Map<String, dynamic>> get establishmentClients {
+    final filtered = clients.where((client) {
+      // Method 1: Explicit establishment types (highest priority)
+      final isExplicitEstablishment = 
+          client['client_type'] == 'establishment' || 
+          client['client_type'] == 'organization';
+      
+      // Method 2: Has establishment-specific fields with actual values
+      final hasEstablishmentFields = 
+          (client['trade_license_no'] != null && client['trade_license_no'].toString().trim().isNotEmpty) ||
+          (client['company_code'] != null && client['company_code'].toString().trim().isNotEmpty) ||
+          (client['establishment_no'] != null && client['establishment_no'].toString().trim().isNotEmpty) ||
+          (client['echannel_name'] != null && client['echannel_name'].toString().trim().isNotEmpty) ||
+          (client['echannel_id'] != null && client['echannel_id'].toString().trim().isNotEmpty) ||
+          (client['echannel_password'] != null && client['echannel_password'].toString().trim().isNotEmpty) ||
+          (client['physical_address'] != null && client['physical_address'].toString().trim().isNotEmpty);
+      
+      // Method 3: Business work types (Regular/Walking) - but be more strict
+      final hasBusinessWork = 
+          (client['client_work'] == 'Regular' || client['client_work'] == 'Walking') &&
+          client['client_work'] != 'Personal' &&
+          client['client_work'] != 'Individual' &&
+          client['client_work'] != null &&
+          client['client_work'].toString().trim().isNotEmpty;
+      
+      // Additional check: Exclude clients that are clearly individual/personal
+      final isNotPersonalClient = 
+          client['client_type'] != 'personal' &&
+          client['client_type'] != 'individual' &&
+          client['name'] != null &&
+          !client['name'].toString().toLowerCase().contains('personal') &&
+          !client['name'].toString().toLowerCase().contains('individual');
+      
+      // Only show if it meets establishment criteria AND is not a personal client
+      final shouldShow = (isExplicitEstablishment || hasEstablishmentFields || hasBusinessWork) && isNotPersonalClient;
+      
+      return shouldShow;
+    }).toList();
+    
+    if (kDebugMode) {
+      print('🔍 ESTABLISHMENT FILTER RESULTS:');
+      print('  - Total clients loaded: ${clients.length}');
+      print('  - Establishment clients shown: ${filtered.length}');
+      print('  - Clients filtered out: ${clients.length - filtered.length}');
+    }
+    
+    return filtered;
+  }
+
+  // Get individual clients only (for Individual Screen)
+  List<Map<String, dynamic>> get individualClients {
+    final filtered = clients.where((client) {
+      // Method 1: Explicit individual types
+      final isExplicitIndividual = 
+          client['client_type'] == 'individual' || 
+          client['client_type'] == 'personal';
+      
+      // Method 2: Check if it's NOT an establishment (reverse of establishment logic)
+      final isNotEstablishment = 
+          client['client_type'] != 'establishment' &&
+          client['client_type'] != 'organization' &&
+          (client['trade_license_no'] == null || client['trade_license_no'].toString().trim().isEmpty) &&
+          (client['company_code'] == null || client['company_code'].toString().trim().isEmpty) &&
+          (client['establishment_no'] == null || client['establishment_no'].toString().trim().isEmpty) &&
+          (client['echannel_name'] == null || client['echannel_name'].toString().trim().isEmpty) &&
+          (client['echannel_id'] == null || client['echannel_id'].toString().trim().isEmpty) &&
+          (client['echannel_password'] == null || client['echannel_password'].toString().trim().isEmpty) &&
+          (client['physical_address'] == null || client['physical_address'].toString().trim().isEmpty);
+      
+      // Method 3: Personal work types
+      final hasPersonalWork = 
+          client['client_work'] == 'Personal' ||
+          client['client_work'] == 'Individual' ||
+          (client['client_work'] != 'Regular' && client['client_work'] != 'Walking');
+      
+      // Show if it's explicitly individual OR not an establishment OR has personal work
+      final shouldShow = isExplicitIndividual || isNotEstablishment || hasPersonalWork;
+      
+      return shouldShow;
+    }).toList();
+    
+    if (kDebugMode) {
+      print('🔍 INDIVIDUAL FILTER RESULTS:');
+      print('  - Total clients loaded: ${clients.length}');
+      print('  - Individual clients shown: ${filtered.length}');
+      print('  - Clients filtered out: ${clients.length - filtered.length}');
+    }
+    
+    return filtered;
   }
 }

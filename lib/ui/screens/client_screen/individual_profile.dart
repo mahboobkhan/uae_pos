@@ -662,7 +662,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                         width: 160,
                         child: SmallDropdownField(
                           label: "Client Type",
-                          options: ['N/A','Regular', 'Walking'],
+                          options: ['Regular', 'Walking'],
                           selectedValue: selectedWorkType,
                           enabled: _isEditMode,
                           onChanged: (value) {
