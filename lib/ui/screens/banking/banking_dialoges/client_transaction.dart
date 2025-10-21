@@ -34,7 +34,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
 
 
   // Payment types updated to new naming
-  final List<String> paymentMethods = ['Cash', 'Cheque', 'Bank'];
+  final List<String> paymentMethods = ['Cash', 'Cheque', 'Bank',];
 
   // payment type
   final List<String> paymentTypes = ['Receive', 'Return', 'Expense'];

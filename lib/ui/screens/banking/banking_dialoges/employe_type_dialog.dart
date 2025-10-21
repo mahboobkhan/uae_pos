@@ -24,12 +24,12 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
   DateTime selectedDateTime = DateTime.now();
   String? selectedBank;
   String? selectedPaymentMethod; // Cash, Cheque, Bank
-  String? selectedEmployeeType; // salary, pay, bonus, advance, return
+  String? selectedEmployeeType; // salary, bonus, return (pay and advance commented out)
   String? selectedEmployee;
   dynamic selectedEmployeeData;
 
   // Payment types for employee transactions
-  final List<String> employeeTypes = ['salary', 'pay', 'bonus', 'advance', 'return'];
+  final List<String> employeeTypes = ['salary', /*'pay',*/ 'bonus', /*'advance',*/ 'return'];
 
   late TextEditingController _amountController;
   late TextEditingController _paymentByController;
@@ -330,7 +330,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                             _buildPaymentMethodFields(),
                             const SizedBox(height: 16),
                             _buildTextField("Note", _noteController, width: double.infinity),
-                          ] else if (['pay', 'advance', 'bonus'].contains(selectedEmployeeType)) ...[
+                          ] else if (['bonus'].contains(selectedEmployeeType)) ...[
                             // Company pays employee
                             Wrap(
                               spacing: 16,
@@ -518,7 +518,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
         CustomDropdownField(
           label: "Payment Method",
           selectedValue: selectedPaymentMethod,
-          options: ['Cash', 'Cheque', 'Bank'],
+          options: ['Cash', 'Cheque', 'Bank','Cash to WPS'],
           onChanged: (value) {
             setState(() {
               selectedPaymentMethod = value;
@@ -572,7 +572,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       if (selectedEmployeeData!.salary != null) {
         _amountController.text = selectedEmployeeData!.salary.toString();
       }
-    } else if (['pay', 'advance', 'bonus'].contains(selectedEmployeeType)) {
+    } else if (['bonus'].contains(selectedEmployeeType)) {
       // Company pays employee: Payment By = current user, Received By = employee
       _paymentByController.text = currentUserName;
       _receivedByController.text = employeeName;
@@ -932,7 +932,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in amount and month/year')));
         return;
       }
-    } else if (['pay', 'advance', 'bonus', 'return'].contains(selectedEmployeeType)) {
+    } else if (['bonus', 'return'].contains(selectedEmployeeType)) {
       // Payment/Return validation
       if (_amountController.text.isEmpty ||
           _monthYearController.text.isEmpty ||
@@ -1012,7 +1012,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in amount and month/year')));
         return;
       }
-    } else if (['pay', 'advance', 'bonus', 'return'].contains(selectedEmployeeType)) {
+    } else if (['bonus', 'return'].contains(selectedEmployeeType)) {
       // Payment/Return validation
       if (_amountController.text.isEmpty ||
           _monthYearController.text.isEmpty ||
