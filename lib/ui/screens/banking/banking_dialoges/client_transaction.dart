@@ -156,7 +156,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        widget.isEditMode ? "Ref: ${widget.paymentData?['payment_ref_id'] ?? 'N/A'}" : 'N/A',
+                        widget.isEditMode ? "Ref: ${widget.paymentData?['payment_ref_id'] ?? 'N/A'}" : '',
                         style: const TextStyle(fontSize: 12),
                       ),
                     ],
@@ -649,69 +649,10 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     }
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {bool enabled = true, double width = 220}) {
-    return SizedBox(
-      width: width,
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.red),
-          border: const OutlineInputBorder(),
-          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildDropdownField({
-    required String label,
-    required String? value,
-    required List<String> options,
-    required ValueChanged<String?> onChanged,
-    double width = 220,
-  }) {
-    return SizedBox(
-      width: width,
-      child: DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.red),
-          border: const OutlineInputBorder(),
-        ),
-        items: options.map((String val) => DropdownMenuItem<String>(value: val, child: Text(val))).toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
 }
 
 void showBankTransactionDialog(BuildContext context) {
   showDialog(context: context, barrierDismissible: false, builder: (context) => const DialogueBankTransaction());
 }
 
-Widget _buildTextFieldSearch(
-  String label,
-  TextEditingController controller, {
-  bool enabled = true,
-  double width = 220,
-}) {
-  return SizedBox(
-    width: width,
-    child: TextField(
-      controller: controller,
-      enabled: enabled,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.grey),
-        border: const OutlineInputBorder(),
-        enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-        suffixIcon: Icon(Icons.search, color: Colors.grey),
-      ),
-    ),
-  );
-}
