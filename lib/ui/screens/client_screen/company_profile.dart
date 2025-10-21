@@ -805,7 +805,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                 ],
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: 10),
 
               // Document Upload Section
               Container(

@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../providers/employee_payments_provider.dart';
 import '../../../../providers/banking_payment_method_provider.dart';
+import '../../../../providers/documents_provider.dart';
 import '../../../../employee/EmployeeProvider.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_fields.dart';
@@ -27,6 +33,17 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
   String? selectedEmployeeType; // salary, bonus, return (pay and advance commented out)
   String? selectedEmployee;
   dynamic selectedEmployeeData;
+
+  // Document related variables
+  List<String> uploadedDocumentIds = [];
+  List<Map<String, dynamic>> employeeDocuments = [];
+  dynamic selectedFile; // Use dynamic to handle both File and PlatformFile
+  String? selectedFileName;
+  Uint8List? selectedFileBytes; // For web compatibility
+  bool _isProcessing = false;
+  final TextEditingController documentNameController = TextEditingController();
+  final TextEditingController documentIssueDateController = TextEditingController();
+  final TextEditingController documentExpiryDateController = TextEditingController();
 
   // Payment types for employee transactions
   final List<String> employeeTypes = ['salary', /*'pay',*/ 'bonus', /*'advance',*/ 'return'];
@@ -114,6 +131,9 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
     _serviceTIDController.dispose();
     _noteController.dispose();
     _monthYearController.dispose();
+    documentNameController.dispose();
+    documentIssueDateController.dispose();
+    documentExpiryDateController.dispose();
     super.dispose();
   }
 
@@ -306,6 +326,187 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                           if (selectedEmployeeType == 'salary') ...[
                             // Salary form - simple fields
                             _buildTextField("Note", _noteController, width: double.infinity),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Document Upload Section
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Document Upload',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 10,
+                                    children: [
+                                      CustomTextField(
+                                        label: "Document Name",
+                                        controller: documentNameController,
+                                        hintText: "e.g., Salary Slip",
+                                      ),
+                                      CustomDateNotificationField(
+                                        label: "Issue Date",
+                                        controller: documentIssueDateController,
+                                        readOnly: true,
+                                        hintText: "yyyy-MM-dd",
+                                        onTap: () => _pickDocumentDate(documentIssueDateController),
+                                      ),
+                                      CustomDateNotificationField(
+                                        label: "Expiry Date",
+                                        controller: documentExpiryDateController,
+                                        readOnly: true,
+                                        hintText: "yyyy-MM-dd",
+                                        onTap: () => _pickDocumentDate(documentExpiryDateController),
+                                      ),
+                                      Consumer<DocumentsProvider>(
+                                        builder: (context, documentsProvider, child) {
+                                          return Column(
+                                            children: [
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: (documentsProvider.isUploading || _isProcessing)
+                                                        ? null
+                                                        : () {
+                                                            Future.microtask(() {
+                                                              _handleDocumentAction();
+                                                            });
+                                                          },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: (documentsProvider.isUploading || _isProcessing)
+                                                            ? Colors.grey
+                                                            : _getDocumentButtonColor(),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                      constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
+                                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          if (documentsProvider.isUploading)
+                                                            const SizedBox(
+                                                              width: 16,
+                                                              height: 16,
+                                                              child: CircularProgressIndicator(
+                                                                strokeWidth: 2,
+                                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                              ),
+                                                            )
+                                                          else
+                                                            Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
+                                                          const SizedBox(width: 6),
+                                                          Text(
+                                                            _getDocumentButtonText(),
+                                                            style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  if (documentsProvider.isUploading)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(left: 8.0),
+                                                      child: IconButton(
+                                                        onPressed: () {
+                                                          documentsProvider.resetLoadingState();
+                                                          setState(() {
+                                                            selectedFile = null;
+                                                            selectedFileName = null;
+                                                            selectedFileBytes = null;
+                                                          });
+                                                        },
+                                                        icon: const Icon(Icons.close, color: Colors.red),
+                                                        tooltip: 'Cancel Upload',
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                              if (documentsProvider.isUploading)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 8.0),
+                                                  child: LinearProgressIndicator(
+                                                    value: documentsProvider.uploadProgress,
+                                                    backgroundColor: Colors.grey[300],
+                                                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                                                  ),
+                                                ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  if (selectedFileName != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        'Selected: $selectedFileName',
+                                        style: const TextStyle(fontSize: 12, color: Colors.green),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Document List Section
+                            if (employeeDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Attached Documents',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey.shade300),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        // Existing documents
+                                        ...employeeDocuments.map(
+                                          (doc) => _buildDocumentItem(
+                                            name: doc['name'] ?? 'Unknown Document',
+                                            issueDate: doc['issue_date'] ?? '',
+                                            expiryDate: doc['expire_date'] ?? '',
+                                            documentRefId: doc['document_ref_id'] ?? '',
+                                            isExisting: true,
+                                            url: doc['url'],
+                                          ),
+                                        ),
+                                        
+                                        // Newly uploaded documents
+                                        ...uploadedDocumentIds.map(
+                                          (docId) => _buildDocumentItem(
+                                            name: 'New Document',
+                                            issueDate: '',
+                                            expiryDate: '',
+                                            documentRefId: docId,
+                                            isExisting: false,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ] else if (selectedEmployeeType == 'return') ...[
                             // Employee returns to company
                             Wrap(
@@ -518,7 +719,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
         CustomDropdownField(
           label: "Payment Method",
           selectedValue: selectedPaymentMethod,
-          options: ['Cash', 'Cheque', 'Bank','Cash to WPS'],
+          options: ['Cash', 'Cheque', 'Bank'],
           onChanged: (value) {
             setState(() {
               selectedPaymentMethod = value;
@@ -589,6 +790,286 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
     _paymentByController.clear();
     _receivedByController.clear();
     _amountController.clear();
+  }
+
+  // Document related methods
+  Future<void> _pickFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif'],
+        allowMultiple: false,
+        withData: true,
+        withReadStream: false,
+        allowCompression: true,
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+
+        setState(() {
+          if (kIsWeb) {
+            selectedFile = file;
+            selectedFileBytes = file.bytes;
+            selectedFileName = file.name;
+          } else {
+            if (file.path != null && file.path!.isNotEmpty) {
+              selectedFile = File(file.path!);
+              selectedFileName = file.name;
+            }
+          }
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('File selected: ${file.name}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      print('File picker error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _uploadDocument() async {
+    if (_isProcessing) return;
+
+    if (selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a file first')));
+      return;
+    }
+
+    if (documentNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter document name')));
+      return;
+    }
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    final documentsProvider = context.read<DocumentsProvider>();
+    String? documentRefId;
+
+    try {
+      if (kIsWeb) {
+        if (selectedFileBytes != null) {
+          documentRefId = await documentsProvider.addDocumentWeb(
+            name: documentNameController.text.trim(),
+            issueDate: documentIssueDateController.text.trim().isNotEmpty
+                ? documentIssueDateController.text.trim()
+                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            expireDate: documentExpiryDateController.text.trim().isNotEmpty
+                ? documentExpiryDateController.text.trim()
+                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
+            fileBytes: selectedFileBytes!,
+            fileName: selectedFileName ?? 'document',
+          );
+        }
+      } else {
+        if (selectedFile is File) {
+          documentRefId = await documentsProvider.addDocument(
+            name: documentNameController.text.trim(),
+            issueDate: documentIssueDateController.text.trim().isNotEmpty
+                ? documentIssueDateController.text.trim()
+                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            expireDate: documentExpiryDateController.text.trim().isNotEmpty
+                ? documentExpiryDateController.text.trim()
+                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
+            file: selectedFile as File,
+          );
+        }
+      }
+
+      if (documentRefId != null) {
+        if (mounted) {
+          setState(() {
+            uploadedDocumentIds.add(documentRefId!);
+            selectedFile = null;
+            selectedFileName = null;
+            selectedFileBytes = null;
+            documentNameController.clear();
+            documentIssueDateController.clear();
+            documentExpiryDateController.clear();
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Document uploaded successfully: $documentRefId'), backgroundColor: Colors.green),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text(documentsProvider.errorMessage ?? 'Failed to upload document'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Upload failed: ${e.toString()}'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
+    }
+  }
+
+  void _handleDocumentAction() {
+    if (selectedFile == null) {
+      _pickFile();
+    } else if (documentNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter document name')));
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _uploadDocument();
+      });
+    }
+  }
+
+  Color _getDocumentButtonColor() {
+    if (selectedFile == null) {
+      return Colors.blue; // Select Document
+    } else if (documentNameController.text.trim().isEmpty) {
+      return Colors.orange; // Enter name
+    } else {
+      return Colors.green; // Upload
+    }
+  }
+
+  IconData _getDocumentButtonIcon() {
+    if (selectedFile == null) {
+      return Icons.attach_file; // Select Document
+    } else if (documentNameController.text.trim().isEmpty) {
+      return Icons.edit; // Enter name
+    } else {
+      return Icons.upload; // Upload
+    }
+  }
+
+  String _getDocumentButtonText() {
+    if (selectedFile == null) {
+      return 'Select Document';
+    } else if (documentNameController.text.trim().isEmpty) {
+      return 'Enter Name';
+    } else {
+      return 'Upload';
+    }
+  }
+
+  void _pickDocumentDate(TextEditingController controller) {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2030),
+    ).then((date) {
+      if (date != null) {
+        controller.text = DateFormat('yyyy-MM-dd').format(date);
+      }
+    });
+  }
+
+  Widget _buildDocumentItem({
+    required String name,
+    required String issueDate,
+    required String expiryDate,
+    required String documentRefId,
+    required bool isExisting,
+    String? url,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.description, color: isExisting ? Colors.blue : Colors.green, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                if (issueDate.isNotEmpty || expiryDate.isNotEmpty)
+                  Text(
+                    'Issue: $issueDate | Expiry: $expiryDate',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                Text('ID: $documentRefId', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () => _downloadDocument(documentRefId, url: url),
+                icon: const Icon(Icons.download, color: Colors.blue, size: 20),
+                tooltip: 'Download Document',
+              ),
+              IconButton(
+                onPressed: () => _deleteDocument(documentRefId),
+                icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                tooltip: 'Delete Document',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _downloadDocument(String documentRefId, {String? url}) {
+    final downloadUrl = url ?? 'No URL available';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Downloading document: $documentRefId\nURL: $downloadUrl'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  Future<void> _deleteDocument(String documentRefId) async {
+    final documentsProvider = context.read<DocumentsProvider>();
+    final success = await documentsProvider.deleteDocument(documentRefId: documentRefId);
+
+    if (success) {
+      setState(() {
+        employeeDocuments.removeWhere((doc) => doc['document_ref_id'] == documentRefId);
+        uploadedDocumentIds.remove(documentRefId);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document deleted successfully')));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
+        ),
+      );
+    }
   }
 
   // DateTime Picker Field
@@ -904,6 +1385,15 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       _noteController.clear();
       _monthYearController.text = DateFormat('MMMM yyyy').format(DateTime.now());
       _issueDateController.clear();
+      // Clear document fields
+      selectedFile = null;
+      selectedFileName = null;
+      selectedFileBytes = null;
+      uploadedDocumentIds.clear();
+      employeeDocuments.clear();
+      documentNameController.clear();
+      documentIssueDateController.clear();
+      documentExpiryDateController.clear();
     });
 
     // Set default username for received by
