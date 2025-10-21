@@ -362,7 +362,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                         ),
                         CustomTextField(
                           label: 'Salary',
-                          hintText: 'AED-1000',
+                          hintText: '1000',
                           controller: _salaryController,
                           enabled: _isEditing,
                         ),
@@ -477,28 +477,28 @@ class _EmployeProfileState extends State<EmployeProfile> {
                               value: "Remaining Salary",
                               label: _isLoadingStats 
                                   ? "Loading..."
-                                  : "AED-${_getRemainingSalary().toStringAsFixed(2)}",
+                                  : "${_getRemainingSalary().toStringAsFixed(2)}",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
                               value: "Advance Payment",
                               label: _isLoadingStats 
                                   ? "Loading..."
-                                  : "AED-${_getAdvancePayment().toStringAsFixed(2)}",
+                                  : "${_getAdvancePayment().toStringAsFixed(2)}",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
                               value: "Total Salary",
                               label: _isLoadingStats 
                                   ? "Loading..."
-                                  : "AED-${_getTotalSalary().toStringAsFixed(2)}",
+                                  : "${_getTotalSalary().toStringAsFixed(2)}",
                               color: Colors.blue.shade50,
                             ),
                             InfoBox(
                               value: "Return Amount",
                               label: _isLoadingStats 
                                   ? "Loading..."
-                                  : "AED-${_getReturnAmount().toStringAsFixed(2)}",
+                                  : "${_getReturnAmount().toStringAsFixed(2)}",
                               color: Colors.blue.shade50,
                             ),
                           ],

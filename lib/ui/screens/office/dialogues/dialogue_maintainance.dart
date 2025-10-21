@@ -185,7 +185,7 @@ class _DialogueMaintainanceOfficeExpenseState
                       CustomTextField(
                         label: "Expanse Value",
                         controller: _expanseValueController,
-                        hintText: '500-AED',
+                        hintText: '500',
                       ),
                       CustomTextField(
                         label: "Allocate Balance",

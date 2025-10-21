@@ -131,8 +131,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
         {'label': 'Total Establishments', 'value': '0'},
         {'label': 'Regular', 'value': '0'},
         {'label': 'Walking', 'value': '0'},
-        {'label': 'Pending Amount', 'value': 'AED 0.00'},
-        {'label': 'Received Amount', 'value': 'AED 0.00'},
+        {'label': 'Pending Amount', 'value': ' 0.00'},
+        {'label': 'Received Amount', 'value': ' 0.00'},
       ];
     }
 
@@ -140,8 +140,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
       {'label': 'Total Establishments', 'value': summary['total_establishment']?.toString() ?? '0'},
       {'label': 'Regular', 'value': '0'}, // You might need to add this to your API
       {'label': 'Walking', 'value': '0'}, // You might need to add this to your API
-      {'label': 'Pending Amount', 'value': 'AED ${summary['total_pending_amount']?.toString() ?? '0.00'}'},
-      {'label': 'Received Amount', 'value': 'AED ${summary['total_received_amount']?.toString() ?? '0.00'}'},
+      {'label': 'Pending Amount', 'value': ' ${summary['total_pending_amount']?.toString() ?? '0.00'}'},
+      {'label': 'Received Amount', 'value': ' ${summary['total_received_amount']?.toString() ?? '0.00'}'},
     ];
   }
 

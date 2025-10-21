@@ -531,6 +531,187 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                             _buildPaymentMethodFields(),
                             const SizedBox(height: 16),
                             _buildTextField("Note", _noteController, width: double.infinity),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Document Upload Section
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Document Upload',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 10,
+                                    children: [
+                                      CustomTextField(
+                                        label: "Document Name",
+                                        controller: documentNameController,
+                                        hintText: "e.g., Return Receipt",
+                                      ),
+                                      CustomDateNotificationField(
+                                        label: "Issue Date",
+                                        controller: documentIssueDateController,
+                                        readOnly: true,
+                                        hintText: "yyyy-MM-dd",
+                                        onTap: () => _pickDocumentDate(documentIssueDateController),
+                                      ),
+                                      CustomDateNotificationField(
+                                        label: "Expiry Date",
+                                        controller: documentExpiryDateController,
+                                        readOnly: true,
+                                        hintText: "yyyy-MM-dd",
+                                        onTap: () => _pickDocumentDate(documentExpiryDateController),
+                                      ),
+                                      Consumer<DocumentsProvider>(
+                                        builder: (context, documentsProvider, child) {
+                                          return Column(
+                                            children: [
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: (documentsProvider.isUploading || _isProcessing)
+                                                        ? null
+                                                        : () {
+                                                            Future.microtask(() {
+                                                              _handleDocumentAction();
+                                                            });
+                                                          },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: (documentsProvider.isUploading || _isProcessing)
+                                                            ? Colors.grey
+                                                            : _getDocumentButtonColor(),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                      constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
+                                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          if (documentsProvider.isUploading)
+                                                            const SizedBox(
+                                                              width: 16,
+                                                              height: 16,
+                                                              child: CircularProgressIndicator(
+                                                                strokeWidth: 2,
+                                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                              ),
+                                                            )
+                                                          else
+                                                            Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
+                                                          const SizedBox(width: 6),
+                                                          Text(
+                                                            _getDocumentButtonText(),
+                                                            style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  if (documentsProvider.isUploading)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(left: 8.0),
+                                                      child: IconButton(
+                                                        onPressed: () {
+                                                          documentsProvider.resetLoadingState();
+                                                          setState(() {
+                                                            selectedFile = null;
+                                                            selectedFileName = null;
+                                                            selectedFileBytes = null;
+                                                          });
+                                                        },
+                                                        icon: const Icon(Icons.close, color: Colors.red),
+                                                        tooltip: 'Cancel Upload',
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                              if (documentsProvider.isUploading)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 8.0),
+                                                  child: LinearProgressIndicator(
+                                                    value: documentsProvider.uploadProgress,
+                                                    backgroundColor: Colors.grey[300],
+                                                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                                                  ),
+                                                ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  if (selectedFileName != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        'Selected: $selectedFileName',
+                                        style: const TextStyle(fontSize: 12, color: Colors.green),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Document List Section
+                            if (employeeDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Attached Documents',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey.shade300),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        // Existing documents
+                                        ...employeeDocuments.map(
+                                          (doc) => _buildDocumentItem(
+                                            name: doc['name'] ?? 'Unknown Document',
+                                            issueDate: doc['issue_date'] ?? '',
+                                            expiryDate: doc['expire_date'] ?? '',
+                                            documentRefId: doc['document_ref_id'] ?? '',
+                                            isExisting: true,
+                                            url: doc['url'],
+                                          ),
+                                        ),
+                                        
+                                        // Newly uploaded documents
+                                        ...uploadedDocumentIds.map(
+                                          (docId) => _buildDocumentItem(
+                                            name: 'New Document',
+                                            issueDate: '',
+                                            expiryDate: '',
+                                            documentRefId: docId,
+                                            isExisting: false,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ] else if (['bonus'].contains(selectedEmployeeType)) ...[
                             // Company pays employee
                             Wrap(
@@ -555,6 +736,187 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                             _buildPaymentMethodFields(),
                             const SizedBox(height: 16),
                             _buildTextField("Note", _noteController, width: double.infinity),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Document Upload Section
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Document Upload',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 10,
+                                    children: [
+                                      CustomTextField(
+                                        label: "Document Name",
+                                        controller: documentNameController,
+                                        hintText: "e.g., Bonus Certificate",
+                                      ),
+                                      CustomDateNotificationField(
+                                        label: "Issue Date",
+                                        controller: documentIssueDateController,
+                                        readOnly: true,
+                                        hintText: "yyyy-MM-dd",
+                                        onTap: () => _pickDocumentDate(documentIssueDateController),
+                                      ),
+                                      CustomDateNotificationField(
+                                        label: "Expiry Date",
+                                        controller: documentExpiryDateController,
+                                        readOnly: true,
+                                        hintText: "yyyy-MM-dd",
+                                        onTap: () => _pickDocumentDate(documentExpiryDateController),
+                                      ),
+                                      Consumer<DocumentsProvider>(
+                                        builder: (context, documentsProvider, child) {
+                                          return Column(
+                                            children: [
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: (documentsProvider.isUploading || _isProcessing)
+                                                        ? null
+                                                        : () {
+                                                            Future.microtask(() {
+                                                              _handleDocumentAction();
+                                                            });
+                                                          },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: (documentsProvider.isUploading || _isProcessing)
+                                                            ? Colors.grey
+                                                            : _getDocumentButtonColor(),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                      constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
+                                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          if (documentsProvider.isUploading)
+                                                            const SizedBox(
+                                                              width: 16,
+                                                              height: 16,
+                                                              child: CircularProgressIndicator(
+                                                                strokeWidth: 2,
+                                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                              ),
+                                                            )
+                                                          else
+                                                            Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
+                                                          const SizedBox(width: 6),
+                                                          Text(
+                                                            _getDocumentButtonText(),
+                                                            style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  if (documentsProvider.isUploading)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(left: 8.0),
+                                                      child: IconButton(
+                                                        onPressed: () {
+                                                          documentsProvider.resetLoadingState();
+                                                          setState(() {
+                                                            selectedFile = null;
+                                                            selectedFileName = null;
+                                                            selectedFileBytes = null;
+                                                          });
+                                                        },
+                                                        icon: const Icon(Icons.close, color: Colors.red),
+                                                        tooltip: 'Cancel Upload',
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                              if (documentsProvider.isUploading)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 8.0),
+                                                  child: LinearProgressIndicator(
+                                                    value: documentsProvider.uploadProgress,
+                                                    backgroundColor: Colors.grey[300],
+                                                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                                                  ),
+                                                ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  if (selectedFileName != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        'Selected: $selectedFileName',
+                                        style: const TextStyle(fontSize: 12, color: Colors.green),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Document List Section
+                            if (employeeDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Attached Documents',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey.shade300),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        // Existing documents
+                                        ...employeeDocuments.map(
+                                          (doc) => _buildDocumentItem(
+                                            name: doc['name'] ?? 'Unknown Document',
+                                            issueDate: doc['issue_date'] ?? '',
+                                            expiryDate: doc['expire_date'] ?? '',
+                                            documentRefId: doc['document_ref_id'] ?? '',
+                                            isExisting: true,
+                                            url: doc['url'],
+                                          ),
+                                        ),
+                                        
+                                        // Newly uploaded documents
+                                        ...uploadedDocumentIds.map(
+                                          (docId) => _buildDocumentItem(
+                                            name: 'New Document',
+                                            issueDate: '',
+                                            expiryDate: '',
+                                            documentRefId: docId,
+                                            isExisting: false,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ],
                         ],
                       ),
