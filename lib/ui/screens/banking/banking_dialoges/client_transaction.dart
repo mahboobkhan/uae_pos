@@ -22,17 +22,25 @@ class DialogueBankTransaction extends StatefulWidget {
 class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   String? selectedBank;
   String? selectedPaymentType;
+  String? selectedClientType;
   String? selectedProject;
   String? selectedPaymentMethod; // Cash, Cheque, Bank
   String? selectedProjectStage;
+  String? selectedSubStage;
+
   Map<String, dynamic>? selectedProjectData; // Store full project data
   Map<String, dynamic>? selectedStageData; // Store selected stage data
+  List<Map<String, dynamic>> subStages = [];
+
 
   // Payment types updated to new naming
   final List<String> paymentMethods = ['Cash', 'Cheque', 'Bank'];
 
   // payment type
   final List<String> paymentTypes = ['Receive', 'Return', 'Expense'];
+
+  // Client types
+  final List<String> clientTypes = ['Corporate', 'Individual', 'Government', 'Non-Profit', 'Startup'];
 
   late TextEditingController _amountController;
   late TextEditingController _searchController;
@@ -53,6 +61,100 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     final prefs = await SharedPreferences.getInstance();
     String? name = prefs.getString("name");
     return name ?? '';
+  }
+
+  // Check if project matches the selected client type
+  bool _matchesClientType(Map<String, dynamic> project, String clientType) {
+    // For now, we'll use a simple matching based on client name or project type
+    // In a real implementation, you would check the actual client type field
+    final clientName = project['client_id']?['name']?.toString().toLowerCase() ?? '';
+    final projectType = project['project_type']?.toString().toLowerCase() ?? '';
+    
+    switch (clientType.toLowerCase()) {
+      case 'corporate':
+        return clientName.contains('corp') || 
+               clientName.contains('ltd') || 
+               clientName.contains('inc') ||
+               projectType.contains('corporate');
+      case 'individual':
+        return !clientName.contains('corp') && 
+               !clientName.contains('ltd') && 
+               !clientName.contains('inc') &&
+               !projectType.contains('corporate') &&
+               !projectType.contains('government');
+      case 'government':
+        return clientName.contains('gov') || 
+               clientName.contains('ministry') ||
+               projectType.contains('government');
+      case 'non-profit':
+        return clientName.contains('foundation') || 
+               clientName.contains('charity') ||
+               projectType.contains('non-profit');
+      case 'startup':
+        return clientName.contains('startup') || 
+               projectType.contains('startup');
+      default:
+        return true; // Show all projects if no specific match
+    }
+  }
+
+  // Load default sub-stages for initial display
+  void _loadDefaultSubStages() {
+    // Load a comprehensive list of all possible sub-stages
+    subStages = [
+      {'name': 'Initial Design', 'sub_stage_ref_id': 'design_1'},
+      {'name': 'Design Review', 'sub_stage_ref_id': 'design_2'},
+      {'name': 'Final Design', 'sub_stage_ref_id': 'design_3'},
+      {'name': 'Backend Development', 'sub_stage_ref_id': 'dev_1'},
+      {'name': 'Frontend Development', 'sub_stage_ref_id': 'dev_2'},
+      {'name': 'Testing', 'sub_stage_ref_id': 'dev_3'},
+      {'name': 'Deployment', 'sub_stage_ref_id': 'dev_4'},
+      {'name': 'Initial Consultation', 'sub_stage_ref_id': 'consult_1'},
+      {'name': 'Analysis', 'sub_stage_ref_id': 'consult_2'},
+      {'name': 'Recommendations', 'sub_stage_ref_id': 'consult_3'},
+      {'name': 'Phase 1', 'sub_stage_ref_id': 'phase_1'},
+      {'name': 'Phase 2', 'sub_stage_ref_id': 'phase_2'},
+      {'name': 'Phase 3', 'sub_stage_ref_id': 'phase_3'},
+    ];
+  }
+
+  // Load sub-stages for the selected project stage
+  void _loadSubStages(Map<String, dynamic> stageData) {
+    // For now, we'll create some mock sub-stages based on the stage
+    // In a real implementation, you would fetch these from your API
+    final stageName = stageData['service_department'] ?? 'Unknown Department';
+    
+    // Create mock sub-stages based on the stage type
+    switch (stageName.toLowerCase()) {
+      case 'design':
+        subStages = [
+          {'name': 'Initial Design', 'sub_stage_ref_id': 'design_1'},
+          {'name': 'Design Review', 'sub_stage_ref_id': 'design_2'},
+          {'name': 'Final Design', 'sub_stage_ref_id': 'design_3'},
+        ];
+        break;
+      case 'development':
+        subStages = [
+          {'name': 'Backend Development', 'sub_stage_ref_id': 'dev_1'},
+          {'name': 'Frontend Development', 'sub_stage_ref_id': 'dev_2'},
+          {'name': 'Testing', 'sub_stage_ref_id': 'dev_3'},
+          {'name': 'Deployment', 'sub_stage_ref_id': 'dev_4'},
+        ];
+        break;
+      case 'consulting':
+        subStages = [
+          {'name': 'Initial Consultation', 'sub_stage_ref_id': 'consult_1'},
+          {'name': 'Analysis', 'sub_stage_ref_id': 'consult_2'},
+          {'name': 'Recommendations', 'sub_stage_ref_id': 'consult_3'},
+        ];
+        break;
+      default:
+        subStages = [
+          {'name': 'Phase 1', 'sub_stage_ref_id': 'phase_1'},
+          {'name': 'Phase 2', 'sub_stage_ref_id': 'phase_2'},
+          {'name': 'Phase 3', 'sub_stage_ref_id': 'phase_3'},
+        ];
+    }
   }
 
   @override
@@ -113,6 +215,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
         final projectsProvider = context.read<ProjectsProvider>();
         paymentMethodProvider.getAllPaymentMethods();
         projectsProvider.getAllProjects();
+        
+        // Load default sub-stages for the sub-stage dropdown
+        _loadDefaultSubStages();
       }
     });
   }
@@ -236,63 +341,93 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 ],
               ),
               const SizedBox(height: 15),
-              // Second Row - Project Selection
+              // Single Row - Client Type, Project, and Project Stage Selection
               Row(
                 children: [
+                  // Client Type Selection
                   Expanded(
-                    flex: 2,
-                    child: Consumer<ProjectsProvider>(
-                      builder: (context, projectsProvider, child) {
-                        final projects =
-                            projectsProvider.projects
-                                .where((project) => project['project_ref_id']?.toString().isNotEmpty == true)
-                                .toList();
-
-                        return CustomDropdownField(
-                          label: "Select Project",
-                          selectedValue: selectedProject,
-                          options: [
-                            'Select Project',
-                            ...projects.map(
-                              (p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}',
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              selectedProject = value == 'Select Project' ? null : value;
-                              selectedProjectStage = null; // Reset stage when project changes
-                              selectedStageData = null;
-                              if (value != null && value != 'Select Project') {
-                                // Find and store the full project data
-                                selectedProjectData = projects.firstWhere(
-                                  (p) =>
-                                      '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}' ==
-                                      value,
-                                  orElse: () => {},
-                                );
-                                // Auto-fill payment by with client name
-                                if (selectedProjectData != null && selectedProjectData!['client_id']?['name'] != null) {
-                                  _paymentByController.text = selectedProjectData!['client_id']['name'];
-                                }
-                                // Load project stages when project is selected
-                                if (selectedProjectData != null) {
-                                  final projectStageProvider = context.read<ProjectStageProvider>();
-                                  projectStageProvider.getStagesByProject(
-                                    projectRefId: selectedProjectData!['project_ref_id']?.toString() ?? '',
-                                  );
-                                }
-                              } else {
-                                selectedProjectData = null;
-                                // Clear payment by when no project is selected
-                                _paymentByController.clear();
-                              }
-                            });
-                          },
-                        );
+                    child: CustomDropdownField(
+                      label: "Client Type",
+                      selectedValue: selectedClientType,
+                      options: [
+                        'Select Client Type',
+                        ...clientTypes,
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedClientType = value == 'Select Client Type' ? null : value;
+                          selectedProject = null; // Reset project when client type changes
+                          selectedProjectStage = null; // Reset stage when client type changes
+                          selectedSubStage = null; // Reset sub-stage when client type changes
+                          selectedProjectData = null;
+                          selectedStageData = null;
+                          subStages.clear(); // Clear sub-stages when client type changes
+                        });
                       },
                     ),
                   ),
                   const SizedBox(width: 10),
+                  // Project Selection (only show if client type is selected)
+                  if (selectedClientType != null) ...[
+                    Expanded(
+                      flex: 2,
+                      child: Consumer<ProjectsProvider>(
+                        builder: (context, projectsProvider, child) {
+                          // Filter projects based on selected client type
+                          final projects = projectsProvider.projects
+                              .where((project) => 
+                                  project['project_ref_id']?.toString().isNotEmpty == true &&
+                                  _matchesClientType(project, selectedClientType!))
+                              .toList();
+
+                          return CustomDropdownField(
+                            label: "Select Project",
+                            selectedValue: selectedProject,
+                            options: [
+                              'Select Project',
+                              ...projects.map(
+                                (p) => '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}',
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                selectedProject = value == 'Select Project' ? null : value;
+                                selectedProjectStage = null; // Reset stage when project changes
+                                selectedStageData = null;
+                                selectedSubStage = null; // Reset sub-stage when project changes
+                                subStages.clear(); // Clear sub-stages when project changes
+                                if (value != null && value != 'Select Project') {
+                                  // Find and store the full project data
+                                  selectedProjectData = projects.firstWhere(
+                                    (p) =>
+                                        '${p['project_ref_id']} - ${p['client_id']?['name'] ?? 'Unknown Client'}' ==
+                                        value,
+                                    orElse: () => {},
+                                  );
+                                  // Auto-fill payment by with client name
+                                  if (selectedProjectData != null && selectedProjectData!['client_id']?['name'] != null) {
+                                    _paymentByController.text = selectedProjectData!['client_id']['name'];
+                                  }
+                                  // Load project stages when project is selected
+                                  if (selectedProjectData != null) {
+                                    final projectStageProvider = context.read<ProjectStageProvider>();
+                                    projectStageProvider.getStagesByProject(
+                                      projectRefId: selectedProjectData!['project_ref_id']?.toString() ?? '',
+                                    );
+                                  }
+                                } else {
+                                  selectedProjectData = null;
+                                  // Clear payment by when no project is selected
+                                  _paymentByController.clear();
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                   // Project Stage Selection (only show if project is selected)
                   if (selectedProject != null) ...[
                     Expanded(
@@ -313,6 +448,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                             onChanged: (value) {
                               setState(() {
                                 selectedProjectStage = value == 'Select Stage' ? null : value;
+                                selectedSubStage = null; // Reset sub-stage when stage changes
+                                subStages.clear(); // Clear sub-stages when stage changes
                                 if (value != null && value != 'Select Stage') {
                                   selectedStageData = activeStages.firstWhere(
                                     (stage) => '${stage['service_department'] ?? 'Unknown Department'}' == value,
@@ -321,6 +458,10 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                                   // Auto-fill step cost if available
                                   if (selectedStageData != null && selectedStageData!['step_cost'] != null) {
                                     _stepCostController.text = selectedStageData!['step_cost'].toString();
+                                  }
+                                  // Load sub-stages for the selected stage
+                                  if (selectedStageData != null) {
+                                    _loadSubStages(selectedStageData!);
                                   }
                                 } else {
                                   selectedStageData = null;
@@ -479,11 +620,14 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     setState(() {
       selectedBank = null;
       selectedPaymentType = null;
+      selectedClientType = null;
       selectedProject = null;
       selectedPaymentMethod = null;
       selectedProjectStage = null;
+      selectedSubStage = null;
       selectedProjectData = null;
       selectedStageData = null;
+      subStages.clear();
       _amountController.clear();
       _searchController.clear();
       _paymentByController.clear();
@@ -497,7 +641,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
 
   void _submitForm() async {
     // Validate required fields
-    if (selectedPaymentMethod == null || selectedPaymentType == null || selectedProject == null) {
+    if (selectedPaymentMethod == null || selectedPaymentType == null || selectedClientType == null || selectedProject == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all required fields')));
       return;
     }
@@ -563,6 +707,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       stepCost: stepCostVal,
       additionalProfit: additionalProfitVal,
       projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
+      // Note: projectSubStageRefId parameter not yet supported in provider
+      // TODO: Add projectSubStageRefId parameter to addBankingPayment method
     );
 
     // Check if submission was successful
@@ -577,7 +723,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
 
   void _updatePayment() async {
     // Validate required fields
-    if (selectedPaymentMethod == null || selectedPaymentType == null) {
+    if (selectedPaymentMethod == null || selectedPaymentType == null || selectedClientType == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all required fields')));
       return;
     }
@@ -638,6 +784,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       stepCost: stepCostUpdateVal,
       additionalCost: additionalCostUpdateVal,
       projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
+      // Note: projectSubStageRefId parameter not yet supported in provider
+      // TODO: Add projectSubStageRefId parameter to updateBankingPayment method
     );
 
     // Check if update was successful
