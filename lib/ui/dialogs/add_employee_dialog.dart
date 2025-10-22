@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/client_organization_employee_provider.dart';
+import '../../utils/pin_verification_util.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
 
@@ -245,29 +246,38 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                                 : () async {
                                   if (_validateForm()) {
                                     if (isEdit) {
-                                      await provider.updateEmployee(
-                                        employeeRefId: widget.employeeData!['employee_ref_id'],
-                                        type: _selectedType,
-                                        name:
-                                            _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null,
-                                        emirateId:
-                                            _emirateIdController.text.trim().isNotEmpty
-                                                ? _emirateIdController.text.trim()
-                                                : null,
-                                        workPermitNo:
-                                            _workPermitController.text.trim().isNotEmpty
-                                                ? _workPermitController.text.trim()
-                                                : null,
-                                        email:
-                                            _emailController.text.trim().isNotEmpty
-                                                ? _emailController.text.trim()
-                                                : null,
-                                        contactNo:
-                                            _contactController.text.trim().isNotEmpty
-                                                ? _contactController.text.trim()
-                                                : null,
+                                      // PIN verification required for updates
+                                      await PinVerificationUtil.executeWithPinVerification(
+                                        context,
+                                        () async {
+                                          await provider.updateEmployee(
+                                            employeeRefId: widget.employeeData!['employee_ref_id'],
+                                            type: _selectedType,
+                                            name:
+                                                _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null,
+                                            emirateId:
+                                                _emirateIdController.text.trim().isNotEmpty
+                                                    ? _emirateIdController.text.trim()
+                                                    : null,
+                                            workPermitNo:
+                                                _workPermitController.text.trim().isNotEmpty
+                                                    ? _workPermitController.text.trim()
+                                                    : null,
+                                            email:
+                                                _emailController.text.trim().isNotEmpty
+                                                    ? _emailController.text.trim()
+                                                    : null,
+                                            contactNo:
+                                                _contactController.text.trim().isNotEmpty
+                                                    ? _contactController.text.trim()
+                                                    : null,
+                                          );
+                                        },
+                                        title: 'Update Employee',
+                                        message: 'Please enter your PIN to update employee information',
                                       );
                                     } else {
+                                      // No PIN verification needed for adding new employees
                                       await provider.addEmployee(
                                         clientRefId: widget.clientRefId,
                                         type: _selectedType!,
