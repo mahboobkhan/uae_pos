@@ -39,11 +39,15 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   final TextEditingController _contactController = TextEditingController();
 
   String? _selectedType;
+  String? _selectedStatus;
   final List<String> _employeeTypes = ['Employee', 'Partner', 'Other'];
-
+  final List<String> _statusOptions = ['Active', 'Inactive'];
   @override
   void initState() {
     super.initState();
+    // Set default status to null to show hint
+    _selectedStatus = null;
+    
     // Prefill data if editing
     if (widget.employeeData != null) {
       _nameController.text = (widget.employeeData!['name'] ?? '').toString();
@@ -52,6 +56,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       _emailController.text = (widget.employeeData!['email'] ?? '').toString();
       _contactController.text = (widget.employeeData!['contact_no'] ?? '').toString();
       _selectedType = (widget.employeeData!['type'] ?? '').toString();
+      _selectedStatus = widget.employeeData!['status']?.toString();
     }
   }
 
@@ -84,9 +89,25 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    isEdit ? 'Edit Employee' : 'Add Employee',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                  Row(
+                    children: [
+                      Text(
+                        isEdit ? 'Edit Employee' : 'Add Employee',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                      ),
+                      const SizedBox(width: 15),
+                      CustomDropdownField(
+                        label: "Select Status",
+                        options: _statusOptions,
+                        selectedValue: _selectedStatus,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedStatus = value;
+                          });
+                        },
+                        width: 150,
+                      ),
+                    ],
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.red),
@@ -282,6 +303,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       return false;
     }
     // }
+
+    if (_selectedStatus == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select status')));
+      return false;
+    }
 
     if (_emirateIdController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter Emirates ID')));
