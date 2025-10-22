@@ -13,6 +13,7 @@ import '../../../providers/documents_provider.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
+import '../../dialogs/relations_list_dialog.dart';
 import '../../../utils/pin_verification_util.dart';
 
 Future<void> showIndividualProfileDialog(BuildContext context, {Map<String, dynamic>? clientData}) async {
@@ -997,6 +998,29 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                     onPressed: () {
                       Navigator.of(context).pop();
                     }
+                  ),
+                  const SizedBox(width: 10),
+                  CustomButton(
+                    text: "Add Relations",
+                    backgroundColor: Colors.orange,
+                    onPressed: () async {
+                      final clientRefId = widget.clientData?['client_ref_id']?.toString() ?? '';
+                      final clientName = widget.clientData?['name']?.toString() ?? 'Unknown';
+                      if (clientRefId.isNotEmpty) {
+                        await showRelationsListDialog(
+                          context,
+                          clientRefId: clientRefId,
+                          clientName: clientName,
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Client reference ID not found'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(width: 10),
                   CustomButton(

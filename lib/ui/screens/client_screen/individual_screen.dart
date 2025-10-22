@@ -9,6 +9,7 @@ import '../../../providers/client_profile_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
+import '../../dialogs/relations_list_dialog.dart';
 import 'individual_profile.dart';
 import '../../../utils/pin_verification_util.dart';
 
@@ -571,6 +572,24 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                                 }
                                               }
                                             },
+                                            onAddRelations: () async {
+                                              final clientRefId = client['client_ref_id']?.toString() ?? '';
+                                              final clientName = client['name']?.toString() ?? 'Unknown';
+                                              if (clientRefId.isNotEmpty) {
+                                                await showRelationsListDialog(
+                                                  context,
+                                                  clientRefId: clientRefId,
+                                                  clientName: clientName,
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Client reference ID not found'),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              }
+                                            },
                                           ),
                                         ],
                                       );
@@ -812,7 +831,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
     );
   }
 
-  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onAddRelations}) {
     return Row(
       children: [
         IconButton(
@@ -820,6 +839,12 @@ class _IndividualScreenState extends State<IndividualScreen> {
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
         ),
+        if (onAddRelations != null)
+          IconButton(
+            icon: Icon(Icons.family_restroom, color: Colors.purple),
+            tooltip: 'Add Relations',
+            onPressed: onAddRelations,
+          ),
       ],
     );
   }

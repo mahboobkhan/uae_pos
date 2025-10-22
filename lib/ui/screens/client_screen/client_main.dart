@@ -10,6 +10,7 @@ import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
 import '../../dialogs/employee_list_dialog.dart';
+import '../../dialogs/relations_list_dialog.dart';
 import 'company_profile.dart';
 import 'individual_profile.dart';
 
@@ -673,6 +674,28 @@ class _ClientMainState extends State<ClientMain> {
                                                       }
                                                     }
                                                     : null, // not org -> hide button
+
+                                            onAddRelations:
+                                                !_isEstablishment(client['client_type']?.toString())
+                                                    ? () async {
+                                                      final clientRefId = client['client_ref_id']?.toString() ?? '';
+                                                      final clientName = client['name']?.toString() ?? 'Unknown';
+                                                      if (clientRefId.isNotEmpty) {
+                                                        await showRelationsListDialog(
+                                                          context,
+                                                          clientRefId: clientRefId,
+                                                          clientName: clientName,
+                                                        );
+                                                      } else {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text('Client reference ID not found'),
+                                                            backgroundColor: Colors.red,
+                                                          ),
+                                                        );
+                                                      }
+                                                    }
+                                                    : null, // not individual -> hide button
                                           ),
                                         ],
                                       );
@@ -852,7 +875,7 @@ class _ClientMainState extends State<ClientMain> {
     );
   }
 
-  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onAddEmployee}) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onAddEmployee, VoidCallback? onAddRelations}) {
     return Row(
       children: [
         IconButton(
@@ -866,6 +889,12 @@ class _ClientMainState extends State<ClientMain> {
             icon: Icon(Icons.people, color: Colors.green),
             tooltip: 'Add Employee',
             onPressed: onAddEmployee, // no fallback empty closure
+          ),
+        if (onAddRelations != null)
+          IconButton(
+            icon: Icon(Icons.family_restroom, color: Colors.purple),
+            tooltip: 'Add Relations',
+            onPressed: onAddRelations,
           ),
       ],
     );
