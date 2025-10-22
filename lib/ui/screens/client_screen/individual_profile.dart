@@ -663,12 +663,12 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                         width: 160,
                         child: SmallDropdownField(
                           label: "Client Type",
-                          options: ['Regular', 'Walking'],
+                          options: ['N/A', 'Regular', 'Walking'],
                           selectedValue: selectedWorkType,
                           enabled: _isEditMode,
                           onChanged: (value) {
                             setState(() {
-                              selectedWorkType = value;
+                              selectedWorkType = value == 'N/A'? null: value;
                             });
                           },
                         ),

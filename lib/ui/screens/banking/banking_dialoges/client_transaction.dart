@@ -51,10 +51,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   final TextEditingController documentExpiryDateController = TextEditingController();
 
   // Payment types updated to new naming
-  final List<String> paymentMethods = ['Cash', 'Cheque', 'Bank',];
-
+  final List<String> paymentMethods = ['Select payment method','Cash', 'Cheque', 'Bank',];
   // payment type
-  final List<String> paymentTypes = ['Receive', 'Return', 'Expense'];
+  final List<String> paymentTypes = ['Select payment type','Receive', 'Return', 'Expense'];
 
   // Client types
   final List<String> clientTypes = ['Corporate', 'Individual', 'Government', 'Non-Profit', 'Startup'];
@@ -337,7 +336,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       options: paymentMethods,
                       onChanged: (value) {
                         setState(() {
-                          selectedPaymentMethod = value;
+                          selectedPaymentMethod = value =='Select payment method'?null:value;
                           // Reset bank and service TID when changing payment type
                           if (value != 'Bank') {
                             selectedBank = null;
@@ -353,7 +352,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       label: "Payment Type",
                       selectedValue: selectedPaymentType,
                       options: paymentTypes,
-                      onChanged: (value) => setState(() => selectedPaymentType = value),
+                      onChanged: (value) => setState(() => selectedPaymentType = value=='Select payment type'?null:value),
                     ),
                   ),
                   const SizedBox(width: 10),

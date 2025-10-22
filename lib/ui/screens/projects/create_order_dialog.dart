@@ -355,9 +355,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     CustomDropdownField(
                       label: "Order Type ",
                       selectedValue: selectedOrderType,
-                      options: ["Services Base", " Project Base"],
+                      options: ["Select Order Type","Services Base", " Project Base"],
                       onChanged: (val) {
-                        setState(() => selectedOrderType = val);
+                        setState(() => selectedOrderType = val=='Select Order Type'? null:val);
                       },
                     ),
                     Consumer<ServiceCategoryProvider>(

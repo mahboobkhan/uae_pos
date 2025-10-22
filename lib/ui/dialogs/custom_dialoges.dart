@@ -146,8 +146,8 @@ void showServicesProjectPopup(BuildContext context) {
       String bankRefId = '';
       String chequeNo = '';
 
-      final List<String> paymentMethods = ['cash', 'bank', 'cheque'];
-      final List<String> paymentStatuses = ['pending', 'completed'];
+      final List<String> paymentMethods = ['Select Payment Method','cash', 'bank', 'cheque'];
+      final List<String> paymentStatuses = ['Select Payment Status','pending', 'completed'];
 
       return Consumer<ShortServiceCategoryProvider>(
         builder: (context, categoryProvider, child) {
@@ -475,7 +475,7 @@ void showServicesProjectPopup(BuildContext context) {
                                 label: 'Payment Method',
                                 selectedValue: selectedPaymentMethod,
                                 options: paymentMethods,
-                                onChanged: (val) => setState(() => selectedPaymentMethod = val),
+                                onChanged: (val) => setState(() => selectedPaymentMethod = val== 'Select Payment Method'? null: val),
                                 width: double.infinity,
                               ),
                               const SizedBox(height: 12),
@@ -484,7 +484,7 @@ void showServicesProjectPopup(BuildContext context) {
                                 label: 'Payment Status',
                                 selectedValue: selectedPaymentStatus,
                                 options: paymentStatuses,
-                                onChanged: (val) => setState(() => selectedPaymentStatus = val),
+                                onChanged: (val) => setState(() => selectedPaymentStatus = val=='Select Payment Status'? null: val),
                                 width: double.infinity,
                               ),
                               const SizedBox(height: 12),

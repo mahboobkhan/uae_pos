@@ -61,7 +61,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
 
   final List<String> bankOptions = ['HBL', 'UBL', 'MCB', 'Cash', 'Cheque'];
 
-  final List<String> paymentTypes = ['Cash', 'Cheque', 'Bank'];
+  final List<String> paymentTypes = ['Select Payment Type','Cash', 'Cheque', 'Bank'];
 
   @override
   void initState() {
@@ -363,8 +363,8 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                 options: paymentTypes,
                                 onChanged:
                                     (val) => setState(() {
-                                      selectedPaymentType = val;
-                                      // Reset bank and service TID when changing payment type
+                                      selectedPaymentType = val=='Select Payment Type'?null:val;
+
                                       if (val != 'Bank') {
                                         selectedBank = null;
                                         _serviceTIDController.clear();
