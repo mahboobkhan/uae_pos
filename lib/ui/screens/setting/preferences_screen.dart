@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
-import '../../dialogs/tags_class.dart';
 
 class PreferencesScreen extends StatefulWidget {
 
@@ -22,23 +21,15 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   void dispose() {
     _verticalController.dispose();
     _horizontalController.dispose();
+    _editFileNameController.dispose();
+    _editIssueDateController.dispose();
+    _editExpiryDateController.dispose();
     super.dispose();
   }
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
   ];
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _mobileController = TextEditingController();
-  final _tagController = TextEditingController();
-  final _docNameController = TextEditingController();
-  final _issueDateController = TextEditingController();
-  final _expiryDateController = TextEditingController();
-
-
-  DateTime? issueDate;
-  DateTime? expiryDate;
 
   final List<String> categories = [
     'All',
@@ -65,10 +56,20 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     'Custom Range',
   ];
   String? selectedCategory3;
-  final GlobalKey _plusKey = GlobalKey();
   bool _isHovering = false;
 
-  Future<void> _pickDateTime(bool isIssueDate) async {
+  // Edit dialog controllers
+  final _editFileNameController = TextEditingController();
+  final _editIssueDateController = TextEditingController();
+  final _editExpiryDateController = TextEditingController();
+
+
+  String formatDateTime(DateTime? dt) {
+    final now = DateTime.now();
+    return DateFormat('dd-MM-yyyy – hh:mm a').format(dt ?? now);
+  }
+
+  Future<void> _pickEditDateTime(bool isIssueDate) async {
     DateTime now = DateTime.now();
     final date = await showDatePicker(
       context: context,
@@ -96,24 +97,102 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
     setState(() {
       if (isIssueDate) {
-        issueDate = selectedDateTime;
-        _issueDateController.text = formatted;
+        _editIssueDateController.text = formatted;
       } else {
-        expiryDate = selectedDateTime;
-        _expiryDateController.text = formatted;
+        _editExpiryDateController.text = formatted;
       }
     });
   }
 
-  String formatDateTime(DateTime? dt) {
-    final now = DateTime.now();
-    return DateFormat('dd-MM-yyyy – hh:mm a').format(dt ?? now);
+  void  _showEditDialog(String fileName, String issueDate, String expiryDate) {
+    print('Edit dialog called with: $fileName, $issueDate, $expiryDate');
+    
+    // Pre-populate the controllers with current values
+    _editFileNameController.text = fileName;
+    _editIssueDateController.text = issueDate;
+    _editExpiryDateController.text = expiryDate;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit File Details'),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _editFileNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'File Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _editIssueDateController,
+                  decoration: const InputDecoration(
+                    labelText: 'Issue Date',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  readOnly: true,
+                  onTap: () => _pickEditDateTime(true),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _editExpiryDateController,
+                  decoration: const InputDecoration(
+                    labelText: 'Expiry Date',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  readOnly: true,
+                  onTap: () => _pickEditDateTime(false),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Here you can save the edited values
+                // For now, just close the dialog
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('File details updated successfully')),
+                );
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print('FAB pressed - testing dialog');
+          _showEditDialog(
+            "Test File", 
+            "01-01-2025", 
+            "31-12-2025"
+          );
+        },
+        child: const Icon(Icons.edit),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 20),
         child: Column(
@@ -321,7 +400,17 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                       _buildCell("N/A"),
                                       _buildCell("Click Download"),
                                       _buildActionCell(
-                                        onEdit: () {},
+                                        onEdit: () {
+                                          print('Edit button pressed');
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Edit button clicked!')),
+                                          );
+                                          _showEditDialog(
+                                            "xxxxxxxxxx", // File name
+                                            "12-2-2025",  // Issue date
+                                            "12-2-2025",  // Expiry date
+                                          );
+                                        },
                                         onDelete: () {},
                                       ),
                                     ],
@@ -396,33 +485,27 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   Widget _buildActionCell({
     VoidCallback? onEdit,
     VoidCallback? onDelete,
-    VoidCallback? onDraft,
   }) {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
-          tooltip: 'Edit',
-          onPressed: onEdit ?? () {},
-        ),
-        /*IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-          tooltip: 'Delete',
-          onPressed: onDelete ?? () {},
-        ),*/
-/*
-        IconButton(
-          icon: Image.asset(
-            'assets/icons/img_3.png',
-            width: 20,
-            height: 20,
-            color: Colors.red,
+    return Container(
+      height: 40,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // ✏️ Edit Button with Tooltip
+          Tooltip(
+            message: 'Edit',
+            waitDuration: const Duration(milliseconds: 300),
+            child: GestureDetector(
+              onTap: onEdit ?? () {},
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: const Icon(Icons.edit, size: 20, color: Colors.blue),
+              ),
+            ),
           ),
-          tooltip: 'Draft',
-          onPressed: onDraft ?? () {},
-        ),
-*/
-      ],
+
+        ],
+      ),
     );
   }
 
