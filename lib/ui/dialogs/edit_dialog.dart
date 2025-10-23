@@ -172,14 +172,21 @@ class _BankAccountEditDialogState extends State<BankAccountEditDialog> {
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child:   CustomDropdownField(
+                              child: CustomDropdownField(
                                 label: "Select Bank",
-                                options: bankList,
+                                options: [
+                                  'Select Bank',
+                                  ...bankList,
+                                ],
                                 selectedValue: _selectedBank,
                                 onChanged: (value) {
-                                    setState(() {
+                                  setState(() {
+                                    if (value == 'Select Bank') {
+                                      _selectedBank = null; // reset to default when hint is selected
+                                    } else {
                                       _selectedBank = value;
-                                    });
+                                    }
+                                  });
                                 },
                               ),
                             ),

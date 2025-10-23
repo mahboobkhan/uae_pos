@@ -88,7 +88,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
   final TextEditingController _birthDateController = TextEditingController();
   TextEditingController _eidController = TextEditingController();
 
-  final genderOptions = ["Male", "Female"]; // ok
+  final genderOptions = ["Select Gender","Male", "Female"]; // ok
   String? selectedGender; //ok
 
   String? employeeTypeSelected;
@@ -174,18 +174,23 @@ class _EmployeProfileState extends State<EmployeProfile> {
                               width: 180,
                               child: SmallDropdownField(
                                 enabled: _isEditing,
-                                label: "Employee type",
-                                options:
-                                    widget.singleEmployee.value.allEmployeeTypes
-                                        .map((d) => d.employeeType)
-                                        .toList(),
+                                label: "Employee Type",
+                                options: [
+                                  'Select Employee Type',
+                                  ...widget.singleEmployee.value.allEmployeeTypes
+                                      .map((d) => d.employeeType)
+                                      .toList(),
+                                ],
                                 selectedValue: employeeTypeSelected,
                                 onChanged: (value) {
                                   if (_isEditing) {
                                     setState(() {
-                                      employeeTypeSelected = value;
+                                      if (value == 'Select Employee Type') {
+                                        employeeTypeSelected = null; // reset to default
+                                      } else {
+                                        employeeTypeSelected = value;
+                                      }
                                     });
-                                    print("Selected Employee Typesss: $value");
                                   }
                                 },
                               ),
@@ -202,7 +207,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 onChanged: (value) {
                                   if (_isEditing) {
                                     setState(() {
-                                      selectedGender = value;
+                                      selectedGender = value=='Select Gender'?null:value;
                                     });
                                   }
                                 },
@@ -427,13 +432,20 @@ class _EmployeProfileState extends State<EmployeProfile> {
                       children: [
                         CustomDropdownField(
                           label: "Select Bank",
-                          options: bankList,
+                          options: [
+                            'Select Bank',
+                            ...bankList,
+                          ],
                           enabled: _isEditing,
                           selectedValue: _selectedBank,
                           onChanged: (value) {
                             if (_isEditing) {
                               setState(() {
-                                _selectedBank = value;
+                                if (value == 'Select Bank') {
+                                  _selectedBank = null; // reset when default option is selected
+                                } else {
+                                  _selectedBank = value;
+                                }
                               });
                             }
                           },

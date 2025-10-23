@@ -305,35 +305,40 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     Consumer<ClientProfileProvider>(
                       builder: (context, clientProv, _) {
                         final clients = clientProv.clients;
-                        final clientNames = clients.map((c) => (c['name'] ?? 'Unnamed').toString()).toList();
+                        final clientNames = ['Select Client', ...clients.map((c) => (c['name'] ?? 'Unnamed').toString())];
 
                         return Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             // your original dropdown, now fed by provider
                             CustomDropdownWithSearch(
-                              label: "Search Client ",
+                              label: "Search Client",
                               selectedValue: searchClient,
                               options: clientNames,
                               onChanged: (val) {
                                 setState(() {
-                                  searchClient = val;
-                                  _selectedClient = clients.firstWhere(
-                                    (c) => (c['name'] ?? '').toString() == (val ?? ''),
-                                    orElse: () => {},
-                                  );
-                                  // reset employee on client change
-                                  selectedEmployee = null;
-                                });
+                                  if (val == 'Select Client') {
+                                    // Reset everything if the user selects the hint option
+                                    searchClient = null;
+                                    _selectedClient = null;
+                                    selectedEmployee = null;
+                                  } else {
+                                    searchClient = val;
+                                    _selectedClient = clients.firstWhere(
+                                          (c) => (c['name'] ?? '').toString() == (val ?? ''),
+                                      orElse: () => {},
+                                    );
+                                    selectedEmployee = null;
 
-                                // Load employees if organization is selected
-                                if (_selectedClient != null && _isOrg(_selectedClient)) {
-                                  final clientRefId = _selectedClient!['client_ref_id']?.toString();
-                                  _loadEmployeesForClient(clientRefId);
-                                }
+                                    // Load employees if organization is selected
+                                    if (_selectedClient != null && _isOrg(_selectedClient)) {
+                                      final clientRefId = _selectedClient!['client_ref_id']?.toString();
+                                      _loadEmployeesForClient(clientRefId);
+                                    }
+                                  }
+                                });
                               },
                             ),
-
                             // individual -> show Self (InfoBox)
                             if (_selectedClient != null) const SizedBox(width: 10),
 
@@ -363,24 +368,33 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     Consumer<ServiceCategoryProvider>(
                       builder: (context, serviceProvider, child) {
                         return CustomDropdownWithSearch(
-                          label: "Service Project ",
+                          label: "Service Project",
                           selectedValue: selectedServiceProject,
-                          options:
-                              serviceProvider.serviceCategories
-                                  .map((service) => service['service_name'].toString() ?? '')
-                                  .toList(),
+                          options: [
+                            'Select Service Project',
+                            ...serviceProvider.serviceCategories
+                                .map((service) => (service['service_name'] ?? '').toString())
+                                .toList(),
+                          ],
                           onChanged: (val) {
                             setState(() {
-                              selectedServiceProject = val;
-                              // Auto-fill quotation and service provider when service is selected
-                              if (val != null) {
+                              if (val == 'Select Service Project') {
+                                // Reset everything when the default option is selected
+                                selectedServiceProject = null;
+                                _quotationController.clear();
+                                _beneficiaryController = null;
+                              } else {
+                                selectedServiceProject = val;
+
+                                // Auto-fill quotation and service provider when service is selected
                                 final quotation = _getQuotationForService(val);
-                                final serviceProvider = _getServiceProviderForService(val);
+                                final serviceProviderData = _getServiceProviderForService(val);
+
                                 if (quotation != null) {
                                   _quotationController.text = quotation;
                                 }
-                                if (serviceProvider != null) {
-                                  _beneficiaryController = serviceProvider;
+                                if (serviceProviderData != null) {
+                                  _beneficiaryController = serviceProviderData;
                                 }
                               }
                             });
@@ -392,13 +406,21 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       builder: (context, serviceProvider, child) {
                         return CustomDropdownWithSearch(
                           label: "Service Provider",
-                          options:
-                              serviceProvider.serviceCategories
-                                  .map((service) => service['service_provider_name'].toString() ?? '')
-                                  .toList(),
+                          options: [
+                            'Select Service Provider',
+                            ...serviceProvider.serviceCategories
+                                .map((service) => (service['service_provider_name'] ?? '').toString())
+                                .toList(),
+                          ],
                           selectedValue: _beneficiaryController,
                           onChanged: (val) {
-                            setState(() => _beneficiaryController = val);
+                            setState(() {
+                              if (val == 'Select Service Provider') {
+                                _beneficiaryController = null; // reset to default
+                              } else {
+                                _beneficiaryController = val;
+                              }
+                            });
                           },
                         );
                       },
