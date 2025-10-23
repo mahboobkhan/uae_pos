@@ -999,7 +999,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                       Navigator.of(context).pop();
                     }
                   ),
-                  const SizedBox(width: 10),
+          /*        const SizedBox(width: 10),
                   CustomButton(
                     text: "Add Relations",
                     backgroundColor: Colors.orange,
@@ -1021,7 +1021,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                         );
                       }
                     },
-                  ),
+                  ),*/
                   const SizedBox(width: 10),
                   CustomButton(
                     text: "Submit",
