@@ -209,40 +209,45 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     Row(
                       children: [
                         Card(
-                          elevation: 8,
-                          color: Colors.blue,
+                          elevation: 4,
+                          color: Colors.green,
                           shape: CircleBorder(),
-                          child: Builder(
-                            builder:
-                                (context) =>
-                                Tooltip(
-                                  message: 'Show menu',
-                                  waitDuration: Duration(milliseconds: 2),
-                                  child: GestureDetector(
-                                    key: _plusKey,
-                                    onTap:() {},
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.add,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                          child: Tooltip(
+                            message: 'Refresh',
+                            waitDuration: Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              onTap: () {
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                decoration: const BoxDecoration(shape: BoxShape.circle),
+                                child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                              ),
+                            ),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        Card(
+                          elevation: 4,
+                          color: Colors.orange,
+                          shape: CircleBorder(),
+                          child: Tooltip(
+                            message: 'Clear Filters',
+                            waitDuration: Duration(milliseconds: 2),
+                            child: GestureDetector(
+                              onTap: () {
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                decoration: const BoxDecoration(shape: BoxShape.circle),
+                                child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -250,99 +255,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               ),
             ),
 
-            Card(
-              elevation: 4, // Controls shadow depth
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: const [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Files Backup',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              'Tid OOOOOOOOOOOO43',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          runSpacing: 10,
-                          spacing: 10,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            _buildInputField(_docNameController, 'File Name'),
-                            _buildInputField(_tagController, 'Tag 1'),
-                            _buildInputField(_nameController, 'Name'),
-                            _buildInputField(_emailController, 'Email'),
-                            _buildInputField(_mobileController, 'Phone Number'),
-                            _buildDateField('Issue Date Notification', _issueDateController, () => _pickDateTime(true)),
-                            _buildDateField('Expiry Date Notification', _expiryDateController, () => _pickDateTime(false)),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                              ),
-                              onPressed: () {},
-                              child: const Text('Upload File', style: TextStyle(color: Colors.white)),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                              ),
-                              onPressed: () {},
-                              child: const Text('Download', style: TextStyle(color: Colors.white)),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                              ),
-                              onPressed: () {},
-                              child: const Text('Submit', style: TextStyle(color: Colors.white)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10,),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Container(
@@ -373,12 +285,11 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                               columnWidths: const {
                                 0: FlexColumnWidth(0.8),
                                 1: FlexColumnWidth(1.5),
-                                2: FlexColumnWidth(1.5),
+                                2: FlexColumnWidth(1),
                                 3: FlexColumnWidth(1),
-                                4: FlexColumnWidth(1),
-                                5: FlexColumnWidth(1.3),
+                                4: FlexColumnWidth(1.3),
+                                5: FlexColumnWidth(1),
                                 6: FlexColumnWidth(1),
-                                7: FlexColumnWidth(1),
                               },
                               children: [
                                 TableRow(
@@ -388,7 +299,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                   children: [
                                     _buildHeader("File Id"),
                                     _buildHeader("File Name"),
-                                    _buildHeader("Tag Details"),
                                     _buildHeader("Issue Date"),
                                     _buildHeader("Expiry Date"),
                                     _buildHeader("Source Form"),
@@ -406,7 +316,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                     children: [
                                       _buildCell("xxxxxxxx", copyable: true),
                                       _buildCell("xxxxxxxxxx", copyable: true),
-                                      TagsCellWidget(initialTags: currentTags),
                                       _buildCell("12-2-2025"),
                                       _buildCell("12-2-2025"),
                                       _buildCell("N/A"),
@@ -434,52 +343,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
   }
 
-  Widget _buildInputField(TextEditingController controller, String label) {
-    return SizedBox(
-      width: 150,
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.red),
-          border: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-          ),
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 8,
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildDateField(String label, TextEditingController controller, VoidCallback onTap) {
-    return SizedBox(
-      width: 200,
-      child: GestureDetector(
-        onTap: onTap,
-        child: AbsorbPointer(
-          child: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: label,
-              labelStyle: const TextStyle(color: Colors.red),
-              suffixIcon: const Icon(Icons.calendar_month, size: 18, color: Colors.red),
-              border: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-              enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
   Widget _buildHeader(String text) {
     return Container(
       height: 40,
@@ -541,11 +405,11 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
           tooltip: 'Edit',
           onPressed: onEdit ?? () {},
         ),
-        IconButton(
+        /*IconButton(
           icon: const Icon(Icons.delete, size: 20, color: Colors.red),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
-        ),
+        ),*/
 /*
         IconButton(
           icon: Image.asset(
@@ -562,121 +426,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
   }
 
-  Widget _buildTagsCell(List<Map<String, dynamic>> tags, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: [
-                for (int i = 0; i < tags.length; i++)
-                  _HoverableTag(
-                    tag: tags[i]['tag'],
-                    color: tags[i]['color'] ?? Colors.grey.shade200,
-                    onDelete: () {
-                      (context as Element)
-                          .markNeedsBuild(); // temporary refresh
-                      tags.removeAt(i);
-                    },
-                  ),
-              ],
-            ),
-          ),
-          Tooltip(
-            message: 'Add Tag',
-            child: GestureDetector(
-              onTap: () async {
-                final result = await showAddTagDialog(context);
-                if (result != null && result['tag']
-                    .toString()
-                    .trim()
-                    .isNotEmpty) {
-                  (context as Element).markNeedsBuild();
-                  tags.add({
-                    'tag': result['tag'],
-                    'color': result['color'],
-                  });
-                }
-              },
-              child: Image.asset(
-                width: 14,
-                height: 14,
-                color: Colors.blue,
-                'assets/icons/img_1.png',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-class _HoverableTag extends StatefulWidget {
-  final String tag;
-  final Color color;
-  final VoidCallback onDelete;
-
-  const _HoverableTag({
-    Key? key,
-    required this.tag,
-    required this.color,
-    required this.onDelete,
-  }) : super(key: key);
-
-  @override
-  State<_HoverableTag> createState() => _HoverableTagState();
 }
 
-class _HoverableTagState extends State<_HoverableTag> {
-  bool _hovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: Stack(
-        alignment: Alignment.topRight,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            margin: const EdgeInsets.only(top: 6, right: 2),
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              widget.tag,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
-            ),
-          ),
-          if (_hovering)
-            Positioned(
-              top: 5,
-              right: 5,
-              child: GestureDetector(
-                onTap: widget.onDelete,
-                child: Container(
-                  child: const Icon(
-                    Icons.close,
-                    size: 12,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 
