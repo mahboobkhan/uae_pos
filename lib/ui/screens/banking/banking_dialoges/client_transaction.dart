@@ -260,10 +260,10 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -591,7 +591,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
               ),
               const SizedBox(height: 15),
               
-              // Document Upload Section
+              // Document Upload Section (only show when payment method is Bank)
+              if (selectedPaymentMethod == 'Bank') ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -606,67 +607,74 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                     ),
                     const SizedBox(height: 10),
-                    
-                    // Select Document Button
-                    Consumer<DocumentsProvider>(
-                      builder: (context, documentsProvider, child) {
-                        return Column(
-                          children: [
-                      GestureDetector(
-                        onTap: (documentsProvider.isUploading || _isProcessing)
-                            ? null
-                            : () {
-                                print('🔍 Debug: Select Document button tapped');
-                                Future.microtask(() {
-                                  _pickFile();
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: (documentsProvider.isUploading || _isProcessing)
-                                      ? Colors.grey
-                                      : Colors.blue,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                      
+                      // Select Document Button
+                        Consumer<DocumentsProvider>(
+                          builder: (context, documentsProvider, child) {
+                          // Check if a file is already attached
+                          final hasAttachedFile = transactionDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty;
+                          
+                            return Column(
                                   children: [
-                                    if (documentsProvider.isUploading)
-                                      const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    GestureDetector(
+                                onTap: (documentsProvider.isUploading || _isProcessing || hasAttachedFile)
+                                          ? null
+                                          : () {
+                                        print('🔍 Debug: Select Document button tapped');
+                                              Future.microtask(() {
+                                          _pickFile();
+                                              });
+                                            },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                    color: (documentsProvider.isUploading || _isProcessing || hasAttachedFile)
+                                              ? Colors.grey
+                                        : Colors.blue,
+                                          borderRadius: BorderRadius.circular(4),
                                         ),
-                                      )
-                                    else
-                                      const Icon(Icons.attach_file, size: 16, color: Colors.white),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      documentsProvider.isUploading ? 'Uploading...' : 'Select Document',
-                                      style: const TextStyle(fontSize: 14, color: Colors.white),
+                                        constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            if (documentsProvider.isUploading)
+                                              const SizedBox(
+                                                width: 16,
+                                                height: 16,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                ),
+                                              )
+                                            else
+                                        const Icon(Icons.attach_file, size: 16, color: Colors.white),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                        documentsProvider.isUploading 
+                                            ? 'Uploading...' 
+                                            : hasAttachedFile 
+                                                ? 'File Attached' 
+                                                : 'Select Document',
+                                              style: const TextStyle(fontSize: 14, color: Colors.white),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                ),
+                                if (documentsProvider.isUploading)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: LinearProgressIndicator(
+                                      value: documentsProvider.uploadProgress,
+                                      backgroundColor: Colors.grey[300],
+                                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            if (documentsProvider.isUploading)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: LinearProgressIndicator(
-                                  value: documentsProvider.uploadProgress,
-                                  backgroundColor: Colors.grey[300],
-                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                      ),
                     
                     // Selected Document Preview
                     if (selectedFileName != null) ...[
@@ -693,9 +701,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                                   Text(
                                     'File selected',
                                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                                  ),
-                                ],
-                              ),
+                        ),
+                      ],
+                    ),
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
@@ -709,9 +717,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                                   onPressed: () => _removeSelectedFile(),
                                   icon: const Icon(Icons.close, color: Colors.red, size: 20),
                                   tooltip: 'Remove File',
-                                ),
-                              ],
-                            ),
+                      ),
+                  ],
+                ),
                           ],
                         ),
                       ),
@@ -756,11 +764,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                           ),
                         ),
                       ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              
+                
               const SizedBox(height: 15),
               
               // Document List Section
@@ -808,6 +816,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                     ),
                   ],
                 ),
+              ],
               
               const SizedBox(height: 20),
               Row(
@@ -840,7 +849,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                                       print('🔍 Debug: Calling _submitForm()');
                                       _submitForm();
                                     }
-                                  },
+                                },
                         text:
                             bankingProvider.isLoading
                                 ? (widget.isEditMode ? "Updating..." : "Submitting...")
@@ -852,11 +861,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 ],
               ),
             ],
-            ),
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   String _formattedDate() {
@@ -1120,18 +1129,26 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   // Document related methods
   Future<void> _pickFile() async {
     print('🔍 Debug: File picker started');
+    
+    // Clear any existing file selection first
+    setState(() {
+      selectedFile = null;
+      selectedFileName = null;
+      selectedFileBytes = null;
+    });
+    
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif'],
-        allowMultiple: false,
+        allowMultiple: false, // Ensure only one file can be selected
         withData: true,
         withReadStream: false,
         allowCompression: true,
       );
 
       print('🔍 Debug: File picker result: ${result != null ? 'Success' : 'Cancelled'}');
-      
+
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         print('🔍 Debug: Selected file: ${file.name}');
@@ -1205,11 +1222,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
         'attached_at': DateTime.now().toIso8601String(),
       };
 
-      if (mounted) {
+        if (mounted) {
         // Store file name before clearing
         final fileName = selectedFileName ?? 'Document';
         
-        setState(() {
+          setState(() {
           // Add to transaction documents list
           transactionDocuments.add(documentData);
           
@@ -1232,18 +1249,18 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
           }
           
           // Clear selected file
-          selectedFile = null;
-          selectedFileName = null;
-          selectedFileBytes = null;
+            selectedFile = null;
+            selectedFileName = null;
+            selectedFileBytes = null;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
             content: Text('Document attached successfully: $fileName'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
-          ),
-        );
+            ),
+          );
       }
     } catch (e) {
       if (mounted) {
@@ -1393,6 +1410,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       selectedFile = null;
       selectedFileName = null;
       selectedFileBytes = null;
+      // Also clear any attached files to reset the button state
+      attachedFiles.clear();
     });
     
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1532,11 +1551,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (!isAttached) // Only show download for uploaded documents
-                IconButton(
-                  onPressed: () => _downloadDocument(documentRefId, url: url),
-                  icon: const Icon(Icons.download, color: Colors.blue, size: 20),
-                  tooltip: 'Download Document',
-                ),
+              IconButton(
+                onPressed: () => _downloadDocument(documentRefId, url: url),
+                icon: const Icon(Icons.download, color: Colors.blue, size: 20),
+                tooltip: 'Download Document',
+              ),
               IconButton(
                 onPressed: () => _deleteDocument(documentRefId),
                 icon: const Icon(Icons.delete, color: Colors.red, size: 20),
@@ -1575,23 +1594,23 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       );
     } else {
       // For uploaded documents, call the provider to delete from server
-      final documentsProvider = context.read<DocumentsProvider>();
-      final success = await documentsProvider.deleteDocument(documentRefId: documentRefId);
+    final documentsProvider = context.read<DocumentsProvider>();
+    final success = await documentsProvider.deleteDocument(documentRefId: documentRefId);
 
-      if (success) {
-        setState(() {
-          transactionDocuments.removeWhere((doc) => doc['document_ref_id'] == documentRefId);
-          uploadedDocumentIds.remove(documentRefId);
-        });
+    if (success) {
+      setState(() {
+        transactionDocuments.removeWhere((doc) => doc['document_ref_id'] == documentRefId);
+        uploadedDocumentIds.remove(documentRefId);
+      });
 
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document deleted successfully')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
-          ),
-        );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document deleted successfully')));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
+        ),
+      );
       }
     }
   }
