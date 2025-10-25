@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+
 
 class BankingPaymentsProvider extends ChangeNotifier {
   final String baseUrl = "https://abcwebservices.com/api/banking/payments";
@@ -139,16 +142,15 @@ class BankingPaymentsProvider extends ChangeNotifier {
     required String receivedBy,
     required double totalAmount,
     double? paidAmount,
-    String? projectStageRefId,
-    double? stepCost,
-    double? additionalProfit,
-    String? status, // pending, completed
     String? paymentMethod, // bank, cheque, cash
     String? chequeNo,
     String? transactionId,
     String? bankRefId,
-    String? createdAt,
-    String? updatedAt,
+    String? status, // ✅ optional
+    double? stepCost, // ✅ optional
+    double? additionalProfit, // ✅ optional
+    String? projectStageRefId, // ✅ optional
+    dynamic file1, // ✅ for file upload (File or PlatformFile)
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -157,65 +159,149 @@ class BankingPaymentsProvider extends ChangeNotifier {
 
     final url = Uri.parse("$baseUrl/add_banking_payment.php");
 
-    // Create body with required and optional values
-    final Map<String, dynamic> bodyData = {
-      "type": type,
-      "type_ref": typeRef,
-      "client_ref": clientRef,
-      "payment_type": paymentType,
-      "pay_by": payBy,
-      "received_by": receivedBy,
-      "total_amount": totalAmount,
-    };
-
-    if (paidAmount != null) bodyData["paid_amount"] = paidAmount;
-    if (projectStageRefId != null) bodyData["project_stage_ref_id"] = projectStageRefId;
-    if (stepCost != null) bodyData["step_cost"] = stepCost;
-    if (additionalProfit != null) bodyData["additional_profit"] = additionalProfit;
-    if (status != null && status.isNotEmpty) bodyData["status"] = status;
-    if (paymentMethod != null && paymentMethod.isNotEmpty) bodyData["payment_method"] = paymentMethod;
-    if (chequeNo != null && chequeNo.isNotEmpty) bodyData["cheque_no"] = chequeNo;
-    if (transactionId != null && transactionId.isNotEmpty) bodyData["transaction_id"] = transactionId;
-    if (bankRefId != null && bankRefId.isNotEmpty) bodyData["bank_ref_id"] = bankRefId;
-    if (createdAt != null && createdAt.isNotEmpty) bodyData["created_at"] = createdAt;
-    if (updatedAt != null && updatedAt.isNotEmpty) bodyData["updated_at"] = updatedAt;
-
-    final body = json.encode(bodyData);
-
     try {
-      if (kDebugMode) {
-        print('Adding banking payment to: $url');
-        print('Request body: $body');
+      var request = http.MultipartRequest('POST', url);
+
+      // 🔹 Add required fields
+      request.fields['type'] = type;
+      request.fields['type_ref'] = typeRef;
+      request.fields['client_ref'] = clientRef;
+      request.fields['payment_type'] = paymentType;
+      request.fields['pay_by'] = payBy;
+      request.fields['received_by'] = receivedBy;
+      request.fields['total_amount'] = totalAmount.toStringAsFixed(2);
+
+      // 🔹 Optional numeric fields
+      if (paidAmount != null) {
+        request.fields['paid_amount'] = paidAmount.toStringAsFixed(2);
+      }
+      if (stepCost != null) {
+        request.fields['step_cost'] = stepCost.toStringAsFixed(2);
+      }
+      if (additionalProfit != null) {
+        request.fields['additional_profit'] = additionalProfit.toStringAsFixed(2);
       }
 
-      final response = await http.post(
-          url,
-          headers: {"Content-Type": "application/json"},
-          body: body
-      );
-
-      if (kDebugMode) {
-        print('Response status: ${response.statusCode}');
-        print('Response body: ${response.body}');
+      // 🔹 Optional string fields
+      if (paymentMethod != null && paymentMethod.isNotEmpty) {
+        request.fields['payment_method'] = paymentMethod;
+      }
+      if (chequeNo != null && chequeNo.isNotEmpty) {
+        request.fields['cheque_no'] = chequeNo;
+      }
+      if (transactionId != null && transactionId.isNotEmpty) {
+        request.fields['transaction_id'] = transactionId;
+      }
+      if (bankRefId != null && bankRefId.isNotEmpty) {
+        request.fields['bank_ref_id'] = bankRefId;
+      }
+      if (status != null && status.isNotEmpty) {
+        request.fields['status'] = status;
+      }
+      if (projectStageRefId != null && projectStageRefId.isNotEmpty) {
+        request.fields['project_stage_ref_id'] = projectStageRefId;
       }
 
-      final data = json.decode(response.body);
-
-      if (data['status'] == 'success') {
-        successMessage = data['message'] ?? "Banking payment added successfully";
-        if (kDebugMode) {
-          print('Payment Reference ID: ${data['payment_ref_id']}');
-          print('Payment ID: ${data['id']}');
+      // 🔹 Add file (if available)
+      if (file1 != null) {
+        try {
+          if (file1 is PlatformFile) {
+            // Handle PlatformFile (web)
+            if (file1.bytes != null && file1.bytes!.isNotEmpty) {
+              final fileStream = http.MultipartFile.fromBytes(
+                'file1', 
+                file1.bytes!, 
+                filename: file1.name
+              );
+              request.files.add(fileStream);
+              if (kDebugMode) {
+                print("Added PlatformFile: ${file1.name} (${file1.bytes!.length} bytes)");
+              }
+            } else {
+              if (kDebugMode) {
+                print("PlatformFile has no bytes: ${file1.name}");
+              }
+            }
+          } else if (file1 is File) {
+            // Handle File (mobile/desktop)
+            bool fileExists = true;
+            if (kIsWeb) {
+              // On web, assume file exists if it's not null
+              fileExists = true;
+            } else {
+              // On mobile/desktop, check if file actually exists
+              fileExists = await file1.exists();
+            }
+            
+            if (fileExists) {
+              if (kIsWeb) {
+                // On web, read file as bytes
+                try {
+                  final bytes = await file1.readAsBytes();
+                  final fileStream = http.MultipartFile.fromBytes('file1', bytes, filename: file1.path.split('/').last);
+                  request.files.add(fileStream);
+                  if (kDebugMode) {
+                    print("Added File (web): ${file1.path} (${bytes.length} bytes)");
+                  }
+                } catch (e) {
+                  if (kDebugMode) {
+                    print("Error reading file bytes on web: $e");
+                  }
+                }
+              } else {
+                // On mobile/desktop, use fromPath
+                final fileStream = await http.MultipartFile.fromPath('file1', file1.path);
+                request.files.add(fileStream);
+                if (kDebugMode) {
+                  print("Added File (mobile): ${file1.path}");
+                }
+              }
+            } else {
+              if (kDebugMode) {
+                print("File does not exist: ${file1.path}");
+              }
+            }
+          } else {
+            if (kDebugMode) {
+              print("Unknown file type: ${file1.runtimeType}");
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print("Error processing file: $e");
+          }
         }
-        await getAllBankingPayments(); // Refresh list
+      }
+
+      if (kDebugMode) {
+        print("Uploading payment form to: $url");
+        print("Fields: ${request.fields}");
+        print("File attached: ${file1 != null}");
+      }
+
+      // 🔹 Send request
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      if (kDebugMode) {
+        print("Response status: ${response.statusCode}");
+        print("Response body: $responseBody");
+      }
+
+      if (response.statusCode == 200) {
+        final data = json.decode(responseBody);
+        if (data['status'] == 'success') {
+          successMessage = data['message'] ?? "Banking payment added successfully";
+          await getAllBankingPayments(); // refresh list
+        } else {
+          errorMessage = data['message'] ?? "Failed to add banking payment";
+        }
       } else {
-        errorMessage = data['message'] ?? "Failed to add banking payment";
+        errorMessage = "Server error: ${response.statusCode}";
       }
     } catch (e) {
       errorMessage = "Network error: $e";
-      if (kDebugMode) {
-        print('Exception occurred: $e');
-      }
+      if (kDebugMode) print("Exception: $e");
     }
 
     isLoading = false;

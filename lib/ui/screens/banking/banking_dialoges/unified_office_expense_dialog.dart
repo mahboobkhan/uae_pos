@@ -46,9 +46,9 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
   String? selectedFileName;
   Uint8List? selectedFileBytes; // For web compatibility
   bool _isProcessing = false;
-  final TextEditingController documentNameController = TextEditingController();
-  final TextEditingController documentIssueDateController = TextEditingController();
-  final TextEditingController documentExpiryDateController = TextEditingController();
+  
+  // Store attached files for upload
+  List<Map<String, dynamic>> attachedFiles = []; // Store file references for upload
 
   // Expense types
   final List<String> expenseTypes = [
@@ -157,9 +157,6 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
     _noteController.dispose();
     _issueDateController.dispose();
     _serviceTIDController.dispose();
-    documentNameController.dispose();
-    documentIssueDateController.dispose();
-    documentExpiryDateController.dispose();
     super.dispose();
   }
 
@@ -417,118 +414,157 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                                 ),
                                 const SizedBox(height: 10),
-                                Wrap(
-                                  spacing: 10,
-                                  runSpacing: 10,
-                                  children: [
-                                    CustomTextField(
-                                      label: "Document Name",
-                                      controller: documentNameController,
-                                      hintText: "e.g., Receipt Invoice",
-                                    ),
-                                    CustomDateNotificationField(
-                                      label: "Issue Date",
-                                      controller: documentIssueDateController,
-                                      readOnly: true,
-                                      hintText: "yyyy-MM-dd",
-                                      onTap: () => _pickDocumentDate(documentIssueDateController),
-                                    ),
-                                    CustomDateNotificationField(
-                                      label: "Expiry Date",
-                                      controller: documentExpiryDateController,
-                                      readOnly: true,
-                                      hintText: "yyyy-MM-dd",
-                                      onTap: () => _pickDocumentDate(documentExpiryDateController),
-                                    ),
-                                    Consumer<DocumentsProvider>(
-                                      builder: (context, documentsProvider, child) {
-                                        return Column(
-                                          children: [
-                                            Row(
+                                
+                                // Select Document Button
+                                Consumer<DocumentsProvider>(
+                                  builder: (context, documentsProvider, child) {
+                                    return Column(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: (documentsProvider.isUploading || _isProcessing)
+                                              ? null
+                                              : () {
+                                                  print('🔍 Debug: Select Document button tapped');
+                                                  Future.microtask(() {
+                                                    _pickFile();
+                                                  });
+                                                },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: (documentsProvider.isUploading || _isProcessing)
+                                                  ? Colors.grey
+                                                  : Colors.blue,
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                            constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
+                                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                                            child: Row(
                                               mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
-                                                GestureDetector(
-                                                  onTap: (documentsProvider.isUploading || _isProcessing)
-                                                      ? null
-                                                      : () {
-                                                          Future.microtask(() {
-                                                            _handleDocumentAction();
-                                                          });
-                                                        },
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      color: (documentsProvider.isUploading || _isProcessing)
-                                                          ? Colors.grey
-                                                          : _getDocumentButtonColor(),
-                                                      borderRadius: BorderRadius.circular(4),
-                                                    ),
-                                                    constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
-                                                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                                                    child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        if (documentsProvider.isUploading)
-                                                          const SizedBox(
-                                                            width: 16,
-                                                            height: 16,
-                                                            child: CircularProgressIndicator(
-                                                              strokeWidth: 2,
-                                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                                            ),
-                                                          )
-                                                        else
-                                                          Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
-                                                        const SizedBox(width: 6),
-                                                        Text(
-                                                          _getDocumentButtonText(),
-                                                          style: const TextStyle(fontSize: 14, color: Colors.white),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
                                                 if (documentsProvider.isUploading)
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(left: 8.0),
-                                                    child: IconButton(
-                                                      onPressed: () {
-                                                        documentsProvider.resetLoadingState();
-                                                        setState(() {
-                                                          selectedFile = null;
-                                                          selectedFileName = null;
-                                                          selectedFileBytes = null;
-                                                        });
-                                                      },
-                                                      icon: const Icon(Icons.close, color: Colors.red),
-                                                      tooltip: 'Cancel Upload',
+                                                  const SizedBox(
+                                                    width: 16,
+                                                    height: 16,
+                                                    child: CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                                     ),
-                                                  ),
+                                                  )
+                                                else
+                                                  const Icon(Icons.attach_file, size: 16, color: Colors.white),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  documentsProvider.isUploading ? 'Uploading...' : 'Select Document',
+                                                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                ),
                                               ],
                                             ),
-                                            if (documentsProvider.isUploading)
-                                              Padding(
-                                                padding: const EdgeInsets.only(top: 8.0),
-                                                child: LinearProgressIndicator(
-                                                  value: documentsProvider.uploadProgress,
-                                                  backgroundColor: Colors.grey[300],
-                                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                                                ),
-                                              ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ],
+                                          ),
+                                        ),
+                                        if (documentsProvider.isUploading)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 8.0),
+                                            child: LinearProgressIndicator(
+                                              value: documentsProvider.uploadProgress,
+                                              backgroundColor: Colors.grey[300],
+                                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
-                                if (selectedFileName != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: Text(
-                                      'Selected: $selectedFileName',
-                                      style: const TextStyle(fontSize: 12, color: Colors.green),
+                                
+                                // Selected Document Preview
+                                if (selectedFileName != null) ...[
+                                  const SizedBox(height: 15),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade50,
+                                      border: Border.all(color: Colors.grey.shade300),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.description, color: Colors.blue, size: 20),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                selectedFileName!,
+                                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                              ),
+                                              Text(
+                                                'File selected',
+                                                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              onPressed: () => _previewDocument(),
+                                              icon: const Icon(Icons.visibility, color: Colors.blue, size: 20),
+                                              tooltip: 'Preview Document',
+                                            ),
+                                            IconButton(
+                                              onPressed: () => _removeSelectedFile(),
+                                              icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                                              tooltip: 'Remove File',
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
+                                ],
+                                
+                                // Attach Button (only show when file is selected)
+                                if (selectedFileName != null) ...[
+                                  const SizedBox(height: 15),
+                                  GestureDetector(
+                                    onTap: _isProcessing ? null : () {
+                                      print('🔍 Debug: Attach button tapped');
+                                      _attachDocument();
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: _isProcessing ? Colors.grey : Colors.green,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      constraints: const BoxConstraints(minWidth: 120, minHeight: 38),
+                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          if (_isProcessing)
+                                            const SizedBox(
+                                              width: 16,
+                                              height: 16,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                              ),
+                                            )
+                                          else
+                                            const Icon(Icons.attach_file, size: 16, color: Colors.white),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            _isProcessing ? 'Attaching...' : 'Attach',
+                                            style: const TextStyle(fontSize: 14, color: Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -779,9 +815,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       selectedFileBytes = null;
       uploadedDocumentIds.clear();
       expenseDocuments.clear();
-      documentNameController.clear();
-      documentIssueDateController.clear();
-      documentExpiryDateController.clear();
+      attachedFiles.clear();
     });
 
     // Reset provider state when clearing form
@@ -867,6 +901,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
 
   // Document related methods
   Future<void> _pickFile() async {
+    print('🔍 Debug: File picker started');
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -877,18 +912,28 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
         allowCompression: true,
       );
 
+      print('🔍 Debug: File picker result: ${result != null ? 'Success' : 'Cancelled'}');
+
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
+        print('🔍 Debug: Selected file: ${file.name}');
+        print('🔍 Debug: File path: ${file.path}');
+        print('🔍 Debug: File size: ${file.size}');
+        print('🔍 Debug: File bytes: ${file.bytes?.length ?? 'null'}');
 
         setState(() {
           if (kIsWeb) {
             selectedFile = file;
             selectedFileBytes = file.bytes;
             selectedFileName = file.name;
+            print('🔍 Debug: Web mode - file stored as PlatformFile');
           } else {
             if (file.path != null && file.path!.isNotEmpty) {
               selectedFile = File(file.path!);
               selectedFileName = file.name;
+              print('🔍 Debug: Mobile mode - file stored as File: ${file.path}');
+            } else {
+              print('🔍 Debug: Mobile mode - file path is null or empty');
             }
           }
         });
@@ -900,16 +945,18 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
             duration: const Duration(seconds: 2),
           ),
         );
+      } else {
+        print('🔍 Debug: No file selected or result is empty');
       }
     } catch (e) {
-      print('File picker error: $e');
+      print('🔍 Debug: File picker error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: Colors.red),
       );
     }
   }
 
-  Future<void> _uploadDocument() async {
+  Future<void> _attachDocument() async {
     if (_isProcessing) return;
 
     if (selectedFile == null) {
@@ -917,82 +964,75 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       return;
     }
 
-    if (documentNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter document name')));
-      return;
-    }
-
     setState(() {
       _isProcessing = true;
     });
 
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    final documentsProvider = context.read<DocumentsProvider>();
-    String? documentRefId;
+    await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      if (kIsWeb) {
-        if (selectedFileBytes != null) {
-          documentRefId = await documentsProvider.addDocumentWeb(
-            name: documentNameController.text.trim(),
-            issueDate: documentIssueDateController.text.trim().isNotEmpty
-                ? documentIssueDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            expireDate: documentExpiryDateController.text.trim().isNotEmpty
-                ? documentExpiryDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
-            fileBytes: selectedFileBytes!,
-            fileName: selectedFileName ?? 'document',
-          );
-        }
-      } else {
-        if (selectedFile is File) {
-          documentRefId = await documentsProvider.addDocument(
-            name: documentNameController.text.trim(),
-            issueDate: documentIssueDateController.text.trim().isNotEmpty
-                ? documentIssueDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            expireDate: documentExpiryDateController.text.trim().isNotEmpty
-                ? documentExpiryDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
-            file: selectedFile as File,
-          );
-        }
-      }
+      // Create a mock document ID for attachment (not uploaded to server)
+      final mockDocumentId = 'attached_${DateTime.now().millisecondsSinceEpoch}';
+      
+      // Create document data for local storage
+      final documentData = {
+        'document_ref_id': mockDocumentId,
+        'name': selectedFileName ?? 'Document',
+        'issue_date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        'expire_date': DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
+        'file_name': selectedFileName,
+        'file_size': _getFileSize(),
+        'file_type': _getFileTypeDescription(),
+        'is_attached': true, // Mark as attached but not uploaded
+        'attached_at': DateTime.now().toIso8601String(),
+      };
 
-      if (documentRefId != null) {
-        if (mounted) {
-          setState(() {
-            uploadedDocumentIds.add(documentRefId!);
-            selectedFile = null;
-            selectedFileName = null;
-            selectedFileBytes = null;
-            documentNameController.clear();
-            documentIssueDateController.clear();
-            documentExpiryDateController.clear();
-          });
+      if (mounted) {
+        // Store file name before clearing
+        final fileName = selectedFileName ?? 'Document';
+        
+        setState(() {
+          // Add to expense documents list
+          expenseDocuments.add(documentData);
+          
+          // Store file reference for upload
+          if (selectedFile != null) {
+            print('🔍 Debug: Storing file for upload');
+            print('🔍 Debug: File type: ${selectedFile.runtimeType}');
+            print('🔍 Debug: File name: $selectedFileName');
+            
+            attachedFiles.add({
+              'document_ref_id': mockDocumentId,
+              'file': selectedFile,
+              'file_name': selectedFileName,
+              'file_bytes': selectedFileBytes,
+            });
+            
+            print('🔍 Debug: Total attached files: ${attachedFiles.length}');
+          } else {
+            print('🔍 Debug: No file to store (selectedFile is null)');
+          }
+          
+          // Clear selected file
+          selectedFile = null;
+          selectedFileName = null;
+          selectedFileBytes = null;
+        });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Document uploaded successfully: $documentRefId'), backgroundColor: Colors.green),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.red,
-              content: Text(documentsProvider.errorMessage ?? 'Failed to upload document'),
-            ),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Document attached successfully: $fileName'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.red,
-            content: Text('Upload failed: ${e.toString()}'),
+            content: Text('Failed to attach document: ${e.toString()}'),
           ),
         );
       }
@@ -1005,59 +1045,221 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
     }
   }
 
-  void _handleDocumentAction() {
+  void _previewDocument() {
     if (selectedFile == null) {
-      _pickFile();
-    } else if (documentNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter document name')));
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _uploadDocument();
-      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No document selected')));
+      return;
     }
-  }
 
-  Color _getDocumentButtonColor() {
-    if (selectedFile == null) {
-      return Colors.blue; // Select Document
-    } else if (documentNameController.text.trim().isEmpty) {
-      return Colors.orange; // Enter name
-    } else {
-      return Colors.green; // Upload
-    }
-  }
-
-  IconData _getDocumentButtonIcon() {
-    if (selectedFile == null) {
-      return Icons.attach_file; // Select Document
-    } else if (documentNameController.text.trim().isEmpty) {
-      return Icons.edit; // Enter name
-    } else {
-      return Icons.upload; // Upload
-    }
-  }
-
-  String _getDocumentButtonText() {
-    if (selectedFile == null) {
-      return 'Select Document';
-    } else if (documentNameController.text.trim().isEmpty) {
-      return 'Enter Name';
-    } else {
-      return 'Upload';
-    }
-  }
-
-  void _pickDocumentDate(TextEditingController controller) {
-    showDatePicker(
+    // Show document preview dialog
+    showDialog(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2030),
-    ).then((date) {
-      if (date != null) {
-        controller.text = DateFormat('yyyy-MM-dd').format(date);
-      }
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        insetPadding: const EdgeInsets.all(20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 500),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Document Preview',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.red),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.description, color: Colors.blue, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  selectedFileName ?? 'Unknown File',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                Text(
+                                  'File Size: ${_getFileSize()}',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _getFileIcon(),
+                                size: 48,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _getFileTypeDescription(),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Preview not available for this file type',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Close', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _removeSelectedFile() {
+    setState(() {
+      selectedFile = null;
+      selectedFileName = null;
+      selectedFileBytes = null;
     });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('File removed'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  String _getFileSize() {
+    if (selectedFile == null) return 'Unknown';
+    
+    if (kIsWeb && selectedFileBytes != null) {
+      final bytes = selectedFileBytes!.length;
+      if (bytes < 1024) return '$bytes B';
+      if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    } else if (selectedFile is File) {
+      final file = selectedFile as File;
+      try {
+        final bytes = file.lengthSync();
+        if (bytes < 1024) return '$bytes B';
+        if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+        return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+      } catch (e) {
+        return 'Unknown';
+      }
+    }
+    return 'Unknown';
+  }
+
+  IconData _getFileIcon() {
+    if (selectedFileName == null) return Icons.description;
+    
+    final extension = selectedFileName!.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'txt':
+        return Icons.text_snippet;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+      case 'tiff':
+      case 'tif':
+        return Icons.image;
+      default:
+        return Icons.description;
+    }
+  }
+
+  String _getFileTypeDescription() {
+    if (selectedFileName == null) return 'Unknown File Type';
+    
+    final extension = selectedFileName!.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return 'PDF Document';
+      case 'doc':
+      case 'docx':
+        return 'Word Document';
+      case 'txt':
+        return 'Text File';
+      case 'jpg':
+      case 'jpeg':
+        return 'JPEG Image';
+      case 'png':
+        return 'PNG Image';
+      case 'gif':
+        return 'GIF Image';
+      case 'bmp':
+        return 'Bitmap Image';
+      case 'tiff':
+      case 'tif':
+        return 'TIFF Image';
+      default:
+        return 'Document File';
+    }
   }
 
   Widget _buildDocumentItem({
@@ -1068,24 +1270,38 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
     required bool isExisting,
     String? url,
   }) {
+    // Check if this is an attached document (not uploaded)
+    final isAttached = documentRefId.startsWith('attached_');
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        border: Border.all(color: Colors.grey.shade300),
+        color: isAttached ? Colors.orange.shade50 : Colors.grey.shade50,
+        border: Border.all(
+          color: isAttached ? Colors.orange.shade300 : Colors.grey.shade300,
+        ),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         children: [
-          Icon(Icons.description, color: isExisting ? Colors.blue : Colors.green, size: 20),
+          Icon(
+            isAttached ? Icons.attach_file : Icons.description, 
+            color: isAttached ? Colors.orange : Colors.blue, 
+            size: 20,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                if (issueDate.isNotEmpty || expiryDate.isNotEmpty)
+                if (isAttached)
+                  Text(
+                    'Attached (Not Uploaded)',
+                    style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
+                  )
+                else if (issueDate.isNotEmpty || expiryDate.isNotEmpty)
                   Text(
                     'Issue: $issueDate | Expiry: $expiryDate',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
@@ -1097,15 +1313,16 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                onPressed: () => _downloadDocument(documentRefId, url: url),
-                icon: const Icon(Icons.download, color: Colors.blue, size: 20),
-                tooltip: 'Download Document',
-              ),
+              if (!isAttached) // Only show download for uploaded documents
+                IconButton(
+                  onPressed: () => _downloadDocument(documentRefId, url: url),
+                  icon: const Icon(Icons.download, color: Colors.blue, size: 20),
+                  tooltip: 'Download Document',
+                ),
               IconButton(
                 onPressed: () => _deleteDocument(documentRefId),
                 icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                tooltip: 'Delete Document',
+                tooltip: 'Remove Document',
               ),
             ],
           ),
@@ -1125,23 +1342,39 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
   }
 
   Future<void> _deleteDocument(String documentRefId) async {
-    final documentsProvider = context.read<DocumentsProvider>();
-    final success = await documentsProvider.deleteDocument(documentRefId: documentRefId);
-
-    if (success) {
+    // Check if this is an attached document (not uploaded)
+    final isAttached = documentRefId.startsWith('attached_');
+    
+    if (isAttached) {
+      // For attached documents, just remove from local list
       setState(() {
         expenseDocuments.removeWhere((doc) => doc['document_ref_id'] == documentRefId);
-        uploadedDocumentIds.remove(documentRefId);
+        attachedFiles.removeWhere((file) => file['document_ref_id'] == documentRefId);
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document deleted successfully')));
-    } else {
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
-        ),
+        const SnackBar(content: Text('Attached document removed')),
       );
+    } else {
+      // For uploaded documents, call the provider to delete from server
+      final documentsProvider = context.read<DocumentsProvider>();
+      final success = await documentsProvider.deleteDocument(documentRefId: documentRefId);
+
+      if (success) {
+        setState(() {
+          expenseDocuments.removeWhere((doc) => doc['document_ref_id'] == documentRefId);
+          uploadedDocumentIds.remove(documentRefId);
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document deleted successfully')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
+          ),
+        );
+      }
     }
   }
 }
