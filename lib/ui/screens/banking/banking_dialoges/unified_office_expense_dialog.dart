@@ -399,8 +399,9 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                           
                           const SizedBox(height: 15),
                           
-                          // Document Upload Section
-                          Container(
+                          // Document Upload Section (only show when payment type is Bank)
+                          if (selectedPaymentType == 'Bank') ...[
+                            Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade300),
@@ -415,25 +416,28 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                 ),
                                 const SizedBox(height: 10),
                                 
-                                // Select Document Button
-                                Consumer<DocumentsProvider>(
-                                  builder: (context, documentsProvider, child) {
-                                    return Column(
-                                      children: [
-                                        GestureDetector(
-                                          onTap: (documentsProvider.isUploading || _isProcessing)
-                                              ? null
-                                              : () {
-                                                  print('🔍 Debug: Select Document button tapped');
-                                                  Future.microtask(() {
-                                                    _pickFile();
-                                                  });
-                                                },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: (documentsProvider.isUploading || _isProcessing)
-                                                  ? Colors.grey
-                                                  : Colors.blue,
+                                 // Select Document Button
+                                 Consumer<DocumentsProvider>(
+                                   builder: (context, documentsProvider, child) {
+                                     // Check if a file is already attached
+                                     final hasAttachedFile = expenseDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty;
+                                     
+                                     return Column(
+                                       children: [
+                                         GestureDetector(
+                                           onTap: (documentsProvider.isUploading || _isProcessing || hasAttachedFile)
+                                               ? null
+                                               : () {
+                                                   print('🔍 Debug: Select Document button tapped');
+                                                   Future.microtask(() {
+                                                     _pickFile();
+                                                   });
+                                                 },
+                                           child: Container(
+                                             decoration: BoxDecoration(
+                                               color: (documentsProvider.isUploading || _isProcessing || hasAttachedFile)
+                                                   ? Colors.grey
+                                                   : Colors.blue,
                                               borderRadius: BorderRadius.circular(4),
                                             ),
                                             constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
@@ -454,10 +458,14 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                                 else
                                                   const Icon(Icons.attach_file, size: 16, color: Colors.white),
                                                 const SizedBox(width: 6),
-                                                Text(
-                                                  documentsProvider.isUploading ? 'Uploading...' : 'Select Document',
-                                                  style: const TextStyle(fontSize: 14, color: Colors.white),
-                                                ),
+                                                 Text(
+                                                   documentsProvider.isUploading 
+                                                       ? 'Uploading...' 
+                                                       : hasAttachedFile 
+                                                           ? 'File Attached' 
+                                                           : 'Select Document',
+                                                   style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                 ),
                                               ],
                                             ),
                                           ),
@@ -565,11 +573,12 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                     ),
                                   ),
                                 ],
-                              ],
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 15),
+                               ],
+                             ),
+                           ),
+                          ],
+                           
+                           const SizedBox(height: 15),
                           
                           // Document List Section
                           if (expenseDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty)
@@ -902,11 +911,19 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
   // Document related methods
   Future<void> _pickFile() async {
     print('🔍 Debug: File picker started');
+    
+    // Clear any existing file selection first
+    setState(() {
+      selectedFile = null;
+      selectedFileName = null;
+      selectedFileBytes = null;
+    });
+    
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif'],
-        allowMultiple: false,
+        allowMultiple: false, // Ensure only one file can be selected
         withData: true,
         withReadStream: false,
         allowCompression: true,
@@ -1175,6 +1192,8 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       selectedFile = null;
       selectedFileName = null;
       selectedFileBytes = null;
+      // Also clear any attached files to reset the button state
+      attachedFiles.clear();
     });
     
     ScaffoldMessenger.of(context).showSnackBar(
