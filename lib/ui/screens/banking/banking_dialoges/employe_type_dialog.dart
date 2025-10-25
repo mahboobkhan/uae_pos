@@ -349,7 +349,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                             const SizedBox(height: 20),
                             
                             // Document Upload Section (only show when payment method is Bank)
-                            if (selectedPaymentMethod == 'Bank') ...[
+                            if (selectedPaymentMethod == 'Bank'|| selectedPaymentMethod == 'Cheque') ...[
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(

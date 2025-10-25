@@ -592,7 +592,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
               const SizedBox(height: 15),
               
               // Document Upload Section (only show when payment method is Bank)
-              if (selectedPaymentMethod == 'Bank') ...[
+              if (selectedPaymentMethod == 'Bank'|| selectedPaymentType == 'Cheque') ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(

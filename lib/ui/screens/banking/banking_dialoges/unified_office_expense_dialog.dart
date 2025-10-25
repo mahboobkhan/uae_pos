@@ -361,6 +361,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                 onChanged:
                                     (val) => setState(() {
                                       selectedPaymentType = val=='Select Payment Type'?null:val;
+                                      print('🔍 Debug: Payment type selected: $val, processed: $selectedPaymentType');
 
                                       if (val != 'Bank') {
                                         selectedBank = null;
@@ -370,6 +371,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                               ),
                               // Bank and Service TID (only show when payment type is Bank)
                               if (selectedPaymentType == 'Bank') ...[
+
                                 CustomDropdownField(
                                   label: "Select Bank",
                                   selectedValue: selectedBank,
@@ -399,8 +401,15 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                           
                           const SizedBox(height: 15),
                           
-                          // Document Upload Section (only show when payment type is Bank)
-                          if (selectedPaymentType == 'Bank') ...[
+                          // Document Upload Section (only show when payment type is Cash or Bank)
+                          Builder(
+                            builder: (context) {
+                              print('🔍 Debug: selectedPaymentType = $selectedPaymentType');
+                              print('🔍 Debug: Should show document upload: ${selectedPaymentType == 'Cash' || selectedPaymentType == 'Bank'}');
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          if (selectedPaymentType == 'Cheque' || selectedPaymentType == 'Bank') ...[
                             Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
