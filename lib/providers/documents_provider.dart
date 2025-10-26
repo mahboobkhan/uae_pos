@@ -393,26 +393,48 @@ class DocumentsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Get documents by document reference IDs
-  Future<List<Map<String, dynamic>>?> getDocumentsByIds({required List<String> documentRefIds}) async {
+  // Get all document IDs (for getting a list of available documents)
+  Future<void> getDocuments({
+    List<String>? documentRefIds,
+    String? type,
+    String? typeRefId,
+    String? issueDate,
+    String? expireDate,
+    String? dateFrom,
+    String? dateTo,
+  }) async {
     isLoading = true;
     errorMessage = null;
     successMessage = null;
     notifyListeners();
 
     final url = Uri.parse("$baseUrl/get_documents.php");
-    final body = json.encode({"document_ref_ids": documentRefIds});
+
+    // 🔹 Prepare request body based on provided filters
+    final Map<String, dynamic> body = {};
+
+    // ✅ Only include document_ref_ids if provided and not empty
+    if (documentRefIds != null && documentRefIds.isNotEmpty) {
+      body["document_ref_ids"] = documentRefIds;
+    }
+
+    if (type != null && type.isNotEmpty) body["type"] = type;
+    if (typeRefId != null && typeRefId.isNotEmpty) body["type_ref_id"] = typeRefId;
+    if (issueDate != null && issueDate.isNotEmpty) body["issue_date"] = issueDate;
+    if (expireDate != null && expireDate.isNotEmpty) body["expire_date"] = expireDate;
+    if (dateFrom != null && dateFrom.isNotEmpty) body["date_from"] = dateFrom;
+    if (dateTo != null && dateTo.isNotEmpty) body["date_to"] = dateTo;
 
     try {
       if (kDebugMode) {
         print('Fetching documents by IDs from: $url');
-        print('Document IDs: $documentRefIds');
+        print('Request body: $body');
       }
 
       final response = await http.post(
-        url, 
-        headers: {"Content-Type": "application/json"}, 
-        body: body
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(body),
       );
 
       if (kDebugMode) {
@@ -424,12 +446,14 @@ class DocumentsProvider extends ChangeNotifier {
         final data = json.decode(response.body);
         if (data['status'] == 'success') {
           if (data['documents'] != null && data['documents'] is List) {
-            final fetchedDocuments = List<Map<String, dynamic>>.from(data['documents']);
+            print("document if case");
+            documents = List<Map<String, dynamic>>.from(data['documents']);
             successMessage = "Documents fetched successfully";
             isLoading = false;
             notifyListeners();
-            return fetchedDocuments;
+
           } else {
+            print("document else case");
             errorMessage = "No documents found";
           }
         } else {
@@ -446,6 +470,87 @@ class DocumentsProvider extends ChangeNotifier {
     notifyListeners();
     return null;
   }
+
+  // Get documents by document reference IDs
+  Future<List<Map<String, dynamic>>?> getDocumentsByIds({
+    List<String>? documentRefIds,
+    String? type,
+    String? typeRefId,
+    String? issueDate,
+    String? expireDate,
+    String? dateFrom,
+    String? dateTo,
+  }) async {
+    isLoading = true;
+    errorMessage = null;
+    successMessage = null;
+    notifyListeners();
+
+    final url = Uri.parse("$baseUrl/get_documents.php");
+
+    // 🔹 Prepare request body based on provided filters
+    final Map<String, dynamic> body = {};
+
+    // ✅ Only include document_ref_ids if provided and not empty
+    if (documentRefIds != null && documentRefIds.isNotEmpty) {
+      body["document_ref_ids"] = documentRefIds;
+    }
+
+    if (type != null && type.isNotEmpty) body["type"] = type;
+    if (typeRefId != null && typeRefId.isNotEmpty) body["type_ref_id"] = typeRefId;
+    if (issueDate != null && issueDate.isNotEmpty) body["issue_date"] = issueDate;
+    if (expireDate != null && expireDate.isNotEmpty) body["expire_date"] = expireDate;
+    if (dateFrom != null && dateFrom.isNotEmpty) body["date_from"] = dateFrom;
+    if (dateTo != null && dateTo.isNotEmpty) body["date_to"] = dateTo;
+
+    try {
+      if (kDebugMode) {
+        print('Fetching documents by IDs from: $url');
+        print('Request body: $body');
+      }
+
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(body),
+      );
+
+      if (kDebugMode) {
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          if (data['documents'] != null && data['documents'] is List) {
+            print("document if case");
+            final fetchedDocuments = List<Map<String, dynamic>>.from(data['documents']);
+            successMessage = "Documents fetched successfully";
+            isLoading = false;
+            notifyListeners();
+
+            return fetchedDocuments;
+          } else {
+            print("document else case");
+            errorMessage = "No documents found";
+          }
+        } else {
+          errorMessage = data['message'] ?? "Failed to fetch documents";
+        }
+      } else {
+        errorMessage = "Error: ${response.statusCode} - ${response.reasonPhrase}";
+      }
+    } catch (e) {
+      errorMessage = "Network error: $e";
+    }
+
+    isLoading = false;
+    notifyListeners();
+    return null;
+  }
+
+
 
   void clearMessages() {
     errorMessage = null;

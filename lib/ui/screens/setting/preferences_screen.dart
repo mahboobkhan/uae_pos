@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
+import '../../../providers/documents_provider.dart';
 
 class PreferencesScreen extends StatefulWidget {
 
@@ -18,6 +20,15 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   final ScrollController _horizontalController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    // Fetch documents when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchDocuments();
+    });
+  }
+
+  @override
   void dispose() {
     _verticalController.dispose();
     _horizontalController.dispose();
@@ -26,6 +37,51 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     _editExpiryDateController.dispose();
     super.dispose();
   }
+
+  // Fetch documents using getDocumentsByIds
+  Future<void> _fetchDocuments() async {
+    final documentsProvider = Provider.of<DocumentsProvider>(context, listen: false);
+
+
+    try {
+      // First, try to get all available document IDs
+      print('Fetching all available document IDs...');
+
+
+        await documentsProvider.getDocuments();
+
+    } catch (e) {
+      print('Error fetching documents: $e');
+      // Show error message to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching documents: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // Alternative method to fetch documents using getClientDocuments
+  Future<void> _fetchDocumentsByClient() async {
+    final documentsProvider = Provider.of<DocumentsProvider>(context, listen: false);
+    
+    try {
+      // Try with a sample client ID - you can replace this with actual client ID
+      String clientId = "sample_client_001";
+      print('Fetching documents for client: $clientId');
+      await documentsProvider.getClientDocuments(clientRefId: clientId);
+    } catch (e) {
+      print('Error fetching documents by client: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching documents: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   List<Map<String, dynamic>> currentTags = [
     {'tag': 'Tag1', 'color': Colors.green.shade100},
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
@@ -104,8 +160,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     });
   }
 
-  void  _showEditDialog(String fileName, String issueDate, String expiryDate) {
-    print('Edit dialog called with: $fileName, $issueDate, $expiryDate');
+  void _showEditDialog(String fileId, String fileName, String issueDate, String expiryDate) {
+    print('Edit dialog called with: ID: $fileId, Name: $fileName, Issue: $issueDate, Expiry: $expiryDate');
     
     // Pre-populate the controllers with current values
     _editFileNameController.text = fileName;
@@ -116,61 +172,207 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit File Details'),
+          title: Row(
+            children: [
+              const Icon(Icons.edit, color: Colors.blue),
+              const SizedBox(width: 8),
+              const Text('Edit Document Details'),
+            ],
+          ),
           content: SizedBox(
-            width: 400,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _editFileNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'File Name',
-                    border: OutlineInputBorder(),
+            width: 500,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Document Information Header
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Document Information',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.fingerprint, size: 16, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Text(
+                              'File ID: $fileId',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.description, size: 16, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'File Name: $fileName',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _editIssueDateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Issue Date',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.calendar_today),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // Editable Fields
+                  const Text(
+                    'Edit Details',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
-                  readOnly: true,
-                  onTap: () => _pickEditDateTime(true),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _editExpiryDateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Expiry Date',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.calendar_today),
+                  const SizedBox(height: 12),
+                  
+                  TextField(
+                    controller: _editFileNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'File Name',
+                      hintText: 'Enter file name',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description),
+                    ),
                   ),
-                  readOnly: true,
-                  onTap: () => _pickEditDateTime(false),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  
+                  TextField(
+                    controller: _editIssueDateController,
+                    decoration: const InputDecoration(
+                      labelText: 'Issue Date',
+                      hintText: 'Select issue date',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.calendar_today),
+                      suffixIcon: Icon(Icons.edit_calendar),
+                    ),
+                    readOnly: true,
+                    onTap: () => _pickEditDateTime(true),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  TextField(
+                    controller: _editExpiryDateController,
+                    decoration: const InputDecoration(
+                      labelText: 'Expiry Date',
+                      hintText: 'Select expiry date',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.event),
+                      suffixIcon: Icon(Icons.edit_calendar),
+                    ),
+                    readOnly: true,
+                    onTap: () => _pickEditDateTime(false),
+                  ),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // Document Status Info
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Document Status',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.access_time, size: 16, color: Colors.orange),
+                            const SizedBox(width: 8),
+                            Text('Issue Date: $issueDate'),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.schedule, size: 16, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Text('Expiry Date: $expiryDate'),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.info, size: 16, color: Colors.blue),
+                            const SizedBox(width: 8),
+                            Text('Source Form: N/A'),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
-            TextButton(
+            TextButton.icon(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              icon: const Icon(Icons.cancel),
+              label: const Text('Cancel'),
             ),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
                 // Here you can save the edited values
                 // For now, just close the dialog
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('File details updated successfully')),
+                  SnackBar(
+                    content: Text('Document "$fileName" updated successfully'),
+                    backgroundColor: Colors.green,
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      textColor: Colors.white,
+                      onPressed: () {
+                        // Add undo functionality if needed
+                      },
+                    ),
+                  ),
                 );
               },
-              child: const Text('Save'),
+              icon: const Icon(Icons.save),
+              label: const Text('Save Changes'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
             ),
           ],
         );
@@ -182,16 +384,28 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print('FAB pressed - testing dialog');
-          _showEditDialog(
-            "Test File", 
-            "01-01-2025", 
-            "31-12-2025"
-          );
-        },
-        child: const Icon(Icons.edit),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              _fetchDocumentsByClient();
+            },
+            heroTag: "client_docs",
+            mini: true,
+            child: const Icon(Icons.person),
+            tooltip: 'Fetch by Client',
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton(
+            onPressed: () {
+              _fetchDocuments();
+            },
+            heroTag: "refresh_docs",
+            child: const Icon(Icons.refresh),
+            tooltip: 'Refresh Documents',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 20),
@@ -334,96 +548,150 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Container(
-                height: 300,
-                child: ScrollbarTheme(
-                  data: ScrollbarThemeData(
-                    thumbVisibility: MaterialStateProperty.all(true),
-                    thumbColor: MaterialStateProperty.all(Colors.grey),
-                    thickness: MaterialStateProperty.all(8),
-                    radius: const Radius.circular(4),
-                  ),
-                  child: Scrollbar(
-                    controller: _verticalController,
-                    thumbVisibility: true,
-                    child: Scrollbar(
-                      controller: _horizontalController,
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        controller: _horizontalController,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(minWidth: 1150),
+            Consumer<DocumentsProvider>(
+              builder: (context, documentsProvider, child) {
+                if (documentsProvider.isLoading) {
+                  return const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (documentsProvider.errorMessage != null) {
+                  return Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Error: ${documentsProvider.errorMessage}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: _fetchDocuments,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final documents = documentsProvider.documents;
+                if (documents.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Center(
+                      child: Text('No documents found'),
+                    ),
+                  );
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Container(
+                    height: 300,
+                    child: ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbVisibility: MaterialStateProperty.all(true),
+                        thumbColor: MaterialStateProperty.all(Colors.grey),
+                        thickness: MaterialStateProperty.all(8),
+                        radius: const Radius.circular(4),
+                      ),
+                      child: Scrollbar(
+                        controller: _verticalController,
+                        thumbVisibility: true,
+                        child: Scrollbar(
+                          controller: _horizontalController,
+                          thumbVisibility: true,
                           child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            controller: _verticalController,
-                            child: Table(
-                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                              columnWidths: const {
-                                0: FlexColumnWidth(0.8),
-                                1: FlexColumnWidth(1.5),
-                                2: FlexColumnWidth(1),
-                                3: FlexColumnWidth(1),
-                                4: FlexColumnWidth(1.3),
-                                5: FlexColumnWidth(1),
-                                6: FlexColumnWidth(1),
-                              },
-                              children: [
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.shade50,
-                                  ),
+                            scrollDirection: Axis.horizontal,
+                            controller: _horizontalController,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 1150),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                controller: _verticalController,
+                                child: Table(
+                                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(0.8),
+                                    1: FlexColumnWidth(1.5),
+                                    2: FlexColumnWidth(1),
+                                    3: FlexColumnWidth(1),
+                                    4: FlexColumnWidth(1.3),
+                                    5: FlexColumnWidth(1),
+                                    6: FlexColumnWidth(1),
+                                  },
                                   children: [
-                                    _buildHeader("File Id"),
-                                    _buildHeader("File Name"),
-                                    _buildHeader("Issue Date"),
-                                    _buildHeader("Expiry Date"),
-                                    _buildHeader("Source Form"),
-                                    _buildHeader("Download Price"),
-                                    _buildHeader("Action"),
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade50,
+                                      ),
+                                      children: [
+                                        _buildHeader("File Id"),
+                                        _buildHeader("File Name"),
+                                        _buildHeader("Issue Date"),
+                                        _buildHeader("Expiry Date"),
+                                        _buildHeader("Source Form"),
+                                        _buildHeader("Download Price"),
+                                        _buildHeader("Action"),
+                                      ],
+                                    ),
+                                    for (int i = 0; i < documents.length; i++)
+                                      TableRow(
+                                        decoration: BoxDecoration(
+                                          color: i.isEven
+                                              ? Colors.grey.shade200
+                                              : Colors.grey.shade100,
+                                        ),
+                                        children: [
+                                          _buildCell(documents[i]['document_ref_id'] ?? 'N/A', copyable: true),
+                                          _buildCell(documents[i]['name'] ?? 'N/A', copyable: true),
+                                          _buildCell(documents[i]['issue_date'] ?? 'N/A'),
+                                          _buildCell(documents[i]['expire_date'] ?? 'N/A'),
+                                          _buildCell(documents[i]['source_form'] ?? 'N/A'),
+                                          _buildCell("Click Download"),
+                                          _buildActionCell(
+                                            onEdit: () {
+                                              _showEditDialog(
+                                                documents[i]['document_ref_id'] ?? 'N/A',
+                                                documents[i]['name'] ?? 'N/A',
+                                                documents[i]['issue_date'] ?? 'N/A',
+                                                documents[i]['expire_date'] ?? 'N/A',
+                                              );
+                                            },
+                                            onDelete: () async {
+                                              final documentsProvider = Provider.of<DocumentsProvider>(context, listen: false);
+                                              final success = await documentsProvider.deleteDocument(
+                                                documentRefId: documents[i]['document_ref_id'] ?? '',
+                                              );
+                                              if (success) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(content: Text('Document deleted successfully')),
+                                                );
+                                                _fetchDocuments();
+                                              } else {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text(documentsProvider.errorMessage ?? 'Failed to delete document')),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                   ],
                                 ),
-                                for (int i = 0; i < 20; i++)
-                                  TableRow(
-                                    decoration: BoxDecoration(
-                                      color: i.isEven
-                                          ? Colors.grey.shade200
-                                          : Colors.grey.shade100,
-                                    ),
-                                    children: [
-                                      _buildCell("xxxxxxxx", copyable: true),
-                                      _buildCell("xxxxxxxxxx", copyable: true),
-                                      _buildCell("12-2-2025"),
-                                      _buildCell("12-2-2025"),
-                                      _buildCell("N/A"),
-                                      _buildCell("Click Download"),
-                                      _buildActionCell(
-                                        onEdit: () {
-                                          print('Edit button pressed');
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Edit button clicked!')),
-                                          );
-                                          _showEditDialog(
-                                            "xxxxxxxxxx", // File name
-                                            "12-2-2025",  // Issue date
-                                            "12-2-2025",  // Expiry date
-                                          );
-                                        },
-                                        onDelete: () {},
-                                      ),
-                                    ],
-                                  ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             )
 
           ],
@@ -503,12 +771,23 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               ),
             ),
           ),
-
+          const SizedBox(width: 8),
+          // 🗑️ Delete Button with Tooltip
+          Tooltip(
+            message: 'Delete',
+            waitDuration: const Duration(milliseconds: 300),
+            child: GestureDetector(
+              onTap: onDelete ?? () {},
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: const Icon(Icons.delete, size: 20, color: Colors.red),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
-
 }
 
 

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
@@ -46,9 +45,9 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   String? selectedFileName;
   Uint8List? selectedFileBytes; // For web compatibility
   bool _isProcessing = false;
-  final TextEditingController documentNameController = TextEditingController();
-  final TextEditingController documentIssueDateController = TextEditingController();
-  final TextEditingController documentExpiryDateController = TextEditingController();
+  
+  // Store attached files for upload
+  List<Map<String, dynamic>> attachedFiles = []; // Store file references for upload
 
   // Payment types updated to new naming
   final List<String> paymentMethods = ['Select payment method','Cash', 'Cheque', 'Bank',];
@@ -247,9 +246,6 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     _noteController.dispose();
     _stepCostController.dispose();
     _additionalCostController.dispose();
-    documentNameController.dispose();
-    documentIssueDateController.dispose();
-    documentExpiryDateController.dispose();
     super.dispose();
   }
 
@@ -263,6 +259,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
         constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
         child: Padding(
           padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -594,7 +591,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
               ),
               const SizedBox(height: 15),
               
-              // Document Upload Section
+              // Document Upload Section (only show when payment method is Bank)
+              if (selectedPaymentMethod == 'Bank'|| selectedPaymentType == 'Cheque') ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -609,49 +607,29 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                     ),
                     const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        CustomTextField(
-                          label: "Document Name",
-                          controller: documentNameController,
-                          hintText: "e.g., Invoice Receipt",
-                        ),
-                        CustomDateNotificationField(
-                          label: "Issue Date",
-                          controller: documentIssueDateController,
-                          readOnly: true,
-                          hintText: "yyyy-MM-dd",
-                          onTap: () => _pickDocumentDate(documentIssueDateController),
-                        ),
-                        CustomDateNotificationField(
-                          label: "Expiry Date",
-                          controller: documentExpiryDateController,
-                          readOnly: true,
-                          hintText: "yyyy-MM-dd",
-                          onTap: () => _pickDocumentDate(documentExpiryDateController),
-                        ),
+                      
+                      // Select Document Button
                         Consumer<DocumentsProvider>(
                           builder: (context, documentsProvider, child) {
+                          // Check if a file is already attached
+                          final hasAttachedFile = transactionDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty;
+                          
                             return Column(
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     GestureDetector(
-                                      onTap: (documentsProvider.isUploading || _isProcessing)
+                                onTap: (documentsProvider.isUploading || _isProcessing || hasAttachedFile)
                                           ? null
                                           : () {
+                                        print('🔍 Debug: Select Document button tapped');
                                               Future.microtask(() {
-                                                _handleDocumentAction();
+                                          _pickFile();
                                               });
                                             },
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: (documentsProvider.isUploading || _isProcessing)
+                                    color: (documentsProvider.isUploading || _isProcessing || hasAttachedFile)
                                               ? Colors.grey
-                                              : _getDocumentButtonColor(),
+                                        : Colors.blue,
                                           borderRadius: BorderRadius.circular(4),
                                         ),
                                         constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
@@ -670,33 +648,19 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                                                 ),
                                               )
                                             else
-                                              Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
+                                        const Icon(Icons.attach_file, size: 16, color: Colors.white),
                                             const SizedBox(width: 6),
                                             Text(
-                                              _getDocumentButtonText(),
+                                        documentsProvider.isUploading 
+                                            ? 'Uploading...' 
+                                            : hasAttachedFile 
+                                                ? 'File Attached' 
+                                                : 'Select Document',
                                               style: const TextStyle(fontSize: 14, color: Colors.white),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    ),
-                                    if (documentsProvider.isUploading)
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 8.0),
-                                        child: IconButton(
-                                          onPressed: () {
-                                            documentsProvider.resetLoadingState();
-                                            setState(() {
-                                              selectedFile = null;
-                                              selectedFileName = null;
-                                              selectedFileBytes = null;
-                                            });
-                                          },
-                                          icon: const Icon(Icons.close, color: Colors.red),
-                                          tooltip: 'Cancel Upload',
-                                        ),
-                                      ),
-                                  ],
                                 ),
                                 if (documentsProvider.isUploading)
                                   Padding(
@@ -710,21 +674,101 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                               ],
                             );
                           },
+                      ),
+                    
+                    // Selected Document Preview
+                    if (selectedFileName != null) ...[
+                      const SizedBox(height: 15),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.description, color: Colors.blue, size: 20),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    selectedFileName!,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                  ),
+                                  Text(
+                                    'File selected',
+                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                         ),
                       ],
                     ),
-                    if (selectedFileName != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          'Selected: $selectedFileName',
-                          style: const TextStyle(fontSize: 12, color: Colors.green),
-                        ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  onPressed: () => _previewDocument(),
+                                  icon: const Icon(Icons.visibility, color: Colors.blue, size: 20),
+                                  tooltip: 'Preview Document',
+                                ),
+                                IconButton(
+                                  onPressed: () => _removeSelectedFile(),
+                                  icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                                  tooltip: 'Remove File',
                       ),
                   ],
                 ),
-              ),
-              
+                          ],
+                        ),
+                      ),
+                    ],
+                    
+                    // Attach Button (only show when file is selected)
+                    if (selectedFileName != null) ...[
+                      const SizedBox(height: 15),
+                      GestureDetector(
+                        onTap: _isProcessing ? null : () {
+                          print('🔍 Debug: Attach button tapped');
+                          _attachDocument();
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _isProcessing ? Colors.grey : Colors.green,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          constraints: const BoxConstraints(minWidth: 120, minHeight: 38),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (_isProcessing)
+                                const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              else
+                                const Icon(Icons.attach_file, size: 16, color: Colors.white),
+                              const SizedBox(width: 6),
+                              Text(
+                                _isProcessing ? 'Attaching...' : 'Attach',
+                                style: const TextStyle(fontSize: 14, color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      ],
+                    ],
+                  ),
+                ),
+                
               const SizedBox(height: 15),
               
               // Document List Section
@@ -772,6 +816,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                     ),
                   ],
                 ),
+              ],
               
               const SizedBox(height: 20),
               Row(
@@ -779,6 +824,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 children: [
                   CustomButton(
                     onPressed: () {
+                      print('🔍 Debug: Clear button pressed');
                       _clearForm();
                     },
                     text: "Clear",
@@ -790,9 +836,19 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       return CustomButton(
                         onPressed:
                             bankingProvider.isLoading
-                                ? () {}
+                                ? () {
+                                    print('🔍 Debug: Submit button disabled - provider is loading');
+                                  }
                                 : () {
-                                  widget.isEditMode ? _updatePayment() : _submitForm();
+                                    print('🔍 Debug: Submit button pressed');
+                                    print('🔍 Debug: Edit mode: ${widget.isEditMode}');
+                                    if (widget.isEditMode) {
+                                      print('🔍 Debug: Calling _updatePayment()');
+                                      _updatePayment();
+                                    } else {
+                                      print('🔍 Debug: Calling _submitForm()');
+                                      _submitForm();
+                                    }
                                 },
                         text:
                             bankingProvider.isLoading
@@ -808,7 +864,8 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   String _formattedDate() {
@@ -842,64 +899,119 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       selectedFileBytes = null;
       uploadedDocumentIds.clear();
       transactionDocuments.clear();
-      documentNameController.clear();
-      documentIssueDateController.clear();
-      documentExpiryDateController.clear();
+      attachedFiles.clear();
     });
   }
-
   void _submitForm() async {
-    // Validate required fields
-    if (selectedPaymentMethod == null || selectedPaymentType == null || selectedClientType == null || selectedProject == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all required fields')));
+    print('🔍 Debug: _submitForm() started');
+    
+    // Step 1️⃣: Basic validation
+    if (selectedPaymentMethod == null ||
+        selectedPaymentType == null ||
+        selectedClientType == null ||
+        selectedProject == null) {
+      print('🔍 Debug: Validation failed - missing required fields');
+      print('🔍 Debug: selectedPaymentMethod: $selectedPaymentMethod');
+      print('🔍 Debug: selectedPaymentType: $selectedPaymentType');
+      print('🔍 Debug: selectedClientType: $selectedClientType');
+      print('🔍 Debug: selectedProject: $selectedProject');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all required fields')),
+      );
       return;
     }
 
-    // Validate project stage selection if payment type is Receive
+    // Step 2️⃣: Project stage validation (Receive only)
     if (selectedPaymentType == 'Receive' && selectedProjectStage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select project stage for Receive payment type')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select project stage for Receive payment type')),
+      );
       return;
     }
 
-    // Validate bank selection if payment method is Bank
+    // Step 3️⃣: Bank validation (if payment method is Bank)
     if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a bank for bank payment')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a bank for bank payment')),
+      );
       return;
     }
 
-    if (_amountController.text.isEmpty || _paymentByController.text.isEmpty || _receivedByController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all required fields')));
+    // Step 4️⃣: Field validation
+    if (_amountController.text.isEmpty ||
+        _paymentByController.text.isEmpty ||
+        _receivedByController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all required fields')),
+      );
       return;
     }
 
+    // Step 5️⃣: Validate amount
     final amount = double.tryParse(_amountController.text);
     if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter a valid amount')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid amount')),
+      );
       return;
     }
 
-    // Submit the form
+    // Step 6️⃣: Get provider instance
     final bankingProvider = context.read<BankingPaymentsProvider>();
 
-    // Extract project ref ID and client ref ID from selected project data
+    // Step 7️⃣: Extract project and client IDs safely
     final projectRefId = selectedProjectData?['project_ref_id']?.toString() ?? selectedProject!;
     final clientRefId = selectedProjectData?['client_id']?['client_ref_id']?.toString() ?? '';
 
-    // Map payment type to in/out
-    String paymentTypeValue = selectedPaymentType == 'Receive' ? 'in' : 'out';
+    // Step 8️⃣: Determine payment type (Receive = in, Expense = out)
+    final paymentTypeValue = selectedPaymentType == 'Receive' ? 'in' : 'out';
 
-    final double? stepCostVal = (selectedPaymentType == 'Expense' && _stepCostController.text.isNotEmpty)
+    // Step 9️⃣: Parse optional values
+    final stepCostVal = (selectedPaymentType == 'Expense' && _stepCostController.text.isNotEmpty)
         ? double.tryParse(_stepCostController.text)
         : null;
-    final double? additionalProfitVal = (selectedPaymentType == 'Expense' && _additionalCostController.text.isNotEmpty)
+
+    final additionalProfitVal = (selectedPaymentType == 'Expense' && _additionalCostController.text.isNotEmpty)
         ? double.tryParse(_additionalCostController.text)
         : null;
 
+    // Step 🔟: Prepare file for upload (if any attached documents exist)
+    dynamic fileToUpload;
+    if (attachedFiles.isNotEmpty) {
+      // Use the first attached file for upload
+      final firstAttachedFile = attachedFiles.first;
+      print('🔍 Debug: Found ${attachedFiles.length} attached files');
+      print('🔍 Debug: First attached file: ${firstAttachedFile}');
+      
+      fileToUpload = firstAttachedFile['file'];
+      print('🔍 Debug: File to upload type: ${fileToUpload.runtimeType}');
+      
+      if (fileToUpload is PlatformFile) {
+        print('🔍 Debug: PlatformFile name: ${fileToUpload.name}');
+        print('🔍 Debug: PlatformFile bytes: ${fileToUpload.bytes?.length ?? 'null'}');
+      } else if (fileToUpload is File) {
+        print('🔍 Debug: File path: ${fileToUpload.path}');
+      }
+    } else {
+      print('🔍 Debug: No attached files found');
+    }
+
+    // Step 🔟: Call provider method with file upload
+    String fileInfo = 'null';
+    if (fileToUpload != null) {
+      if (fileToUpload is PlatformFile) {
+        fileInfo = 'PlatformFile: ${fileToUpload.name}';
+      } else if (fileToUpload is File) {
+        fileInfo = 'File: ${fileToUpload.path}';
+      } else {
+        fileInfo = 'Unknown: ${fileToUpload.runtimeType}';
+      }
+    }
+    print('🔍 Debug: Calling addBankingPayment with file: $fileInfo');
     await bankingProvider.addBankingPayment(
       type: 'project',
       typeRef: projectRefId,
       clientRef: clientRefId,
-      // Using actual client ref ID from project data
       paymentType: paymentTypeValue,
       payBy: _paymentByController.text,
       receivedBy: _receivedByController.text,
@@ -907,28 +1019,36 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       paidAmount: amount,
       status: 'completed',
       paymentMethod: selectedPaymentMethod!.toLowerCase(),
-      transactionId: _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
+      transactionId:
+      _serviceTIDController.text.isNotEmpty ? _serviceTIDController.text : null,
       bankRefId: selectedBank,
-      chequeNo:
-          selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty
-              ? _serviceTIDController.text
-              : null,
+      chequeNo: selectedPaymentMethod == 'Cheque' && _serviceTIDController.text.isNotEmpty
+          ? _serviceTIDController.text
+          : null,
       stepCost: stepCostVal,
       additionalProfit: additionalProfitVal,
       projectStageRefId: selectedStageData?['project_stage_ref_id']?.toString(),
-      // Note: projectSubStageRefId parameter not yet supported in provider
-      // TODO: Add projectSubStageRefId parameter to addBankingPayment method
+      file1: fileToUpload, // Upload the attached file
     );
 
-    // Check if submission was successful
-    if (bankingProvider.successMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(bankingProvider.successMessage!)));
+    // Step 1️⃣1️⃣: Handle provider result
+    if (bankingProvider.successMessage != null &&
+        bankingProvider.successMessage!.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(bankingProvider.successMessage!)),
+      );
       _clearForm();
-      Navigator.of(context).pop();
-    } else if (bankingProvider.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(bankingProvider.errorMessage!)));
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+    } else if (bankingProvider.errorMessage != null &&
+        bankingProvider.errorMessage!.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(bankingProvider.errorMessage!)),
+      );
     }
   }
+
 
   void _updatePayment() async {
     // Validate required fields
@@ -1008,28 +1128,47 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
 
   // Document related methods
   Future<void> _pickFile() async {
+    print('🔍 Debug: File picker started');
+    
+    // Clear any existing file selection first
+    setState(() {
+      selectedFile = null;
+      selectedFileName = null;
+      selectedFileBytes = null;
+    });
+    
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif'],
-        allowMultiple: false,
+        allowMultiple: false, // Ensure only one file can be selected
         withData: true,
         withReadStream: false,
         allowCompression: true,
       );
 
+      print('🔍 Debug: File picker result: ${result != null ? 'Success' : 'Cancelled'}');
+
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
+        print('🔍 Debug: Selected file: ${file.name}');
+        print('🔍 Debug: File path: ${file.path}');
+        print('🔍 Debug: File size: ${file.size}');
+        print('🔍 Debug: File bytes: ${file.bytes?.length ?? 'null'}');
 
         setState(() {
           if (kIsWeb) {
             selectedFile = file;
             selectedFileBytes = file.bytes;
             selectedFileName = file.name;
+            print('🔍 Debug: Web mode - file stored as PlatformFile');
           } else {
             if (file.path != null && file.path!.isNotEmpty) {
               selectedFile = File(file.path!);
               selectedFileName = file.name;
+              print('🔍 Debug: Mobile mode - file stored as File: ${file.path}');
+            } else {
+              print('🔍 Debug: Mobile mode - file path is null or empty');
             }
           }
         });
@@ -1041,16 +1180,18 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
             duration: const Duration(seconds: 2),
           ),
         );
+      } else {
+        print('🔍 Debug: No file selected or result is empty');
       }
     } catch (e) {
-      print('File picker error: $e');
+      print('🔍 Debug: File picker error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: Colors.red),
       );
     }
   }
 
-  Future<void> _uploadDocument() async {
+  Future<void> _attachDocument() async {
     if (_isProcessing) return;
 
     if (selectedFile == null) {
@@ -1058,82 +1199,75 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       return;
     }
 
-    if (documentNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter document name')));
-      return;
-    }
-
     setState(() {
       _isProcessing = true;
     });
 
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    final documentsProvider = context.read<DocumentsProvider>();
-    String? documentRefId;
+    await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      if (kIsWeb) {
-        if (selectedFileBytes != null) {
-          documentRefId = await documentsProvider.addDocumentWeb(
-            name: documentNameController.text.trim(),
-            issueDate: documentIssueDateController.text.trim().isNotEmpty
-                ? documentIssueDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            expireDate: documentExpiryDateController.text.trim().isNotEmpty
-                ? documentExpiryDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
-            fileBytes: selectedFileBytes!,
-            fileName: selectedFileName ?? 'document',
-          );
-        }
-      } else {
-        if (selectedFile is File) {
-          documentRefId = await documentsProvider.addDocument(
-            name: documentNameController.text.trim(),
-            issueDate: documentIssueDateController.text.trim().isNotEmpty
-                ? documentIssueDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-            expireDate: documentExpiryDateController.text.trim().isNotEmpty
-                ? documentExpiryDateController.text.trim()
-                : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
-            file: selectedFile as File,
-          );
-        }
-      }
+      // Create a mock document ID for attachment (not uploaded to server)
+      final mockDocumentId = 'attached_${DateTime.now().millisecondsSinceEpoch}';
+      
+      // Create document data for local storage
+      final documentData = {
+        'document_ref_id': mockDocumentId,
+        'name': selectedFileName ?? 'Document',
+        'issue_date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        'expire_date': DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
+        'file_name': selectedFileName,
+        'file_size': _getFileSize(),
+        'file_type': _getFileTypeDescription(),
+        'is_attached': true, // Mark as attached but not uploaded
+        'attached_at': DateTime.now().toIso8601String(),
+      };
 
-      if (documentRefId != null) {
         if (mounted) {
+        // Store file name before clearing
+        final fileName = selectedFileName ?? 'Document';
+        
           setState(() {
-            uploadedDocumentIds.add(documentRefId!);
+          // Add to transaction documents list
+          transactionDocuments.add(documentData);
+          
+          // Store file reference for upload
+          if (selectedFile != null) {
+            print('🔍 Debug: Storing file for upload');
+            print('🔍 Debug: File type: ${selectedFile.runtimeType}');
+            print('🔍 Debug: File name: $selectedFileName');
+            
+            attachedFiles.add({
+              'document_ref_id': mockDocumentId,
+              'file': selectedFile,
+              'file_name': selectedFileName,
+              'file_bytes': selectedFileBytes,
+            });
+            
+            print('🔍 Debug: Total attached files: ${attachedFiles.length}');
+          } else {
+            print('🔍 Debug: No file to store (selectedFile is null)');
+          }
+          
+          // Clear selected file
             selectedFile = null;
             selectedFileName = null;
             selectedFileBytes = null;
-            documentNameController.clear();
-            documentIssueDateController.clear();
-            documentExpiryDateController.clear();
-          });
+        });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Document uploaded successfully: $documentRefId'), backgroundColor: Colors.green),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: Colors.red,
-              content: Text(documentsProvider.errorMessage ?? 'Failed to upload document'),
+            content: Text('Document attached successfully: $fileName'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
             ),
           );
-        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.red,
-            content: Text('Upload failed: ${e.toString()}'),
+            content: Text('Failed to attach document: ${e.toString()}'),
           ),
         );
       }
@@ -1146,59 +1280,223 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     }
   }
 
-  void _handleDocumentAction() {
+  void _previewDocument() {
     if (selectedFile == null) {
-      _pickFile();
-    } else if (documentNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter document name')));
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _uploadDocument();
-      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No document selected')));
+      return;
     }
-  }
 
-  Color _getDocumentButtonColor() {
-    if (selectedFile == null) {
-      return Colors.blue; // Select Document
-    } else if (documentNameController.text.trim().isEmpty) {
-      return Colors.orange; // Enter name
-    } else {
-      return Colors.green; // Upload
-    }
-  }
-
-  IconData _getDocumentButtonIcon() {
-    if (selectedFile == null) {
-      return Icons.attach_file; // Select Document
-    } else if (documentNameController.text.trim().isEmpty) {
-      return Icons.edit; // Enter name
-    } else {
-      return Icons.upload; // Upload
-    }
-  }
-
-  String _getDocumentButtonText() {
-    if (selectedFile == null) {
-      return 'Select Document';
-    } else if (documentNameController.text.trim().isEmpty) {
-      return 'Enter Name';
-    } else {
-      return 'Upload';
-    }
-  }
-
-  void _pickDocumentDate(TextEditingController controller) {
-    showDatePicker(
+    // Show document preview dialog
+    showDialog(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2030),
-    ).then((date) {
-      if (date != null) {
-        controller.text = DateFormat('yyyy-MM-dd').format(date);
-      }
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        insetPadding: const EdgeInsets.all(20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 500),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Document Preview',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.red),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.description, color: Colors.blue, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  selectedFileName ?? 'Unknown File',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                Text(
+                                  'File Size: ${_getFileSize()}',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _getFileIcon(),
+                                size: 48,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _getFileTypeDescription(),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Preview not available for this file type',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Close', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _removeSelectedFile() {
+    setState(() {
+      selectedFile = null;
+      selectedFileName = null;
+      selectedFileBytes = null;
+      // Also clear any attached files to reset the button state
+      attachedFiles.clear();
     });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('File removed'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  String _getFileSize() {
+    if (selectedFile == null) return 'Unknown';
+    
+    if (kIsWeb && selectedFileBytes != null) {
+      final bytes = selectedFileBytes!.length;
+      if (bytes < 1024) return '$bytes B';
+      if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    } else if (selectedFile is File) {
+      final file = selectedFile as File;
+      try {
+        final bytes = file.lengthSync();
+        if (bytes < 1024) return '$bytes B';
+        if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+        return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+      } catch (e) {
+        return 'Unknown';
+      }
+    }
+    return 'Unknown';
+  }
+
+  IconData _getFileIcon() {
+    if (selectedFileName == null) return Icons.description;
+    
+    final extension = selectedFileName!.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'txt':
+        return Icons.text_snippet;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+      case 'tiff':
+      case 'tif':
+        return Icons.image;
+      default:
+        return Icons.description;
+    }
+  }
+
+  String _getFileTypeDescription() {
+    if (selectedFileName == null) return 'Unknown File Type';
+    
+    final extension = selectedFileName!.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return 'PDF Document';
+      case 'doc':
+      case 'docx':
+        return 'Word Document';
+      case 'txt':
+        return 'Text File';
+      case 'jpg':
+      case 'jpeg':
+        return 'JPEG Image';
+      case 'png':
+        return 'PNG Image';
+      case 'gif':
+        return 'GIF Image';
+      case 'bmp':
+        return 'Bitmap Image';
+      case 'tiff':
+      case 'tif':
+        return 'TIFF Image';
+      default:
+        return 'Document File';
+    }
   }
 
   Widget _buildDocumentItem({
@@ -1209,24 +1507,38 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     required bool isExisting,
     String? url,
   }) {
+    // Check if this is an attached document (not uploaded)
+    final isAttached = documentRefId.startsWith('attached_');
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        border: Border.all(color: Colors.grey.shade300),
+        color: isAttached ? Colors.orange.shade50 : Colors.grey.shade50,
+        border: Border.all(
+          color: isAttached ? Colors.orange.shade300 : Colors.grey.shade300,
+        ),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         children: [
-          Icon(Icons.description, color: isExisting ? Colors.blue : Colors.green, size: 20),
+          Icon(
+            isAttached ? Icons.attach_file : Icons.description, 
+            color: isAttached ? Colors.orange : Colors.blue, 
+            size: 20,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                if (issueDate.isNotEmpty || expiryDate.isNotEmpty)
+                if (isAttached)
+                  Text(
+                    'Attached (Not Uploaded)',
+                    style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
+                  )
+                else if (issueDate.isNotEmpty || expiryDate.isNotEmpty)
                   Text(
                     'Issue: $issueDate | Expiry: $expiryDate',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
@@ -1238,6 +1550,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (!isAttached) // Only show download for uploaded documents
               IconButton(
                 onPressed: () => _downloadDocument(documentRefId, url: url),
                 icon: const Icon(Icons.download, color: Colors.blue, size: 20),
@@ -1246,7 +1559,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
               IconButton(
                 onPressed: () => _deleteDocument(documentRefId),
                 icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                tooltip: 'Delete Document',
+                tooltip: 'Remove Document',
               ),
             ],
           ),
@@ -1266,6 +1579,21 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
   }
 
   Future<void> _deleteDocument(String documentRefId) async {
+    // Check if this is an attached document (not uploaded)
+    final isAttached = documentRefId.startsWith('attached_');
+    
+    if (isAttached) {
+      // For attached documents, just remove from local list
+      setState(() {
+        transactionDocuments.removeWhere((doc) => doc['document_ref_id'] == documentRefId);
+        attachedFiles.removeWhere((file) => file['document_ref_id'] == documentRefId);
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Attached document removed')),
+      );
+    } else {
+      // For uploaded documents, call the provider to delete from server
     final documentsProvider = context.read<DocumentsProvider>();
     final success = await documentsProvider.deleteDocument(documentRefId: documentRefId);
 
@@ -1283,6 +1611,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
           content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
         ),
       );
+      }
     }
   }
 
