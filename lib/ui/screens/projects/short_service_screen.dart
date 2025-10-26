@@ -9,6 +9,7 @@ import '../../../providers/short_services_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../../utils/pin_verification_util.dart';
+import '../invoice_generator/invoice_short_services.dart';
 
 class ShortServiceScreen extends StatefulWidget {
   const ShortServiceScreen({super.key});
@@ -79,6 +80,14 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       return '00-00';
     }
   }
+
+  double _calculateTotal(dynamic quantity, dynamic unitPrice, dynamic discount) {
+    final q = double.tryParse(quantity.toString()) ?? 0;
+    final u = double.tryParse(unitPrice.toString()) ?? 0;
+    final d = double.tryParse(discount.toString()) ?? 0;
+    return (q * u) - d;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +177,29 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                             message: 'Refresh',
                             waitDuration: Duration(milliseconds: 2),
                             child: GestureDetector(
-                              onTap: () => shortServicesProvider.getAllShortServices(),
+                              onTap: () {
+                                // shortServicesProvider.getAllShortServices()
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ABCInvoiceWidget(
+                                      refNo: 'C2279',
+                                      clientName: 'ABC Company Ltd',
+                                      managerName: 'John Doe',
+                                      date: '2025-10-25',
+                                      services: [
+                                        {
+                                          'service_category_name': 'Sponsor File',
+                                          'quantity': 1,
+                                          'unit_price': 500.0,
+                                          'discount': 50.0,
+                                        }
+                                      ],
+                                    ),
+                                  ),
+                                );
+
+                              },
                               child: Container(
                                 width: 30,
                                 height: 30,
@@ -282,7 +313,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final double tableWidth =
-                            constraints.maxWidth < 1150 ? 1150 : constraints.maxWidth; // expand when screen is larger
+                            constraints.maxWidth < 1400 ? 1400 : constraints.maxWidth; // expand when screen is larger
 
                         return Scrollbar(
                           controller: _verticalController,
@@ -301,13 +332,16 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                   child: Table(
                                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                     columnWidths: const {
-                                      0: FlexColumnWidth(0.2),
-                                      1: FlexColumnWidth(0.3),
-                                      2: FlexColumnWidth(0.3),
-                                      3: FlexColumnWidth(0.3),
-                                      4: FlexColumnWidth(0.2),
-                                      5: FlexColumnWidth(0.3),
-                                      6: FlexColumnWidth(0.4),
+                                      0: FlexColumnWidth(0.15),
+                                      1: FlexColumnWidth(0.2),
+                                      2: FlexColumnWidth(0.2),
+                                      3: FlexColumnWidth(0.15),
+                                      4: FlexColumnWidth(0.15),
+                                      5: FlexColumnWidth(0.15),
+                                      6: FlexColumnWidth(0.15),
+                                      7: FlexColumnWidth(0.15),
+                                      8: FlexColumnWidth(0.2),
+                                      9: FlexColumnWidth(0.2),
                                     },
                                     children: [
                                       // Header Row
@@ -315,12 +349,15 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                         decoration: BoxDecoration(color: Colors.red.shade50),
                                         children: [
                                           _buildHeader("Date"),
-                                          _buildHeader("Service Beneficiary "),
+                                          _buildHeader("Client Name"),
                                           _buildHeader("Service"),
-                                          _buildHeader("Cost"),
+                                          _buildHeader("Qty"),
+                                          _buildHeader("Unit Price"),
+                                          _buildHeader("Discount"),
+                                          _buildHeader("Total"),
                                           _buildHeader("Manager"),
                                           _buildHeader("Ref Id"),
-                                          _buildHeader("More Actions"),
+                                          _buildHeader("Actions"),
                                         ],
                                       ),
                                       // Data Rows
@@ -338,14 +375,17 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                                 _formatTime(service['updated_at'] ?? service['created_at']),
                                                 centerText2: true,
                                               ),
-                                              _buildCell3(
-                                                service['client_name'] ?? 'N/A',
-                                                service['client_id'] ?? service['ref_id'] ?? 'N/A',
-                                                copyable: true,
-                                              ),
+                                              _buildCell(service['client_name'] ?? 'N/A'),
                                               _buildCell(service['service_category_name'] ?? 'N/A'),
+                                              _buildCell(service['quantity']?.toString() ?? '1'),
+                                              _buildPriceWithAdd(service['unit_price'] ?? '0'),
+                                              _buildPriceWithAdd(service['discount'] ?? '0'),
                                               _buildPriceWithAdd(
-                                                service['quotation']?.toString() ?? service['pending_payment']?.toString() ?? service['cost']?.toString() ?? '0',
+                                                _calculateTotal(
+                                                  service['quantity'] ?? 1,
+                                                  service['unit_price'] ?? 0,
+                                                  service['discount'] ?? 0,
+                                                ).toString(),
                                               ),
                                               _buildCell(service['manager_name'] ?? 'N/A'),
                                               _buildCell(service['ref_id'] ?? 'N/A', copyable: true),
@@ -359,7 +399,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                       else if (!shortServicesProvider.isLoading)
                                         TableRow(
                                           children: List.generate(
-                                            7,
+                                            10,
                                             (index) => TableCell(
                                               child: Container(
                                                 height: 60,
@@ -408,7 +448,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     // Get user_ref_id from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final userRefId = prefs.getString('user_id') ?? '';
-    
+
     if (userRefId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -424,7 +464,9 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         String clientName = service['client_name'] ?? '';
-        String quotation = service['quotation']?.toString() ?? service['cost']?.toString() ?? service['pending_payment']?.toString() ?? '';
+        String quantity = service['quantity']?.toString() ?? '1';
+        String unitPrice = service['unit_price']?.toString() ?? '0';
+        String discount = service['discount']?.toString() ?? '0';
         String managerName = service['manager_name'] ?? '';
 
         return AlertDialog(
@@ -453,10 +495,26 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                       const SizedBox(height: 12),
 
                       CustomTextField1(
-                        label: 'QUOTATION (AED)',
+                        label: 'QUANTITY',
                         keyboardType: TextInputType.number,
-                        text: quotation,
-                        onChanged: (val) => quotation = val,
+                        text: quantity,
+                        onChanged: (val) => quantity = val,
+                      ),
+                      const SizedBox(height: 12),
+
+                      CustomTextField1(
+                        label: 'UNIT PRICE (AED)',
+                        keyboardType: TextInputType.number,
+                        text: unitPrice,
+                        onChanged: (val) => unitPrice = val,
+                      ),
+                      const SizedBox(height: 12),
+
+                      CustomTextField1(
+                        label: 'DISCOUNT (AED)',
+                        keyboardType: TextInputType.number,
+                        text: discount,
+                        onChanged: (val) => discount = val,
                       ),
                       const SizedBox(height: 12),
 
@@ -479,14 +537,15 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                               await PinVerificationUtil.executeWithPinVerification(
                                 context,
                                 () async {
-                                  if (clientName.isNotEmpty && quotation.isNotEmpty && managerName.isNotEmpty) {
+                                  if (clientName.isNotEmpty && quantity.isNotEmpty && unitPrice.isNotEmpty && managerName.isNotEmpty) {
                                     try {
                                       final provider = context.read<ShortServicesProvider>();
                                       await provider.updateShortService(
-                                        userRefId: userRefId,
                                         refId: service['ref_id'],
                                         clientName: clientName,
-                                        quotation: quotation,
+                                        quantity: int.tryParse(quantity) ?? 1,
+                                        unitPrice: double.tryParse(unitPrice) ?? 0.0,
+                                        discount: double.tryParse(discount) ?? 0.0,
                                         managerName: managerName,
                                       );
 
@@ -511,7 +570,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Please fill all fields'),
+                                        content: Text('Please fill all required fields'),
                                         backgroundColor: Colors.orange,
                                       ),
                                     );
@@ -562,7 +621,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       // Get user_ref_id from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final userRefId = prefs.getString('ref_id') ?? '';
-      
+
       if (userRefId.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

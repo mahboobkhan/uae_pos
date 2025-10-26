@@ -1,7 +1,7 @@
-import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
-import 'package:abc_consultant/ui/screens/projects/create_order_screen.dart';
 import 'package:abc_consultant/providers/projects_provider.dart';
 import 'package:abc_consultant/providers/short_services_provider.dart';
+import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
+import 'package:abc_consultant/ui/screens/projects/create_order_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,9 +9,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
-import '../../../utils/pin_verification_util.dart';
 
 class ProjectScreen extends StatefulWidget {
   final VoidCallback onNavigateToCreateOrder;
@@ -740,8 +740,14 @@ class _ProjectScreenState extends State<ProjectScreen> {
       stageSub = '';
       typeLabel = 'Short Service';
 
+      // Calculate total for short services: (quantity × unit_price) - discount
+      final int qty = item['quantity'] ?? 1;
+      final double unitPrice = double.tryParse(item['unit_price']?.toString() ?? '0') ?? 0.0;
+      final double discount = double.tryParse(item['discount']?.toString() ?? '0') ?? 0.0;
+      final double total = (qty * unitPrice) - discount;
+
       pendingAmount = '0.00'; // Short services are usually paid upfront
-      quotationAmount = item['cost'] ?? '0';
+      quotationAmount = total.toStringAsFixed(2);
       stepsCost = 'N/A';
 
       managerName = item['manager_name'] ?? '';
@@ -797,7 +803,9 @@ class _ProjectScreenState extends State<ProjectScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         String clientName = service['client_name'] ?? '';
-        String cost = service['cost'] ?? service['pending_payment'] ?? '';
+        String quantity = service['quantity']?.toString() ?? '1';
+        String unitPrice = service['unit_price']?.toString() ?? '0';
+        String discount = service['discount']?.toString() ?? '0';
         String managerName = service['manager_name'] ?? '';
 
         return AlertDialog(
@@ -822,16 +830,38 @@ class _ProjectScreenState extends State<ProjectScreen> {
                         style: const TextStyle(fontSize: 12, color: Colors.black54),
                       ),
                       const SizedBox(height: 20),
-                      CustomTextField1(label: 'Client Name', text: clientName, onChanged: (val) => clientName = val),
+                      CustomTextField1(label: 'CLIENT NAME', text: clientName, onChanged: (val) => clientName = val),
                       const SizedBox(height: 12),
+
                       CustomTextField1(
-                        label: 'Cost (AED)',
+                        label: 'QUANTITY',
                         keyboardType: TextInputType.number,
-                        text: cost,
-                        onChanged: (val) => cost = val,
+                        text: quantity,
+                        onChanged: (val) => quantity = val,
                       ),
                       const SizedBox(height: 12),
-                      CustomTextField1(label: 'Assign Employee', text: managerName, onChanged: (val) => managerName = val),
+
+                      CustomTextField1(
+                        label: 'UNIT PRICE (AED)',
+                        keyboardType: TextInputType.number,
+                        text: unitPrice,
+                        onChanged: (val) => unitPrice = val,
+                      ),
+                      const SizedBox(height: 12),
+
+                      CustomTextField1(
+                        label: 'DISCOUNT (AED)',
+                        keyboardType: TextInputType.number,
+                        text: discount,
+                        onChanged: (val) => discount = val,
+                      ),
+                      const SizedBox(height: 12),
+
+                      CustomTextField1(
+                        label: 'Assign Employee',
+                        text: managerName,
+                        onChanged: (val) => managerName = val,
+                      ),
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -849,18 +879,22 @@ class _ProjectScreenState extends State<ProjectScreen> {
                               await PinVerificationUtil.executeWithPinVerification(
                                 context,
                                 () async {
-                                  if (clientName.isNotEmpty && cost.isNotEmpty && managerName.isNotEmpty) {
+                                  if (clientName.isNotEmpty &&
+                                      quantity.isNotEmpty &&
+                                      unitPrice.isNotEmpty &&
+                                      managerName.isNotEmpty) {
                                     try {
                                       // Get user ID from SharedPreferences
                                       final prefs = await SharedPreferences.getInstance();
                                       final userId = prefs.getString('user_id') ?? '';
-                                      
+
                                       final provider = context.read<ShortServicesProvider>();
                                       await provider.updateShortService(
-                                        userRefId: userId,
                                         refId: service['ref_id'],
                                         clientName: clientName,
-                                        quotation: cost,
+                                        quantity: int.tryParse(quantity) ?? 1,
+                                        unitPrice: double.tryParse(unitPrice) ?? 0.0,
+                                        discount: double.tryParse(discount) ?? 0.0,
                                         managerName: managerName,
                                       );
 
@@ -885,7 +919,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Please fill all fields'),
+                                        content: Text('Please fill all required fields'),
                                         backgroundColor: Colors.orange,
                                       ),
                                     );
