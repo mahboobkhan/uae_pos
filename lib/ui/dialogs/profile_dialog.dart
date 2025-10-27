@@ -1,10 +1,10 @@
 import 'package:abc_consultant/employee/EmployeeProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_popup/flutter_popup.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../providers/update_password_provider.dart';
+import '../../providers/update_pin_provider.dart';
 
 void showProfileDialog(BuildContext context) {
   showDialog(
@@ -55,8 +55,6 @@ Future<Map<String, String>> _loadUserFromPrefs() async {
 }
 
 Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
-  final sharePref = SharedPreferences.getInstance();
-
   return Stack(
     clipBehavior: Clip.none,
     alignment: Alignment.topCenter,
@@ -136,10 +134,6 @@ Widget _buildDialogContent(BuildContext context, Map<String, String> user) {
                 // Add a refresh button to reload user data
                 TextButton.icon(
                   onPressed: () async {
-                    // Refresh user data from SharedPreferences
-                    final prefs = await SharedPreferences.getInstance();
-                    final refreshedUser = await _loadUserFromPrefs();
-
                     // Show success message
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Profile data refreshed')),
@@ -248,6 +242,16 @@ class _DialogButtonState extends State<_DialogButton> {
     _controller = TextEditingController(
       text: _obscure ? _maskPassword(realText) : realText,
     );
+  }
+
+  @override
+  void didUpdateWidget(_DialogButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update controller when hint changes
+    if (oldWidget.hint != widget.hint) {
+      final realText = widget.hint ?? '';
+      _controller.text = _obscure ? _maskPassword(realText) : realText;
+    }
   }
 
   String _maskPassword(String text) => '*' * text.length;
@@ -731,7 +735,13 @@ Widget _buildEdit(BuildContext context) {
                                           newPassword,
                                         );
 
-                                        // Close the dialog
+                                        // Wait a moment for SharedPreferences to be fully committed
+                                        await Future.delayed(const Duration(milliseconds: 100));
+                                        
+                                        // Close the password edit dialog
+                                        Navigator.of(context).pop();
+                                        
+                                        // Close the profile dialog
                                         Navigator.of(context).pop();
                                       } else {
                                         // Error
@@ -803,11 +813,14 @@ void showEditDialog1(BuildContext context) {
   showDialog(
     context: context,
     builder: (context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        elevation: 8,
-        backgroundColor: Colors.white,
-        child: _buildEdit1(context),
+      return ChangeNotifierProvider(
+        create: (context) => UpdatePinProvider(),
+        child: Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 8,
+          backgroundColor: Colors.white,
+          child: _buildEdit1(context),
+        ),
       );
     },
   );
@@ -816,6 +829,10 @@ void showEditDialog1(BuildContext context) {
 Widget _buildEdit1(BuildContext context) {
   return StatefulBuilder(
     builder: (context, setState) {
+      final currentPinController = TextEditingController();
+      final newPinController = TextEditingController();
+      final confirmPinController = TextEditingController();
+
       return Stack(
         alignment: Alignment.topCenter,
         children: [
@@ -836,24 +853,28 @@ Widget _buildEdit1(BuildContext context) {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 20),
+
                 EditableDialogButton(
                   label: 'Current PIN',
                   hint: '',
                   showEdit: true,
+                  controller: currentPinController,
                 ),
                 // New PIN TextField
                 EditableDialogButton(
                   label: 'New PIN',
                   hint: '',
                   showEdit: true,
+                  controller: newPinController,
                 ),
                 // Confirm PIN TextField
                 EditableDialogButton(
-                  label: 'Confirm  PIN',
+                  label: 'Confirm PIN',
                   hint: '',
                   showEdit: true,
+                  controller: confirmPinController,
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -869,23 +890,184 @@ Widget _buildEdit1(BuildContext context) {
                         ),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
+                    Consumer<UpdatePinProvider>(
+                      builder: (context, updatePinProvider, child) {
+                        final isLoading = updatePinProvider.isLoading;
+
+                        return ElevatedButton(
+                          onPressed: isLoading ? null : () async {
+                            final currentPin = currentPinController.text.trim();
+                            final newPin = newPinController.text.trim();
+                            final confirmPin = confirmPinController.text.trim();
+
+                            if (currentPin.isEmpty || newPin.isEmpty || confirmPin.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please fill all fields'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            // Verify current PIN from SharedPreferences
+                            final prefs = await SharedPreferences.getInstance();
+                            final storedPin = prefs.getString('pin') ?? '';
+
+                            if (storedPin.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('No stored PIN found. Please log out and log in again.'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            // if (currentPin != storedPin) {
+                            //   ScaffoldMessenger.of(context).showSnackBar(
+                            //     const SnackBar(
+                            //       content: Text('Current PIN is incorrect'),
+                            //     ),
+                            //   );
+                            //   return;
+                            // }
+
+                            if (newPin != confirmPin) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('New PINs do not match'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            // PIN validation
+                            if (newPin.length < 4 || newPin.length > 6) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('PIN must be 4–6 digits long'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                              return;
+                            }
+
+                            // Check if PIN contains only digits
+                            if (!RegExp(r'^\d+$').hasMatch(newPin)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('PIN must contain only digits'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                              return;
+                            }
+
+                            // Get user ID from SharedPreferences
+                            final userId = prefs.getString('user_id') ?? '';
+
+                            if (userId.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('User ID not found'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            // Update PIN using UpdatePinProvider
+                            try {
+                              // Show loading state
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      ),
+                                      SizedBox(width: 16),
+                                      Text('Updating PIN...'),
+                                    ],
+                                  ),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+
+                              // Call the update PIN API
+                              await updatePinProvider.updatePin(
+                                userId: userId,
+                                oldPin: currentPin,
+                                newPin: newPin,
+                              );
+
+                              // Check the result
+                              if (updatePinProvider.response?.success == true) {
+                                // Success
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      updatePinProvider.response?.message ?? 'PIN updated successfully',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+
+                                // Update local storage
+                                await prefs.setString('pin', newPin);
+
+                                // Wait a moment for SharedPreferences to be fully committed
+                                await Future.delayed(const Duration(milliseconds: 100));
+                                
+                                // Close the PIN edit dialog
+                                Navigator.of(context).pop();
+                                
+                                // Close the profile dialog
+                                Navigator.of(context).pop();
+                              } else {
+                                // Error - PIN update failed
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      updatePinProvider.errorMessage ?? 'PIN update failed',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Error updating PIN: $e'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isLoading ? Colors.grey : Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : const Text(
+                                  "UPDATE",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        "UPDATE",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
                     ),
                   ],
                 ),
