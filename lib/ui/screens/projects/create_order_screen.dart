@@ -7,10 +7,12 @@ import '../../../providers/client_profile_provider.dart';
 import '../../../providers/project_stage_provider.dart';
 import '../../../providers/projects_provider.dart';
 import '../../../providers/service_category_provider.dart';
+import '../../../providers/project_report_provider.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../../utils/pin_verification_util.dart';
+import '../report_and_invoice/project_report_widget.dart';
 
 class DropdownItem {
   final String id;
@@ -913,8 +915,36 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             onPressed: () => _updateProjectStatus('completed'),
                           ),
                         ],
-
                         const Spacer(), // Pushes the icon to the right
+                        // Report Button on the right
+                        if (widget.projectData != null)
+                          Material(
+                            elevation: 8,
+                            color: Colors.purple,
+                            borderRadius: BorderRadius.circular(8),
+                            child: InkWell(
+                              onTap: _showProjectReport,
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Report",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Icon(Icons.description, color: Colors.white, size: 20),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         /*Material(
                           elevation: 8,
                           color: Colors.blue, // Set background color here
@@ -2218,6 +2248,63 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       // Refresh calculations after deleting stage
       if (mounted) {
         setState(() {});
+      }
+    }
+  }
+
+  /// Show project report
+  Future<void> _showProjectReport() async {
+    if (widget.projectData == null) return;
+
+    final projectRefId = widget.projectData!['project_ref_id'];
+    if (projectRefId == null) return;
+
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Fetch project report data
+      final reportProvider = context.read<ProjectReportProvider>();
+      await reportProvider.getProjectReport(projectRefId: projectRefId.toString());
+
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+
+      // Check if data was fetched successfully
+      if (reportProvider.reportData != null && mounted) {
+        // Navigate to project report widget
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ProjectReportWidget.fromApiData(
+              reportData: reportProvider.reportData!,
+            ),
+          ),
+        );
+      } else if (mounted) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(reportProvider.errorMessage ?? 'Failed to load project report'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog if still open
+      if (mounted) Navigator.of(context).pop();
+
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
