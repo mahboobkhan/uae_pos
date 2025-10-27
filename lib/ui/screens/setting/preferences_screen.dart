@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../providers/documents_provider.dart';
+import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
 
@@ -52,6 +54,57 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error fetching documents: $e'), backgroundColor: Colors.red));
+    }
+  }
+
+  // Download file functionality - opens URL in new tab
+  Future<void> _downloadFile(Map<String, dynamic> document) async {
+    // Get the file URL from the document
+    String? fileUrl = document['file_url'] ?? 
+                      document['url'] ?? 
+                      document['download_url'] ?? 
+                      document['path'];
+    
+    if (fileUrl == null || fileUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No file URL found for this document'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
+    print('Opening URL in new tab: $fileUrl');
+    
+    // Open URL in new tab
+    try {
+      final uri = Uri.parse(fileUrl);
+      
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Opening file in new tab...'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cannot open URL'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error opening URL: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -124,6 +177,11 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
   void _showEditDialog(String fileId, String fileName, String issueDate, String expiryDate) {
     print('Edit dialog called with: ID: $fileId, Name: $fileName, Issue: $issueDate, Expiry: $expiryDate');
+
+    // Store original values for comparison
+    final originalFileName = fileName;
+    final originalIssueDate = issueDate;
+    final originalExpiryDate = expiryDate;
 
     // Pre-populate the controllers with current values
     _editFileNameController.text = fileName;
@@ -287,22 +345,44 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             ),
             ElevatedButton.icon(
               onPressed: () {
-                // Here you can save the edited values
-                // For now, just close the dialog
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Document "$fileName" updated successfully'),
-                    backgroundColor: Colors.green,
-                    action: SnackBarAction(
-                      label: 'Undo',
-                      textColor: Colors.white,
-                      onPressed: () {
-                        // Add undo functionality if needed
-                      },
+                // Check if any values were changed
+                final hasChanges = _editFileNameController.text != originalFileName ||
+                                  _editIssueDateController.text != originalIssueDate ||
+                                  _editExpiryDateController.text != originalExpiryDate;
+                
+                if (hasChanges) {
+                  // Show PIN verification for changes
+                  Navigator.of(context).pop(); // Close dialog first
+                  
+                  PinVerificationUtil.executeWithPinVerification(
+                    context,
+                    () {
+                      // Save the changes
+                      print('Saving changes:');
+                      print('File Name: ${_editFileNameController.text}');
+                      print('Issue Date: ${_editIssueDateController.text}');
+                      print('Expiry Date: ${_editExpiryDateController.text}');
+                      
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Document "${_editFileNameController.text}" updated successfully'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    },
+                    title: 'Confirm Changes',
+                    message: 'Please enter your PIN to save these changes',
+                  );
+                } else {
+                  // No changes, just close without saving
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('No changes to save'),
+                      backgroundColor: Colors.orange,
                     ),
-                  ),
-                );
+                  );
+                }
               },
               icon: const Icon(Icons.save),
               label: const Text('Save Changes'),
@@ -318,29 +398,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              _fetchDocumentsByClient();
-            },
-            heroTag: "client_docs",
-            mini: true,
-            tooltip: 'Fetch by Client',
-            child: const Icon(Icons.person),
-          ),
-          const SizedBox(height: 8),
-          FloatingActionButton(
-            onPressed: () {
-              _fetchDocuments();
-            },
-            heroTag: "refresh_docs",
-            tooltip: 'Refresh Documents',
-            child: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Column(
@@ -424,7 +481,10 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                               message: 'Refresh',
                               waitDuration: Duration(milliseconds: 2),
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  _fetchDocuments();
+
+                                },
                                 child: Container(
                                   width: 30,
                                   height: 30,
@@ -548,7 +608,9 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                               _buildCell(documents[i]['issue_date'] ?? 'N/A'),
                                               _buildCell(documents[i]['expire_date'] ?? 'N/A'),
                                               _buildCell(documents[i]['type'] ?? 'N/A'),
-                                              _buildCell("Click Download"),
+                                              _buildDownloadCell("Click Download", () {
+                                                _downloadFile(documents[i]);
+                                              }),
                                               _buildActionCell(
                                                 onEdit: () {
                                                   _showEditDialog(
@@ -559,27 +621,34 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                                   );
                                                 },
                                                 onDelete: () async {
-                                                  final documentsProvider = Provider.of<DocumentsProvider>(
+                                                  await PinVerificationUtil.executeWithPinVerification(
                                                     context,
-                                                    listen: false,
+                                                    () async {
+                                                      final documentsProvider = Provider.of<DocumentsProvider>(
+                                                        context,
+                                                        listen: false,
+                                                      );
+                                                      final success = await documentsProvider.deleteDocument(
+                                                        documentRefId: documents[i]['document_ref_id'] ?? '',
+                                                      );
+                                                      if (success) {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(content: Text('Document deleted successfully')),
+                                                        );
+                                                        _fetchDocuments();
+                                                      } else {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                              documentsProvider.errorMessage ?? 'Failed to delete document',
+                                                            ),
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                    title: 'Delete Document',
+                                                    message: 'Please enter your PIN to delete this document',
                                                   );
-                                                  final success = await documentsProvider.deleteDocument(
-                                                    documentRefId: documents[i]['document_ref_id'] ?? '',
-                                                  );
-                                                  if (success) {
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      const SnackBar(content: Text('Document deleted successfully')),
-                                                    );
-                                                    _fetchDocuments();
-                                                  } else {
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          documentsProvider.errorMessage ?? 'Failed to delete document',
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }
                                                 },
                                               ),
                                             ],
@@ -674,6 +743,35 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDownloadCell(String text, VoidCallback onDownload) {
+    return GestureDetector(
+      onTap: onDownload,
+      child: Container(
+        padding: const EdgeInsets.only(left: 4.0),
+        height: 40,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.download, size: 16, color: Colors.blue),
+          ],
+        ),
       ),
     );
   }
