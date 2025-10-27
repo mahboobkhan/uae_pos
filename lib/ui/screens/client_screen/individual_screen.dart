@@ -504,15 +504,8 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                           _buildPriceWithAdd(client['project_stats']['pending_amount'] ?? 'N/A'),
                                           _buildPriceWithAdd(client['project_stats']['paid_amount'] ?? 'N/A'),
                                           _buildActionCell(
-                                            onEdit: () async {
-                                              await PinVerificationUtil.executeWithPinVerification(
-                                                context,
-                                                () async {
-                                                  await showIndividualProfileDialog(context, clientData: client);
-                                                },
-                                                title: 'Edit Client',
-                                                message: 'Please enter your PIN to edit this client',
-                                              );
+                                            onEdit: () {
+                                              showIndividualProfileDialog(context, clientData: client);
                                             },
                                             onDelete: () async {
                                               final shouldDelete = await showDialog<bool>(
@@ -526,12 +519,19 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                                     ),
                                               );
                                               if (shouldDelete == true) {
-                                                final ref = client['client_ref_id']?.toString();
-                                                if (ref != null && ref.isNotEmpty) {
-                                                  await context.read<ClientProfileProvider>().deleteClient(
-                                                    clientRefId: ref,
-                                                  );
-                                                }
+                                                await PinVerificationUtil.executeWithPinVerification(
+                                                  context,
+                                                  () async {
+                                                    final ref = client['client_ref_id']?.toString();
+                                                    if (ref != null && ref.isNotEmpty) {
+                                                      await context.read<ClientProfileProvider>().deleteClient(
+                                                        clientRefId: ref,
+                                                      );
+                                                    }
+                                                  },
+                                                  title: 'Delete Individual',
+                                                  message: 'Please enter your PIN to delete this individual',
+                                                );
                                               }
                                             },
                                             onAddRelations: () async {

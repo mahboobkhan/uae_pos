@@ -344,7 +344,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               label: const Text('Cancel'),
             ),
             ElevatedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 // Check if any values were changed
                 final hasChanges = _editFileNameController.text != originalFileName ||
                                   _editIssueDateController.text != originalIssueDate ||
@@ -354,21 +354,44 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   // Show PIN verification for changes
                   Navigator.of(context).pop(); // Close dialog first
                   
-                  PinVerificationUtil.executeWithPinVerification(
+                  await PinVerificationUtil.executeWithPinVerification(
                     context,
-                    () {
-                      // Save the changes
+                    () async {
+                      // Save the changes to API
+                      final documentsProvider = Provider.of<DocumentsProvider>(context, listen: false);
+                      
                       print('Saving changes:');
+                      print('Document ID: $fileId');
                       print('File Name: ${_editFileNameController.text}');
                       print('Issue Date: ${_editIssueDateController.text}');
                       print('Expiry Date: ${_editExpiryDateController.text}');
                       
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Document "${_editFileNameController.text}" updated successfully'),
-                          backgroundColor: Colors.green,
-                        ),
+                      // Call update API
+                      final success = await documentsProvider.updateDocument(
+                        documentRefId: fileId,
+                        name: _editFileNameController.text,
+                        issueDate: _editIssueDateController.text,
+                        expireDate: _editExpiryDateController.text,
                       );
+                      
+                      if (success != null && success.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Document "${_editFileNameController.text}" updated successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        
+                        // Refresh documents list
+                        _fetchDocuments();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(documentsProvider.errorMessage ?? 'Failed to update document'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
                     title: 'Confirm Changes',
                     message: 'Please enter your PIN to save these changes',

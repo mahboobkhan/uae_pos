@@ -540,15 +540,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                                 : 'N/A'
                                           ),
                                           _buildActionCell(
-                                            onEdit: () async {
-                                              await PinVerificationUtil.executeWithPinVerification(
-                                                context,
-                                                () async {
-                                                  await showCompanyProfileDialog(context, clientData: client);
-                                                },
-                                                title: 'Edit Establishment',
-                                                message: 'Please enter your PIN to edit this establishment',
-                                              );
+                                            onEdit: () {
+                                              showCompanyProfileDialog(context, clientData: client);
                                             },
                                             onDelete: () async {
                                               final shouldDelete = await showDialog<bool>(
@@ -562,12 +555,19 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                                     ),
                                               );
                                               if (shouldDelete == true) {
-                                                final ref = client['client_ref_id']?.toString();
-                                                if (ref != null && ref.isNotEmpty) {
-                                                  await context.read<ClientProfileProvider>().deleteClient(
-                                                    clientRefId: ref,
-                                                  );
-                                                }
+                                                await PinVerificationUtil.executeWithPinVerification(
+                                                  context,
+                                                  () async {
+                                                    final ref = client['client_ref_id']?.toString();
+                                                    if (ref != null && ref.isNotEmpty) {
+                                                      await context.read<ClientProfileProvider>().deleteClient(
+                                                        clientRefId: ref,
+                                                      );
+                                                    }
+                                                  },
+                                                  title: 'Delete Establishment',
+                                                  message: 'Please enter your PIN to delete this establishment',
+                                                );
                                               }
                                             },
                                             onAddEmployee: () async {
