@@ -16,6 +16,7 @@ import 'package:abc_consultant/providers/documents_provider.dart';
 import 'package:abc_consultant/providers/employee_payments_provider.dart';
 import 'package:abc_consultant/providers/project_stage_provider.dart';
 import 'package:abc_consultant/providers/projects_provider.dart';
+import 'package:abc_consultant/providers/project_report_provider.dart';
 import 'package:abc_consultant/providers/service_category_provider.dart';
 import 'package:abc_consultant/providers/short_service_category_provider.dart';
 import 'package:abc_consultant/providers/short_service_invoice_provider.dart';
@@ -68,6 +69,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ShortServiceInvoiceProvider()),
         ChangeNotifierProvider(create: (_) => ProjectsProvider()),
         ChangeNotifierProvider(create: (_) => ProjectStageProvider()),
+        ChangeNotifierProvider(create: (_) => ProjectReportProvider()),
         ChangeNotifierProvider(create: (_) => ClientProfileProvider()),
         ChangeNotifierProvider(create: (_) => ClientOrganizationEmployeeProvider()),
         ChangeNotifierProvider(create: (_) => DocumentsProvider()),
