@@ -391,85 +391,86 @@ class _ProjectScreenState extends State<ProjectScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Container(
-                        height: 300,
-                        child:
-                            projectsProvider.isLoading
-                                ? Center(child: CircularProgressIndicator())
-                                : ScrollbarTheme(
-                                  data: ScrollbarThemeData(
-                                    thumbVisibility: MaterialStateProperty.all(true),
-                                    thumbColor: MaterialStateProperty.all(Colors.grey),
-                                    thickness: MaterialStateProperty.all(8),
-                                    radius: const Radius.circular(4),
-                                  ),
-                                  child: Scrollbar(
-                                    controller: _verticalController,
-                                    thumbVisibility: true,
+                      child: Expanded(
+                        child: Container(
+                          child:
+                              projectsProvider.isLoading
+                                  ? Center(child: CircularProgressIndicator())
+                                  : ScrollbarTheme(
+                                    data: ScrollbarThemeData(
+                                      thumbVisibility: MaterialStateProperty.all(true),
+                                      thumbColor: MaterialStateProperty.all(Colors.grey),
+                                      thickness: MaterialStateProperty.all(8),
+                                      radius: const Radius.circular(4),
+                                    ),
                                     child: Scrollbar(
-                                      controller: _horizontalController,
+                                      controller: _verticalController,
                                       thumbVisibility: true,
-                                      child: SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
+                                      child: Scrollbar(
                                         controller: _horizontalController,
+                                        thumbVisibility: true,
                                         child: SingleChildScrollView(
-                                          scrollDirection: Axis.vertical,
-                                          controller: _verticalController,
-                                          child: ConstrainedBox(
-                                            constraints: const BoxConstraints(minWidth: 1250),
-                                            child: Table(
-                                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                              columnWidths: const {
-                                                0: FlexColumnWidth(1),
-                                                1: FlexColumnWidth(1.5),
-                                                2: FlexColumnWidth(1),
-                                                3: FlexColumnWidth(1.5),
-                                                4: FlexColumnWidth(1),
-                                                5: FlexColumnWidth(1.3),
-                                                6: FlexColumnWidth(1.3),
-                                                7: FlexColumnWidth(1.3),
-                                                8: FlexColumnWidth(1.3),
-                                                9: FlexColumnWidth(1),
-                                                10: FlexColumnWidth(1.4),
-                                              },
-                                              children: [
-                                                TableRow(
-                                                  decoration: BoxDecoration(color: Colors.red.shade50),
-                                                  children: [
-                                                    _buildHeader("Date"),
-                                                    _buildHeader("Ref Id"),
-                                                    _buildHeader("Type"),
-                                                    _buildHeader("Client"),
-                                                    _buildHeader("Status"),
-                                                    _buildHeader("Stage"),
-                                                    _buildHeader("Pending"),
-                                                    _buildHeader("Quotation"),
-                                                    _buildHeader("Steps Cost"),
-                                                    _buildHeader("Assign Employee"),
-                                                    _buildHeader("More Actions"),
-                                                  ],
-                                                ),
-                                                if (projectsProvider.combinedData.isEmpty)
+                                          scrollDirection: Axis.horizontal,
+                                          controller: _horizontalController,
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.vertical,
+                                            controller: _verticalController,
+                                            child: ConstrainedBox(
+                                              constraints: const BoxConstraints(minWidth: 1250),
+                                              child: Table(
+                                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                                columnWidths: const {
+                                                  0: FlexColumnWidth(1),
+                                                  1: FlexColumnWidth(1.5),
+                                                  2: FlexColumnWidth(1),
+                                                  3: FlexColumnWidth(1.5),
+                                                  4: FlexColumnWidth(1),
+                                                  5: FlexColumnWidth(1.3),
+                                                  6: FlexColumnWidth(1.3),
+                                                  7: FlexColumnWidth(1.3),
+                                                  8: FlexColumnWidth(1.3),
+                                                  9: FlexColumnWidth(1),
+                                                  10: FlexColumnWidth(1.4),
+                                                },
+                                                children: [
                                                   TableRow(
+                                                    decoration: BoxDecoration(color: Colors.red.shade50),
                                                     children: [
-                                                      Container(
-                                                        height: 50,
-                                                        child: Center(child: Text("No data available")),
-                                                      ),
-                                                      for (int i = 1; i < 11; i++) Container(height: 50),
+                                                      _buildHeader("Date"),
+                                                      _buildHeader("Ref Id"),
+                                                      _buildHeader("Type"),
+                                                      _buildHeader("Client"),
+                                                      _buildHeader("Status"),
+                                                      _buildHeader("Stage"),
+                                                      _buildHeader("Pending"),
+                                                      _buildHeader("Quotation"),
+                                                      _buildHeader("Steps Cost"),
+                                                      _buildHeader("Assign Employee"),
+                                                      _buildHeader("More Actions"),
                                                     ],
-                                                  )
-                                                else
-                                                  for (int i = 0; i < projectsProvider.combinedData.length; i++)
-                                                    _buildDataRow(projectsProvider.combinedData[i], i),
-                                              ],
+                                                  ),
+                                                  if (projectsProvider.combinedData.isEmpty)
+                                                    TableRow(
+                                                      children: [
+                                                        Container(
+                                                          height: 50,
+                                                          child: Center(child: Text("No data available")),
+                                                        ),
+                                                        for (int i = 1; i < 11; i++) Container(height: 50),
+                                                      ],
+                                                    )
+                                                  else
+                                                    for (int i = 0; i < projectsProvider.combinedData.length; i++)
+                                                      _buildDataRow(projectsProvider.combinedData[i], i),
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
+                        ),
                       ),
                     ),
                   ],
@@ -747,7 +748,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
       final double total = (qty * unitPrice) - discount;
 
       pendingAmount = '0.00'; // Short services are usually paid upfront
-      quotationAmount = total.toStringAsFixed(2);
+      quotationAmount = item['total_amount'] ?? "5";
       stepsCost = 'N/A';
 
       managerName = item['manager_name'] ?? '';

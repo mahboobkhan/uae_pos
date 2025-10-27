@@ -3,12 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/documents_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
-import '../../../providers/documents_provider.dart';
 
 class PreferencesScreen extends StatefulWidget {
-
   const PreferencesScreen({super.key});
 
   @override
@@ -42,30 +41,24 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   Future<void> _fetchDocuments() async {
     final documentsProvider = Provider.of<DocumentsProvider>(context, listen: false);
 
-
     try {
       // First, try to get all available document IDs
       print('Fetching all available document IDs...');
 
-
-        await documentsProvider.getDocuments();
-
+      await documentsProvider.getDocuments();
     } catch (e) {
       print('Error fetching documents: $e');
       // Show error message to user
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error fetching documents: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error fetching documents: $e'), backgroundColor: Colors.red));
     }
   }
 
   // Alternative method to fetch documents using getClientDocuments
   Future<void> _fetchDocumentsByClient() async {
     final documentsProvider = Provider.of<DocumentsProvider>(context, listen: false);
-    
+
     try {
       // Try with a sample client ID - you can replace this with actual client ID
       String clientId = "sample_client_001";
@@ -73,12 +66,9 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       await documentsProvider.getClientDocuments(clientRefId: clientId);
     } catch (e) {
       print('Error fetching documents by client: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error fetching documents: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error fetching documents: $e'), backgroundColor: Colors.red));
     }
   }
 
@@ -87,30 +77,12 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
   ];
 
-  final List<String> categories = [
-    'All',
-    'New',
-    'Pending',
-    'Completed',
-    'Stop',
-  ];
+  final List<String> categories = ['All', 'New', 'Pending', 'Completed', 'Stop'];
   String? selectedCategory;
 
-  final List<String> categories1 = [
-    'No Tags',
-    'Tag 001',
-    'Tag 002',
-    'Sample Tag',
-  ];
+  final List<String> categories1 = ['No Tags', 'Tag 001', 'Tag 002', 'Sample Tag'];
   String? selectedCategory1;
-  final List<String> categories3 = [
-    'All',
-    'Toady',
-    'Yesterday',
-    'Last 7 Days',
-    'Last 30 Days',
-    'Custom Range',
-  ];
+  final List<String> categories3 = ['All', 'Toady', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
   String? selectedCategory3;
   bool _isHovering = false;
 
@@ -118,7 +90,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   final _editFileNameController = TextEditingController();
   final _editIssueDateController = TextEditingController();
   final _editExpiryDateController = TextEditingController();
-
 
   String formatDateTime(DateTime? dt) {
     final now = DateTime.now();
@@ -135,19 +106,10 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
     if (date == null) return;
 
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
+    final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (time == null) return;
 
-    final selectedDateTime = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
-    );
+    final selectedDateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
 
     final formatted = DateFormat('dd-MM-yyyy – hh:mm a').format(selectedDateTime);
 
@@ -162,12 +124,12 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
   void _showEditDialog(String fileId, String fileName, String issueDate, String expiryDate) {
     print('Edit dialog called with: ID: $fileId, Name: $fileName, Issue: $issueDate, Expiry: $expiryDate');
-    
+
     // Pre-populate the controllers with current values
     _editFileNameController.text = fileName;
     _editIssueDateController.text = issueDate;
     _editExpiryDateController.text = expiryDate;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -199,24 +161,14 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       children: [
                         const Text(
                           'Document Information',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.blue,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.blue),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
                             const Icon(Icons.fingerprint, size: 16, color: Colors.grey),
                             const SizedBox(width: 8),
-                            Text(
-                              'File ID: $fileId',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                              ),
-                            ),
+                            Text('File ID: $fileId', style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -227,10 +179,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                             Expanded(
                               child: Text(
                                 'File Name: $fileName',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
-                                ),
+                                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                               ),
                             ),
                           ],
@@ -238,19 +187,13 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Editable Fields
-                  const Text(
-                    'Edit Details',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
+                  const Text('Edit Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 12),
-                  
+
                   TextField(
                     controller: _editFileNameController,
                     decoration: const InputDecoration(
@@ -261,7 +204,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   TextField(
                     controller: _editIssueDateController,
                     decoration: const InputDecoration(
@@ -275,7 +218,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     onTap: () => _pickEditDateTime(true),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   TextField(
                     controller: _editExpiryDateController,
                     decoration: const InputDecoration(
@@ -288,9 +231,9 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     readOnly: true,
                     onTap: () => _pickEditDateTime(false),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Document Status Info
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -302,13 +245,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Document Status',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
+                        const Text('Document Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -369,10 +306,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               },
               icon: const Icon(Icons.save),
               label: const Text('Save Changes'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
             ),
           ],
         );
@@ -393,8 +327,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             },
             heroTag: "client_docs",
             mini: true,
-            child: const Icon(Icons.person),
             tooltip: 'Fetch by Client',
+            child: const Icon(Icons.person),
           ),
           const SizedBox(height: 8),
           FloatingActionButton(
@@ -402,304 +336,273 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               _fetchDocuments();
             },
             heroTag: "refresh_docs",
-            child: const Icon(Icons.refresh),
             tooltip: 'Refresh Documents',
+            child: const Icon(Icons.refresh),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: Column(
-          children: [
-            MouseRegion(
-              onEnter: (_) => setState(() => _isHovering = true),
-              onExit: (_) => setState(() => _isHovering = false),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 45,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  border: Border.all(color: Colors.grey, width: 1),
-                  borderRadius: BorderRadius.circular(2),
-                  boxShadow:
-                  _isHovering
-                      ? [
-                    BoxShadow(
-                      color: Colors.blue,
-                      blurRadius: 4,
-                      spreadRadius: 0.1,
-                      offset: Offset(0, 1),
-                    ),
-                  ]
-                      : [],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            CustomDropdown(
-                              selectedValue: selectedCategory,
-                              hintText: "Status",
-                              items: categories,
-                              onChanged: (newValue) {
-                                setState(() => selectedCategory = newValue!);
-                              },
-                            ),
-                            CustomDropdown(
-                              selectedValue: selectedCategory1,
-                              hintText: "Select Tags",
-                              items: categories1,
-                              onChanged: (newValue) {
-                                setState(() => selectedCategory1 = newValue!);
-                              },
-                            ),
-                            CustomDropdown(
-                              selectedValue: selectedCategory3,
-                              hintText: "Dates",
-                              items: categories3,
-                              onChanged: (newValue) async {
-                                if (newValue == 'Custom Range') {
-                                  final selectedRange = await showDateRangePickerDialog(
-                                      context);
-
-                                  if (selectedRange != null) {
-                                    final start = selectedRange.startDate ??
-                                        DateTime.now();
-                                    final end = selectedRange.endDate ??
-                                        start;
-
-                                    final formattedRange = '${DateFormat(
-                                        'dd/MM/yyyy').format(
-                                        start)} - ${DateFormat('dd/MM/yyyy')
-                                        .format(end)}';
-
-                                    setState(() {
-                                      selectedCategory3 = formattedRange;
-                                    });
-                                  }
-                                } else {
-                                  setState(() =>
-                                  selectedCategory3 = newValue!);
-                                }
-                              },
-                              icon: const Icon(
-                                Icons.calendar_month,
-                                size: 18,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            children: [
+              MouseRegion(
+                onEnter: (_) => setState(() => _isHovering = true),
+                onExit: (_) => setState(() => _isHovering = false),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 45,
+                  width: MediaQuery.of(context).size.width,
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    border: Border.all(color: Colors.grey, width: 1),
+                    borderRadius: BorderRadius.circular(2),
+                    boxShadow:
+                        _isHovering
+                            ? [BoxShadow(color: Colors.blue, blurRadius: 4, spreadRadius: 0.1, offset: Offset(0, 1))]
+                            : [],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              CustomDropdown(
+                                selectedValue: selectedCategory,
+                                hintText: "Status",
+                                items: categories,
+                                onChanged: (newValue) {
+                                  setState(() => selectedCategory = newValue!);
+                                },
                               ),
-                            ),
-                          ],
+                              CustomDropdown(
+                                selectedValue: selectedCategory1,
+                                hintText: "Select Tags",
+                                items: categories1,
+                                onChanged: (newValue) {
+                                  setState(() => selectedCategory1 = newValue!);
+                                },
+                              ),
+                              CustomDropdown(
+                                selectedValue: selectedCategory3,
+                                hintText: "Dates",
+                                items: categories3,
+                                onChanged: (newValue) async {
+                                  if (newValue == 'Custom Range') {
+                                    final selectedRange = await showDateRangePickerDialog(context);
+
+                                    if (selectedRange != null) {
+                                      final start = selectedRange.startDate ?? DateTime.now();
+                                      final end = selectedRange.endDate ?? start;
+
+                                      final formattedRange =
+                                          '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
+
+                                      setState(() {
+                                        selectedCategory3 = formattedRange;
+                                      });
+                                    }
+                                  } else {
+                                    setState(() => selectedCategory3 = newValue!);
+                                  }
+                                },
+                                icon: const Icon(Icons.calendar_month, size: 18),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        Card(
-                          elevation: 4,
-                          color: Colors.green,
-                          shape: CircleBorder(),
-                          child: Tooltip(
-                            message: 'Refresh',
-                            waitDuration: Duration(milliseconds: 2),
-                            child: GestureDetector(
-                              onTap: () {
-                              },
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: const BoxDecoration(shape: BoxShape.circle),
-                                child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Card(
-                          elevation: 4,
-                          color: Colors.orange,
-                          shape: CircleBorder(),
-                          child: Tooltip(
-                            message: 'Clear Filters',
-                            waitDuration: Duration(milliseconds: 2),
-                            child: GestureDetector(
-                              onTap: () {
-                              },
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: const BoxDecoration(shape: BoxShape.circle),
-                                child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Consumer<DocumentsProvider>(
-              builder: (context, documentsProvider, child) {
-                if (documentsProvider.isLoading) {
-                  return const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                if (documentsProvider.errorMessage != null) {
-                  return Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Center(
-                      child: Column(
+                      Row(
                         children: [
-                          Text(
-                            'Error: ${documentsProvider.errorMessage}',
-                            style: const TextStyle(color: Colors.red),
+                          Card(
+                            elevation: 4,
+                            color: Colors.green,
+                            shape: CircleBorder(),
+                            child: Tooltip(
+                              message: 'Refresh',
+                              waitDuration: Duration(milliseconds: 2),
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                                ),
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: _fetchDocuments,
-                            child: const Text('Retry'),
+                          Card(
+                            elevation: 4,
+                            color: Colors.orange,
+                            shape: CircleBorder(),
+                            child: Tooltip(
+                              message: 'Clear Filters',
+                              waitDuration: Duration(milliseconds: 2),
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                                  child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  );
-                }
+                    ],
+                  ),
+                ),
+              ),
 
-                final documents = documentsProvider.documents;
-                if (documents.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Center(
-                      child: Text('No documents found'),
-                    ),
-                  );
-                }
+              Expanded(
+                child: Consumer<DocumentsProvider>(
+                  builder: (context, documentsProvider, child) {
+                    if (documentsProvider.isLoading) {
+                      return const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()));
+                    }
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Container(
-                    height: 300,
-                    child: ScrollbarTheme(
-                      data: ScrollbarThemeData(
-                        thumbVisibility: MaterialStateProperty.all(true),
-                        thumbColor: MaterialStateProperty.all(Colors.grey),
-                        thickness: MaterialStateProperty.all(8),
-                        radius: const Radius.circular(4),
-                      ),
-                      child: Scrollbar(
-                        controller: _verticalController,
-                        thumbVisibility: true,
-                        child: Scrollbar(
-                          controller: _horizontalController,
-                          thumbVisibility: true,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            controller: _horizontalController,
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(minWidth: 1150),
+                    if (documentsProvider.errorMessage != null) {
+                      return Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Text('Error: ${documentsProvider.errorMessage}', style: const TextStyle(color: Colors.red)),
+                              const SizedBox(height: 10),
+                              ElevatedButton(onPressed: _fetchDocuments, child: const Text('Retry')),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    final documents = documentsProvider.documents;
+                    if (documents.isEmpty) {
+                      return const Padding(padding: EdgeInsets.all(20), child: Center(child: Text('No documents found')));
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Container(
+                        width: double.infinity,
+                        child: ScrollbarTheme(
+                          data: ScrollbarThemeData(
+                            thumbVisibility: MaterialStateProperty.all(true),
+                            thumbColor: MaterialStateProperty.all(Colors.grey),
+                            thickness: MaterialStateProperty.all(8),
+                            radius: const Radius.circular(4),
+                          ),
+                          child: Scrollbar(
+                            controller: _verticalController,
+                            thumbVisibility: true,
+                            child: Scrollbar(
+                              controller: _horizontalController,
+                              thumbVisibility: true,
                               child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                controller: _verticalController,
-                                child: Table(
-                                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                  columnWidths: const {
-                                    0: FlexColumnWidth(0.8),
-                                    1: FlexColumnWidth(1.5),
-                                    2: FlexColumnWidth(1),
-                                    3: FlexColumnWidth(1),
-                                    4: FlexColumnWidth(1.3),
-                                    5: FlexColumnWidth(1),
-                                    6: FlexColumnWidth(1),
-                                  },
-                                  children: [
-                                    TableRow(
-                                      decoration: BoxDecoration(
-                                        color: Colors.red.shade50,
-                                      ),
+                                scrollDirection: Axis.horizontal,
+                                controller: _horizontalController,
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(minWidth: 1150),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.vertical,
+                                    controller: _verticalController,
+                                    child: Table(
+                                      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(1.5),
+                                        1: FlexColumnWidth(1.5),
+                                        2: FlexColumnWidth(1),
+                                        3: FlexColumnWidth(1),
+                                        4: FlexColumnWidth(1.3),
+                                        5: FlexColumnWidth(1),
+                                        6: FlexColumnWidth(1),
+                                      },
                                       children: [
-                                        _buildHeader("File Id"),
-                                        _buildHeader("File Name"),
-                                        _buildHeader("Issue Date"),
-                                        _buildHeader("Expiry Date"),
-                                        _buildHeader("Source Form"),
-                                        _buildHeader("Download Price"),
-                                        _buildHeader("Action"),
+                                        TableRow(
+                                          decoration: BoxDecoration(color: Colors.red.shade50),
+                                          children: [
+                                            _buildHeader("File Id"),
+                                            _buildHeader("File Name"),
+                                            _buildHeader("Issue Date"),
+                                            _buildHeader("Expiry Date"),
+                                            _buildHeader("Source Form"),
+                                            _buildHeader("Download Price"),
+                                            _buildHeader("Action"),
+                                          ],
+                                        ),
+                                        for (int i = 0; i < documents.length; i++)
+                                          TableRow(
+                                            decoration: BoxDecoration(
+                                              color: i.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
+                                            ),
+                                            children: [
+                                              _buildCell(documents[i]['document_ref_id'] ?? 'N/A', copyable: true),
+                                              _buildCell(documents[i]['name'] ?? 'N/A', copyable: false),
+                                              _buildCell(documents[i]['issue_date'] ?? 'N/A'),
+                                              _buildCell(documents[i]['expire_date'] ?? 'N/A'),
+                                              _buildCell(documents[i]['type'] ?? 'N/A'),
+                                              _buildCell("Click Download"),
+                                              _buildActionCell(
+                                                onEdit: () {
+                                                  _showEditDialog(
+                                                    documents[i]['document_ref_id'] ?? 'N/A',
+                                                    documents[i]['name'] ?? 'N/A',
+                                                    documents[i]['issue_date'] ?? 'N/A',
+                                                    documents[i]['expire_date'] ?? 'N/A',
+                                                  );
+                                                },
+                                                onDelete: () async {
+                                                  final documentsProvider = Provider.of<DocumentsProvider>(
+                                                    context,
+                                                    listen: false,
+                                                  );
+                                                  final success = await documentsProvider.deleteDocument(
+                                                    documentRefId: documents[i]['document_ref_id'] ?? '',
+                                                  );
+                                                  if (success) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(content: Text('Document deleted successfully')),
+                                                    );
+                                                    _fetchDocuments();
+                                                  } else {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          documentsProvider.errorMessage ?? 'Failed to delete document',
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ],
+                                          ),
                                       ],
                                     ),
-                                    for (int i = 0; i < documents.length; i++)
-                                      TableRow(
-                                        decoration: BoxDecoration(
-                                          color: i.isEven
-                                              ? Colors.grey.shade200
-                                              : Colors.grey.shade100,
-                                        ),
-                                        children: [
-                                          _buildCell(documents[i]['document_ref_id'] ?? 'N/A', copyable: true),
-                                          _buildCell(documents[i]['name'] ?? 'N/A', copyable: true),
-                                          _buildCell(documents[i]['issue_date'] ?? 'N/A'),
-                                          _buildCell(documents[i]['expire_date'] ?? 'N/A'),
-                                          _buildCell(documents[i]['source_form'] ?? 'N/A'),
-                                          _buildCell("Click Download"),
-                                          _buildActionCell(
-                                            onEdit: () {
-                                              _showEditDialog(
-                                                documents[i]['document_ref_id'] ?? 'N/A',
-                                                documents[i]['name'] ?? 'N/A',
-                                                documents[i]['issue_date'] ?? 'N/A',
-                                                documents[i]['expire_date'] ?? 'N/A',
-                                              );
-                                            },
-                                            onDelete: () async {
-                                              final documentsProvider = Provider.of<DocumentsProvider>(context, listen: false);
-                                              final success = await documentsProvider.deleteDocument(
-                                                documentRefId: documents[i]['document_ref_id'] ?? '',
-                                              );
-                                              if (success) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(content: Text('Document deleted successfully')),
-                                                );
-                                                _fetchDocuments();
-                                              } else {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(content: Text(documentsProvider.errorMessage ?? 'Failed to delete document')),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              },
-            )
-
-          ],
-        ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
-
 
   Widget _buildHeader(String text) {
     return Container(
@@ -709,36 +612,25 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
         padding: const EdgeInsets.only(left: 4.0),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
     );
   }
+
   Widget _buildCell(String text, {bool copyable = false}) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
           if (copyable)
             GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -750,10 +642,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
   }
 
-  Widget _buildActionCell({
-    VoidCallback? onEdit,
-    VoidCallback? onDelete,
-  }) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
     return Container(
       height: 40,
       child: Row(
@@ -789,6 +678,3 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
   }
 }
-
-
-

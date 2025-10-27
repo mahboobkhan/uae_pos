@@ -37,7 +37,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
 
   bool _isOrg(Map<String, dynamic>? c) {
     final t = (c?['client_type'] ?? '').toString().toLowerCase();
-    return t == 'organization' || t == 'company' || t == 'corporate';
+    return t == 'establishment' || t == 'company' || t == 'corporate';
   }
 
   // Form validation
@@ -64,7 +64,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
   }
 
   void _loadEmployeesForClient(String? clientRefId) {
-    if (clientRefId != null && _selectedClient != null && _isOrg(_selectedClient)) {
+    if (clientRefId != null && _selectedClient != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final employeeProvider = context.read<ClientOrganizationEmployeeProvider>();
@@ -305,7 +305,12 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     Consumer<ClientProfileProvider>(
                       builder: (context, clientProv, _) {
                         final clients = clientProv.clients;
-                        final clientNames = ['Select Client', ...clients.map((c) => (c['name'] ?? 'Unnamed').toString())];
+                        // Show client as "name - ref_id"
+                        final clientNames = ['Select Client', ...clients.map((c) {
+                          final name = (c['name'] ?? 'Unnamed').toString();
+                          final refId = (c['client_ref_id'] ?? '').toString();
+                          return '$name - $refId';
+                        })];
 
                         return Row(
                           mainAxisSize: MainAxisSize.min,
@@ -324,14 +329,20 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                     selectedEmployee = null;
                                   } else {
                                     searchClient = val;
+                                    // Find client by matching the full "name - ref_id" string
                                     _selectedClient = clients.firstWhere(
-                                          (c) => (c['name'] ?? '').toString() == (val ?? ''),
+                                      (c) {
+                                        final name = (c['name'] ?? 'Unnamed').toString();
+                                        final refId = (c['client_ref_id'] ?? '').toString();
+                                        final displayName = '$name - $refId';
+                                        return displayName == (val ?? '');
+                                      },
                                       orElse: () => {},
                                     );
-                                    selectedEmployee = null;
+                                    selectedEmployee = "Self";
 
-                                    // Load employees if organization is selected
-                                    if (_selectedClient != null && _isOrg(_selectedClient)) {
+                                    // Load employees/relations for ANY client type
+                                    if (_selectedClient != null) {
                                       final clientRefId = _selectedClient!['client_ref_id']?.toString();
                                       _loadEmployeesForClient(clientRefId);
                                     }
@@ -339,20 +350,11 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                                 });
                               },
                             ),
-                            // individual -> show Self (InfoBox)
+                            // individual -> show relation dropdown OR organization -> show employee dropdown
                             if (_selectedClient != null) const SizedBox(width: 10),
 
-                            // individual -> show Self (InfoBox)
-                            if (_selectedClient != null && !_isOrg(_selectedClient))
-                              CustomTextField(
-                                label: "Client",
-                                controller: _clientSelf,
-                                hintText: 'Self',
-                                keyboardType: TextInputType.text,
-                              )
-                            // organization -> show employee dropdown (dynamic list)
-                            else if (_selectedClient != null && _isOrg(_selectedClient))
-                              _buildEmployeeDropdown(),
+                            // Show dropdown based on client type
+                            if (_selectedClient != null) _buildClientTypeDropdown(),
                           ],
                         );
                       },
@@ -511,8 +513,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
     );
   }
 
-  /// Build employee dropdown for organization clients
-  Widget _buildEmployeeDropdown() {
+  /// Build dropdown for employee (if establishment) or relation (if individual)
+  Widget _buildClientTypeDropdown() {
+    final isOrganization = _isOrg(_selectedClient);
+    
     return Consumer<ClientOrganizationEmployeeProvider>(
       builder: (context, employeeProvider, child) {
         if (employeeProvider.isLoading) {
@@ -529,7 +533,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 children: [
                   SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
                   SizedBox(width: 8),
-                  Text('Loading employees...', style: TextStyle(fontSize: 12)),
+                  Text(
+                    isOrganization ? 'Loading employees...' : 'Loading relations...',
+                    style: TextStyle(fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -549,7 +556,10 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Error loading employees', style: TextStyle(color: Colors.red, fontSize: 12)),
+                  Text(
+                    isOrganization ? 'Error loading employees' : 'Error loading relations',
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
                   Text(employeeProvider.errorMessage!, style: TextStyle(color: Colors.red, fontSize: 10)),
                 ],
               ),
@@ -557,34 +567,21 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
           );
         }
 
-        if (employeeProvider.employees.isEmpty) {
-          return SizedBox(
-            width: 220,
-            child: Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                border: Border.all(color: Colors.orange),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text('No employees found', style: TextStyle(color: Colors.orange, fontSize: 12)),
-            ),
-          );
-        }
-
-        // Create dropdown options from employees
-        final employeeOptions =
-            employeeProvider.employees.map((employee) {
-              final name = employee['name'] ?? 'Unknown';
-              final type = employee['type'] ?? '';
-              final email = employee['email'] ?? '';
+        // Create dropdown options - for establishment show employees, for individual show relations
+        final options = employeeProvider.employees.map((item) {
+              final name = item['name'] ?? 'Unknown';
+              final type = item['type'] ?? '';
+              final email = item['email'] ?? '';
               return '$name ($type) - $email';
             }).toList();
 
+        // Add "Self" as the first option
+        final allOptions = ['Self', ...options];
+
         return CustomDropdownWithSearch(
-          label: "Self",
+          label: isOrganization ? "Select Employee" : "Select Relation",
           selectedValue: selectedEmployee,
-          options: employeeOptions,
+          options: allOptions,
           onChanged: (val) {
             setState(() => selectedEmployee = val);
           },

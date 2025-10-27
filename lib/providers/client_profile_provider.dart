@@ -318,8 +318,7 @@ class ClientProfileProvider extends ChangeNotifier {
     final filtered = clients.where((client) {
       // Method 1: Explicit establishment types (highest priority)
       final isExplicitEstablishment = 
-          client['client_type'] == 'establishment' || 
-          client['client_type'] == 'organization';
+          client['client_type'] == 'establishment' ;
       
       // Method 2: Has establishment-specific fields with actual values
       final hasEstablishmentFields = 
@@ -374,7 +373,6 @@ class ClientProfileProvider extends ChangeNotifier {
       // Method 2: Check if it's NOT an establishment (reverse of establishment logic)
       final isNotEstablishment = 
           client['client_type'] != 'establishment' &&
-          client['client_type'] != 'organization' &&
           (client['trade_license_no'] == null || client['trade_license_no'].toString().trim().isEmpty) &&
           (client['company_code'] == null || client['company_code'].toString().trim().isEmpty) &&
           (client['establishment_no'] == null || client['establishment_no'].toString().trim().isEmpty) &&

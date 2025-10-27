@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -264,7 +265,78 @@ class ExpenseProvider extends ChangeNotifier {
       print("⏳ Step 2: Sending request to API...");
 
       final url = Uri.parse("https://abcwebservices.com/api/expenses/create_expense.php");
-      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: jsonEncode(request.toJson()));
+      
+      // Create multipart request for file upload support
+      final multipartRequest = http.MultipartRequest('POST', url);
+      
+      // Add form fields
+      multipartRequest.fields['expense_type'] = request.expenseType;
+      multipartRequest.fields['expense_name'] = request.expenseName;
+      multipartRequest.fields['expense_amount'] = request.expenseAmount.toString();
+      multipartRequest.fields['allocated_amount'] = request.allocatedAmount.toString();
+      multipartRequest.fields['pay_by_manager'] = request.payByManager;
+      multipartRequest.fields['received_by_person'] = request.receivedByPerson;
+      multipartRequest.fields['note'] = request.note;
+      multipartRequest.fields['tag'] = request.tag;
+      
+      // Add optional fields
+      if (request.paymentType != null && request.paymentType!.isNotEmpty) {
+        multipartRequest.fields['payment_type'] = request.paymentType!;
+      }
+      if (request.bankRefId != null && request.bankRefId!.isNotEmpty) {
+        multipartRequest.fields['bank_ref_id'] = request.bankRefId!;
+      }
+      if (request.transactionId != null && request.transactionId!.isNotEmpty) {
+        multipartRequest.fields['transaction_id'] = request.transactionId!;
+      }
+      if (request.expenseDate.isNotEmpty) {
+        multipartRequest.fields['expense_date'] = request.expenseDate;
+      }
+      if (request.editBy.isNotEmpty) {
+        multipartRequest.fields['edit_by'] = request.editBy;
+      }
+      if (request.paymentStatus.isNotEmpty) {
+        multipartRequest.fields['payment_status'] = request.paymentStatus;
+      }
+      
+      // Add file if provided
+      if (request.file != null) {
+        print("📎 Adding file to request...");
+        
+        if (kIsWeb) {
+          // Web: file should be PlatformFile from file_picker
+          try {
+            if (request.file is PlatformFile) {
+              final platformFile = request.file as PlatformFile;
+              if (platformFile.bytes != null) {
+                multipartRequest.files.add(
+                  http.MultipartFile.fromBytes(
+                    'file1',
+                    platformFile.bytes!,
+                    filename: platformFile.name,
+                  ),
+                );
+                print("📎 File added: ${platformFile.name}");
+              }
+            }
+          } catch (e) {
+            print("⚠️ Web file upload error: $e");
+          }
+        } else {
+          // Mobile/Desktop: file is File
+          if (request.file is File) {
+            final file = request.file as File;
+            multipartRequest.files.add(
+              await http.MultipartFile.fromPath('file1', file.path),
+            );
+            print("📎 File added: ${file.path}");
+          }
+        }
+      }
+      
+      // Send the request
+      final streamedResponse = await multipartRequest.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       print("📥 Step 3: Response received with status ${response.statusCode}");
 
@@ -315,7 +387,7 @@ class ExpenseProvider extends ChangeNotifier {
       expenseDate: request.expenseDate,
       paymentType: request.paymentType ?? "",
       bankRefId: request.bankRefId ?? "",
-      serviceTid: request.serviceTid ?? "",
+      serviceTid: request.transactionId ?? "",
       createdAt: DateTime.now().toIso8601String(),
       updatedAt: DateTime.now().toIso8601String(),
     );
@@ -429,7 +501,8 @@ class ExpenseRequest {
   final String paymentStatus;
   final String? paymentType;
   final String? bankRefId;
-  final String? serviceTid;
+  final String? transactionId;
+  final dynamic file; // File or PlatformFile for web
 
   ExpenseRequest({
     required this.expenseName,
@@ -445,7 +518,8 @@ class ExpenseRequest {
     required this.paymentStatus,
     this.paymentType,
     this.bankRefId,
-    this.serviceTid,
+    this.transactionId,
+    this.file,
   });
 
   Map<String, dynamic> toJson() {
@@ -463,7 +537,7 @@ class ExpenseRequest {
       "payment_status": paymentStatus,
       "payment_type": paymentType ?? "",
       "bank_ref_id": bankRefId ?? "",
-      "service_tid": serviceTid ?? "",
+      "transaction_id": transactionId ?? "",
     };
   }
 }

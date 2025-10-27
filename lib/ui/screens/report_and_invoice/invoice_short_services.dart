@@ -1,10 +1,8 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ABCInvoiceWidget extends StatelessWidget {
   final String refNo;
@@ -31,16 +29,8 @@ class ABCInvoiceWidget extends StatelessWidget {
         title: const Text('Invoice Preview'),
         backgroundColor: Colors.blue,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.print),
-            onPressed: () => _printPDF(),
-            tooltip: 'Print',
-          ),
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () => _sharePDF(),
-            tooltip: 'Share',
-          ),
+          IconButton(icon: const Icon(Icons.print), onPressed: () => _printPDF(), tooltip: 'Print'),
+          IconButton(icon: const Icon(Icons.share), onPressed: () => _sharePDF(), tooltip: 'Share'),
         ],
       ),
       body: PdfPreview(
@@ -54,17 +44,11 @@ class ABCInvoiceWidget extends StatelessWidget {
   }
 
   Future<void> _printPDF() async {
-    await Printing.layoutPdf(
-      onLayout: (format) => _generatePDF(),
-      name: 'Invoice_$refNo.pdf',
-    );
+    await Printing.layoutPdf(onLayout: (format) => _generatePDF(), name: 'Invoice_$refNo.pdf');
   }
 
   Future<void> _sharePDF() async {
-    await Printing.sharePdf(
-      bytes: await _generatePDF(),
-      filename: 'Invoice_$refNo.pdf',
-    );
+    await Printing.sharePdf(bytes: await _generatePDF(), filename: 'Invoice_$refNo.pdf');
   }
 
   Future<Uint8List> _generatePDF() async {
@@ -94,23 +78,22 @@ class ABCInvoiceWidget extends StatelessWidget {
       pw.MultiPage(
         pageFormat: pageFormat,
         margin: pw.EdgeInsets.all(20 * scale),
-        build: (context) => [
-          _header(scale),
-          pw.SizedBox(height: 15 * scale),
-          _contact(scale),
-          pw.SizedBox(height: 15 * scale),
-          _clientInfo(scale),
-          pw.SizedBox(height: 15 * scale),
-          _servicesTable(scale, svgString),
-          pw.SizedBox(height: 15 * scale),
-          _totals(scale, subtotal, totalDiscount, total, svgString),
-          pw.SizedBox(height: 20 * scale),
-          _signature(scale),
-          pw.Spacer(),
-          pw.Center(
-            child:  _footer(scale),
-          )
-        ],
+        build:
+            (context) => [
+              _header(scale),
+              pw.SizedBox(height: 15 * scale),
+              _contact(scale),
+              pw.SizedBox(height: 15 * scale),
+              _clientInfo(scale),
+              pw.SizedBox(height: 15 * scale),
+              _servicesTable(scale, svgString),
+              pw.SizedBox(height: 15 * scale),
+              _totals(scale, subtotal, totalDiscount, total, svgString),
+              pw.SizedBox(height: 20 * scale),
+              _signature(scale),
+              pw.Spacer(),
+              pw.Center(child: _footer(scale)),
+            ],
       ),
     );
 
@@ -133,35 +116,21 @@ class ABCInvoiceWidget extends StatelessWidget {
             children: [
               pw.Text(
                 'ABC Business Consultancy',
-                style: pw.TextStyle(
-                  fontSize: 24 * scale,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.blue900,
-                ),
+                style: pw.TextStyle(fontSize: 24 * scale, fontWeight: pw.FontWeight.bold, color: PdfColors.blue900),
               ),
               pw.SizedBox(height: 5 * scale),
               pw.Text(
                 'Your Business Gateway in the Emirates',
-                style: pw.TextStyle(
-                  fontSize: 12 * scale,
-                  color: PdfColors.blue700,
-                ),
+                style: pw.TextStyle(fontSize: 12 * scale, color: PdfColors.blue700),
               ),
             ],
           ),
           pw.Container(
             padding: pw.EdgeInsets.all(10 * scale),
-            decoration: pw.BoxDecoration(
-              color: PdfColors.blue800,
-              borderRadius: pw.BorderRadius.circular(8),
-            ),
+            decoration: pw.BoxDecoration(color: PdfColors.blue800, borderRadius: pw.BorderRadius.circular(8)),
             child: pw.Text(
               'INVOICE',
-              style: pw.TextStyle(
-                fontSize: 20 * scale,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.white,
-              ),
+              style: pw.TextStyle(fontSize: 20 * scale, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
             ),
           ),
         ],
@@ -189,10 +158,7 @@ class ABCInvoiceWidget extends StatelessWidget {
                 ),
               ),
               pw.Expanded(
-                child: pw.Text(
-                  'Phone: 06-7449724 | 050-52 36 278',
-                  style: pw.TextStyle(fontSize: 10 * scale),
-                ),
+                child: pw.Text('Phone: 06-7449724 | 050-52 36 278', style: pw.TextStyle(fontSize: 10 * scale)),
               ),
             ],
           ),
@@ -200,12 +166,7 @@ class ABCInvoiceWidget extends StatelessWidget {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Expanded(
-                child: pw.Text(
-                  'WhatsApp: 055-3995447 (Atif)',
-                  style: pw.TextStyle(fontSize: 10 * scale),
-                ),
-              ),
+              pw.Expanded(child: pw.Text('WhatsApp: 055-3995447 (Atif)', style: pw.TextStyle(fontSize: 10 * scale))),
               pw.Expanded(
                 child: pw.Text(
                   'Website: www.abcconsultants.com',
@@ -236,21 +197,9 @@ class ABCInvoiceWidget extends StatelessWidget {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text(
-                  'BILL TO:',
-                  style: pw.TextStyle(
-                    fontSize: 10 * scale,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
+                pw.Text('BILL TO:', style: pw.TextStyle(fontSize: 10 * scale, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 5 * scale),
-                pw.Text(
-                  clientName,
-                  style: pw.TextStyle(
-                    fontSize: 14 * scale,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
+                pw.Text(clientName, style: pw.TextStyle(fontSize: 14 * scale, fontWeight: pw.FontWeight.bold)),
               ],
             ),
           ),
@@ -322,9 +271,7 @@ class ABCInvoiceWidget extends StatelessWidget {
           final amt = (qty * price) - disc;
 
           return pw.TableRow(
-            decoration: pw.BoxDecoration(
-              color: idx.isEven ? PdfColors.grey50 : PdfColors.white,
-            ),
+            decoration: pw.BoxDecoration(color: idx.isEven ? PdfColors.grey50 : PdfColors.white),
             children: [
               _cell(idx.toString(), scale, false, ''),
               _cell(name, scale, false, '', left: true),
@@ -414,12 +361,13 @@ class ABCInvoiceWidget extends StatelessWidget {
       padding: pw.EdgeInsets.all(10 * scale),
       decoration: pw.BoxDecoration(
         color: bold ? PdfColors.blue50 : null,
-        borderRadius: bold
-            ? pw.BorderRadius.only(
-          bottomLeft: pw.Radius.circular(10 * scale),
-          bottomRight: pw.Radius.circular(10 * scale),
-        )
-            : null,
+        borderRadius:
+            bold
+                ? pw.BorderRadius.only(
+                  bottomLeft: pw.Radius.circular(10 * scale),
+                  bottomRight: pw.Radius.circular(10 * scale),
+                )
+                : null,
       ),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -465,7 +413,10 @@ class ABCInvoiceWidget extends StatelessWidget {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Receiver Signature:', style: pw.TextStyle(fontSize: 11 * scale, fontWeight: pw.FontWeight.bold)),
+                pw.Text(
+                  'Receiver Signature:',
+                  style: pw.TextStyle(fontSize: 11 * scale, fontWeight: pw.FontWeight.bold),
+                ),
                 pw.SizedBox(height: 30 * scale),
                 pw.Container(height: 1, width: 150 * scale, color: PdfColors.grey400),
               ],
@@ -491,10 +442,7 @@ class ABCInvoiceWidget extends StatelessWidget {
       children: [
         pw.Container(
           padding: pw.EdgeInsets.all(12 * scale),
-          decoration: pw.BoxDecoration(
-            color: PdfColors.blue800,
-            borderRadius: pw.BorderRadius.circular(6),
-          ),
+          decoration: pw.BoxDecoration(color: PdfColors.blue800, borderRadius: pw.BorderRadius.circular(6)),
           child: pw.Column(
             children: [
               pw.Text(
@@ -537,19 +485,36 @@ class ABCInvoiceWidget extends StatelessWidget {
     return 0;
   }
 
-  factory ABCInvoiceWidget.fromApiData({
-    required List<Map<String, dynamic>> services,
-    String? date,
-    PdfPageFormat? pageFormat,
-  }) {
-    if (services.isEmpty) throw Exception('Services list cannot be empty');
-    final first = services.first;
+  factory ABCInvoiceWidget.fromApiData({required Map<String, dynamic> invoiceData, PdfPageFormat? pageFormat}) {
+    // Extract invoice details
+    final refNo = invoiceData['ref_id']?.toString() ?? 'N/A';
+    final clientName = invoiceData['client_name']?.toString() ?? 'N/A';
+    final managerName = invoiceData['manager_name']?.toString() ?? 'N/A';
+    final date = invoiceData['date']?.toString() ?? '';
+
+    // Extract services and map them to the expected format
+    final List<Map<String, dynamic>> services = [];
+    if (invoiceData['services'] != null && invoiceData['services'] is List) {
+      for (var service in invoiceData['services']) {
+        services.add({
+          'service_category_name': service['service_category_name']?.toString() ?? 'N/A',
+          'quantity': _toInt(service['quantity']),
+          'unit_price': _toDouble(service['unit_price']),
+          'discount': _toDouble(service['discount']),
+        });
+      }
+    }
+
+    if (services.isEmpty) {
+      throw Exception('No services found in invoice data');
+    }
+
     return ABCInvoiceWidget(
-      refNo: first['ref_id']?.toString() ?? 'N/A',
-      clientName: first['client_name']?.toString() ?? 'N/A',
-      managerName: first['manager_name']?.toString() ?? 'N/A',
+      refNo: refNo,
+      clientName: clientName,
+      managerName: managerName,
       services: services,
-      date: date ?? '',
+      date: date,
       pageFormat: pageFormat ?? PdfPageFormat.a4,
     );
   }

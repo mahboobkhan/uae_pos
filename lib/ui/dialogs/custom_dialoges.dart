@@ -561,7 +561,7 @@ void showServicesProjectPopup(BuildContext context) {
                                       try {
                                         // Get user_ref_id from SharedPreferences
                                         final prefs = await SharedPreferences.getInstance();
-                                        final userRefId = prefs.getString('ref_id') ?? '';
+                                        final userRefId = prefs.getString('user_id') ?? '';
 
                                         if (userRefId.isEmpty) {
                                           ScaffoldMessenger.of(context).showSnackBar(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/client_organization_employee_provider.dart';
+import '../../utils/clipboard_utils.dart';
 import '../../utils/pin_verification_util.dart';
 import 'custom_dialoges.dart';
 import 'custom_fields.dart';
@@ -56,7 +57,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       _workPermitController.text = (widget.employeeData!['work_permit_no'] ?? '').toString();
       _emailController.text = (widget.employeeData!['email'] ?? '').toString();
       _contactController.text = (widget.employeeData!['contact_no'] ?? '').toString();
-      _selectedType = (widget.employeeData!['type'] ?? '').toString();
+      _selectedType = ClipboardUtils.capitalizeFirstLetter((widget.employeeData!['type'] ?? '').toString());
       _selectedStatus = widget.employeeData!['status']?.toString();
     }
   }

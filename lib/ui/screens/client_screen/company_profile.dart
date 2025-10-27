@@ -4,10 +4,11 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-
+import 'dart:html' as html; // for web
 import '../../../providers/client_profile_provider.dart';
 import '../../../providers/documents_provider.dart';
 import '../../../utils/pin_verification_util.dart';
@@ -15,19 +16,14 @@ import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 
-Future<void> showCompanyProfileDialog(
-  BuildContext context, {
-  Map<String, dynamic>? clientData,
-}) async {
+Future<void> showCompanyProfileDialog(BuildContext context, {Map<String, dynamic>? clientData}) async {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder:
         (context) => Dialog(
           backgroundColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: CompanyProfile(clientData: clientData),
         ),
   );
@@ -46,26 +42,20 @@ class CompanyProfileState extends State<CompanyProfile> {
   final TextEditingController companyNameController = TextEditingController();
   final TextEditingController tradeLicenseController = TextEditingController();
   final TextEditingController companyCodeController = TextEditingController();
-  final TextEditingController establishmentNumberController =
-      TextEditingController();
+  final TextEditingController establishmentNumberController = TextEditingController();
   final TextEditingController extraNoteController = TextEditingController();
   final TextEditingController emailId2Controller = TextEditingController();
   final TextEditingController contactNumberController = TextEditingController();
-  final TextEditingController contactNumber2Controller =
-      TextEditingController();
-  final TextEditingController physicalAddressController =
-      TextEditingController();
+  final TextEditingController contactNumber2Controller = TextEditingController();
+  final TextEditingController physicalAddressController = TextEditingController();
   final TextEditingController channelNameController = TextEditingController();
   final TextEditingController channelLoginController = TextEditingController();
-  final TextEditingController channelPasswordController =
-      TextEditingController();
+  final TextEditingController channelPasswordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emiratesIdController = TextEditingController();
-  final TextEditingController workPermitNumberController =
-      TextEditingController();
+  final TextEditingController workPermitNumberController = TextEditingController();
   final TextEditingController emailId1Controller = TextEditingController();
-  final TextEditingController contactNumber3Controller =
-      TextEditingController();
+  final TextEditingController contactNumber3Controller = TextEditingController();
   final TextEditingController docName2 = TextEditingController();
   final TextEditingController advancePayment = TextEditingController();
   final TextEditingController _issueDateController = TextEditingController();
@@ -80,10 +70,8 @@ class CompanyProfileState extends State<CompanyProfile> {
   Uint8List? selectedFileBytes; // For web compatibility
   bool _isProcessing = false;
   final TextEditingController documentNameController = TextEditingController();
-  final TextEditingController documentIssueDateController =
-      TextEditingController();
-  final TextEditingController documentExpiryDateController =
-      TextEditingController();
+  final TextEditingController documentIssueDateController = TextEditingController();
+  final TextEditingController documentExpiryDateController = TextEditingController();
 
   String? selectedWorkType;
 
@@ -99,25 +87,17 @@ class CompanyProfileState extends State<CompanyProfile> {
     // Normalize helper
     String? norm(String? v) => (v ?? '').trim();
     return (norm(companyNameController.text) != norm(_originalValues['name']) ||
-        norm(tradeLicenseController.text) !=
-            norm(_originalValues['trade_license_no']) ||
-        norm(companyCodeController.text) !=
-            norm(_originalValues['company_code']) ||
-        norm(establishmentNumberController.text) !=
-            norm(_originalValues['establishment_no']) ||
+        norm(tradeLicenseController.text) != norm(_originalValues['trade_license_no']) ||
+        norm(companyCodeController.text) != norm(_originalValues['company_code']) ||
+        norm(establishmentNumberController.text) != norm(_originalValues['establishment_no']) ||
         norm(extraNoteController.text) != norm(_originalValues['extra_note']) ||
         norm(emailId2Controller.text) != norm(_originalValues['email']) ||
         norm(contactNumberController.text) != norm(_originalValues['phone1']) ||
-        norm(contactNumber2Controller.text) !=
-            norm(_originalValues['phone2']) ||
-        norm(physicalAddressController.text) !=
-            norm(_originalValues['physical_address']) ||
-        norm(channelNameController.text) !=
-            norm(_originalValues['echannel_name']) ||
-        norm(channelLoginController.text) !=
-            norm(_originalValues['echannel_id']) ||
-        norm(channelPasswordController.text) !=
-            norm(_originalValues['echannel_password']) ||
+        norm(contactNumber2Controller.text) != norm(_originalValues['phone2']) ||
+        norm(physicalAddressController.text) != norm(_originalValues['physical_address']) ||
+        norm(channelNameController.text) != norm(_originalValues['echannel_name']) ||
+        norm(channelLoginController.text) != norm(_originalValues['echannel_id']) ||
+        norm(channelPasswordController.text) != norm(_originalValues['echannel_password']) ||
         norm(selectedWorkType) != norm(_originalValues['client_work']));
   }
 
@@ -176,19 +156,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       // Use a more robust file picker approach
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: [
-          'pdf',
-          'doc',
-          'docx',
-          'txt',
-          'jpg',
-          'jpeg',
-          'png',
-          'gif',
-          'bmp',
-          'tiff',
-          'tif',
-        ],
+        allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif'],
         allowMultiple: false,
         withData: true,
         // Always get file data for web compatibility
@@ -237,11 +205,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 4)),
       );
     }
   }
@@ -282,16 +246,12 @@ class CompanyProfileState extends State<CompanyProfile> {
     if (_isProcessing) return; // Prevent multiple simultaneous uploads
 
     if (selectedFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a file first')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a file first')));
       return;
     }
 
     if (documentNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter document name')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter document name')));
       return;
     }
 
@@ -318,9 +278,7 @@ class CompanyProfileState extends State<CompanyProfile> {
             expireDate:
                 documentExpiryDateController.text.trim().isNotEmpty
                     ? documentExpiryDateController.text.trim()
-                    : DateFormat(
-                      'yyyy-MM-dd',
-                    ).format(DateTime.now().add(const Duration(days: 365))),
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
             fileBytes: selectedFileBytes!,
             fileName: selectedFileName ?? 'document',
           );
@@ -337,9 +295,7 @@ class CompanyProfileState extends State<CompanyProfile> {
             expireDate:
                 documentExpiryDateController.text.trim().isNotEmpty
                     ? documentExpiryDateController.text.trim()
-                    : DateFormat(
-                      'yyyy-MM-dd',
-                    ).format(DateTime.now().add(const Duration(days: 365))),
+                    : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 365))),
             file: selectedFile as File,
           );
         }
@@ -358,10 +314,7 @@ class CompanyProfileState extends State<CompanyProfile> {
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Document uploaded successfully: $documentRefId'),
-              backgroundColor: Colors.green,
-            ),
+            SnackBar(content: Text('Document uploaded successfully: $documentRefId'), backgroundColor: Colors.green),
           );
         }
       } else {
@@ -369,14 +322,8 @@ class CompanyProfileState extends State<CompanyProfile> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.red,
-              content: Text(
-                documentsProvider.errorMessage ?? 'Failed to upload document',
-              ),
-              action: SnackBarAction(
-                label: 'Retry',
-                textColor: Colors.white,
-                onPressed: () => _uploadDocument(),
-              ),
+              content: Text(documentsProvider.errorMessage ?? 'Failed to upload document'),
+              action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
             ),
           );
         }
@@ -387,11 +334,7 @@ class CompanyProfileState extends State<CompanyProfile> {
           SnackBar(
             backgroundColor: Colors.red,
             content: Text('Upload failed: ${e.toString()}'),
-            action: SnackBarAction(
-              label: 'Retry',
-              textColor: Colors.white,
-              onPressed: () => _uploadDocument(),
-            ),
+            action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
           ),
         );
       }
@@ -405,8 +348,7 @@ class CompanyProfileState extends State<CompanyProfile> {
   }
 
   Future<void> _loadClientDocuments() async {
-    if (widget.clientData != null &&
-        widget.clientData!['client_ref_id'] != null) {
+    if (widget.clientData != null && widget.clientData!['client_ref_id'] != null) {
       final documentsProvider = context.read<DocumentsProvider>();
 
       // First try to get documents from the documents field in client data
@@ -418,10 +360,9 @@ class CompanyProfileState extends State<CompanyProfile> {
             final List<dynamic> documentIds = json.decode(documentsString);
             if (documentIds.isNotEmpty) {
               // Use the new API to get full document details
-              final fetchedDocuments = await documentsProvider
-                  .getDocumentsByIds(
-                    documentRefIds: documentIds.cast<String>(),
-                  );
+              final fetchedDocuments = await documentsProvider.getDocumentsByIds(
+                documentRefIds: documentIds.cast<String>(),
+              );
 
               if (mounted && fetchedDocuments != null) {
                 setState(() {
@@ -437,9 +378,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       }
 
       // Fallback to the old method if documents field is not available or parsing failed
-      await documentsProvider.getClientDocuments(
-        clientRefId: widget.clientData!['client_ref_id'].toString(),
-      );
+      await documentsProvider.getClientDocuments(clientRefId: widget.clientData!['client_ref_id'].toString());
 
       if (mounted) {
         setState(() {
@@ -451,28 +390,20 @@ class CompanyProfileState extends State<CompanyProfile> {
 
   Future<void> _deleteDocument(String documentRefId) async {
     final documentsProvider = context.read<DocumentsProvider>();
-    final success = await documentsProvider.deleteDocument(
-      documentRefId: documentRefId,
-    );
+    final success = await documentsProvider.deleteDocument(documentRefId: documentRefId);
 
     if (success) {
       setState(() {
-        clientDocuments.removeWhere(
-          (doc) => doc['document_ref_id'] == documentRefId,
-        );
+        clientDocuments.removeWhere((doc) => doc['document_ref_id'] == documentRefId);
         uploadedDocumentIds.remove(documentRefId);
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Document deleted successfully')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Document deleted successfully')));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text(
-            documentsProvider.errorMessage ?? 'Failed to delete document',
-          ),
+          content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
         ),
       );
     }
@@ -485,9 +416,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       _pickFileWithFallback();
     } else if (documentNameController.text.trim().isEmpty) {
       // File selected but no name - show validation
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter document name')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter document name')));
     } else {
       // File selected and name entered - upload with post-frame callback
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -526,21 +455,16 @@ class CompanyProfileState extends State<CompanyProfile> {
             selectedFileName = file.name;
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('File selected: ${file.name}'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('File selected: ${file.name}'), backgroundColor: Colors.green));
         }
       }
     } catch (e) {
       print('Alternative file picker also failed: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Unable to access file picker. Please check app permissions or restart the app.',
-          ),
+          content: Text('Unable to access file picker. Please check app permissions or restart the app.'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 5),
         ),
@@ -609,32 +533,19 @@ class CompanyProfileState extends State<CompanyProfile> {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.description,
-            color: isExisting ? Colors.blue : Colors.green,
-            size: 20,
-          ),
+          Icon(Icons.description, color: isExisting ? Colors.blue : Colors.green, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 if (issueDate.isNotEmpty || expiryDate.isNotEmpty)
                   Text(
                     'Issue: $issueDate | Expiry: $expiryDate',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
-                Text(
-                  'ID: $documentRefId',
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                ),
+                Text('ID: $documentRefId', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
               ],
             ),
           ),
@@ -642,7 +553,7 @@ class CompanyProfileState extends State<CompanyProfile> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                onPressed: () => _downloadDocument(documentRefId, url: url),
+                onPressed: () => _downloadDocument(documentRefId, url: url.toString()),
                 icon: const Icon(Icons.download, color: Colors.blue, size: 20),
                 tooltip: 'Download Document',
               ),
@@ -658,17 +569,49 @@ class CompanyProfileState extends State<CompanyProfile> {
     );
   }
 
-  void _downloadDocument(String documentRefId, {String? url}) {
-    // For now, show a message. In a real app, you would implement actual download
-    final downloadUrl = url ?? 'No URL available';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Downloading document: $documentRefId\nURL: $downloadUrl',
-        ),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+  Future<void> _downloadDocument(String documentRefId, {required String url}) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final bytes = response.bodyBytes;
+
+        if (identical(0, 0.0)) {
+          // never true, just placeholder
+        }
+
+        if (kIsWeb) {
+          // ✅ For Web: trigger browser download
+          final blob = html.Blob([bytes]);
+          final blobUrl = html.Url.createObjectUrlFromBlob(blob);
+          final anchor = html.AnchorElement(href: blobUrl)
+            ..setAttribute("download", url.split('/').last)
+            ..click();
+          html.Url.revokeObjectUrl(blobUrl);
+        } else {
+          // ✅ For Android/iOS: save to Downloads or app directory
+          // final dir = await getApplicationDocumentsDirectory();
+          // final filePath = path.join(dir.path, url.split('/').last);
+          // final file = File(filePath);
+          // await file.writeAsBytes(bytes);
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text('Downloaded to: ${file.path}')),
+          // );
+        }
+      } else {
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to download (code ${response.statusCode})')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+
+      );
+      print("Error Download   $e");
+
+    }
   }
 
   @override
@@ -680,18 +623,15 @@ class CompanyProfileState extends State<CompanyProfile> {
       companyNameController.text = (data['name'] ?? '').toString();
       tradeLicenseController.text = (data['trade_license_no'] ?? '').toString();
       companyCodeController.text = (data['company_code'] ?? '').toString();
-      establishmentNumberController.text =
-          (data['establishment_no'] ?? '').toString();
+      establishmentNumberController.text = (data['establishment_no'] ?? '').toString();
       extraNoteController.text = (data['extra_note'] ?? '').toString();
       emailId2Controller.text = (data['email'] ?? '').toString();
       contactNumberController.text = (data['phone1'] ?? '').toString();
       contactNumber2Controller.text = (data['phone2'] ?? '').toString();
-      physicalAddressController.text =
-          (data['physical_address'] ?? '').toString();
+      physicalAddressController.text = (data['physical_address'] ?? '').toString();
       channelNameController.text = (data['echannel_name'] ?? '').toString();
       channelLoginController.text = (data['echannel_id'] ?? '').toString();
-      channelPasswordController.text =
-          (data['echannel_password'] ?? '').toString();
+      channelPasswordController.text = (data['echannel_password'] ?? '').toString();
       selectedWorkType = (data['client_work'] ?? 'N/A').toString();
 
       // Capture original values snapshot for change detection
@@ -712,31 +652,22 @@ class CompanyProfileState extends State<CompanyProfile> {
       };
 
       // Set created date from client data if available, otherwise use current date
-      if (data['created_at'] != null &&
-          data['created_at'].toString().isNotEmpty) {
+      if (data['created_at'] != null && data['created_at'].toString().isNotEmpty) {
         try {
           final createdDate = DateTime.parse(data['created_at'].toString());
-          _createdDateController.text = DateFormat(
-            'dd-MM-yyyy',
-          ).format(createdDate);
+          _createdDateController.text = DateFormat('dd-MM-yyyy').format(createdDate);
         } catch (e) {
-          _createdDateController.text = DateFormat(
-            'dd-MM-yyyy',
-          ).format(DateTime.now());
+          _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
         }
       } else {
-        _createdDateController.text = DateFormat(
-          'dd-MM-yyyy',
-        ).format(DateTime.now());
+        _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
       }
 
       // Load existing documents if editing
       _loadClientDocuments();
     } else {
       // For new clients, set current date
-      _createdDateController.text = DateFormat(
-        'dd-MM-yyyy',
-      ).format(DateTime.now());
+      _createdDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     }
 
     // Reset provider state when dialog opens
@@ -774,11 +705,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                     children: [
                       const Text(
                         'Establishment Profile',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
@@ -801,11 +728,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                     children: [
                       Text(
                         _createdDateController.text,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
                       IconButton(
@@ -974,11 +897,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   children: [
                     const Text(
                       'Document Upload',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                     ),
                     const SizedBox(height: 10),
                     Wrap(
@@ -995,20 +914,14 @@ class CompanyProfileState extends State<CompanyProfile> {
                           controller: documentIssueDateController,
                           readOnly: true,
                           hintText: "yyyy-MM-dd",
-                          onTap:
-                              () => _pickDocumentDate(
-                                documentIssueDateController,
-                              ),
+                          onTap: () => _pickDocumentDate(documentIssueDateController),
                         ),
                         CustomDateNotificationField(
                           label: "Expiry Date",
                           controller: documentExpiryDateController,
                           readOnly: true,
                           hintText: "yyyy-MM-dd",
-                          onTap:
-                              () => _pickDocumentDate(
-                                documentExpiryDateController,
-                              ),
+                          onTap: () => _pickDocumentDate(documentExpiryDateController),
                         ),
                         Consumer<DocumentsProvider>(
                           builder: (context, documentsProvider, child) {
@@ -1019,8 +932,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                                   children: [
                                     GestureDetector(
                                       onTap:
-                                          (documentsProvider.isUploading ||
-                                                  _isProcessing)
+                                          (documentsProvider.isUploading || _isProcessing)
                                               ? null
                                               : () {
                                                 // Use a microtask to ensure proper timing
@@ -1031,25 +943,16 @@ class CompanyProfileState extends State<CompanyProfile> {
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color:
-                                              (documentsProvider.isUploading ||
-                                                      _isProcessing)
+                                              (documentsProvider.isUploading || _isProcessing)
                                                   ? Colors.grey
                                                   : _getDocumentButtonColor(),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
+                                          borderRadius: BorderRadius.circular(4),
                                         ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 150,
-                                          minHeight: 38,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
+                                        constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             if (documentsProvider.isUploading)
                                               const SizedBox(
@@ -1057,25 +960,15 @@ class CompanyProfileState extends State<CompanyProfile> {
                                                 height: 16,
                                                 child: CircularProgressIndicator(
                                                   strokeWidth: 2,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                        Color
-                                                      >(Colors.white),
+                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                                 ),
                                               )
                                             else
-                                              Icon(
-                                                _getDocumentButtonIcon(),
-                                                size: 16,
-                                                color: Colors.white,
-                                              ),
+                                              Icon(_getDocumentButtonIcon(), size: 16, color: Colors.white),
                                             const SizedBox(width: 6),
                                             Text(
                                               _getDocumentButtonText(),
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.white,
-                                              ),
+                                              style: const TextStyle(fontSize: 14, color: Colors.white),
                                             ),
                                           ],
                                         ),
@@ -1083,23 +976,17 @@ class CompanyProfileState extends State<CompanyProfile> {
                                     ),
                                     if (documentsProvider.isUploading)
                                       Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 8.0,
-                                        ),
+                                        padding: const EdgeInsets.only(left: 8.0),
                                         child: IconButton(
                                           onPressed: () {
-                                            documentsProvider
-                                                .resetLoadingState();
+                                            documentsProvider.resetLoadingState();
                                             setState(() {
                                               selectedFile = null;
                                               selectedFileName = null;
                                               selectedFileBytes = null;
                                             });
                                           },
-                                          icon: const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                          ),
+                                          icon: const Icon(Icons.close, color: Colors.red),
                                           tooltip: 'Cancel Upload',
                                         ),
                                       ),
@@ -1111,10 +998,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                                     child: LinearProgressIndicator(
                                       value: documentsProvider.uploadProgress,
                                       backgroundColor: Colors.grey[300],
-                                      valueColor:
-                                          const AlwaysStoppedAnimation<Color>(
-                                            Colors.green,
-                                          ),
+                                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
                                     ),
                                   ),
                               ],
@@ -1128,10 +1012,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
                           'Selected: $selectedFileName',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.green,
-                          ),
+                          style: const TextStyle(fontSize: 12, color: Colors.green),
                         ),
                       ),
                   ],
@@ -1147,11 +1028,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   children: [
                     const Text(
                       'Attached Documents',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -1209,10 +1086,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                       final provider = context.read<ClientProfileProvider>();
                       final isEdit =
                           widget.clientData != null &&
-                          (widget.clientData!['client_ref_id']
-                                  ?.toString()
-                                  .isNotEmpty ??
-                              false);
+                          (widget.clientData!['client_ref_id']?.toString().isNotEmpty ?? false);
 
                       // Combine existing and new document IDs
                       final allDocumentIds = [
@@ -1228,14 +1102,11 @@ class CompanyProfileState extends State<CompanyProfile> {
                       Future<void> performSave() async {
                         if (isEdit) {
                           await provider.updateClient(
-                            clientRefId:
-                                widget.clientData!['client_ref_id'].toString(),
+                            clientRefId: widget.clientData!['client_ref_id'].toString(),
                             name:
                                 isNA
                                     ? null
-                                    : (companyNameController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (companyNameController.text.trim().isNotEmpty
                                         ? companyNameController.text.trim()
                                         : null),
                             email:
@@ -1247,88 +1118,63 @@ class CompanyProfileState extends State<CompanyProfile> {
                             phone1:
                                 isNA
                                     ? null
-                                    : (contactNumberController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (contactNumberController.text.trim().isNotEmpty
                                         ? contactNumberController.text.trim()
                                         : null),
                             phone2:
                                 isNA
                                     ? null
-                                    : (contactNumber2Controller.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (contactNumber2Controller.text.trim().isNotEmpty
                                         ? contactNumber2Controller.text.trim()
                                         : null),
-                            clientType: 'organization',
-                            clientWork:
-                                isNA
-                                    ? null
-                                    : (selectedWorkType ?? 'Regular')
-                                        .toLowerCase(),
+                            clientType: 'establishment',
+                            clientWork: isNA ? null : (selectedWorkType ?? 'regular').toLowerCase(),
                             tradeLicenseNo:
                                 isNA
                                     ? null
-                                    : (tradeLicenseController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (tradeLicenseController.text.trim().isNotEmpty
                                         ? tradeLicenseController.text.trim()
                                         : null),
                             companyCode:
                                 isNA
                                     ? null
-                                    : (companyCodeController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (companyCodeController.text.trim().isNotEmpty
                                         ? companyCodeController.text.trim()
                                         : null),
                             establishmentNo:
                                 isNA
                                     ? null
-                                    : (establishmentNumberController.text
-                                            .trim()
-                                            .isNotEmpty
-                                        ? establishmentNumberController.text
-                                            .trim()
+                                    : (establishmentNumberController.text.trim().isNotEmpty
+                                        ? establishmentNumberController.text.trim()
                                         : null),
                             physicalAddress:
                                 isNA
                                     ? null
-                                    : (physicalAddressController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (physicalAddressController.text.trim().isNotEmpty
                                         ? physicalAddressController.text.trim()
                                         : null),
                             echannelName:
                                 isNA
                                     ? null
-                                    : (channelNameController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (channelNameController.text.trim().isNotEmpty
                                         ? channelNameController.text.trim()
                                         : null),
                             echannelId:
                                 isNA
                                     ? null
-                                    : (channelLoginController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (channelLoginController.text.trim().isNotEmpty
                                         ? channelLoginController.text.trim()
                                         : null),
                             echannelPassword:
                                 isNA
                                     ? null
-                                    : (channelPasswordController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (channelPasswordController.text.trim().isNotEmpty
                                         ? channelPasswordController.text.trim()
                                         : null),
                             extraNote:
                                 isNA
                                     ? null
-                                    : (extraNoteController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (extraNoteController.text.trim().isNotEmpty
                                         ? extraNoteController.text.trim()
                                         : null),
                             documents: allDocumentIds,
@@ -1338,17 +1184,11 @@ class CompanyProfileState extends State<CompanyProfile> {
                             name:
                                 isNA
                                     ? 'N/A'
-                                    : (companyNameController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (companyNameController.text.trim().isNotEmpty
                                         ? companyNameController.text.trim()
                                         : 'N/A'),
                             clientType: 'establishment',
-                            clientWork:
-                                isNA
-                                    ? ''
-                                    : (selectedWorkType ?? 'Regular')
-                                        .toLowerCase(),
+                            clientWork: isNA ? '' : (selectedWorkType ?? 'Regular').toLowerCase(),
                             email:
                                 isNA
                                     ? ''
@@ -1358,82 +1198,61 @@ class CompanyProfileState extends State<CompanyProfile> {
                             phone1:
                                 isNA
                                     ? ''
-                                    : (contactNumberController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (contactNumberController.text.trim().isNotEmpty
                                         ? contactNumberController.text.trim()
                                         : '+000000000'),
                             phone2:
                                 isNA
                                     ? null
-                                    : (contactNumber2Controller.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (contactNumber2Controller.text.trim().isNotEmpty
                                         ? contactNumber2Controller.text.trim()
                                         : null),
                             tradeLicenseNo:
                                 isNA
                                     ? null
-                                    : (tradeLicenseController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (tradeLicenseController.text.trim().isNotEmpty
                                         ? tradeLicenseController.text.trim()
                                         : null),
                             companyCode:
                                 isNA
                                     ? null
-                                    : (companyCodeController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (companyCodeController.text.trim().isNotEmpty
                                         ? companyCodeController.text.trim()
                                         : null),
                             establishmentNo:
                                 isNA
                                     ? null
-                                    : (establishmentNumberController.text
-                                            .trim()
-                                            .isNotEmpty
-                                        ? establishmentNumberController.text
-                                            .trim()
+                                    : (establishmentNumberController.text.trim().isNotEmpty
+                                        ? establishmentNumberController.text.trim()
                                         : null),
                             physicalAddress:
                                 isNA
                                     ? null
-                                    : (physicalAddressController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (physicalAddressController.text.trim().isNotEmpty
                                         ? physicalAddressController.text.trim()
                                         : null),
                             echannelName:
                                 isNA
                                     ? null
-                                    : (channelNameController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (channelNameController.text.trim().isNotEmpty
                                         ? channelNameController.text.trim()
                                         : null),
                             echannelId:
                                 isNA
                                     ? null
-                                    : (channelLoginController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (channelLoginController.text.trim().isNotEmpty
                                         ? channelLoginController.text.trim()
                                         : null),
                             echannelPassword:
                                 isNA
                                     ? null
-                                    : (channelPasswordController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (channelPasswordController.text.trim().isNotEmpty
                                         ? channelPasswordController.text.trim()
                                         : null),
                             extraNote:
                                 isNA
                                     ? null
-                                    : (extraNoteController.text
-                                            .trim()
-                                            .isNotEmpty
+                                    : (extraNoteController.text.trim().isNotEmpty
                                         ? extraNoteController.text.trim()
                                         : null),
                             documents: allDocumentIds,
@@ -1449,8 +1268,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                             await performSave();
                           },
                           title: "Update Establishment",
-                          message:
-                              "Please enter your PIN to update this establishment",
+                          message: "Please enter your PIN to update this establishment",
                         );
                       } else {
                         await performSave();
@@ -1459,22 +1277,14 @@ class CompanyProfileState extends State<CompanyProfile> {
                       if (provider.errorMessage == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              provider.successMessage ??
-                                  (isEdit
-                                      ? 'Client updated'
-                                      : 'Client created'),
-                            ),
+                            content: Text(provider.successMessage ?? (isEdit ? 'Client updated' : 'Client created')),
                           ),
                         );
                         Navigator.of(context).pop();
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text(provider.errorMessage!),
-                          ),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)));
                       }
                     },
                   ),
@@ -1546,9 +1356,7 @@ void _showEditDialog(
                 cursorColor: Colors.blue,
                 controller: editController,
                 decoration: const InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 1.5, color: Colors.blue),
-                  ),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(width: 1.5, color: Colors.blue)),
                   labelText: 'Edit institute',
                   labelStyle: TextStyle(color: Colors.blue),
                   isDense: true,
@@ -1561,10 +1369,7 @@ void _showEditDialog(
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(editContext),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.blue),
-                    ),
+                    child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
                   ),
                   const SizedBox(width: 8),
                   CustomButton(
@@ -1602,9 +1407,7 @@ void showInstituteManagementDialog(BuildContext context) {
         builder: (context, setState) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                12,
-              ), // Slightly smaller radius
+              borderRadius: BorderRadius.circular(12), // Slightly smaller radius
             ),
             contentPadding: const EdgeInsets.all(12), // Reduced padding
             insetPadding: const EdgeInsets.all(20), // Space around dialog
@@ -1626,11 +1429,7 @@ void showInstituteManagementDialog(BuildContext context) {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          size: 25,
-                          color: Colors.red,
-                        ),
+                        icon: const Icon(Icons.close, size: 25, color: Colors.red),
                         // Smaller icon
                         padding: EdgeInsets.zero,
                         // Remove default padding
@@ -1678,9 +1477,7 @@ void showInstituteManagementDialog(BuildContext context) {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                           ),
                           onPressed: () {
                             if (addController.text.trim().isNotEmpty) {
@@ -1690,10 +1487,7 @@ void showInstituteManagementDialog(BuildContext context) {
                               });
                             }
                           },
-                          child: const Text(
-                            "Add",
-                            style: TextStyle(fontSize: 14, color: Colors.white),
-                          ),
+                          child: const Text("Add", style: TextStyle(fontSize: 14, color: Colors.white)),
                         ),
                       ),
                     ],
@@ -1704,12 +1498,7 @@ void showInstituteManagementDialog(BuildContext context) {
                   Expanded(
                     child:
                         institutes.isEmpty
-                            ? const Center(
-                              child: Text(
-                                'No institutes',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            )
+                            ? const Center(child: Text('No institutes', style: TextStyle(fontSize: 14)))
                             : ListView.builder(
                               shrinkWrap: true,
                               itemCount: institutes.length,
@@ -1725,24 +1514,14 @@ void showInstituteManagementDialog(BuildContext context) {
                                     // Makes tiles more compact
                                     visualDensity: VisualDensity.compact,
                                     // Even more compact
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    title: Text(
-                                      institutes[index],
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                                    title: Text(institutes[index], style: const TextStyle(fontSize: 14)),
                                     trailing: SizedBox(
-                                      width:
-                                          80, // Constrained width for buttons
+                                      width: 80, // Constrained width for buttons
                                       child: Row(
                                         children: [
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.edit,
-                                              size: 18,
-                                              color: Colors.green,
-                                            ),
+                                            icon: const Icon(Icons.edit, size: 18, color: Colors.green),
                                             padding: EdgeInsets.zero,
                                             onPressed:
                                                 () => _showEditDialog(
@@ -1754,11 +1533,7 @@ void showInstituteManagementDialog(BuildContext context) {
                                                 ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.delete,
-                                              size: 18,
-                                              color: Colors.red,
-                                            ),
+                                            icon: const Icon(Icons.delete, size: 18, color: Colors.red),
                                             padding: EdgeInsets.zero,
                                             onPressed: () {
                                               setState(() {
@@ -1819,19 +1594,9 @@ class CustomCompactInfoBox extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                title,
-                style:
-                    titleStyle ??
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
+              Text(title, style: titleStyle ?? const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style:
-                    subtitleStyle ??
-                    const TextStyle(fontSize: 13, color: Colors.black87),
-              ),
+              Text(subtitle, style: subtitleStyle ?? const TextStyle(fontSize: 13, color: Colors.black87)),
             ],
           ),
         ),

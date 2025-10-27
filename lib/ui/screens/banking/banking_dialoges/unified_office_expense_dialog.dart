@@ -889,9 +889,18 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       });
     } else {
       // Create new expense
+      
+      // Get the attached file if available
+      dynamic fileToUpload;
+      if (attachedFiles.isNotEmpty) {
+        fileToUpload = attachedFiles.first['file'];
+        print('🔍 Debug: Found ${attachedFiles.length} attached files');
+        print('🔍 Debug: File to upload type: ${fileToUpload.runtimeType}');
+      }
+      
       final expense = ExpenseRequest(
         expenseType: selectedExpenseType!,
-        serviceTid: _serviceTIDController.text.trim(),
+        transactionId: _serviceTIDController.text.trim(),
         expenseName: _expenseNameController.text.trim(),
         expenseAmount: double.tryParse(_expenseAmountController.text.trim()) ?? 0,
         allocatedAmount: double.tryParse(_allocateBalanceController.text.trim()) ?? 0,
@@ -904,7 +913,10 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
         paymentType: selectedPaymentType,
         bankRefId: selectedBank,
         expenseDate: DateFormat("yyyy-MM-dd HH:mm:ss").format(selectedDateTime),
+        file: fileToUpload,
       );
+
+      print('🔍 Debug: Creating expense with file: ${fileToUpload != null ? 'Yes' : 'No'}');
 
       provider.createExpense(expense).then((_) {
         if (provider.state == RequestState.success) {

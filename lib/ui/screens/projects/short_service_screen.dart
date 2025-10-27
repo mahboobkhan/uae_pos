@@ -5,11 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../providers/short_service_invoice_provider.dart';
 import '../../../providers/short_services_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../../utils/pin_verification_util.dart';
-import '../invoice_generator/invoice_short_services.dart';
+import '../report_and_invoice/invoice_short_services.dart';
 
 class ShortServiceScreen extends StatefulWidget {
   const ShortServiceScreen({super.key});
@@ -178,27 +179,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                             waitDuration: Duration(milliseconds: 2),
                             child: GestureDetector(
                               onTap: () {
-                                // shortServicesProvider.getAllShortServices()
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ABCInvoiceWidget(
-                                      refNo: 'C2279',
-                                      clientName: 'ABC Company Ltd',
-                                      managerName: 'John Doe',
-                                      date: '2025-10-25',
-                                      services: [
-                                        {
-                                          'service_category_name': 'Sponsor File',
-                                          'quantity': 1,
-                                          'unit_price': 500.0,
-                                          'discount': 50.0,
-                                        }
-                                      ],
-                                    ),
-                                  ),
-                                );
-
+                                shortServicesProvider.getAllShortServices();
                               },
                               child: Container(
                                 width: 30,
@@ -332,16 +313,16 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                   child: Table(
                                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                     columnWidths: const {
-                                      0: FlexColumnWidth(0.15),
-                                      1: FlexColumnWidth(0.2),
-                                      2: FlexColumnWidth(0.2),
-                                      3: FlexColumnWidth(0.15),
-                                      4: FlexColumnWidth(0.15),
-                                      5: FlexColumnWidth(0.15),
-                                      6: FlexColumnWidth(0.15),
-                                      7: FlexColumnWidth(0.15),
-                                      8: FlexColumnWidth(0.2),
-                                      9: FlexColumnWidth(0.2),
+                                      0: FlexColumnWidth(0.1),
+                                      1: FlexColumnWidth(0.15),
+                                      2: FlexColumnWidth(0.1),
+                                      3: FlexColumnWidth(0.1),
+                                      4: FlexColumnWidth(0.1),
+                                      5: FlexColumnWidth(0.1),
+                                      6: FlexColumnWidth(0.1),
+                                      7: FlexColumnWidth(0.1),
+                                      8: FlexColumnWidth(0.1),
+                                      9: FlexColumnWidth(0.1),
                                     },
                                     children: [
                                       // Header Row
@@ -349,6 +330,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                         decoration: BoxDecoration(color: Colors.red.shade50),
                                         children: [
                                           _buildHeader("Date"),
+                                          _buildHeader("Ref Id"),
                                           _buildHeader("Client Name"),
                                           _buildHeader("Service"),
                                           _buildHeader("Qty"),
@@ -356,7 +338,6 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                           _buildHeader("Discount"),
                                           _buildHeader("Total"),
                                           _buildHeader("Manager"),
-                                          _buildHeader("Ref Id"),
                                           _buildHeader("Actions"),
                                         ],
                                       ),
@@ -375,6 +356,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                                 _formatTime(service['updated_at'] ?? service['created_at']),
                                                 centerText2: true,
                                               ),
+                                              _buildCell(service['ref_id'] ?? 'N/A', copyable: true),
                                               _buildCell(service['client_name'] ?? 'N/A'),
                                               _buildCell(service['service_category_name'] ?? 'N/A'),
                                               _buildCell(service['quantity']?.toString() ?? '1'),
@@ -388,10 +370,10 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                                 ).toString(),
                                               ),
                                               _buildCell(service['manager_name'] ?? 'N/A'),
-                                              _buildCell(service['ref_id'] ?? 'N/A', copyable: true),
                                               _buildActionCell(
                                                 onEdit: () => _editShortService(context, service),
                                                 onDelete: () => _deleteShortService(context, service),
+                                                onInvoice: () => _viewInvoice(context, service),
                                               ),
                                             ],
                                           );
@@ -782,10 +764,14 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
     );
   }
 
-  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete}) {
+  Widget _buildActionCell({VoidCallback? onEdit, VoidCallback? onDelete, VoidCallback? onInvoice}) {
     return Row(
       children: [
-        // IconButton(icon: const Icon(Icons.delete, size: 20, color: Colors.red), tooltip: 'Delete', onPressed: onDelete ?? () {}),
+        IconButton(
+          icon: const Icon(Icons.receipt, size: 20, color: Colors.blue),
+          tooltip: 'Invoice',
+          onPressed: onInvoice ?? () {},
+        ),
         IconButton(
           icon: const Icon(Icons.edit, size: 20, color: Colors.green),
           tooltip: 'Edit',
@@ -793,5 +779,76 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
         ),
       ],
     );
+  }
+
+  /// View invoice for short service
+  void _viewInvoice(BuildContext context, Map<String, dynamic> service) async {
+    final refId = service['ref_id'];
+    if (refId == null || refId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid service reference ID'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+
+    try {
+      final invoiceProvider = context.read<ShortServiceInvoiceProvider>();
+      final invoiceData = await invoiceProvider.getShortServiceInvoice(refId: refId);
+
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      if (invoiceProvider.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(invoiceProvider.errorMessage!),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      if (invoiceData != null) {
+        // Navigate to invoice screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ABCInvoiceWidget.fromApiData(
+              invoiceData: invoiceData,
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No invoice data found'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

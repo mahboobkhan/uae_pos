@@ -170,45 +170,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header to clarify this shows only establishment clients
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  border: Border.all(color: Colors.blue.shade200),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.business, color: Colors.blue.shade700, size: 24),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Establishment Clients Only',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade700,
-                            ),
-                          ),
-                          Text(
-                            'This screen shows only establishment/business clients. Individual clients are filtered out.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.blue.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               /*
               /// ---- Stats Boxes ----
               SizedBox(
@@ -636,33 +597,22 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                       children: List.generate(
                                         7,
                                         (i) => TableCell(
-                                          child: Container(
-                                            height: 60,
-                                            child: Center(
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
-                                                  SizedBox(height: 4),
-                                                  Text(
-                                                    'No Establishment Clients Found',
-                                                    style: TextStyle(
-                                                      color: Colors.grey.shade600,
-                                                      fontStyle: FontStyle.italic,
-                                                      fontSize: 12,
-                                                    ),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  'No Establishment Clients Found',
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontSize: 12,
                                                   ),
-                                                  SizedBox(height: 4),
-                                                  Text(
-                                                    'Only establishment clients are shown here',
-                                                    style: TextStyle(
-                                                      color: Colors.grey.shade500,
-                                                      fontStyle: FontStyle.italic,
-                                                      fontSize: 10,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+
+                                              ],
                                             ),
                                           ),
                                         ),

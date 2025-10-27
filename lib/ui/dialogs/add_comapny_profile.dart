@@ -1389,7 +1389,7 @@ class _AddCompanyProfileState extends State<AddCompanyProfile> {
                         final provider = context.read<ClientProfileProvider>();
                         await provider.addClient(
                           name: _name?.trim().isNotEmpty == true ? _name!.trim() : 'N/A',
-                          clientType: 'organization',
+                          clientType: 'establishment',
                           clientWork: (companyDropDownType ?? 'Regular').toLowerCase(),
                           email: _email?.trim().isNotEmpty == true ? _email!.trim() : 'no-email@example.com',
                           phone1: _phone1?.trim().isNotEmpty == true ? _phone1!.trim() : '+000000000',

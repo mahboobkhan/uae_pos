@@ -158,45 +158,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header to clarify this shows only individual clients
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  border: Border.all(color: Colors.green.shade200),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.person, color: Colors.green.shade700, size: 24),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Individual Clients Only',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green.shade700,
-                            ),
-                          ),
-                          Text(
-                            'This screen shows only individual/personal clients. Establishment clients are filtered out.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.green.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
               /*
               /// ---- Stats Boxes ----
               SizedBox(
@@ -599,33 +561,22 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                       children: List.generate(
                                         7,
                                         (i) => TableCell(
-                                          child: Container(
-                                            height: 60,
-                                            child: Center(
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
-                                                  SizedBox(height: 4),
-                                                  Text(
-                                                    'No Individual Clients Found',
-                                                    style: TextStyle(
-                                                      color: Colors.grey.shade600,
-                                                      fontStyle: FontStyle.italic,
-                                                      fontSize: 12,
-                                                    ),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.inbox_outlined, color: Colors.grey.shade400, size: 24),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  'No Individual Clients Found',
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontSize: 12,
                                                   ),
-                                                  SizedBox(height: 4),
-                                                  Text(
-                                                    'Only individual clients are shown here',
-                                                    style: TextStyle(
-                                                      color: Colors.grey.shade500,
-                                                      fontStyle: FontStyle.italic,
-                                                      fontSize: 10,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+
+                                              ],
                                             ),
                                           ),
                                         ),

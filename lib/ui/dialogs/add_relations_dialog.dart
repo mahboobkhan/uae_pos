@@ -1,5 +1,7 @@
+import 'package:abc_consultant/utils/clipboard_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/client_organization_employee_provider.dart';
 import '../../utils/pin_verification_util.dart';
 import 'custom_dialoges.dart';
@@ -40,23 +42,27 @@ class _AddRelationsDialogState extends State<AddRelationsDialog> {
 
   String? _selectedType;
   String? _selectedStatus;
-  final List<String> _relationTypes = ['Family Member', 'Business Partner', 'Other'];
+  final List<String> _relationTypes = ['Father', 'Mother', "Brother", "Sister", 'Other'];
   final List<String> _statusOptions = ['Active', 'Inactive'];
-  
+
   @override
   void initState() {
     super.initState();
     // Set default status to null to show hint
     _selectedStatus = null;
-    
+
     // Prefill data if editing
     if (widget.relationData != null) {
       _nameController.text = (widget.relationData!['name'] ?? '').toString();
       _emirateIdController.text = (widget.relationData!['emirate_id'] ?? '').toString();
       _emailController.text = (widget.relationData!['email'] ?? '').toString();
       _contactController.text = (widget.relationData!['contact_no'] ?? '').toString();
-      _selectedType = (widget.relationData!['type'] ?? '').toString();
+
+      _selectedType = ClipboardUtils.capitalizeFirstLetter((widget.relationData!['type'] ?? '').toString());
       _selectedStatus = widget.relationData!['status']?.toString();
+
+      print("relation New $_selectedType");
+
     }
   }
 
@@ -104,7 +110,6 @@ class _AddRelationsDialogState extends State<AddRelationsDialog> {
                             _selectedStatus = value;
                           });
                         },
-                        width: 150,
                       ),
                     ],
                   ),
@@ -125,23 +130,23 @@ class _AddRelationsDialogState extends State<AddRelationsDialog> {
                 runSpacing: 10,
                 children: [
                   CustomDropdownField(
-                    label: "Relation Type",
+                    label: "Relation",
                     options: _relationTypes,
                     selectedValue: _selectedType,
                     onChanged: (value) {
                       setState(() {
-                        _selectedType = value;
+                        _selectedType = value?.toLowerCase();
                       });
                     },
                   ),
-                  CustomTextField(label: "Name", controller: _nameController, hintText: "Enter relation name"),
+                  CustomTextField(label: "Name", controller: _nameController, hintText: ""),
                   CustomTextField(
                     label: "Emirates ID",
                     controller: _emirateIdController,
-                    hintText: "784-XXXX-XXXXXXX-X",
+                    hintText: "",
                   ),
-                  CustomTextField(label: "Email", controller: _emailController, hintText: "john@example.com"),
-                  CustomTextField(label: "Contact No", controller: _contactController, hintText: "+971501234567"),
+                  CustomTextField(label: "Email", controller: _emailController, hintText: ""),
+                  CustomTextField(label: "Contact No", controller: _contactController, hintText: ""),
                 ],
               ),
 
@@ -228,7 +233,9 @@ class _AddRelationsDialogState extends State<AddRelationsDialog> {
                                             employeeRefId: widget.relationData!['employee_ref_id'],
                                             type: _selectedType,
                                             name:
-                                                _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null,
+                                                _nameController.text.trim().isNotEmpty
+                                                    ? _nameController.text.trim()
+                                                    : null,
                                             emirateId:
                                                 _emirateIdController.text.trim().isNotEmpty
                                                     ? _emirateIdController.text.trim()
@@ -253,7 +260,8 @@ class _AddRelationsDialogState extends State<AddRelationsDialog> {
                                         type: _selectedType!,
                                         name: _nameController.text.trim(),
                                         emirateId: _emirateIdController.text.trim(),
-                                        workPermitNo: '', // Empty work permit for relations
+                                        workPermitNo: '',
+                                        // Empty work permit for relations
                                         email: _emailController.text.trim(),
                                         contactNo: _contactController.text.trim(),
                                       );

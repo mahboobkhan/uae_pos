@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class DocumentsProvider extends ChangeNotifier {
@@ -32,6 +33,7 @@ class DocumentsProvider extends ChangeNotifier {
       issueDate: issueDate,
       expireDate: expireDate,
       file: file,
+      type: 'client',
       fileBytes: null,
       fileName: null,
     );
@@ -50,6 +52,7 @@ class DocumentsProvider extends ChangeNotifier {
       issueDate: issueDate,
       expireDate: expireDate,
       file: null,
+      type: 'client',
       fileBytes: fileBytes,
       fileName: fileName,
     );
@@ -60,6 +63,7 @@ class DocumentsProvider extends ChangeNotifier {
     required String name,
     required String issueDate,
     required String expireDate,
+    required String type,
     File? file,
     Uint8List? fileBytes,
     String? fileName,
@@ -73,7 +77,7 @@ class DocumentsProvider extends ChangeNotifier {
 
     final url = Uri.parse("$baseUrl/add_document.php");
 
-        try {
+    try {
       if (kDebugMode) {
         print('Uploading document to: $url');
         if (file != null) {
@@ -95,7 +99,8 @@ class DocumentsProvider extends ChangeNotifier {
 
         // Check file size (limit to 10MB)
         int fileSize = await file.length();
-        if (fileSize > 10 * 1024 * 1024) { // 10MB limit
+        if (fileSize > 10 * 1024 * 1024) {
+          // 10MB limit
           errorMessage = 'File size too large. Maximum size is 10MB';
           isLoading = false;
           isUploading = false;
@@ -106,7 +111,8 @@ class DocumentsProvider extends ChangeNotifier {
 
       // Check file size for web (fileBytes)
       if (kIsWeb && fileBytes != null) {
-        if (fileBytes.length > 10 * 1024 * 1024) { // 10MB limit
+        if (fileBytes.length > 10 * 1024 * 1024) {
+          // 10MB limit
           errorMessage = 'File size too large. Maximum size is 10MB';
           isLoading = false;
           isUploading = false;
@@ -117,14 +123,15 @@ class DocumentsProvider extends ChangeNotifier {
 
       var request = http.MultipartRequest('POST', url);
       request.fields['name'] = name;
+      request.fields['type'] = type;
       request.fields['issue_date'] = issueDate;
       request.fields['expire_date'] = expireDate;
-      
+
       // Read file bytes and create multipart file
       try {
         List<int> bytes;
         String filename;
-        
+
         if (kIsWeb && fileBytes != null) {
           // Web: use provided file bytes
           bytes = fileBytes;
@@ -136,12 +143,8 @@ class DocumentsProvider extends ChangeNotifier {
         } else {
           throw Exception('No file data provided');
         }
-        
-        var multipartFile = http.MultipartFile.fromBytes(
-          'file',
-          bytes,
-          filename: filename,
-        );
+
+        var multipartFile = http.MultipartFile.fromBytes('file', bytes, filename: filename);
         request.files.add(multipartFile);
       } catch (e) {
         errorMessage = 'Error reading file: ${e.toString()}';
@@ -229,7 +232,7 @@ class DocumentsProvider extends ChangeNotifier {
       request.fields['name'] = name;
       request.fields['issue_date'] = issueDate;
       request.fields['expire_date'] = expireDate;
-      
+
       if (file != null) {
         // Check if file exists and get file size (skip on web)
         if (!kIsWeb) {
@@ -243,7 +246,8 @@ class DocumentsProvider extends ChangeNotifier {
 
           // Check file size (limit to 10MB)
           int fileSize = await file.length();
-          if (fileSize > 10 * 1024 * 1024) { // 10MB limit
+          if (fileSize > 10 * 1024 * 1024) {
+            // 10MB limit
             errorMessage = 'File size too large. Maximum size is 10MB';
             isLoading = false;
             isUploading = false;
@@ -255,11 +259,7 @@ class DocumentsProvider extends ChangeNotifier {
         // Read file bytes and create multipart file
         try {
           List<int> fileBytes = await file.readAsBytes();
-          var multipartFile = http.MultipartFile.fromBytes(
-            'file',
-            fileBytes,
-            filename: file.path.split('/').last,
-          );
+          var multipartFile = http.MultipartFile.fromBytes('file', fileBytes, filename: file.path.split('/').last);
           request.files.add(multipartFile);
         } catch (e) {
           errorMessage = 'Error reading file: ${e.toString()}';
@@ -313,11 +313,7 @@ class DocumentsProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.post(
-        url, 
-        headers: {"Content-Type": "application/json"}, 
-        body: body
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -358,11 +354,7 @@ class DocumentsProvider extends ChangeNotifier {
         print('Client ID: $clientRefId');
       }
 
-      final response = await http.post(
-        url, 
-        headers: {"Content-Type": "application/json"}, 
-        body: body
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -431,11 +423,7 @@ class DocumentsProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(body),
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: json.encode(body));
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -451,7 +439,6 @@ class DocumentsProvider extends ChangeNotifier {
             successMessage = "Documents fetched successfully";
             isLoading = false;
             notifyListeners();
-
           } else {
             print("document else case");
             errorMessage = "No documents found";
@@ -509,11 +496,7 @@ class DocumentsProvider extends ChangeNotifier {
         print('Request body: $body');
       }
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(body),
-      );
+      final response = await http.post(url, headers: {"Content-Type": "application/json"}, body: json.encode(body));
 
       if (kDebugMode) {
         print('Response status: ${response.statusCode}');
@@ -549,8 +532,6 @@ class DocumentsProvider extends ChangeNotifier {
     notifyListeners();
     return null;
   }
-
-
 
   void clearMessages() {
     errorMessage = null;
