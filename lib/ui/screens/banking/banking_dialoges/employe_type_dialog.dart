@@ -1227,11 +1227,11 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
         CustomDropdownField(
           label: "Payment Method",
           selectedValue: selectedPaymentMethod,
-          options: ['Cash', 'Cheque', 'Bank','Cash to WPS'],
+          options: ['Select Payment Method', 'Cash', 'Cheque', 'Bank', 'Cash to WPS'],
           onChanged: (value) {
             setState(() {
-              selectedPaymentMethod = value;
-              if (value != 'Bank') {
+              selectedPaymentMethod = value == 'Select Payment Method' ? null : value;
+              if (value == 'Select Payment Method' || value != 'Bank') {
                 selectedBank = null;
                 _serviceTIDController.clear();
               }
