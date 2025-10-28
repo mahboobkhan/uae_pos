@@ -64,8 +64,6 @@ class _ClientMainState extends State<ClientMain> {
   final List<String> categories1 = ['All', 'Regular', 'Walking'];
   String? selectedCategory1;
 
-  final List<String> categories2 = ['All', 'Pending', 'Paid'];
-  String? selectedCategory2;
   final List<String> categories4 = ['Individual', 'Establishment'];
   String selectedCategory4 = '';
 
@@ -109,27 +107,44 @@ class _ClientMainState extends State<ClientMain> {
 
     // Date filter
     if (selectedCategory3 != null && selectedCategory3 != 'All') {
-      final now = DateTime.now();
-      switch (selectedCategory3) {
-        case 'Today':
-          startDateFilter = DateFormat('yyyy-MM-dd').format(now);
-          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
-          break;
-        case 'Yesterday':
-          final yesterday = now.subtract(Duration(days: 1));
-          startDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
-          endDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
-          break;
-        case 'Last 7 Days':
-          final weekAgo = now.subtract(Duration(days: 7));
-          startDateFilter = DateFormat('yyyy-MM-dd').format(weekAgo);
-          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
-          break;
-        case 'Last 30 Days':
-          final monthAgo = now.subtract(Duration(days: 30));
-          startDateFilter = DateFormat('yyyy-MM-dd').format(monthAgo);
-          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
-          break;
+      // Check if it's a custom date range (contains " - ")
+      if (selectedCategory3!.contains(' - ')) {
+        // Parse the custom range
+        try {
+          final parts = selectedCategory3!.split(' - ');
+          if (parts.length == 2) {
+            final startDate = DateFormat('dd/MM/yyyy').parse(parts[0]);
+            final endDate = DateFormat('dd/MM/yyyy').parse(parts[1]);
+            startDateFilter = DateFormat('yyyy-MM-dd').format(startDate);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(endDate);
+          }
+        } catch (e) {
+          print('Error parsing custom date range: $e');
+        }
+      } else {
+        // Handle predefined date ranges
+        final now = DateTime.now();
+        switch (selectedCategory3) {
+          case 'Today':
+            startDateFilter = DateFormat('yyyy-MM-dd').format(now);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+            break;
+          case 'Yesterday':
+            final yesterday = now.subtract(Duration(days: 1));
+            startDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
+            break;
+          case 'Last 7 Days':
+            final weekAgo = now.subtract(Duration(days: 7));
+            startDateFilter = DateFormat('yyyy-MM-dd').format(weekAgo);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+            break;
+          case 'Last 30 Days':
+            final monthAgo = now.subtract(Duration(days: 30));
+            startDateFilter = DateFormat('yyyy-MM-dd').format(monthAgo);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+            break;
+        }
       }
     }
 
@@ -145,6 +160,7 @@ class _ClientMainState extends State<ClientMain> {
     print('=== UI FILTER DEBUG ===');
     print('Selected Category: $selectedCategory');
     print('Selected Category1: $selectedCategory1');
+    print('Selected Category3 (Date): $selectedCategory3');
     print('Client Type Filter: $clientTypeFilter');
     print('Type Filter: $typeFilter');
     print('Start Date Filter: $startDateFilter');
@@ -155,12 +171,51 @@ class _ClientMainState extends State<ClientMain> {
     clientProvider.getAllClients();
   }
 
+  // Apply filters with custom dates (preserves other filters)
+  void _applyFiltersWithCustomDates({required String startDate, required String endDate}) {
+    final clientProvider = context.read<ClientProfileProvider>();
+
+    // Convert UI filter values to API parameters
+    String? clientTypeFilter;
+    String? typeFilter;
+
+    // Client type filter
+    if (selectedCategory != null && selectedCategory != 'All') {
+      clientTypeFilter = selectedCategory!.toLowerCase();
+    }
+
+    // Type filter (Regular/Walking)
+    if (selectedCategory1 != null && selectedCategory1 != 'All') {
+      typeFilter = selectedCategory1!.toLowerCase();
+    }
+
+    // Apply filters to provider with custom dates
+    clientProvider.setFilters(
+      clientType: clientTypeFilter,
+      type: typeFilter,
+      startDate: startDate,
+      endDate: endDate,
+    );
+
+    // Debug print
+    print('=== UI FILTER DEBUG (Custom Range) ===');
+    print('Selected Category: $selectedCategory');
+    print('Selected Category1: $selectedCategory1');
+    print('Client Type Filter: $clientTypeFilter');
+    print('Type Filter: $typeFilter');
+    print('Start Date Filter: $startDate');
+    print('End Date Filter: $endDate');
+    print('======================================');
+
+    // Refresh clients with filters - API will handle the filtering
+    clientProvider.getAllClients();
+  }
+
   // Clear all filters
   void _clearFilters() {
     setState(() {
       selectedCategory = null;
       selectedCategory1 = null;
-      selectedCategory2 = null;
       selectedCategory3 = null;
     });
 
@@ -320,14 +375,6 @@ class _ClientMainState extends State<ClientMain> {
                                 },
                               ),
                               CustomDropdown(
-                                selectedValue: selectedCategory2,
-                                hintText: "Payment Status",
-                                items: categories2,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory2 = newValue!);
-                                },
-                              ),
-                              CustomDropdown(
                                 selectedValue: selectedCategory3,
                                 hintText: "Dates",
                                 items: categories3,
@@ -347,13 +394,10 @@ class _ClientMainState extends State<ClientMain> {
                                       });
 
                                       // Apply custom date range filter
-                                      final clientProvider = context.read<ClientProfileProvider>();
-                                      clientProvider.setFilters(
+                                      _applyFiltersWithCustomDates(
                                         startDate: DateFormat('yyyy-MM-dd').format(start),
                                         endDate: DateFormat('yyyy-MM-dd').format(end),
                                       );
-                                      // API will handle the filtering
-                                      clientProvider.getAllClients();
                                     }
                                   } else {
                                     setState(() => selectedCategory3 = newValue!);
