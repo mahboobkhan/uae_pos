@@ -130,13 +130,13 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     {'tag': 'Tag2', 'color': Colors.orange.shade100},
   ];
 
-  final List<String> categories = ['All', 'New', 'Pending', 'Completed', 'Stop'];
+  final List<String> categories = ['All', 'Client', 'Client Payment', 'Office Payment', 'Employee Payment'];
   String? selectedCategory;
 
-  final List<String> categories1 = ['No Tags', 'Tag 001', 'Tag 002', 'Sample Tag'];
-  String? selectedCategory1;
-  final List<String> categories3 = ['All', 'Toady', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
+  final List<String> categories3 = ['All', 'Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
   String? selectedCategory3;
+  DateTime? _customStartDate;
+  DateTime? _customEndDate;
   bool _isHovering = false;
 
   // Edit dialog controllers
@@ -173,6 +173,87 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
         _editExpiryDateController.text = formatted;
       }
     });
+  }
+
+  // Apply filters to documents list
+  List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> documents) {
+    List<Map<String, dynamic>> filtered = documents;
+
+    // Apply status filter
+    if (selectedCategory != null && selectedCategory != 'All') {
+      filtered = filtered.where((doc) {
+        final docType = doc['type']?.toString().toLowerCase() ?? '';
+        final filterType = selectedCategory!.toLowerCase();
+        
+        // Handle different status filters
+        if (filterType == 'client') {
+          return docType.contains('client');
+        } else if (filterType == 'client payment') {
+          return docType.contains('client') && docType.contains('payment');
+        } else if (filterType == 'office payment') {
+          return docType.contains('office') && docType.contains('payment');
+        } else if (filterType == 'employee payment') {
+          return docType.contains('employee') && docType.contains('payment');
+        }
+        return docType.contains(filterType);
+      }).toList();
+    }
+
+    // Apply date filter
+    if (selectedCategory3 != null && selectedCategory3 != 'All') {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      
+      filtered = filtered.where((doc) {
+        try {
+          String? issueDateStr = doc['issue_date']?.toString();
+          if (issueDateStr == null || issueDateStr == 'N/A') return false;
+          
+          // Parse the date - assuming format like "dd-MM-yyyy – hh:mm a"
+          DateTime? docDate;
+          try {
+            docDate = DateFormat('dd-MM-yyyy – hh:mm a').parse(issueDateStr);
+          } catch (e) {
+            // Try other date formats
+            try {
+              docDate = DateTime.parse(issueDateStr);
+            } catch (e2) {
+              return false;
+            }
+          }
+          
+          final docDateOnly = DateTime(docDate.year, docDate.month, docDate.day);
+          
+          if (selectedCategory3 == 'Today') {
+            return docDateOnly.isAtSameMomentAs(today);
+          } else if (selectedCategory3 == 'Yesterday') {
+            final yesterday = today.subtract(const Duration(days: 1));
+            return docDateOnly.isAtSameMomentAs(yesterday);
+          } else if (selectedCategory3 == 'Last 7 Days') {
+            final sevenDaysAgo = today.subtract(const Duration(days: 7));
+            return docDateOnly.isAfter(sevenDaysAgo.subtract(const Duration(days: 1))) && 
+                   docDateOnly.isBefore(today.add(const Duration(days: 1)));
+          } else if (selectedCategory3 == 'Last 30 Days') {
+            final thirtyDaysAgo = today.subtract(const Duration(days: 30));
+            return docDateOnly.isAfter(thirtyDaysAgo.subtract(const Duration(days: 1))) && 
+                   docDateOnly.isBefore(today.add(const Duration(days: 1)));
+          } else if (_customStartDate != null && _customEndDate != null) {
+            // Custom Range
+            final startDateOnly = DateTime(_customStartDate!.year, _customStartDate!.month, _customStartDate!.day);
+            final endDateOnly = DateTime(_customEndDate!.year, _customEndDate!.month, _customEndDate!.day);
+            return docDateOnly.isAfter(startDateOnly.subtract(const Duration(days: 1))) && 
+                   docDateOnly.isBefore(endDateOnly.add(const Duration(days: 1)));
+          }
+          
+          return true;
+        } catch (e) {
+          print('Error filtering by date: $e');
+          return false;
+        }
+      }).toList();
+    }
+
+    return filtered;
   }
 
   void _showEditDialog(String fileId, String fileName, String issueDate, String expiryDate) {
@@ -458,14 +539,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                 },
                               ),
                               CustomDropdown(
-                                selectedValue: selectedCategory1,
-                                hintText: "Select Tags",
-                                items: categories1,
-                                onChanged: (newValue) {
-                                  setState(() => selectedCategory1 = newValue!);
-                                },
-                              ),
-                              CustomDropdown(
                                 selectedValue: selectedCategory3,
                                 hintText: "Dates",
                                 items: categories3,
@@ -482,10 +555,16 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
                                       setState(() {
                                         selectedCategory3 = formattedRange;
+                                        _customStartDate = start;
+                                        _customEndDate = end;
                                       });
                                     }
                                   } else {
-                                    setState(() => selectedCategory3 = newValue!);
+                                    setState(() {
+                                      selectedCategory3 = newValue!;
+                                      _customStartDate = null;
+                                      _customEndDate = null;
+                                    });
                                   }
                                 },
                                 icon: const Icon(Icons.calendar_month, size: 18),
@@ -526,7 +605,14 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                               message: 'Clear Filters',
                               waitDuration: Duration(milliseconds: 2),
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  setState(() {
+                                    selectedCategory = null;
+                                    selectedCategory3 = null;
+                                    _customStartDate = null;
+                                    _customEndDate = null;
+                                  });
+                                },
                                 child: Container(
                                   width: 30,
                                   height: 30,
@@ -566,8 +652,11 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       );
                     }
 
-                    final documents = documentsProvider.documents;
-                    if (documents.isEmpty) {
+                    final allDocuments = documentsProvider.documents;
+                    
+                    // Apply filters
+                    final filteredDocuments = _applyFilters(allDocuments);
+                    if (filteredDocuments.isEmpty) {
                       return const Padding(padding: EdgeInsets.all(20), child: Center(child: Text('No documents found')));
                     }
 
@@ -620,27 +709,27 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                             _buildHeader("Action"),
                                           ],
                                         ),
-                                        for (int i = 0; i < documents.length; i++)
+                                        for (int i = 0; i < filteredDocuments.length; i++)
                                           TableRow(
                                             decoration: BoxDecoration(
                                               color: i.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
                                             ),
                                             children: [
-                                              _buildCell(documents[i]['document_ref_id'] ?? 'N/A', copyable: true),
-                                              _buildCell(documents[i]['name'] ?? 'N/A', copyable: false),
-                                              _buildCell(documents[i]['issue_date'] ?? 'N/A'),
-                                              _buildCell(documents[i]['expire_date'] ?? 'N/A'),
-                                              _buildCell(documents[i]['type'] ?? 'N/A'),
+                                              _buildCell(filteredDocuments[i]['document_ref_id'] ?? 'N/A', copyable: true),
+                                              _buildCell(filteredDocuments[i]['name'] ?? 'N/A', copyable: false),
+                                              _buildCell(filteredDocuments[i]['issue_date'] ?? 'N/A'),
+                                              _buildCell(filteredDocuments[i]['expire_date'] ?? 'N/A'),
+                                              _buildCell(filteredDocuments[i]['type'] ?? 'N/A'),
                                               _buildDownloadCell("Click Download", () {
-                                                _downloadFile(documents[i]);
+                                                _downloadFile(filteredDocuments[i]);
                                               }),
                                               _buildActionCell(
                                                 onEdit: () {
                                                   _showEditDialog(
-                                                    documents[i]['document_ref_id'] ?? 'N/A',
-                                                    documents[i]['name'] ?? 'N/A',
-                                                    documents[i]['issue_date'] ?? 'N/A',
-                                                    documents[i]['expire_date'] ?? 'N/A',
+                                                    filteredDocuments[i]['document_ref_id'] ?? 'N/A',
+                                                    filteredDocuments[i]['name'] ?? 'N/A',
+                                                    filteredDocuments[i]['issue_date'] ?? 'N/A',
+                                                    filteredDocuments[i]['expire_date'] ?? 'N/A',
                                                   );
                                                 },
                                                 onDelete: () async {
@@ -652,7 +741,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                                         listen: false,
                                                       );
                                                       final success = await documentsProvider.deleteDocument(
-                                                        documentRefId: documents[i]['document_ref_id'] ?? '',
+                                                        documentRefId: filteredDocuments[i]['document_ref_id'] ?? '',
                                                       );
                                                       if (success) {
                                                         ScaffoldMessenger.of(context).showSnackBar(
