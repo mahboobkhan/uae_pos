@@ -294,22 +294,12 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                   );
                                 },
                               ),
-                              if (selectedEmployeeType == 'salary') ...[
-                                CustomTextField(
-                                  label: "Amount",
-                                  controller: _amountController,
-                                  hintText: '500.00',
-                                  keyboardType: TextInputType.number,
-                                  enabled: false,
-                                ),
-                              ] else ...[
-                                CustomTextField(
-                                  label: "Amount",
-                                  controller: _amountController,
-                                  hintText: '500.00',
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ],
+                              CustomTextField(
+                                label: "Amount",
+                                controller: _amountController,
+                                hintText: '500.00',
+                                keyboardType: TextInputType.number,
+                              ),
 
                               _buildMonthYearPicker(),
                             ],
@@ -319,8 +309,258 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
 
                           // Conditional fields based on payment type
                           if (selectedEmployeeType == 'salary') ...[
-                            // Salary form - simple fields
+                            // Salary form - with all fields like bonus
+                            Wrap(
+                              spacing: 16,
+                              runSpacing: 16,
+                              children: [
+                                CustomTextField(
+                                  label: "Payment By",
+                                  controller: _paymentByController,
+                                  hintText: 'Payment By',
+                                  enabled: false, // Always current user for company payments
+                                ),
+                                CustomTextField(
+                                  label: "Received By",
+                                  controller: _receivedByController,
+                                  hintText: 'Received By',
+                                  enabled: false, // Always selected employee
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            _buildPaymentMethodFields(),
+                            const SizedBox(height: 16),
                             _buildTextField("Note", _noteController, width: double.infinity),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Document Upload Section (only show when payment method is Bank)
+                            if (selectedPaymentMethod == 'Bank' || selectedPaymentMethod == 'Cheque') ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Document Upload',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    
+                                    // Select Document Button
+                                    Consumer<DocumentsProvider>(
+                                      builder: (context, documentsProvider, child) {
+                                        // Check if a file is already attached
+                                        final hasAttachedFile = employeeDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty;
+                                        
+                                        return Column(
+                                          children: [
+                                            GestureDetector(
+                                              onTap: (documentsProvider.isUploading || _isProcessing || hasAttachedFile)
+                                                  ? null
+                                                  : () {
+                                                      print('🔍 Debug: Select Document button tapped');
+                                                      Future.microtask(() {
+                                                        _pickFile();
+                                                      });
+                                                    },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: (documentsProvider.isUploading || _isProcessing || hasAttachedFile)
+                                                      ? Colors.grey
+                                                      : Colors.blue,
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                                constraints: const BoxConstraints(minWidth: 150, minHeight: 38),
+                                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    if (documentsProvider.isUploading)
+                                                      const SizedBox(
+                                                        width: 16,
+                                                        height: 16,
+                                                        child: CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                        ),
+                                                      )
+                                                    else
+                                                      const Icon(Icons.attach_file, size: 16, color: Colors.white),
+                                                    const SizedBox(width: 6),
+                                                    Text(
+                                                      documentsProvider.isUploading 
+                                                          ? 'Uploading...' 
+                                                          : hasAttachedFile 
+                                                              ? 'File Attached' 
+                                                              : 'Select Document',
+                                                      style: const TextStyle(fontSize: 14, color: Colors.white),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            if (documentsProvider.isUploading)
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 8.0),
+                                                child: LinearProgressIndicator(
+                                                  value: documentsProvider.uploadProgress,
+                                                  backgroundColor: Colors.grey[300],
+                                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                                                ),
+                                              ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                    
+                                    // Selected Document Preview
+                                    if (selectedFileName != null) ...[
+                                      const SizedBox(height: 15),
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade50,
+                                          border: Border.all(color: Colors.grey.shade300),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.description, color: Colors.blue, size: 20),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    selectedFileName!,
+                                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                                  ),
+                                                  Text(
+                                                    'File selected',
+                                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () => _previewDocument(),
+                                                  icon: const Icon(Icons.visibility, color: Colors.blue, size: 20),
+                                                  tooltip: 'Preview Document',
+                                                ),
+                                                IconButton(
+                                                  onPressed: () => _removeSelectedFile(),
+                                                  icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                                                  tooltip: 'Remove File',
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    
+                                    // Attach Button (only show when file is selected)
+                                    if (selectedFileName != null) ...[
+                                      const SizedBox(height: 15),
+                                      GestureDetector(
+                                        onTap: _isProcessing ? null : () {
+                                          print('🔍 Debug: Attach button tapped');
+                                          _attachDocument();
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: _isProcessing ? Colors.grey : Colors.green,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          constraints: const BoxConstraints(minWidth: 120, minHeight: 38),
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              if (_isProcessing)
+                                                const SizedBox(
+                                                  width: 16,
+                                                  height: 16,
+                                                  child: CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                  ),
+                                                )
+                                              else
+                                                const Icon(Icons.attach_file, size: 16, color: Colors.white),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                _isProcessing ? 'Attaching...' : 'Attach',
+                                                style: const TextStyle(fontSize: 14, color: Colors.white),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 20),
+                              
+                              // Document List Section
+                              if (employeeDocuments.isNotEmpty || uploadedDocumentIds.isNotEmpty)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Attached Documents',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey.shade300),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          // Existing documents
+                                          ...employeeDocuments.map(
+                                            (doc) => _buildDocumentItem(
+                                              name: doc['name'] ?? 'Unknown Document',
+                                              issueDate: doc['issue_date'] ?? '',
+                                              expiryDate: doc['expire_date'] ?? '',
+                                              documentRefId: doc['document_ref_id'] ?? '',
+                                              isExisting: true,
+                                              url: doc['url'],
+                                            ),
+                                          ),
+                                          
+                                          // Newly uploaded documents
+                                          ...uploadedDocumentIds.map(
+                                            (docId) => _buildDocumentItem(
+                                              name: 'New Document',
+                                              issueDate: '',
+                                              expiryDate: '',
+                                              documentRefId: docId,
+                                              isExisting: false,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
                           ] else if (selectedEmployeeType == 'return') ...[
                             // Employee returns to company
                             Wrap(
@@ -602,7 +842,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                             const SizedBox(height: 20),
                             
                             // Document Upload Section (only show when payment method is Bank)
-                            if (selectedPaymentMethod == 'Bank') ...[
+                            if (selectedPaymentMethod == 'Bank' || selectedPaymentMethod == 'Cheque') ...[
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -987,7 +1227,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
         CustomDropdownField(
           label: "Payment Method",
           selectedValue: selectedPaymentMethod,
-          options: ['Cash', 'Cheque', 'Bank'],
+          options: ['Cash', 'Cheque', 'Bank','Cash to WPS'],
           onChanged: (value) {
             setState(() {
               selectedPaymentMethod = value;
@@ -1037,10 +1277,13 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
     final employeeName = selectedEmployeeData!.employeeName ?? '';
 
     if (selectedEmployeeType == 'salary') {
-      // Salary: Pre-fill with employee salary but keep it editable
+      // Salary: Pre-fill with employee salary and Payment/Received By fields
       if (selectedEmployeeData!.salary != null) {
         _amountController.text = selectedEmployeeData!.salary.toString();
       }
+      // Payment By = current user, Received By = employee (same as bonus)
+      _paymentByController.text = currentUserName;
+      _receivedByController.text = employeeName;
     } else if (['bonus'].contains(selectedEmployeeType)) {
       // Company pays employee: Payment By = current user, Received By = employee
       _paymentByController.text = currentUserName;
@@ -1892,9 +2135,24 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
 
     // Validate fields based on payment type
     if (selectedEmployeeType == 'salary') {
-      // Salary validation
-      if (_amountController.text.isEmpty || _monthYearController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in amount and month/year')));
+      // Salary validation - now includes payment fields
+      if (_amountController.text.isEmpty ||
+          _monthYearController.text.isEmpty ||
+          _paymentByController.text.isEmpty ||
+          _receivedByController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all required fields')));
+        return;
+      }
+
+      // Validate payment method for salary transactions
+      if (selectedPaymentMethod == null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a payment method')));
+        return;
+      }
+
+      // Validate bank selection if payment method is Bank
+      if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a bank for bank payment')));
         return;
       }
     } else if (['bonus', 'return'].contains(selectedEmployeeType)) {
@@ -1938,20 +2196,18 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       amount: amount,
       type: selectedEmployeeType!,
       description: _noteController.text.trim(),
-      // Banking-related parameters for non-salary payments
-      payBy: selectedEmployeeType != 'salary' ? _paymentByController.text.trim() : null,
-      receivedBy: selectedEmployeeType != 'salary' ? _receivedByController.text.trim() : null,
-      status: selectedEmployeeType != 'salary' ? 'completed' : null,
-      paymentMethod: selectedEmployeeType != 'salary' ? selectedPaymentMethod : null,
-      chequeNo:
-          selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Cheque'
-              ? _serviceTIDController.text.trim()
-              : null,
-      transactionId:
-          selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank'
-              ? _serviceTIDController.text.trim()
-              : null,
-      bankRefId: selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank' ? selectedBank : null,
+      // Banking-related parameters for all payment types
+      payBy: _paymentByController.text.trim(),
+      receivedBy: _receivedByController.text.trim(),
+      status: 'completed',
+      paymentMethod: selectedPaymentMethod,
+      chequeNo: selectedPaymentMethod == 'Cheque'
+          ? _serviceTIDController.text.trim()
+          : null,
+      transactionId: selectedPaymentMethod == 'Bank'
+          ? _serviceTIDController.text.trim()
+          : null,
+      bankRefId: selectedPaymentMethod == 'Bank' ? selectedBank : null,
     );
 
     // Check if submission was successful
@@ -1972,9 +2228,24 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
 
     // Validate fields based on payment type
     if (selectedEmployeeType == 'salary') {
-      // Salary validation
-      if (_amountController.text.isEmpty || _monthYearController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in amount and month/year')));
+      // Salary validation - now includes payment fields
+      if (_amountController.text.isEmpty ||
+          _monthYearController.text.isEmpty ||
+          _paymentByController.text.isEmpty ||
+          _receivedByController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all required fields')));
+        return;
+      }
+
+      // Validate payment method for salary transactions
+      if (selectedPaymentMethod == null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a payment method')));
+        return;
+      }
+
+      // Validate bank selection if payment method is Bank
+      if (selectedPaymentMethod == 'Bank' && selectedBank == null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select a bank for bank payment')));
         return;
       }
     } else if (['bonus', 'return'].contains(selectedEmployeeType)) {
@@ -2020,20 +2291,18 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       amount: amount,
       type: selectedEmployeeType!,
       description: _noteController.text.trim(),
-      // Banking-related parameters for non-salary payments
-      payBy: selectedEmployeeType != 'salary' ? _paymentByController.text.trim() : null,
-      receivedBy: selectedEmployeeType != 'salary' ? _receivedByController.text.trim() : null,
-      status: selectedEmployeeType != 'salary' ? 'completed' : null,
-      paymentMethod: selectedEmployeeType != 'salary' ? selectedPaymentMethod : null,
-      chequeNo:
-          selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Cheque'
-              ? _serviceTIDController.text.trim()
-              : null,
-      transactionId:
-          selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank'
-              ? _serviceTIDController.text.trim()
-              : null,
-      bankRefId: selectedEmployeeType != 'salary' && selectedPaymentMethod == 'Bank' ? selectedBank : null,
+      // Banking-related parameters for all payment types
+      payBy: _paymentByController.text.trim(),
+      receivedBy: _receivedByController.text.trim(),
+      status: 'completed',
+      paymentMethod: selectedPaymentMethod,
+      chequeNo: selectedPaymentMethod == 'Cheque'
+          ? _serviceTIDController.text.trim()
+          : null,
+      transactionId: selectedPaymentMethod == 'Bank'
+          ? _serviceTIDController.text.trim()
+          : null,
+      bankRefId: selectedPaymentMethod == 'Bank' ? selectedBank : null,
     );
 
     // Check if update was successful
