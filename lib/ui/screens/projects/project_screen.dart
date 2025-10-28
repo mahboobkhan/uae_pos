@@ -101,380 +101,375 @@ class _ProjectScreenState extends State<ProjectScreen> {
       builder: (context, projectsProvider, child) {
         return Scaffold(
           backgroundColor: Colors.grey.shade100,
-          body: RefreshIndicator(
-            onRefresh: () async {
-              await projectsProvider.getCombinedProjectsAndShortServices();
-            },
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 120,
-                      child: Row(
-                        children:
-                            getStats(projectsProvider).map((stat) {
-                              return Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Material(
-                                    elevation: 12,
-                                    borderRadius: BorderRadius.circular(12),
-                                    color: Colors.white70,
-                                    shadowColor: Colors.black,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Text(
-                                              stat['value'],
-                                              style: const TextStyle(
-                                                fontSize: 28,
-                                                color: Colors.white,
-                                                fontFamily: 'Courier',
-                                                fontWeight: FontWeight.bold,
-                                              ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 120,
+                    child: Row(
+                      children:
+                          getStats(projectsProvider).map((stat) {
+                            return Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Material(
+                                  elevation: 12,
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: Colors.white70,
+                                  shadowColor: Colors.black,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            stat['value'],
+                                            style: const TextStyle(
+                                              fontSize: 28,
+                                              color: Colors.white,
+                                              fontFamily: 'Courier',
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          const SizedBox(height: 8),
-                                          FittedBox(
-                                            fit: BoxFit.scaleDown,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
 
-                                            child: Text(
-                                              stat['label'],
-                                              style: const TextStyle(fontSize: 14, color: Colors.white),
-                                            ),
+                                          child: Text(
+                                            stat['label'],
+                                            style: const TextStyle(fontSize: 14, color: Colors.white),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    MouseRegion(
-                      onEnter: (_) => setState(() => _isHovering = true),
-                      onExit: (_) => setState(() => _isHovering = false),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        height: 45,
-                        width: MediaQuery.of(context).size.width,
-                        margin: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          border: Border.all(color: Colors.grey, width: 1),
-                          borderRadius: BorderRadius.circular(2),
-                          boxShadow:
-                              _isHovering
-                                  ? [
-                                    BoxShadow(
-                                      color: Colors.blue,
-                                      blurRadius: 3,
-                                      spreadRadius: 0.1,
-                                      offset: Offset(0, 1),
-                                    ),
-                                  ]
-                                  : [],
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    CustomDropdown(
-                                      selectedValue: selectedCategory,
-                                      hintText: "Status",
-                                      items: categories,
-                                      onChanged: (newValue) {
-                                        setState(() => selectedCategory = newValue!);
-                                        projectsProvider.setFilters(status: newValue);
-                                        projectsProvider.getCombinedProjectsAndShortServices();
-                                      },
-                                    ),
-                                    /*CustomDropdown(
-                                      selectedValue: selectedCategory1,
-                                      hintText: "Select Tags",
-                                      items: categories1,
-                                      onChanged: (newValue) {
-                                        setState(() => selectedCategory1 = newValue!);
-                                      },
-                                    ),*/
-                                    CustomDropdown(
-                                      selectedValue: selectedCategory2,
-                                      hintText: "Payment Status",
-                                      items: categories2,
-                                      onChanged: (newValue) {
-                                        setState(() => selectedCategory2 = newValue!);
-                                      },
-                                    ),
-                                    CustomDropdown(
-                                      selectedValue: selectedCategory3,
-                                      hintText: "Dates",
-                                      items: categories3,
-                                      onChanged: (newValue) async {
-                                        if (newValue == 'Custom Range') {
-                                          final selectedRange = await showDateRangePickerDialog(context);
-
-                                          if (selectedRange != null) {
-                                            final start = selectedRange.startDate ?? DateTime.now();
-                                            final end = selectedRange.endDate ?? start;
-
-                                            final formattedRange =
-                                                '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
-
-                                            setState(() {
-                                              selectedCategory3 = formattedRange;
-                                            });
-
-                                            // Update filters with date range
-                                            projectsProvider.setFilters(
-                                              startDate: DateFormat('yyyy-MM-dd').format(start),
-                                              endDate: DateFormat('yyyy-MM-dd').format(end),
-                                            );
-                                            projectsProvider.getCombinedProjectsAndShortServices();
-                                          }
-                                        } else {
-                                          setState(() => selectedCategory3 = newValue!);
-                                          // Clear date filters for non-custom ranges
-                                          projectsProvider.setFilters(startDate: null, endDate: null);
-                                          projectsProvider.getCombinedProjectsAndShortServices();
-                                        }
-                                      },
-                                      icon: const Icon(Icons.calendar_month, size: 18),
-                                    ),
-                                  ],
                                 ),
                               ),
-                            ),
-                            Row(
-                              children: [
-                                // Clear Filters Button
-                                Card(
-                                  elevation: 4,
-                                  color: Colors.orange,
-                                  shape: CircleBorder(),
-                                  child: Tooltip(
-                                    message: 'Clear Filters',
-                                    waitDuration: Duration(milliseconds: 2),
-                                    child: GestureDetector(
-                                      onTap: () => _clearFilters(projectsProvider),
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                                        decoration: const BoxDecoration(shape: BoxShape.circle),
-                                        child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
-                                      ),
-                                    ),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  MouseRegion(
+                    onEnter: (_) => setState(() => _isHovering = true),
+                    onExit: (_) => setState(() => _isHovering = false),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      height: 45,
+                      width: MediaQuery.of(context).size.width,
+                      margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        border: Border.all(color: Colors.grey, width: 1),
+                        borderRadius: BorderRadius.circular(2),
+                        boxShadow:
+                            _isHovering
+                                ? [
+                                  BoxShadow(
+                                    color: Colors.blue,
+                                    blurRadius: 3,
+                                    spreadRadius: 0.1,
+                                    offset: Offset(0, 1),
                                   ),
-                                ),
-                                // Refresh Button
-                                Card(
-                                  elevation: 4,
-                                  color: Colors.green,
-                                  shape: CircleBorder(),
-                                  child: Tooltip(
-                                    message: 'Refresh',
-                                    waitDuration: Duration(milliseconds: 2),
-                                    child: GestureDetector(
-                                      onTap: () => projectsProvider.getCombinedProjectsAndShortServices(),
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                                        decoration: const BoxDecoration(shape: BoxShape.circle),
-                                        child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
-                                      ),
-                                    ),
+                                ]
+                                : [],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  CustomDropdown(
+                                    selectedValue: selectedCategory,
+                                    hintText: "Status",
+                                    items: categories,
+                                    onChanged: (newValue) {
+                                      setState(() => selectedCategory = newValue!);
+                                      projectsProvider.setFilters(status: newValue);
+                                      projectsProvider.getCombinedProjectsAndShortServices();
+                                    },
                                   ),
-                                ),
-                                /*Card(
-                                  elevation: 8,
-                                  color: Colors.blue,
-                                  shape: CircleBorder(),
-                                  child: Builder(
-                                    builder:
-                                        (context) => Tooltip(
-                                          message: 'Show menu',
-                                          waitDuration: Duration(milliseconds: 2),
-                                          child: GestureDetector(
-                                            key: _plusKey,
-                                            onTap: () async {
-                                              final RenderBox renderBox =
-                                                  _plusKey.currentContext!.findRenderObject() as RenderBox;
-                                              final Offset offset = renderBox.localToGlobal(Offset.zero);
+                                  /*CustomDropdown(
+                                    selectedValue: selectedCategory1,
+                                    hintText: "Select Tags",
+                                    items: categories1,
+                                    onChanged: (newValue) {
+                                      setState(() => selectedCategory1 = newValue!);
+                                    },
+                                  ),*/
+                                  CustomDropdown(
+                                    selectedValue: selectedCategory2,
+                                    hintText: "Payment Status",
+                                    items: categories2,
+                                    onChanged: (newValue) {
+                                      setState(() => selectedCategory2 = newValue!);
+                                    },
+                                  ),
+                                  CustomDropdown(
+                                    selectedValue: selectedCategory3,
+                                    hintText: "Dates",
+                                    items: categories3,
+                                    onChanged: (newValue) async {
+                                      if (newValue == 'Custom Range') {
+                                        final selectedRange = await showDateRangePickerDialog(context);
 
-                                              final selected = await showMenu<String>(
-                                                context: context,
-                                                position: RelativeRect.fromLTRB(
-                                                  offset.dx - 120,
-                                                  offset.dy + renderBox.size.height,
-                                                  offset.dx,
-                                                  offset.dy,
+                                        if (selectedRange != null) {
+                                          final start = selectedRange.startDate ?? DateTime.now();
+                                          final end = selectedRange.endDate ?? start;
+
+                                          final formattedRange =
+                                              '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
+
+                                          setState(() {
+                                            selectedCategory3 = formattedRange;
+                                          });
+
+                                          // Update filters with date range
+                                          projectsProvider.setFilters(
+                                            startDate: DateFormat('yyyy-MM-dd').format(start),
+                                            endDate: DateFormat('yyyy-MM-dd').format(end),
+                                          );
+                                          projectsProvider.getCombinedProjectsAndShortServices();
+                                        }
+                                      } else {
+                                        setState(() => selectedCategory3 = newValue!);
+                                        // Clear date filters for non-custom ranges
+                                        projectsProvider.setFilters(startDate: null, endDate: null);
+                                        projectsProvider.getCombinedProjectsAndShortServices();
+                                      }
+                                    },
+                                    icon: const Icon(Icons.calendar_month, size: 18),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              // Clear Filters Button
+                              Card(
+                                elevation: 4,
+                                color: Colors.orange,
+                                shape: CircleBorder(),
+                                child: Tooltip(
+                                  message: 'Clear Filters',
+                                  waitDuration: Duration(milliseconds: 2),
+                                  child: GestureDetector(
+                                    onTap: () => _clearFilters(projectsProvider),
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                                      child: const Center(child: Icon(Icons.clear, color: Colors.white, size: 20)),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Refresh Button
+                              Card(
+                                elevation: 4,
+                                color: Colors.green,
+                                shape: CircleBorder(),
+                                child: Tooltip(
+                                  message: 'Refresh',
+                                  waitDuration: Duration(milliseconds: 2),
+                                  child: GestureDetector(
+                                    onTap: () => projectsProvider.getCombinedProjectsAndShortServices(),
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                                      child: const Center(child: Icon(Icons.refresh, color: Colors.white, size: 20)),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              /*Card(
+                                elevation: 8,
+                                color: Colors.blue,
+                                shape: CircleBorder(),
+                                child: Builder(
+                                  builder:
+                                      (context) => Tooltip(
+                                        message: 'Show menu',
+                                        waitDuration: Duration(milliseconds: 2),
+                                        child: GestureDetector(
+                                          key: _plusKey,
+                                          onTap: () async {
+                                            final RenderBox renderBox =
+                                                _plusKey.currentContext!.findRenderObject() as RenderBox;
+                                            final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+                                            final selected = await showMenu<String>(
+                                              context: context,
+                                              position: RelativeRect.fromLTRB(
+                                                offset.dx - 120,
+                                                offset.dy + renderBox.size.height,
+                                                offset.dx,
+                                                offset.dy,
+                                              ),
+                                              items: [
+                                                const PopupMenuItem<String>(
+                                                  value: 'Short Services',
+                                                  child: Text('Short Services'),
                                                 ),
-                                                items: [
-                                                  const PopupMenuItem<String>(
-                                                    value: 'Short Services',
-                                                    child: Text('Short Services'),
-                                                  ),
-                                                  const PopupMenuItem<String>(
-                                                    value: 'Add Services',
-                                                    child: Text('Add Services'),
-                                                  ),
-                                                ],
-                                              );
+                                                const PopupMenuItem<String>(
+                                                  value: 'Add Services',
+                                                  child: Text('Add Services'),
+                                                ),
+                                              ],
+                                            );
 
-                                              if (selected != null) {
-                                                setState(() => selectedCategory4 = selected);
-                                                if (selected == 'Add Services') {
-                                                  showShortServicesPopup(context);
-                                                } else if (selected == 'Short Services') {
-                                                  showServicesProjectPopup(context);
-                                                }
+                                            if (selected != null) {
+                                              setState(() => selectedCategory4 = selected);
+                                              if (selected == 'Add Services') {
+                                                showShortServicesPopup(context);
+                                              } else if (selected == 'Short Services') {
+                                                showServicesProjectPopup(context);
                                               }
-                                            },
-                                            child: Container(
-                                              width: 30,
-                                              height: 30,
-                                              margin: const EdgeInsets.symmetric(horizontal: 10),
-                                              decoration: const BoxDecoration(shape: BoxShape.circle),
-                                              child: const Center(
-                                                child: Icon(Icons.add, color: Colors.white, size: 20),
-                                              ),
+                                            }
+                                          },
+                                          child: Container(
+                                            width: 30,
+                                            height: 30,
+                                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                                            decoration: const BoxDecoration(shape: BoxShape.circle),
+                                            child: const Center(
+                                              child: Icon(Icons.add, color: Colors.white, size: 20),
                                             ),
                                           ),
                                         ),
+                                      ),
+                                ),
+                              ),
+                              Material(
+                                elevation: 8,
+                                shadowColor: Colors.grey.shade900,
+                                shape: CircleBorder(),
+                                color: Colors.blue,
+                                child: Tooltip(
+                                  message: 'Create orders',
+                                  waitDuration: Duration(milliseconds: 2),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(context: context, builder: (context) => CreateOrderDialog());
+                                    },
+                                    child: SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: const Center(
+                                        child: Icon(Icons.edit_outlined, color: Colors.white, size: 16),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                Material(
-                                  elevation: 8,
-                                  shadowColor: Colors.grey.shade900,
-                                  shape: CircleBorder(),
-                                  color: Colors.blue,
-                                  child: Tooltip(
-                                    message: 'Create orders',
-                                    waitDuration: Duration(milliseconds: 2),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        showDialog(context: context, builder: (context) => CreateOrderDialog());
-                                      },
-                                      child: SizedBox(
-                                        height: 30,
-                                        width: 30,
-                                        child: const Center(
-                                          child: Icon(Icons.edit_outlined, color: Colors.white, size: 16),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),*/
-                                SizedBox(width: 10),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),*/
+                              SizedBox(width: 10),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Expanded(
-                        child: Container(
-                          child:
-                              projectsProvider.isLoading
-                                  ? Center(child: CircularProgressIndicator())
-                                  : ScrollbarTheme(
-                                    data: ScrollbarThemeData(
-                                      thumbVisibility: MaterialStateProperty.all(true),
-                                      thumbColor: MaterialStateProperty.all(Colors.grey),
-                                      thickness: MaterialStateProperty.all(8),
-                                      radius: const Radius.circular(4),
-                                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Expanded(
+                      child: Container(
+                        child:
+                            projectsProvider.isLoading
+                                ? Center(child: CircularProgressIndicator())
+                                : ScrollbarTheme(
+                                  data: ScrollbarThemeData(
+                                    thumbVisibility: MaterialStateProperty.all(true),
+                                    thumbColor: MaterialStateProperty.all(Colors.grey),
+                                    thickness: MaterialStateProperty.all(8),
+                                    radius: const Radius.circular(4),
+                                  ),
+                                  child: Scrollbar(
+                                    controller: _verticalController,
+                                    thumbVisibility: true,
                                     child: Scrollbar(
-                                      controller: _verticalController,
+                                      controller: _horizontalController,
                                       thumbVisibility: true,
-                                      child: Scrollbar(
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
                                         controller: _horizontalController,
-                                        thumbVisibility: true,
                                         child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          controller: _horizontalController,
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.vertical,
-                                            controller: _verticalController,
-                                            child: ConstrainedBox(
-                                              constraints: const BoxConstraints(minWidth: 1250),
-                                              child: Table(
-                                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                                columnWidths: const {
-                                                  0: FlexColumnWidth(1),
-                                                  1: FlexColumnWidth(1.5),
-                                                  2: FlexColumnWidth(1),
-                                                  3: FlexColumnWidth(1.5),
-                                                  4: FlexColumnWidth(1),
-                                                  5: FlexColumnWidth(1.3),
-                                                  6: FlexColumnWidth(1.3),
-                                                  7: FlexColumnWidth(1.3),
-                                                  8: FlexColumnWidth(1.3),
-                                                  9: FlexColumnWidth(1),
-                                                  10: FlexColumnWidth(1.4),
-                                                },
-                                                children: [
+                                          scrollDirection: Axis.vertical,
+                                          controller: _verticalController,
+                                          child: ConstrainedBox(
+                                            constraints: const BoxConstraints(minWidth: 1250),
+                                            child: Table(
+                                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                              columnWidths: const {
+                                                0: FlexColumnWidth(1),
+                                                1: FlexColumnWidth(1.5),
+                                                2: FlexColumnWidth(1),
+                                                3: FlexColumnWidth(1.5),
+                                                4: FlexColumnWidth(1),
+                                                5: FlexColumnWidth(1.3),
+                                                6: FlexColumnWidth(1.3),
+                                                7: FlexColumnWidth(1.3),
+                                                8: FlexColumnWidth(1.3),
+                                                9: FlexColumnWidth(1),
+                                                10: FlexColumnWidth(1.4),
+                                              },
+                                              children: [
+                                                TableRow(
+                                                  decoration: BoxDecoration(color: Colors.red.shade50),
+                                                  children: [
+                                                    _buildHeader("Date"),
+                                                    _buildHeader("Ref Id"),
+                                                    _buildHeader("Type"),
+                                                    _buildHeader("Client"),
+                                                    _buildHeader("Status"),
+                                                    _buildHeader("Stage"),
+                                                    _buildHeader("Pending"),
+                                                    _buildHeader("Quotation"),
+                                                    _buildHeader("Steps Cost"),
+                                                    _buildHeader("Assign Employee"),
+                                                    _buildHeader("More Actions"),
+                                                  ],
+                                                ),
+                                                if (projectsProvider.combinedData.isEmpty)
                                                   TableRow(
-                                                    decoration: BoxDecoration(color: Colors.red.shade50),
                                                     children: [
-                                                      _buildHeader("Date"),
-                                                      _buildHeader("Ref Id"),
-                                                      _buildHeader("Type"),
-                                                      _buildHeader("Client"),
-                                                      _buildHeader("Status"),
-                                                      _buildHeader("Stage"),
-                                                      _buildHeader("Pending"),
-                                                      _buildHeader("Quotation"),
-                                                      _buildHeader("Steps Cost"),
-                                                      _buildHeader("Assign Employee"),
-                                                      _buildHeader("More Actions"),
+                                                      Container(
+                                                        height: 50,
+                                                        child: Center(child: Text("No data available")),
+                                                      ),
+                                                      for (int i = 1; i < 11; i++) Container(height: 50),
                                                     ],
-                                                  ),
-                                                  if (projectsProvider.combinedData.isEmpty)
-                                                    TableRow(
-                                                      children: [
-                                                        Container(
-                                                          height: 50,
-                                                          child: Center(child: Text("No data available")),
-                                                        ),
-                                                        for (int i = 1; i < 11; i++) Container(height: 50),
-                                                      ],
-                                                    )
-                                                  else
-                                                    for (int i = 0; i < projectsProvider.combinedData.length; i++)
-                                                      _buildDataRow(projectsProvider.combinedData[i], i),
-                                                ],
-                                              ),
+                                                  )
+                                                else
+                                                  for (int i = 0; i < projectsProvider.combinedData.length; i++)
+                                                    _buildDataRow(projectsProvider.combinedData[i], i),
+                                              ],
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                        ),
+                                ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -526,7 +521,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          SvgPicture.asset('assets/icons/dirham_symble.svg', height: 12, width: 12),
           Text(' $price', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)

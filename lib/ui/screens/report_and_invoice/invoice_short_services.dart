@@ -55,7 +55,7 @@ class ABCInvoiceWidget extends StatelessWidget {
     final pdf = pw.Document();
 
     // Load SVG dirham symbol
-    final svgString = await rootBundle.loadString('icons/dirham_symble.svg');
+    final svgString = await rootBundle.loadString('assets/icons/dirham_symble.svg');
 
     // Calculate scale based on page width
     final scale = pageFormat.width / PdfPageFormat.a4.width;
