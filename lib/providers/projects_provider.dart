@@ -20,7 +20,6 @@ class ProjectsProvider extends ChangeNotifier {
   // Filter parameters
   String? statusFilter;
   String? serviceCategoryIdFilter;
-  String? userIdFilter;
   String? clientIdFilter;
   String? stageIdFilter;
   String? startDateFilter;
@@ -41,15 +40,15 @@ class ProjectsProvider extends ChangeNotifier {
       queryParams['service_category_id'] = serviceCategoryIdFilter!;
     }
     // Prefer explicit filter; otherwise pull user_id from shared preferences
-    String? effectiveUserId = userIdFilter;
-    if (effectiveUserId == null || effectiveUserId.isEmpty || effectiveUserId == 'All') {
+    String? effectiveUserId;
       try {
         final prefs = await SharedPreferences.getInstance();
         effectiveUserId = prefs.getString('user_id');
       } catch (_) {}
-    }
+
     if (effectiveUserId != null && effectiveUserId.isNotEmpty && effectiveUserId != 'All') {
       queryParams['user_id'] = effectiveUserId;
+      print('correct user id $effectiveUserId');
     }
     if (clientIdFilter != null && clientIdFilter!.isNotEmpty && clientIdFilter != 'All') {
       queryParams['client_id'] = clientIdFilter!;
@@ -134,16 +133,17 @@ class ProjectsProvider extends ChangeNotifier {
       queryParams['service_category_id'] = serviceCategoryIdFilter!;
     }
     // Prefer explicit filter; otherwise pull user_id from shared preferences
-    String? effectiveUserId = userIdFilter;
-    if (effectiveUserId == null || effectiveUserId.isEmpty || effectiveUserId == 'All') {
       try {
         final prefs = await SharedPreferences.getInstance();
-        effectiveUserId = prefs.getString('user_id');
+        final userID = prefs.getString('user_id')??"";
+        queryParams['user_id'] = userID;
+        if (kDebugMode) {
+          print("✅ Final User ID used in query: $userID");
+        }
       } catch (_) {}
-    }
-    if (effectiveUserId != null && effectiveUserId.isNotEmpty && effectiveUserId != 'All') {
-      queryParams['user_id'] = effectiveUserId;
-    }
+
+
+
     if (clientIdFilter != null && clientIdFilter!.isNotEmpty && clientIdFilter != 'All') {
       queryParams['client_id'] = clientIdFilter!;
     }
@@ -403,7 +403,6 @@ class ProjectsProvider extends ChangeNotifier {
   void setFilters({
     String? status,
     String? serviceCategoryId,
-    String? userId,
     String? clientId,
     String? stageId,
     String? startDate,
@@ -411,7 +410,6 @@ class ProjectsProvider extends ChangeNotifier {
   }) {
     statusFilter = status;
     serviceCategoryIdFilter = serviceCategoryId;
-    userIdFilter = userId;
     clientIdFilter = clientId;
     stageIdFilter = stageId;
     startDateFilter = startDate;
@@ -423,7 +421,6 @@ class ProjectsProvider extends ChangeNotifier {
   void clearFilters() {
     statusFilter = null;
     serviceCategoryIdFilter = null;
-    userIdFilter = null;
     clientIdFilter = null;
     stageIdFilter = null;
     startDateFilter = null;
