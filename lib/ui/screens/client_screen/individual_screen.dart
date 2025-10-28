@@ -767,7 +767,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          SvgPicture.asset('icons/dirham_symble.svg', height: 12, width: 12),
+          SvgPicture.asset('assets/icons/dirham_symble.svg', height: 12, width: 12),
           Text(' $price', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
