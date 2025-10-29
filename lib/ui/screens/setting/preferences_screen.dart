@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../providers/documents_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/date_picker.dart';
@@ -53,7 +54,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       // Show error message to user
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error fetching documents: $e'), backgroundColor: Colors.red));
+      ).showSnackBar(SnackBar(content: Text('Error fetching documents: $e'), backgroundColor: AppColors.redColor));
     }
   }
 
@@ -69,7 +70,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No file URL found for this document'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
         ),
       );
       return;
@@ -102,7 +103,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
         ),
       );
     }
@@ -121,7 +122,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       print('Error fetching documents by client: $e');
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error fetching documents: $e'), backgroundColor: Colors.red));
+      ).showSnackBar(SnackBar(content: Text('Error fetching documents: $e'), backgroundColor: AppColors.redColor));
     }
   }
 
@@ -396,7 +397,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.schedule, size: 16, color: Colors.red),
+                            const Icon(Icons.schedule, size: 16, color: AppColors.redColor),
                             const SizedBox(width: 8),
                             Text('Expiry Date: $expiryDate'),
                           ],
@@ -469,7 +470,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(documentsProvider.errorMessage ?? 'Failed to update document'),
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                           ),
                         );
                       }
@@ -643,7 +644,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                         child: Center(
                           child: Column(
                             children: [
-                              Text('Error: ${documentsProvider.errorMessage}', style: const TextStyle(color: Colors.red)),
+                              Text('Error: ${documentsProvider.errorMessage}', style: const TextStyle(color: AppColors.redColor)),
                               const SizedBox(height: 10),
                               ElevatedButton(onPressed: _fetchDocuments, child: const Text('Retry')),
                             ],
@@ -793,7 +794,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
         padding: const EdgeInsets.only(left: 4.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -850,7 +851,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               onTap: onDelete ?? () {},
               child: Container(
                 padding: const EdgeInsets.all(8),
-                child: const Icon(Icons.delete, size: 20, color: Colors.red),
+                child: const Icon(Icons.delete, size: 20, color: AppColors.redColor),
               ),
             ),
           ),

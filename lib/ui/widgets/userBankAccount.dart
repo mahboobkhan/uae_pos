@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/create_bank_account.dart';
 import '../../providers/designation_delete_provider.dart';
+import '../../utils/app_colors.dart';
 
 class CreateBankAccountScreen extends StatefulWidget {
   const CreateBankAccountScreen({super.key});
@@ -101,7 +102,7 @@ class _CreateBankAccountScreenState extends State<CreateBankAccountScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(provider.errorMessage ?? "Error"),
-                          backgroundColor: Colors.red,
+                          backgroundColor: AppColors.redColor,
                         ),
                       );
                     }

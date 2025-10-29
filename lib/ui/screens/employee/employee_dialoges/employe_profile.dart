@@ -10,6 +10,7 @@ import '../../../../employee/employee_models.dart';
 import '../../../../providers/signup_provider.dart';
 import '../../../../providers/update_ban_account_provider.dart';
 import '../../../../providers/employee_payments_provider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_dialoges.dart';
 import '../../../dialogs/custom_fields.dart';
@@ -166,7 +167,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.red,
+                                color: AppColors.redColor,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -225,7 +226,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                   _getLastUpdatedText(),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.red,
+                                    color: AppColors.redColor,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -233,7 +234,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                             ),
                             const SizedBox(width: 12),
                             IconButton(
-                              icon: const Icon(Icons.close, color: Colors.red),
+                              icon: const Icon(Icons.close, color: AppColors.redColor),
                               onPressed: () async {
                                 Navigator.of(context).pop();
                               },
@@ -387,7 +388,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           onPressed: () {},
                           child: Text(
                             "Add More",
-                            style: TextStyle(color: Colors.red),
+                            style: TextStyle(color: AppColors.redColor),
                           ),
                         ),*/
                       ],
@@ -531,7 +532,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                   ? "Stop Contract"
                                   : "Start Contract",
                           backgroundColor:
-                              _isContractActive ? Colors.orange : Colors.red,
+                              _isContractActive ? Colors.orange : AppColors.redColor,
                           onPressed: () async {
                             if (_isContractActive) {
                               await _showVerificationDialogForStop(); // Show PIN verification for stopping contract
@@ -1235,7 +1236,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(selectedDate),
-              child: const Text('Select', style: TextStyle(color: Colors.red)),
+              child: const Text('Select', style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -1320,7 +1321,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(selectedDate),
-              child: const Text('Select', style: TextStyle(color: Colors.red)),
+              child: const Text('Select', style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -1406,7 +1407,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.redColor,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 10,
@@ -1424,7 +1425,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Invalid PIN. Please try again."),
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppColors.redColor,
                       duration: Duration(seconds: 2),
                     ),
                   );
@@ -1528,7 +1529,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Invalid PIN. Please try again."),
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppColors.redColor,
                       duration: Duration(seconds: 2),
                     ),
                   );
@@ -1616,7 +1617,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                                 content: Text(
                                   "Invalid verification code. Please try again.",
                                 ),
-                                backgroundColor: Colors.red,
+                                backgroundColor: AppColors.redColor,
                                 duration: Duration(seconds: 2),
                               ),
                             );
@@ -1660,7 +1661,7 @@ class _EmployeProfileState extends State<EmployeProfile> {
                           content: Text(
                             "Invalid verification code. Please try again.",
                           ),
-                          backgroundColor: Colors.red,
+                          backgroundColor: AppColors.redColor,
                           duration: Duration(seconds: 2),
                         ),
                       );
@@ -1769,7 +1770,7 @@ class ErrorDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Error', style: TextStyle(color: Colors.red)),
+      title: const Text('Error', style: TextStyle(color: AppColors.redColor)),
       content: Text(message),
       actions: [
         TextButton(

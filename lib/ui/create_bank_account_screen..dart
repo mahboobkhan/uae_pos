@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/create_bank_account.dart';
+import '../utils/app_colors.dart';
 import '../utils/request_state.dart';
 
 class CreateBankAccountScreen extends StatefulWidget {
@@ -77,7 +78,7 @@ class _CreateBankAccountScreenState extends State<CreateBankAccountScreen> {
 
               if (provider.state == RequestState.error)
                 Text(provider.errorMessage ?? "Something went wrong",
-                    style: const TextStyle(color: Colors.red)),
+                    style: const TextStyle(color: AppColors.redColor)),
 
               if (provider.state == RequestState.success)
                 const Text("Bank account created successfully!",

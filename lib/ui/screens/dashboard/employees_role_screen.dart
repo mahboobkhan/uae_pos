@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../utils/utils.dart';
 
@@ -187,116 +188,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                                         print("Filter changed to: $newValue");
                                       },
                                     ),
-                                    // Show current filter status and count
-                                    /*  Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.shade100,
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(color: Colors.blue.shade300),
-                                      ),
-                                      child: Text(
-                                        "Filter: $selectedCategory (${filteredEmployees.length} employees)",
-                                        style: TextStyle(
-                                          color: Colors.blue.shade800,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                    // Clear filter button
-                                    if (selectedCategory != 'All')
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            selectedCategory = 'All';
-                                          });
-                                          print("Filter cleared to: All");
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: Colors.orange.shade100,
-                                            borderRadius: BorderRadius.circular(4),
-                                            border: Border.all(color: Colors.orange.shade300),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.clear,
-                                                size: 16,
-                                                color: Colors.orange.shade700,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                "Clear",
-                                                style: TextStyle(
-                                                  color: Colors.orange.shade700,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),*/
-                                    /* CustomDropdown(
-                                      selectedValue: selectedCategory1,
-                                      hintText: "Select Tags",
-                                      items: categories1,
-                                      onChanged: (newValue) {
-                                        setState(
-                                          () => selectedCategory1 = newValue!,
-                                        );
-                                      },
-                                    ),
-                                    CustomDropdown(
-                                      selectedValue: selectedCategory2,
-                                      hintText: "Payment Status",
-                                      items: categories2,
-                                      onChanged: (newValue) {
-                                        setState(
-                                          () => selectedCategory2 = newValue!,
-                                        );
-                                      },
-                                    ),
-                                    CustomDropdown(
-                                      selectedValue: selectedCategory3,
-                                      hintText: "Dates",
-                                      items: categories3,
-                                      onChanged: (newValue) async {
-                                        if (newValue == 'Custom Range') {
-                                          final selectedRange =
-                                              await showDateRangePickerDialog(
-                                                context,
-                                              );
-
-                                          if (selectedRange != null) {
-                                            final start =
-                                                selectedRange.startDate ??
-                                                DateTime.now();
-                                            final end =
-                                                selectedRange.endDate ?? start;
-
-                                            final formattedRange =
-                                                '${DateFormat('dd/MM/yyyy').format(start)} - ${DateFormat('dd/MM/yyyy').format(end)}';
-
-                                            setState(() {
-                                              selectedCategory3 =
-                                                  formattedRange;
-                                            });
-                                          }
-                                        } else {
-                                          setState(
-                                            () => selectedCategory3 = newValue!,
-                                          );
-                                        }
-                                      },
-                                      icon: const Icon(
-                                        Icons.calendar_month,
-                                        size: 18,
-                                      ),
-                                    ),*/
                                   ],
                                 ),
                               ),
@@ -477,7 +368,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
         padding: const EdgeInsets.only(left: 5.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),

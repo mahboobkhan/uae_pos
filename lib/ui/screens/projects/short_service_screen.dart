@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../providers/short_service_invoice_provider.dart';
 import '../../../providers/short_services_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../../utils/pin_verification_util.dart';
@@ -240,11 +241,11 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      Icon(Icons.error_outline, size: 64, color: AppColors.redColor),
                       SizedBox(height: 16),
                       Text(
                         shortServicesProvider.errorMessage!,
-                        style: TextStyle(color: Colors.red, fontSize: 16),
+                        style: TextStyle(color: AppColors.redColor, fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 16),
@@ -435,7 +436,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('User not logged in'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
         ),
       );
       return;
@@ -541,13 +542,13 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                                         );
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text(provider.errorMessage!), backgroundColor: Colors.red),
+                                          SnackBar(content: Text(provider.errorMessage!), backgroundColor: AppColors.redColor),
                                         );
                                       }
                                     } catch (e) {
                                       ScaffoldMessenger.of(
                                         context,
-                                      ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                                      ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.redColor));
                                     }
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -574,7 +575,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
                   right: 0,
                   top: 0,
                   child: IconButton(
-                    icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                    icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -608,12 +609,11 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('User not logged in'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
           ),
         );
         return;
       }
-
       final provider = context.read<ShortServicesProvider>();
       await provider.deleteShortService(
         userRefId: userRefId,
@@ -630,7 +630,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -788,7 +788,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Invalid service reference ID'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
         ),
       );
       return;
@@ -814,7 +814,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(invoiceProvider.errorMessage!),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
           ),
         );
         return;
@@ -846,7 +846,7 @@ class _ShortServiceScreenState extends State<ShortServiceScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
         ),
       );
     }

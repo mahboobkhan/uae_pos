@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/client_profile_provider.dart';
 import '../../../providers/documents_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
@@ -116,7 +117,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK", style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -134,7 +135,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Storage permission is required to select files'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.redColor,
             ),
           );
           return;
@@ -193,7 +194,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 4)),
+        SnackBar(content: Text(errorMessage), backgroundColor: AppColors.redColor, duration: const Duration(seconds: 4)),
       );
     }
   }
@@ -309,7 +310,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.redColor,
               content: Text(documentsProvider.errorMessage ?? 'Failed to upload document'),
               action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
             ),
@@ -320,7 +321,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
             content: Text('Upload failed: ${e.toString()}'),
             action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
           ),
@@ -390,7 +391,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
           content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
         ),
       );
@@ -453,7 +454,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Unable to access file picker. Please check app permissions or restart the app.'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
           duration: const Duration(seconds: 5),
         ),
       );
@@ -547,7 +548,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
               ),
               IconButton(
                 onPressed: () => _deleteDocument(documentRefId),
-                icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                icon: const Icon(Icons.delete, color: AppColors.redColor, size: 20),
                 tooltip: 'Delete Document',
               ),
             ],
@@ -656,7 +657,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                     children: [
                       const Text(
                         'Individual Profile',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
@@ -679,11 +680,11 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                     children: [
                       Text(
                         _createdDateController.text,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 14),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.redColor, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
+                        icon: const Icon(Icons.close, color: AppColors.redColor),
                         onPressed: () async {
                           // final shouldClose = await showDialog<bool>(
                           //   context: context,
@@ -700,7 +701,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                           //           ),
                           //           TextButton(
                           //             onPressed: () => Navigator.of(context).pop(true),
-                          //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                          //             child: const Text("Close", style: TextStyle(color: AppColors.redColor)),
                           //           ),
                           //         ],
                           //       ),
@@ -820,7 +821,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                       children: [
                         const Text(
                           'Document Upload',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                         ),
                         const SizedBox(height: 10),
                         Wrap(
@@ -907,7 +908,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                                                   selectedFileBytes = null;
                                                 });
                                               },
-                                              icon: const Icon(Icons.close, color: Colors.red),
+                                              icon: const Icon(Icons.close, color: AppColors.redColor),
                                               tooltip: 'Cancel Upload',
                                             ),
                                           ),
@@ -950,7 +951,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                   children: [
                     const Text(
                       'Attached Documents',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -1016,7 +1017,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Client reference ID not found'),
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                           ),
                         );
                       }
@@ -1093,7 +1094,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
                         Navigator.of(context).pop();
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)),
+                          SnackBar(backgroundColor: AppColors.redColor, content: Text(provider.errorMessage!)),
                         );
                       }
                     },
@@ -1113,13 +1114,13 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       child: TextField(
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.red),
+          labelStyle: TextStyle(color: AppColors.redColor),
           // Label color
           isDense: true,
           border: OutlineInputBorder(),
           focusedBorder: OutlineInputBorder(
             // Red border on focus
-            borderSide: BorderSide(color: Colors.red),
+            borderSide: BorderSide(color: AppColors.redColor),
           ),
         ),
       ),
@@ -1149,7 +1150,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _buildPaymentTile("Pending Payments", "9700", Colors.red),
+        _buildPaymentTile("Pending Payments", "9700", AppColors.redColor),
         _buildPaymentTile("Advance Payment", "10,000", Colors.green),
       ],
     );
@@ -1178,9 +1179,9 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       spacing: 16,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        const Icon(Icons.calendar_month, color: Colors.red, size: 20),
+        const Icon(Icons.calendar_month, color: AppColors.redColor, size: 20),
         const Text("12-02-2025 - 02:59 pm"),
-        const Icon(Icons.calendar_month, color: Colors.red, size: 20),
+        const Icon(Icons.calendar_month, color: AppColors.redColor, size: 20),
         const Text("12-02-2025 - 02:59 pm"),
         const Icon(Icons.check_circle, color: Colors.green, size: 24),
         CustomButton(
@@ -1199,7 +1200,7 @@ class _IndividualProfileDialogState extends State<IndividualProfileDialog> {
       children: [
         CustomButton(text: 'Editing', onPressed: () {}, backgroundColor: Colors.blue),
         const SizedBox(width: 20),
-        CustomButton(text: 'Submit', onPressed: () {}, backgroundColor: Colors.red),
+        CustomButton(text: 'Submit', onPressed: () {}, backgroundColor: AppColors.redColor),
       ],
     );
   }
@@ -1233,7 +1234,7 @@ class CustomDropdownField extends StatelessWidget {
         isDense: true,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.red),
+          labelStyle: const TextStyle(color: AppColors.redColor),
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           border: OutlineInputBorder(borderSide: BorderSide(color: borderColor)),

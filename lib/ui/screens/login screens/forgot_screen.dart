@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/signup_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart';
 
@@ -137,7 +138,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                             child: Text(
                               'Request For Forgot Password',
                               style: TextStyle(
-                                color: Colors.red,
+                                color: AppColors.redColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 25,
                               ),
@@ -258,7 +259,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor: AppColors.redColor,
                             ),
                             onPressed: () async {
                               final gmail = _gmailController.text.trim();

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../providers/expense_provider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/custom_dialoges.dart';
 
@@ -52,11 +53,11 @@ class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
                     children: [
                       const Text(
                         "Change the Dialog",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                       ),
                       Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
+                        icon: const Icon(Icons.close, color: AppColors.redColor),
                         onPressed: () async {
                           // final shouldClose = await showDialog<bool>(
                           //   context: context,
@@ -85,7 +86,7 @@ class _DialogueEditOfficeExpenseState extends State<DialogueEditOfficeExpense> {
                           //             () => Navigator.of(context).pop(true),
                           //         child: const Text(
                           //           "Close",
-                          //           style: TextStyle(color: Colors.red),
+                          //           style: TextStyle(color: AppColors.redColor),
                           //         ),
                           //       ),
                           //     ],

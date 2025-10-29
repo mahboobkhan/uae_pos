@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../../../providers/banking_payments_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
@@ -213,11 +214,11 @@ class _FinanceScreenState extends State<FinanceScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                            const Icon(Icons.error_outline, size: 64, color: AppColors.redColor),
                             const SizedBox(height: 16),
                             Text(
                               bankingProvider.errorMessage!,
-                              style: const TextStyle(color: Colors.red, fontSize: 16),
+                              style: const TextStyle(color: AppColors.redColor, fontSize: 16),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 16),
@@ -480,7 +481,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),

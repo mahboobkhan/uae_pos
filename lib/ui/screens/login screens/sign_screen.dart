@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/signup_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart';
 import 'log_screen.dart';
@@ -59,7 +60,7 @@ class _SignScreenState extends State<SignScreen> {
                           child: Text(
                             'Create New Account',
                             style: TextStyle(
-                              color: Colors.red,
+                              color: AppColors.redColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 25,
                             ),
@@ -102,7 +103,7 @@ class _SignScreenState extends State<SignScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                           ),
                           onPressed: () async {
 

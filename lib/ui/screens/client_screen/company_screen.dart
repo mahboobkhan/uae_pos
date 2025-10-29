@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/client_profile_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/clipboard_utils.dart';
 import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/custom_dialoges.dart';
@@ -186,7 +187,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                           shadowColor: Colors.black,
                           child: Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                            decoration: BoxDecoration(color: AppColors.redColor, borderRadius: BorderRadius.circular(12)),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -395,18 +396,18 @@ class _CompanyScreenState extends State<CompanyScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
-                      border: Border.all(color: Colors.red),
+                      border: Border.all(color: AppColors.redColor),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     padding: const EdgeInsets.all(8),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.red),
+                        Icon(Icons.error_outline, color: AppColors.redColor),
                         SizedBox(width: 8),
-                        Expanded(child: Text(clientProvider.errorMessage!, style: TextStyle(color: Colors.red))),
+                        Expanded(child: Text(clientProvider.errorMessage!, style: TextStyle(color: AppColors.redColor))),
                         IconButton(
                           onPressed: () => clientProvider.clearMessages(),
-                          icon: Icon(Icons.close, color: Colors.red),
+                          icon: Icon(Icons.close, color: AppColors.redColor),
                         ),
                       ],
                     ),
@@ -583,7 +584,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   const SnackBar(
                                                     content: Text('Client reference ID not found'),
-                                                    backgroundColor: Colors.red,
+                                                    backgroundColor: AppColors.redColor,
                                                   ),
                                                 );
                                               }
@@ -696,7 +697,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),

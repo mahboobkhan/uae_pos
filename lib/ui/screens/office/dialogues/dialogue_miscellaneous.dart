@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../providers/expense_provider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_fields.dart';
@@ -82,7 +83,7 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK",style: TextStyle(color: Colors.red)),
+              child: const Text("OK",style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -114,12 +115,12 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.red,
+                      color: AppColors.redColor,
                     ),
                   ),
                   Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.red),
+                    icon: const Icon(Icons.close, color: AppColors.redColor),
                     onPressed: () async {
                       final shouldClose = await showDialog<bool>(
                         context: context,
@@ -135,7 +136,7 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text("Close",style: TextStyle(color:Colors.red ),),
+                              child: const Text("Close",style: TextStyle(color:AppColors.redColor ),),
                             ),
                           ],
                         ),
@@ -194,7 +195,7 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
               if (provider.state == RequestState.error)
                 Text(
                   provider.errorMessage ?? "Something went wrong",
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: AppColors.redColor),
                 ),
 
               if (provider.state == RequestState.success)
@@ -210,7 +211,7 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
                 children: [
                   CustomButton(
                     text: "Stop",
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.redColor,
                     onPressed: () {},
                   ),
                   const SizedBox(width: 10),
@@ -304,7 +305,7 @@ class _DialogueMiscellaneousState extends State<DialogueMiscellaneous> {
             border: OutlineInputBorder(),
             suffixIcon: Icon(
               Icons.calendar_month_outlined,
-              color: Colors.red,
+              color: AppColors.redColor,
               size: 22,
             ),
           ),
@@ -335,7 +336,7 @@ Widget _buildTextField(
           borderSide: BorderSide(color: Colors.grey),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.red),
+          borderSide: BorderSide(color: AppColors.redColor),
         ),
       ),
     ),

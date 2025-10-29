@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/projects_provider.dart';
 import '../../../providers/service_category_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
@@ -460,11 +461,11 @@ class _CreateOrdersState extends State<CreateOrders> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error_outline, size: 64, color: Colors.red),
+                        Icon(Icons.error_outline, size: 64, color: AppColors.redColor),
                         SizedBox(height: 16),
                         Text(
                           projectsProvider.errorMessage ?? serviceCategoryProvider.errorMessage ?? 'An error occurred',
-                          style: TextStyle(color: Colors.red, fontSize: 16),
+                          style: TextStyle(color: AppColors.redColor, fontSize: 16),
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 16),
@@ -662,7 +663,7 @@ class _CreateOrdersState extends State<CreateOrders> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -799,7 +800,7 @@ class _CreateOrdersState extends State<CreateOrders> {
     return Row(
       children: [
         /*IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+          icon: const Icon(Icons.delete, size: 20, color: AppColors.redColor),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
         ),*/

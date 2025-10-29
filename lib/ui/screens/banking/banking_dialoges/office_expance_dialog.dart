@@ -1,6 +1,7 @@
 import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../utils/app_colors.dart';
 import '../../../dialogs/custom_fields.dart';
 
 class OfficeExpanceDialog extends StatefulWidget {
@@ -67,7 +68,7 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                     children: const [
                       Text(
                         "Office Expanse",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                       ),
                       SizedBox(height: 2),
                       Text("TID. 00001-292382", style: TextStyle(fontSize: 12)),
@@ -77,11 +78,11 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                     children: [
                       Text(
                         _formattedDate(),
-                        style: const TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 14, color: AppColors.redColor, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 10),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
+                        icon: const Icon(Icons.close, color: AppColors.redColor),
                         onPressed: () async {
                           // final shouldClose = await showDialog<bool>(
                           //   context: context,
@@ -110,7 +111,7 @@ class _OfficeExpanceDialogState extends State<OfficeExpanceDialog> {
                           //                 () => Navigator.of(context).pop(true),
                           //             child: const Text(
                           //               "Close",
-                          //               style: TextStyle(color: Colors.red),
+                          //               style: TextStyle(color: AppColors.redColor),
                           //             ),
                           //           ),
                           //         ],
@@ -405,7 +406,7 @@ void showInstituteManagementDialog(BuildContext context) {
                                                 ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                                            icon: const Icon(Icons.delete, size: 18, color: AppColors.redColor),
                                             padding: EdgeInsets.zero,
                                             onPressed: () {
                                               setState(() {

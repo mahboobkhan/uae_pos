@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../providers/expense_provider.dart';
 import '../../../../providers/documents_provider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/custom_fields.dart';
 import '../../../../utils/pin_verification_util.dart';
@@ -182,11 +183,11 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                     children: [
                       Text(
                         widget.isEditMode ? "Edit Office Expense" : "Office Expense Management",
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.redColor),
                       ),
                       const Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red, size: 28),
+                        icon: const Icon(Icons.close, color: AppColors.redColor, size: 28),
                         onPressed: () async {
                           // final shouldClose = await showDialog<bool>(
                           //   context: context,
@@ -203,7 +204,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                           //           ),
                           //           TextButton(
                           //             onPressed: () => Navigator.of(context).pop(true),
-                          //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                          //             child: const Text("Close", style: TextStyle(color: AppColors.redColor)),
                           //           ),
                           //         ],
                           //       ),
@@ -231,7 +232,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                       children: [
                         Text(
                           widget.isEditMode ? "Expense Type (Read Only)" : "Select Expense Type",
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -252,9 +253,9 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? Colors.red : Colors.white,
+                                      color: isSelected ? AppColors.redColor : Colors.white,
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: isSelected ? Colors.red : Colors.grey, width: 1.5),
+                                      border: Border.all(color: isSelected ? AppColors.redColor : Colors.grey, width: 1.5),
                                     ),
                                     child: Text(
                                       type,
@@ -297,11 +298,11 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                         children: [
                           Row(
                             children: [
-                              Icon(_getExpenseIcon(selectedExpenseType!), color: Colors.red, size: 20),
+                              Icon(_getExpenseIcon(selectedExpenseType!), color: AppColors.redColor, size: 20),
                               const SizedBox(width: 8),
                               Text(
                                 selectedExpenseType!,
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.redColor),
                               ),
                             ],
                           ),
@@ -421,7 +422,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                               children: [
                                 const Text(
                                   'Document Upload',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                                 ),
                                 const SizedBox(height: 10),
                                 
@@ -532,7 +533,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                                             ),
                                             IconButton(
                                               onPressed: () => _removeSelectedFile(),
-                                              icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                                              icon: const Icon(Icons.close, color: AppColors.redColor, size: 20),
                                               tooltip: 'Remove File',
                                             ),
                                           ],
@@ -596,7 +597,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                               children: [
                                 const Text(
                                   'Attached Documents',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                                 ),
                                 const SizedBox(height: 10),
                                 Container(
@@ -663,12 +664,12 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.error, color: Colors.red, size: 20),
+                                  const Icon(Icons.error, color: AppColors.redColor, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       provider.errorMessage ?? "Something went wrong",
-                                      style: const TextStyle(color: Colors.red),
+                                      style: const TextStyle(color: AppColors.redColor),
                                     ),
                                   ),
                                 ],
@@ -792,7 +793,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
           labelText: label,
           border: const OutlineInputBorder(),
           enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: AppColors.redColor)),
         ),
       ),
     );
@@ -845,14 +846,14 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
     if (selectedExpenseType == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Please select an expense type"), backgroundColor: Colors.red));
+      ).showSnackBar(const SnackBar(content: Text("Please select an expense type"), backgroundColor: AppColors.redColor));
       return;
     }
 
     if (_expenseNameController.text.trim().isEmpty || _expenseAmountController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Please fill in required fields"), backgroundColor: Colors.red));
+      ).showSnackBar(const SnackBar(content: Text("Please fill in required fields"), backgroundColor: AppColors.redColor));
       return;
     }
 
@@ -989,7 +990,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
     } catch (e) {
       print('🔍 Debug: File picker error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: AppColors.redColor),
       );
     }
   }
@@ -1069,7 +1070,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
             content: Text('Failed to attach document: ${e.toString()}'),
           ),
         );
@@ -1109,10 +1110,10 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                   children: [
                     Text(
                       'Document Preview',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.redColor),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.red),
+                      icon: const Icon(Icons.close, color: AppColors.redColor),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -1196,7 +1197,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close', style: TextStyle(color: Colors.red)),
+                      child: const Text('Close', style: TextStyle(color: AppColors.redColor)),
                     ),
                   ],
                 ),
@@ -1361,7 +1362,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
                 ),
               IconButton(
                 onPressed: () => _deleteDocument(documentRefId),
-                icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                icon: const Icon(Icons.delete, color: AppColors.redColor, size: 20),
                 tooltip: 'Remove Document',
               ),
             ],
@@ -1410,7 +1411,7 @@ class _UnifiedOfficeExpenseDialogState extends State<UnifiedOfficeExpenseDialog>
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
             content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
           ),
         );

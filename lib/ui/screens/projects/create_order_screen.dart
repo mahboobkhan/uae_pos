@@ -8,6 +8,7 @@ import '../../../providers/project_stage_provider.dart';
 import '../../../providers/projects_provider.dart';
 import '../../../providers/service_category_provider.dart';
 import '../../../providers/project_report_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
@@ -346,7 +347,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             content: Text(
                               "Invalid verification code. Please try again.",
                             ),
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                             duration: Duration(seconds: 2),
                           ),
                         );
@@ -378,7 +379,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text("Invalid verification code. Please try again."),
-                          backgroundColor: Colors.red,
+                          backgroundColor: AppColors.redColor,
                           duration: Duration(seconds: 2),
                         ),
                       );
@@ -483,7 +484,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK", style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -518,7 +519,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           children: [
                             const Text(
                               "Project Details",
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                             ),
                             Text("Ref ID: ${widget.projectData?['project_ref_id'] ?? 'N/A'}"),
                           ],
@@ -538,7 +539,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                               ),
                             SizedBox(width: 10),
                             IconButton(
-                              icon: const Icon(Icons.close, color: Colors.red),
+                              icon: const Icon(Icons.close, color: AppColors.redColor),
                               onPressed: () async {
                                 // final shouldClose = await showDialog<bool>(
                                 //   context: context,
@@ -555,7 +556,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 //           ),
                                 //           TextButton(
                                 //             onPressed: () => Navigator.of(context).pop(true),
-                                //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                                //             child: const Text("Close", style: TextStyle(color: AppColors.redColor)),
                                 //           ),
                                 //         ],
                                 //       ),
@@ -584,11 +585,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red),
+                            Icon(Icons.error_outline, color: AppColors.redColor),
                             SizedBox(width: 8),
-                            Expanded(child: Text(_errorMessage!, style: TextStyle(color: Colors.red))),
+                            Expanded(child: Text(_errorMessage!, style: TextStyle(color: AppColors.redColor))),
                             IconButton(
-                              icon: Icon(Icons.close, color: Colors.red),
+                              icon: Icon(Icons.close, color: AppColors.redColor),
                               onPressed: () => setState(() => _errorMessage = null),
                             ),
                           ],
@@ -905,7 +906,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         ] else ...[
                           CustomButton(
                             text: "Stop",
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                             onPressed: () => _updateProjectStatus('stop'),
                           ),
                           const SizedBox(width: 10),
@@ -990,7 +991,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           children: [
                             Text(
                               "Project Stages (${projectStageProvider.projectStages.length})",
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                             ),
                             Spacer(),
                             if (widget.projectData != null)
@@ -1006,7 +1007,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                 ),
                             SizedBox(width: 10),
                             /*IconButton(
-                              icon: const Icon(Icons.close, color: Colors.red),
+                              icon: const Icon(Icons.close, color: AppColors.redColor),
                               onPressed: () async {
                                 final shouldClose = await showDialog<bool>(
                                   context: context,
@@ -1023,7 +1024,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                           ),
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(true),
-                                            child: const Text("Close", style: TextStyle(color: Colors.red)),
+                                            child: const Text("Close", style: TextStyle(color: AppColors.redColor)),
                                           ),
                                         ],
                                       ),
@@ -1078,16 +1079,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.error_outline, color: Colors.red),
+                                const Icon(Icons.error_outline, color: AppColors.redColor),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     projectStageProvider.errorMessage!,
-                                    style: const TextStyle(color: Colors.red),
+                                    style: const TextStyle(color: AppColors.redColor),
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.red),
+                                  icon: const Icon(Icons.close, color: AppColors.redColor),
                                   onPressed: () => projectStageProvider.clearMessages(),
                                 ),
                               ],
@@ -1185,9 +1186,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: "Date and Time",
-            labelStyle: TextStyle(color: Colors.red),
+            labelStyle: TextStyle(color: AppColors.redColor),
             border: OutlineInputBorder(),
-            suffixIcon: Icon(Icons.calendar_month, color: Colors.red),
+            suffixIcon: Icon(Icons.calendar_month, color: AppColors.redColor),
           ),
           child: Text(
             DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime),
@@ -1212,9 +1213,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: const TextStyle(color: Colors.red),
+            labelStyle: const TextStyle(color: AppColors.redColor),
             border: const OutlineInputBorder(),
-            suffixIcon: const Icon(Icons.calendar_today, color: Colors.red),
+            suffixIcon: const Icon(Icons.calendar_today, color: AppColors.redColor),
             helperText: hint,
             helperStyle: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
@@ -1240,10 +1241,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         // Optional: make it non-editable
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.red, fontSize: 16),
+          labelStyle: const TextStyle(color: AppColors.redColor, fontSize: 16),
           border: const OutlineInputBorder(),
-          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-          suffixIcon: icon != null ? Icon(icon, color: Colors.red) : null,
+          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: AppColors.redColor)),
+          suffixIcon: icon != null ? Icon(icon, color: AppColors.redColor) : null,
           filled: fillColor != null,
           fillColor: fillColor,
         ),
@@ -1263,7 +1264,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
           border: const OutlineInputBorder(),
           enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red, width: 1)),
+          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: AppColors.redColor, width: 1)),
         ),
         onChanged: onChanged,
         items:
@@ -1309,7 +1310,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                          icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                           // Smaller icon
                           padding: EdgeInsets.zero,
                           // Remove default padding
@@ -1413,7 +1414,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                                                   ),
                                             ),
                                             IconButton(
-                                              icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                                              icon: const Icon(Icons.delete, size: 18, color: AppColors.redColor),
                                               padding: EdgeInsets.zero,
                                               onPressed: () {
                                                 setState(() {
@@ -1526,7 +1527,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isStageEnded ? Colors.grey : Colors.red,
+                  color: isStageEnded ? Colors.grey : AppColors.redColor,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -1548,7 +1549,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                       onPressed: () => _showEditStageDialog(context, stage),
                     ),
                     /*IconButton(
-                      icon: Icon(Icons.delete, size: 18, color: Colors.red),
+                      icon: Icon(Icons.delete, size: 18, color: AppColors.redColor),
                       onPressed: () => _deleteStage(context, stage, provider),
                     ),*/
                   ],
@@ -1748,7 +1749,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               children: [
                 CustomButton(
                   text: "End Stage",
-                  backgroundColor: Colors.red,
+                  backgroundColor: AppColors.redColor,
                   icon: Icons.lock_open_outlined,
                   onPressed: () => _endStage(context, stage, provider),
                 ),
@@ -2169,7 +2170,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: Text("End Stage", style: TextStyle(color: Colors.red)),
+                child: Text("End Stage", style: TextStyle(color: AppColors.redColor)),
               ),
             ],
           ),
@@ -2236,7 +2237,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: Text("Delete", style: TextStyle(color: Colors.red)),
+                child: Text("Delete", style: TextStyle(color: AppColors.redColor)),
               ),
             ],
           ),
@@ -2289,7 +2290,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(reportProvider.errorMessage ?? 'Failed to load project report'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
           ),
         );
       }
@@ -2302,7 +2303,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
           ),
         );
       }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/designation_list_provider.dart';
+import '../utils/app_colors.dart';
 import '../utils/request_state.dart';
 
 class DesignationListScreen extends StatefulWidget {
@@ -55,7 +56,7 @@ class _DesignationListScreenState extends State<DesignationListScreen> {
       return Center(
         child: Text(
           provider.errorMessage ?? "Failed to load designations",
-          style: const TextStyle(color: Colors.red),
+          style: const TextStyle(color: AppColors.redColor),
         ),
       );
     }

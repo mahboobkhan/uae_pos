@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../utils/app_colors.dart';
 import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/custom_fields.dart';
 import '../../dialogs/date_picker.dart';
@@ -73,8 +74,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
   final List<String> categories1 = ['No Tags', 'Tag 001', 'Tag 002', 'Sample Tag'];
   String? selectedCategory1;
 
-  final List<String> categories2 = ['All', 'Pending', 'Paid'];
-  String? selectedCategory2;
+
 
   final List<String> categories3 = ['All', 'Toady', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
   String? selectedCategory3;
@@ -88,7 +88,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
     setState(() {
       selectedCategory = null;
       selectedCategory1 = null;
-      selectedCategory2 = null;
       selectedCategory3 = null;
     });
     provider.clearFilters();
@@ -123,7 +122,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: Colors.red,
+                                      color: AppColors.redColor,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Column(
@@ -209,14 +208,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                       setState(() => selectedCategory1 = newValue!);
                                     },
                                   ),*/
-                                  CustomDropdown(
-                                    selectedValue: selectedCategory2,
-                                    hintText: "Payment Status",
-                                    items: categories2,
-                                    onChanged: (newValue) {
-                                      setState(() => selectedCategory2 = newValue!);
-                                    },
-                                  ),
                                   CustomDropdown(
                                     selectedValue: selectedCategory3,
                                     hintText: "Dates",
@@ -486,7 +477,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -936,7 +927,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                   right: 0,
                   top: 0,
                   child: IconButton(
-                    icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                    icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),

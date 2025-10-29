@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/expense_provider.dart';
 import '../../../providers/designation_delete_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../banking/banking_dialoges/unified_office_expense_dialog.dart';
 import 'dialogues/dialogue_maintainance.dart';
@@ -440,7 +441,7 @@ class MaintainanceOfficeExpenseState extends State<MaintainanceOfficeExpense> {
         padding: const EdgeInsets.only(left: 4.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),

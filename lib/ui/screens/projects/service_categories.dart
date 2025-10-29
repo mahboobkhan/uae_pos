@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/service_category_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/custom_fields.dart';
@@ -93,7 +94,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                           ),
@@ -137,7 +138,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                   right: 0,
                   top: 0,
                   child: IconButton(
-                    icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                    icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -401,7 +402,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),
@@ -517,7 +518,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
     return Row(
       children: [
         /* IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+          icon: const Icon(Icons.delete, size: 20, color: AppColors.redColor),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
         ),*/

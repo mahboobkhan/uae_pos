@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
 import '../../../providers/update_ban_account_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/clipboard_utils.dart';
 import '../../../utils/request_state.dart';
 import '../../dialogs/custom_dialoges.dart';
@@ -182,7 +183,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Error: ${updateProvider.errorMessage ?? 'Unknown error'}'),
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.redColor,
                   ),
                 );
               }
@@ -190,7 +191,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
               // Show error message
               ScaffoldMessenger.of(
                 context,
-              ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+              ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.redColor));
             }
           },
         );
@@ -522,7 +523,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
         padding: const EdgeInsets.only(left: 8.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),

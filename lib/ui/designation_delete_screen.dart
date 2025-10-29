@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/designation_delete_provider.dart';
+import '../utils/app_colors.dart';
 
 class DesignationDeleteScreen extends StatelessWidget {
   const DesignationDeleteScreen({super.key});
@@ -20,7 +21,7 @@ class DesignationDeleteScreen extends StatelessWidget {
           return ListTile(
             title: Text(designation),
             trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+              icon: const Icon(Icons.delete, color: AppColors.redColor),
               onPressed: () {
                 _confirmDelete(context, designation);
               },
@@ -44,7 +45,7 @@ class DesignationDeleteScreen extends StatelessWidget {
             child: const Text("Cancel"),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.redColor),
             onPressed: () {
               Navigator.pop(context); // Close confirmation dialog
               _deleteDesignation(context, designation);
@@ -96,7 +97,7 @@ class DesignationDeleteScreen extends StatelessWidget {
           title,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: title.toLowerCase() == "success" ? Colors.green : Colors.red,
+            color: title.toLowerCase() == "success" ? Colors.green : AppColors.redColor,
           ),
         ),
         content: Text(message),

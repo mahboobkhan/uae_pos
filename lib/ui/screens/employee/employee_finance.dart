@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../../../utils/app_colors.dart';
 import '../../../utils/clipboard_utils.dart';
 import '../../../providers/employee_payments_provider.dart';
 import '../../dialogs/custom_dialoges.dart';
@@ -244,11 +245,11 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error_outline, size: 64, color: Colors.red),
+                          Icon(Icons.error_outline, size: 64, color: AppColors.redColor),
                           SizedBox(height: 16),
                           Text(
                             employeePaymentsProvider.errorMessage!,
-                            style: TextStyle(color: Colors.red, fontSize: 16),
+                            style: TextStyle(color: AppColors.redColor, fontSize: 16),
                             textAlign: TextAlign.center,
                           ),
                           SizedBox(height: 16),
@@ -399,7 +400,7 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
         child: Text(
           text,
           style: const TextStyle(
-            color: Colors.red,
+            color: AppColors.redColor,
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
@@ -441,7 +442,7 @@ class _EmployeeFinanceState extends State<EmployeeFinance> {
             curr,
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
           ),
-          Text(price,style: TextStyle(fontSize: 12,color: Colors.red,fontWeight: FontWeight.bold),),
+          Text(price,style: TextStyle(fontSize: 12,color: AppColors.redColor,fontWeight: FontWeight.bold),),
           const Spacer(),
           if (showPlus)
             Container(

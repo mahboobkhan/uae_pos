@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart';
 import 'log_screen.dart';
@@ -122,7 +123,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         Text(
                           'Verification Required',
                           style: TextStyle(
-                            color: Colors.red,
+                            color: AppColors.redColor,
                             fontWeight: FontWeight.bold,
                             fontSize: 25,
                           ),
@@ -212,7 +213,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             minimumSize: const Size(150, 48),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4)),
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                           ),
                           onPressed: () async {
 

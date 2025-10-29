@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/update_designation.dart';
+import '../utils/app_colors.dart';
 import '../utils/request_state.dart';
 
 class UpdateDesignationScreen extends StatefulWidget {
@@ -109,7 +110,7 @@ class _UpdateDesignationScreenState extends State<UpdateDesignationScreen> {
       builder: (_) => AlertDialog(
         title: Text(
           title,
-          style: TextStyle(color: title == "Success" ? Colors.green : Colors.red),
+          style: TextStyle(color: title == "Success" ? Colors.green : AppColors.redColor),
         ),
         content: Text(message),
         actions: [
