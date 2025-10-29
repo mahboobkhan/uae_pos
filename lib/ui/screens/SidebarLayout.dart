@@ -35,6 +35,7 @@ import '../dialogs/custom_fields.dart';
 import '../dialogs/profile_dialog.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
+import 'links/links_screen.dart';
 
 class SidebarLayout extends StatefulWidget {
   final NavItem? initialItem;
@@ -271,9 +272,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                     color: Colors.grey,
                                                   ),
                                                 // Show lock only if locked
-                                                if (item.isLocked == true)
+                                               /* if (item.isLocked == true)
                                                   const Icon(Icons.lock, size: 16, color: AppColors.redColor),
-                                              ],
+                                              */],
                                             ],
                                           ),
                                         ),
@@ -397,6 +398,8 @@ class _SidebarLayoutState extends State<SidebarLayout> {
         return const Center(child: Text('Notifications Screen'));
       case NavItem.files:
         return const Center(child: PreferencesScreen());
+      case NavItem.links:
+        return const Center(child: Text('Links Screen'));
       case NavItem.settings:
         return const Center(child: Text('Settings Screen'));
     }
@@ -475,10 +478,12 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.files:
         switch (submenu) {
           case 'Download':
-            return const Center(child: Text('Files > Download'));
+            return const Center(child: LinksScreen());
           case 'Upload':
             return const Center(child: Text('Files > Upload'));
         }
+        break;
+      case NavItem.links:
         break;
       case NavItem.settings:
         switch (submenu) {

@@ -59,8 +59,12 @@ final List<SidebarItem> sidebarItems = [
     title: 'Files Backup',
     submenuKeys: ['download', 'upload'],
     accessKey: 'files_cash_flow',
-
     submenus: ['Download', 'Upload'],
+  ),
+  SidebarItem(
+    icon: Icons.link,
+    title: 'Links',
+    accessKey: 'links',
   ),
   /*SidebarItem(
     icon: Icons.settings_outlined,
