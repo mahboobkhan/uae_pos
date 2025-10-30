@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
 
 import '../../../utils/app_colors.dart';
 import '../../../ui/dialogs/custom_dialoges.dart';
 import '../../../ui/dialogs/custom_fields.dart';
+import '../../../providers/links_provider.dart';
 
 class LinksScreen extends StatefulWidget {
   const LinksScreen({super.key});
@@ -16,27 +18,15 @@ class _LinksScreenState extends State<LinksScreen> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
 
-  // Dummy data for links
-  List<Map<String, dynamic>> _dummyLinks = [
-    {
-      'id': '1',
-      'title': 'Sample Link 1',
-      'description': 'This is a sample description for the first link',
-      'url': 'https://example.com',
-    },
-    {
-      'id': '2',
-      'title': 'Sample Link 2',
-      'description': 'This is a sample description for the second link',
-      'url': 'https://flutter.dev',
-    },
-    {
-      'id': '3',
-      'title': 'Sample Link 3',
-      'description': 'This is a sample description for the third link',
-      'url': 'https://dart.dev',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<LinksProvider>().fetchLinks();
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -47,17 +37,22 @@ class _LinksScreenState extends State<LinksScreen> {
 
   bool _isHovering = false;
 
-  void _editLink(Map<String, dynamic> link) {
+  void _editLink(LinkModel link) {
     _showEditLinkDialog(link);
   }
 
-  void _deleteLink(Map<String, dynamic> link) {
-    setState(() {
-      _dummyLinks.removeWhere((item) => item['id'] == link['id']);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Link "${link['title']}" deleted successfully')),
-    );
+  Future<void> _deleteLink(LinkModel link) async {
+    final provider = context.read<LinksProvider>();
+    final success = await provider.deleteLink(link.refId);
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Link "${link.title}" deleted successfully')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.errorMessage ?? 'Failed to delete link')),
+      );
+    }
   }
 
   Future<void> _openLink(String url) async {
@@ -74,8 +69,8 @@ class _LinksScreenState extends State<LinksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      body: SingleChildScrollView(
+        backgroundColor: Colors.grey.shade100,
+        body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +118,7 @@ class _LinksScreenState extends State<LinksScreen> {
                             waitDuration: const Duration(milliseconds: 2),
                             child: GestureDetector(
                               onTap: () {
-                                // TODO: Implement refresh
+                                context.read<LinksProvider>().fetchLinks();
                               },
                               child: Container(
                                 width: 30,
@@ -169,73 +164,108 @@ class _LinksScreenState extends State<LinksScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Container(
-                child: ScrollbarTheme(
-                  data: ScrollbarThemeData(
-                    thumbVisibility: MaterialStateProperty.all(true),
-                    thumbColor: MaterialStateProperty.all(Colors.grey),
-                    thickness: MaterialStateProperty.all(8),
-                    radius: const Radius.circular(4),
-                  ),
-                  child: Scrollbar(
-                    controller: _verticalController,
-                    thumbVisibility: true,
-                    child: Scrollbar(
-                      controller: _horizontalController,
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        controller: _horizontalController,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          controller: _verticalController,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(minWidth: 1180),
-                            child: Table(
-                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                              columnWidths: const {
-                                0: FlexColumnWidth(0.5),
-                                1: FlexColumnWidth(1),
-                                2: FlexColumnWidth(2),
-                                3: FlexColumnWidth(1.5),
-                                4: FlexColumnWidth(0.8),
-                              },
-                              children: [
-                                TableRow(
-                                  decoration: BoxDecoration(color: Colors.red.shade50),
+                child: Consumer<LinksProvider>(
+                  builder: (context, provider, _) {
+                    if (provider.isLoading) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    if (provider.errorMessage != null) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error, color: AppColors.redColor),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                provider.errorMessage!,
+                                style: const TextStyle(color: AppColors.redColor),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            TextButton(
+                              onPressed: () => provider.fetchLinks(),
+                              child: const Text('Retry'),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                    final links = provider.links;
+                    return ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbVisibility: MaterialStateProperty.all(true),
+                        thumbColor: MaterialStateProperty.all(Colors.grey),
+                        thickness: MaterialStateProperty.all(8),
+                        radius: const Radius.circular(4),
+                      ),
+                      child: Scrollbar(
+                        controller: _verticalController,
+                        thumbVisibility: true,
+                        child: Scrollbar(
+                          controller: _horizontalController,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            controller: _horizontalController,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              controller: _verticalController,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: 1180),
+                                child: Table(
+                                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                  columnWidths: const {
+                                    0: FlexColumnWidth(0.5),
+                                    1: FlexColumnWidth(1),
+                                    2: FlexColumnWidth(2),
+                                    3: FlexColumnWidth(1.5),
+                                    4: FlexColumnWidth(0.8),
+                                  },
                                   children: [
-                                    _buildHeader("Link ID"),
-                                    _buildHeader("Title"),
-                                    _buildHeader("Description"),
-                                    _buildHeader("Open Link"),
-                                    _buildHeader("Actions"),
+                                    TableRow(
+                                      decoration: BoxDecoration(color: Colors.red.shade50),
+                                      children: [
+                                        _buildHeader("Link ID"),
+                                        _buildHeader("Title"),
+                                        _buildHeader("Description"),
+                                        _buildHeader("Open Link"),
+                                        _buildHeader("Actions"),
+                                      ],
+                                    ),
+                                    ...links.asMap().entries.map((entry) {
+                                      final index = entry.key;
+                                      final LinkModel link = entry.value;
+                                      return TableRow(
+                                        decoration: BoxDecoration(
+                                          color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
+                                        ),
+                                        children: [
+                                          _buildCell(link.refId),
+                                          _buildCell(link.title),
+                                          _buildCell(link.description),
+                                          _buildLinkCell(link.url),
+                                          _buildActionCell(
+                                            onEdit: () => _editLink(link),
+                                            onDelete: () => _deleteLink(link),
+                                          ),
+                                        ],
+                                      );
+                                    }),
                                   ],
                                 ),
-                                ..._dummyLinks.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final link = entry.value;
-                                    return TableRow(
-                                      decoration: BoxDecoration(
-                                        color: index.isEven ? Colors.grey.shade200 : Colors.grey.shade100,
-                                      ),
-                                      children: [
-                                      _buildCell(link['id'] ?? 'N/A'),
-                                      _buildCell(link['title'] ?? 'N/A'),
-                                      _buildCell(link['description'] ?? 'N/A'),
-                                      _buildLinkCell(link['url'] ?? ''),
-                                        _buildActionCell(
-                                        onEdit: () => _editLink(link),
-                                        onDelete: () => _deleteLink(link),
-                                        ),
-                                      ],
-                                    );
-                                }),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -387,7 +417,7 @@ class _LinksScreenState extends State<LinksScreen> {
                     CustomButton(
                       text: "Add",
                       backgroundColor: Colors.green,
-                      onPressed: () {
+                      onPressed: () async {
                         if (titleController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Please enter title')),
@@ -406,32 +436,18 @@ class _LinksScreenState extends State<LinksScreen> {
                           );
                           return;
                         }
-
-                        // Generate new ID
-                        int maxId = 0;
-                        for (var link in _dummyLinks) {
-                          final id = int.tryParse(link['id'].toString()) ?? 0;
-                          if (id > maxId) {
-                            maxId = id;
-                          }
-                        }
-                        final newId = (maxId + 1).toString();
-
-                        setState(() {
-                          _dummyLinks.add({
-                            'id': newId,
-                            'title': titleController.text.trim(),
-                            'description': descriptionController.text.trim(),
-                            'url': urlController.text.trim(),
-                          });
-                        });
-
+                        final provider = context.read<LinksProvider>();
+                        final success = await provider.addLink(
+                          title: titleController.text.trim(),
+                          description: descriptionController.text.trim(),
+                          url: urlController.text.trim(),
+                        );
                         titleController.dispose();
                         descriptionController.dispose();
                         urlController.dispose();
                         Navigator.of(context).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Link added successfully')),
+                          SnackBar(content: Text(success ? 'Link added successfully' : (provider.errorMessage ?? 'Failed to add link'))),
                         );
                       },
                     ),
@@ -445,15 +461,15 @@ class _LinksScreenState extends State<LinksScreen> {
     );
   }
 
-  void _showEditLinkDialog(Map<String, dynamic> link) {
-    final TextEditingController idController =
-        TextEditingController(text: link['id'] ?? '');
+  void _showEditLinkDialog(LinkModel link) {
+    final TextEditingController refIdController =
+        TextEditingController(text: link.refId);
     final TextEditingController titleController =
-        TextEditingController(text: link['title'] ?? '');
+        TextEditingController(text: link.title);
     final TextEditingController descriptionController =
-        TextEditingController(text: link['description'] ?? '');
+        TextEditingController(text: link.description);
     final TextEditingController urlController =
-        TextEditingController(text: link['url'] ?? '');
+        TextEditingController(text: link.url);
 
     showDialog(
       context: context,
@@ -480,7 +496,7 @@ class _LinksScreenState extends State<LinksScreen> {
                     IconButton(
                       icon: const Icon(Icons.close, color: Colors.red),
                       onPressed: () {
-                        idController.dispose();
+                        refIdController.dispose();
                         titleController.dispose();
                         descriptionController.dispose();
                         urlController.dispose();
@@ -492,9 +508,9 @@ class _LinksScreenState extends State<LinksScreen> {
                 const SizedBox(height: 20),
                 // Form Fields
                 CustomTextField(
-                  label: "Link ID",
-                  controller: idController,
-                  hintText: "Link ID",
+                  label: "Ref ID",
+                  controller: refIdController,
+                  hintText: "Ref ID",
                   readOnly: true,
                 ),
                 const SizedBox(height: 16),
@@ -524,7 +540,7 @@ class _LinksScreenState extends State<LinksScreen> {
                       text: "Cancel",
                       backgroundColor: Colors.grey,
                       onPressed: () {
-                        idController.dispose();
+                        refIdController.dispose();
                         titleController.dispose();
                         descriptionController.dispose();
                         urlController.dispose();
@@ -535,7 +551,7 @@ class _LinksScreenState extends State<LinksScreen> {
                     CustomButton(
                       text: "Submit",
                       backgroundColor: Colors.blue,
-                      onPressed: () {
+                      onPressed: () async {
                         if (titleController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Please enter title')),
@@ -554,27 +570,21 @@ class _LinksScreenState extends State<LinksScreen> {
                           );
                           return;
                         }
+                        final provider = context.read<LinksProvider>();
+                        final success = await provider.updateLink(
+                          refId: refIdController.text.trim(),
+                          title: titleController.text.trim(),
+                          description: descriptionController.text.trim(),
+                          url: urlController.text.trim(),
+                        );
 
-                        setState(() {
-                          final index =
-                              _dummyLinks.indexWhere((item) => item['id'] == link['id']);
-                          if (index != -1) {
-                            _dummyLinks[index] = {
-                              'id': idController.text.trim(),
-                              'title': titleController.text.trim(),
-                              'description': descriptionController.text.trim(),
-                              'url': urlController.text.trim(),
-                            };
-                          }
-                        });
-
-                        idController.dispose();
+                        refIdController.dispose();
                         titleController.dispose();
                         descriptionController.dispose();
                         urlController.dispose();
                         Navigator.of(context).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Link updated successfully')),
+                          SnackBar(content: Text(success ? 'Link updated successfully' : (provider.errorMessage ?? 'Failed to update link'))),
                         );
                       },
                     ),
