@@ -272,9 +272,9 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                     color: Colors.grey,
                                                   ),
                                                 // Show lock only if locked
-                                               /* if (item.isLocked == true)
+                                                if (item.isLocked == true)
                                                   const Icon(Icons.lock, size: 16, color: AppColors.redColor),
-                                              */],
+                                              ],
                                             ],
                                           ),
                                         ),
@@ -399,7 +399,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
       case NavItem.files:
         return const Center(child: PreferencesScreen());
       case NavItem.links:
-        return const Center(child: Text('Links Screen'));
+        return const Center(child:  LinksScreen());
       case NavItem.settings:
         return const Center(child: Text('Settings Screen'));
     }
@@ -476,12 +476,12 @@ class _SidebarLayoutState extends State<SidebarLayout> {
         }
         break;
       case NavItem.files:
-        switch (submenu) {
+     /*   switch (submenu) {
           case 'Download':
             return const Center(child: LinksScreen());
           case 'Upload':
             return const Center(child: Text('Files > Upload'));
-        }
+        }*/
         break;
       case NavItem.links:
         break;
