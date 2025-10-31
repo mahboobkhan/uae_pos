@@ -314,18 +314,6 @@ class _CreateOrdersState extends State<CreateOrders> {
                                   _applyFilters();
                                 },
                               ),
-
-                              // Payment Status Filter
-                              CustomDropdown(
-                                selectedValue: selectedPaymentStatus,
-                                hintText: "Payment Status",
-                                items: paymentStatusOptions,
-                                onChanged: (newValue) {
-                                  setState(() => selectedPaymentStatus = newValue!);
-                                  // Note: Payment status filtering would need to be implemented in the backend
-                                  // For now, we'll just update the UI state
-                                },
-                              ),
                               // Date Filter
                               CustomDropdown(
                                 selectedValue: selectedDateRange,

@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +18,18 @@ class ShortServicesProvider extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
-    final url = Uri.parse("$baseUrl/get_short_services.php");
+    final Map<String, String> queryParams = {};
+    // Prefer explicit filter; otherwise pull user_id from shared preferences
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userID = prefs.getString('user_id')??"";
+      queryParams['user_id'] = userID;
+      if (kDebugMode) {
+        print("✅ Final User ID used in query: $userID");
+      }
+    } catch (_) {}
+
+    final url = Uri.parse("$baseUrl/get_short_services.php").replace(queryParameters: queryParams);
 
     try {
       if (kDebugMode) {
