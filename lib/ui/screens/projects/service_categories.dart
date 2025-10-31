@@ -212,7 +212,8 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                           ),
                           child: Row(
                             children: [
-                              Expanded(
+                              Spacer(),
+                              /*Expanded(
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
@@ -228,7 +229,7 @@ class _ServiceCategoriesState extends State<ServiceCategories> {
                                     ],
                                   ),
                                 ),
-                              ),
+                              ),*/
                               Row(
                                 children: [
                                   Card(

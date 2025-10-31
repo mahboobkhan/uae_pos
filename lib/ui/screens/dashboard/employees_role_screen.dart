@@ -477,7 +477,7 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
               return AlertDialog(
                 backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                title: Text('Manage Access For $userName', style: TextStyle(fontSize: 12, color: Colors.black)),
+                title: Text('Manage Access For $userName', style: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w800)),
                 content: SizedBox(
                   width: 420,
                   child: Column(
@@ -486,74 +486,72 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
-                      Expanded(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: sidebarItemsAccess.length,
-                          itemBuilder: (_, i) {
-                            final item = sidebarItemsAccess[i];
-                            final parentOn = moduleState[item.accessKey] ?? false;
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: sidebarItemsAccess.length,
+                        itemBuilder: (_, i) {
+                          final item = sidebarItemsAccess[i];
+                          final parentOn = moduleState[item.accessKey] ?? false;
 
-                            return ExpansionTile(
-                              title: Row(
-                                children: [
-                                  Icon(item.icon, size: 18),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  ),
-                                  Transform.scale(
-                                    scale: 0.5,
-                                    child: Switch(
-                                      value: parentOn,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          moduleState[item.accessKey] = val;
-                                          if (!val) {
-                                            for (final k in item.submenuKeys) {
-                                              submenuState[k] = false;
-                                            }
+                          return ExpansionTile(
+                            title: Row(
+                              children: [
+                                Icon(item.icon, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Transform.scale(
+                                  scale: 0.5,
+                                  child: Switch(
+                                    value: parentOn,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        moduleState[item.accessKey] = val;
+                                        if (!val) {
+                                          for (final k in item.submenuKeys) {
+                                            submenuState[k] = false;
                                           }
-                                        });
-                                      },
-                                      activeColor: Colors.white,
-                                      activeTrackColor: Colors.green,
-                                      inactiveThumbColor: Colors.white,
-                                      inactiveTrackColor: Colors.red,
-                                    ),
+                                        }
+                                      });
+                                    },
+                                    activeColor: Colors.white,
+                                    activeTrackColor: Colors.green,
+                                    inactiveThumbColor: Colors.white,
+                                    inactiveTrackColor: Colors.red,
                                   ),
-                                ],
-                              ),
-                              children: List.generate(item.submenuKeys.length, (j) {
-                                final subKey = item.submenuKeys[j];
-                                final subOn = submenuState[subKey] ?? false;
-                                return ListTile(
-                                  dense: true,
-                                  contentPadding: const EdgeInsets.only(left: 32, right: 8),
-                                  title: Text(item.submenus[j]),
-                                  trailing: Transform.scale(
-                                    scale: 0.5,
-                                    child: Switch(
-                                      value: subOn,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          if (val && !(moduleState[item.accessKey] ?? false)) {
-                                            moduleState[item.accessKey] = true;
-                                          }
-                                          submenuState[subKey] = val;
-                                        });
-                                      },
-                                      activeColor: Colors.white,
-                                      activeTrackColor: Colors.green,
-                                      inactiveThumbColor: Colors.white,
-                                      inactiveTrackColor: Colors.red,
-                                    ),
+                                ),
+                              ],
+                            ),
+                            children: List.generate(item.submenuKeys.length, (j) {
+                              final subKey = item.submenuKeys[j];
+                              final subOn = submenuState[subKey] ?? false;
+                              return ListTile(
+                                dense: true,
+                                contentPadding: const EdgeInsets.only(left: 32, right: 8),
+                                title: Text(item.submenus[j]),
+                                trailing: Transform.scale(
+                                  scale: 0.5,
+                                  child: Switch(
+                                    value: subOn,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        if (val && !(moduleState[item.accessKey] ?? false)) {
+                                          moduleState[item.accessKey] = true;
+                                        }
+                                        submenuState[subKey] = val;
+                                      });
+                                    },
+                                    activeColor: Colors.white,
+                                    activeTrackColor: Colors.green,
+                                    inactiveThumbColor: Colors.white,
+                                    inactiveTrackColor: Colors.red,
                                   ),
-                                );
-                              }),
-                            );
-                          },
-                        ),
+                                ),
+                              );
+                            }),
+                          );
+                        },
                       ),
                     ],
                   ),

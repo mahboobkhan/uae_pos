@@ -25,12 +25,12 @@ class _LogScreenState extends State<LogScreen> {
   @override
   void initState() {
     super.initState();
-    // _loadSavedEmail();
-    // if (widget.email != null && widget.email!.isNotEmpty) {
-    //   _emailController.text = widget.email!;
-    // }
-    _emailController.text = 'yousafrana1212@gmail.com';
-    _passwordController.text = widget.password ?? 'Eline@52';
+    _loadSavedEmail();
+    if (widget.email != null && widget.email!.isNotEmpty) {
+      _emailController.text = widget.email!;
+    }
+    // _emailController.text = 'yousafrana1212@gmail.com';
+    // _passwordController.text = widget.password ?? 'Eline@52';
   }
 
   Future<void> _loadSavedEmail() async {

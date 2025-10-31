@@ -74,8 +74,6 @@ class _ProjectScreenState extends State<ProjectScreen> {
   final List<String> categories1 = ['No Tags', 'Tag 001', 'Tag 002', 'Sample Tag'];
   String? selectedCategory1;
 
-
-
   final List<String> categories3 = ['All', 'Toady', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom Range'];
   String? selectedCategory3;
 
@@ -371,88 +369,86 @@ class _ProjectScreenState extends State<ProjectScreen> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Container(
-                        child:
-                            projectsProvider.isLoading
-                                ? Center(child: CircularProgressIndicator())
-                                : ScrollbarTheme(
-                                  data: ScrollbarThemeData(
-                                    thumbVisibility: MaterialStateProperty.all(true),
-                                    thumbColor: MaterialStateProperty.all(Colors.grey),
-                                    thickness: MaterialStateProperty.all(8),
-                                    radius: const Radius.circular(4),
-                                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Container(
+                      child:
+                          projectsProvider.isLoading
+                              ? Center(child: CircularProgressIndicator())
+                              : ScrollbarTheme(
+                                data: ScrollbarThemeData(
+                                  thumbVisibility: MaterialStateProperty.all(true),
+                                  thumbColor: MaterialStateProperty.all(Colors.grey),
+                                  thickness: MaterialStateProperty.all(8),
+                                  radius: const Radius.circular(4),
+                                ),
+                                child: Scrollbar(
+                                  controller: _verticalController,
+                                  thumbVisibility: true,
                                   child: Scrollbar(
-                                    controller: _verticalController,
+                                    controller: _horizontalController,
                                     thumbVisibility: true,
-                                    child: Scrollbar(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
                                       controller: _horizontalController,
-                                      thumbVisibility: true,
                                       child: SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        controller: _horizontalController,
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.vertical,
-                                          controller: _verticalController,
-                                          child: ConstrainedBox(
-                                            constraints: const BoxConstraints(minWidth: 1250),
-                                            child: Table(
-                                              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                                              columnWidths: const {
-                                                0: FlexColumnWidth(1),
-                                                1: FlexColumnWidth(1.5),
-                                                2: FlexColumnWidth(1),
-                                                3: FlexColumnWidth(1.5),
-                                                4: FlexColumnWidth(1),
-                                                5: FlexColumnWidth(1.3),
-                                                6: FlexColumnWidth(1.3),
-                                                7: FlexColumnWidth(1.3),
-                                                8: FlexColumnWidth(1.3),
-                                                9: FlexColumnWidth(1),
-                                                10: FlexColumnWidth(1.4),
-                                              },
-                                              children: [
+                                        scrollDirection: Axis.vertical,
+                                        controller: _verticalController,
+                                        child: ConstrainedBox(
+                                          constraints: const BoxConstraints(minWidth: 1250),
+                                          child: Table(
+                                            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                                            columnWidths: const {
+                                              0: FlexColumnWidth(1),
+                                              1: FlexColumnWidth(1.5),
+                                              2: FlexColumnWidth(1),
+                                              3: FlexColumnWidth(1.5),
+                                              4: FlexColumnWidth(1),
+                                              5: FlexColumnWidth(1.3),
+                                              6: FlexColumnWidth(1.3),
+                                              7: FlexColumnWidth(1.3),
+                                              8: FlexColumnWidth(1.3),
+                                              9: FlexColumnWidth(1),
+                                              10: FlexColumnWidth(1.4),
+                                            },
+                                            children: [
+                                              TableRow(
+                                                decoration: BoxDecoration(color: Colors.red.shade50),
+                                                children: [
+                                                  _buildHeader("Date"),
+                                                  _buildHeader("Ref Id"),
+                                                  _buildHeader("Type"),
+                                                  _buildHeader("Client"),
+                                                  _buildHeader("Status"),
+                                                  _buildHeader("Stage"),
+                                                  _buildHeader("Pending"),
+                                                  _buildHeader("Quotation"),
+                                                  _buildHeader("Steps Cost"),
+                                                  _buildHeader("Assign Employee"),
+                                                  _buildHeader("More Actions"),
+                                                ],
+                                              ),
+                                              if (projectsProvider.combinedData.isEmpty)
                                                 TableRow(
-                                                  decoration: BoxDecoration(color: Colors.red.shade50),
                                                   children: [
-                                                    _buildHeader("Date"),
-                                                    _buildHeader("Ref Id"),
-                                                    _buildHeader("Type"),
-                                                    _buildHeader("Client"),
-                                                    _buildHeader("Status"),
-                                                    _buildHeader("Stage"),
-                                                    _buildHeader("Pending"),
-                                                    _buildHeader("Quotation"),
-                                                    _buildHeader("Steps Cost"),
-                                                    _buildHeader("Assign Employee"),
-                                                    _buildHeader("More Actions"),
+                                                    Container(
+                                                      height: 50,
+                                                      child: Center(child: Text("No data available")),
+                                                    ),
+                                                    for (int i = 1; i < 11; i++) Container(height: 50),
                                                   ],
-                                                ),
-                                                if (projectsProvider.combinedData.isEmpty)
-                                                  TableRow(
-                                                    children: [
-                                                      Container(
-                                                        height: 50,
-                                                        child: Center(child: Text("No data available")),
-                                                      ),
-                                                      for (int i = 1; i < 11; i++) Container(height: 50),
-                                                    ],
-                                                  )
-                                                else
-                                                  for (int i = 0; i < projectsProvider.combinedData.length; i++)
-                                                    _buildDataRow(projectsProvider.combinedData[i], i),
-                                              ],
-                                            ),
+                                                )
+                                              else
+                                                for (int i = 0; i < projectsProvider.combinedData.length; i++)
+                                                  _buildDataRow(projectsProvider.combinedData[i], i),
+                                            ],
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                      ),
+                              ),
                     ),
                   ),
                 ],
