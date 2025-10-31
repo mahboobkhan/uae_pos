@@ -8,6 +8,7 @@ import '../../../providers/service_category_provider.dart';
 import '../../../providers/client_profile_provider.dart';
 import '../../../providers/client_organization_employee_provider.dart';
 
+import '../../../utils/app_colors.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_fields.dart';
 
@@ -154,7 +155,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 });
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK", style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -237,12 +238,12 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                       children: [
                         Text(
                           "Create New Order",
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.redColor),
                         ),
                       ],
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.red),
+                      icon: const Icon(Icons.close, color: AppColors.redColor),
                       onPressed: () async {
                         // final shouldClose = await showDialog<bool>(
                         //   context: context,
@@ -259,7 +260,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                         //           ),
                         //           TextButton(
                         //             onPressed: () => Navigator.of(context).pop(true),
-                        //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                        //             child: const Text("Close", style: TextStyle(color: AppColors.redColor)),
                         //           ),
                         //         ],
                         //       ),
@@ -281,16 +282,16 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     margin: EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
-                      border: Border.all(color: Colors.red),
+                      border: Border.all(color: AppColors.redColor),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.red),
+                        Icon(Icons.error_outline, color: AppColors.redColor),
                         SizedBox(width: 8),
-                        Expanded(child: Text(_errorMessage!, style: TextStyle(color: Colors.red))),
+                        Expanded(child: Text(_errorMessage!, style: TextStyle(color: AppColors.redColor))),
                         IconButton(
-                          icon: Icon(Icons.close, color: Colors.red),
+                          icon: Icon(Icons.close, color: AppColors.redColor),
                           onPressed: () => setState(() => _errorMessage = null),
                         ),
                       ],
@@ -502,7 +503,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
             labelText: "Date and Time ",
             labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
             border: OutlineInputBorder(),
-            suffixIcon: Icon(Icons.calendar_month_outlined, color: Colors.red, size: 22),
+            suffixIcon: Icon(Icons.calendar_month_outlined, color: AppColors.redColor, size: 22),
           ),
           child: Text(
             DateFormat("dd-MM-yyyy - hh:mm a").format(selectedDateTime),
@@ -550,7 +551,7 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
               padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.red.shade50,
-                border: Border.all(color: Colors.red),
+                border: Border.all(color: AppColors.redColor),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Column(
@@ -558,9 +559,9 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                 children: [
                   Text(
                     isOrganization ? 'Error loading employees' : 'Error loading relations',
-                    style: TextStyle(color: Colors.red, fontSize: 12),
+                    style: TextStyle(color: AppColors.redColor, fontSize: 12),
                   ),
-                  Text(employeeProvider.errorMessage!, style: TextStyle(color: Colors.red, fontSize: 10)),
+                  Text(employeeProvider.errorMessage!, style: TextStyle(color: AppColors.redColor, fontSize: 10)),
                 ],
               ),
             ),

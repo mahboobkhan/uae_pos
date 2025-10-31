@@ -57,10 +57,12 @@ final List<SidebarItem> sidebarItems = [
   SidebarItem(
     icon: Icons.file_download_done_sharp,
     title: 'Files Backup',
-    submenuKeys: ['download', 'upload'],
     accessKey: 'files_cash_flow',
-
-    submenus: ['Download', 'Upload'],
+  ),
+  SidebarItem(
+    icon: Icons.link,
+    title: 'Links',
+    accessKey: 'links',
   ),
   /*SidebarItem(
     icon: Icons.settings_outlined,
@@ -124,9 +126,12 @@ final List<SidebarItem> sidebarItemsAccess = [
   SidebarItem(
     icon: Icons.file_download_done_sharp,
     title: 'Files Backup',
-    submenuKeys: ['download', 'upload'],
     accessKey: 'files_cash_flow',
-    submenus: ['Download', 'Upload'],
+  ),
+  SidebarItem(
+    icon: Icons.link,
+    title: 'Links',
+    accessKey: 'links',
   ),
   /* SidebarItem(
     icon: Icons.settings_outlined,

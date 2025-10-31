@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/create_payment_method_provider.dart';
+import '../utils/app_colors.dart';
 import '../utils/request_state.dart';
 
 class PaymentMethodScreen extends StatefulWidget {
@@ -118,7 +119,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
       builder: (_) => AlertDialog(
         title: Text(
           title,
-          style: TextStyle(color: title == "Success" ? Colors.green : Colors.red),
+          style: TextStyle(color: title == "Success" ? Colors.green : AppColors.redColor),
         ),
         content: Text(message),
         actions: [

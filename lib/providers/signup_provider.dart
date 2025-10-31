@@ -232,7 +232,7 @@ class SignupProvider with ChangeNotifier {
   }
 
   //////////
-  Future<String?> verifyUser({required String userId, required String pinUser, required String pinAdmin}) async {
+  Future<Map<String, dynamic>?> verifyUser({required String userId, required String pinUser, required String pinAdmin}) async {
     print("Sending for : $userId");
     final url = Uri.parse('https://abcwebservices.com/api/login/verify_user.php');
     final headers = {'Content-Type': 'application/json'};
@@ -255,14 +255,23 @@ class SignupProvider with ChangeNotifier {
       notifyListeners();
 
       if (response.statusCode == 200 && jsonResponse['status'] == 'success') {
-        return null; // Verification success
+        return {
+          'status': 'success',
+          'message': jsonResponse['message'] ?? 'User verified successfully'
+        };
       } else {
-        return jsonResponse['message'] ?? "Verification failed";
+        return {
+          'status': 'error',
+          'message': jsonResponse['message'] ?? "Verification failed"
+        };
       }
     } catch (e) {
       isLoading = false;
       notifyListeners();
-      return "Network error: $e";
+      return {
+        'status': 'error',
+        'message': "Network error: $e"
+      };
     }
   }
 
@@ -393,74 +402,104 @@ class SignupProvider with ChangeNotifier {
     showLoadingDialog(context);
     print('loginwork start');
 
-    final response = await http.post(
-      Uri.parse('https://abcwebservices.com/api/login/login.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({"email": email, "password": password}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('https://abcwebservices.com/api/login/login.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"email": email, "password": password}),
+      );
 
-    hideLoadingDialog(context);
+      hideLoadingDialog(context);
 
-    if (response.statusCode == 200) {
-      print('loginwork 200 result');
+      // Try to parse JSON response regardless of status code
+      Map<String, dynamic>? jsonResponse;
+      try {
+        jsonResponse = jsonDecode(response.body) as Map<String, dynamic>?;
+      } catch (e) {
+        // If JSON parsing fails, show generic error
+        showError(context, 'Invalid response from server');
+        return;
+      }
 
-      final jsonResponse = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        print('loginwork 200 result');
 
-      if (jsonResponse['status'] == 'success') {
-        print('loginwork status success');
+        if (jsonResponse != null && jsonResponse['status'] == 'success') {
+          print('loginwork status success');
 
-        final user = jsonResponse['user'] ?? {};
-        final isAdmin = jsonResponse['is_admin'] ?? {};
-        final access = jsonResponse['access'] ?? {};
-        print('loginwork 200 ${isAdmin}');
+          final user = jsonResponse['user'] ?? {};
+          final isAdmin = jsonResponse['is_admin'] ?? {};
+          final access = jsonResponse['access'] ?? {};
+          print('loginwork 200 ${isAdmin}');
 
-        // ✅ Save to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_id', user['user_id'] ?? '');
-        await prefs.setString('name', user['name'] ?? '');
-        await prefs.setString('email', user['email'] ?? '');
-        await prefs.setString('password', password);
-        await prefs.setBool('verification', user['verification'] ?? '');
-        await prefs.setString('created_at', user['created_at'] ?? '');
-        await prefs.setString('pin', user['pin'] ?? '');
-        await prefs.setString('login_time', user['login_time'] ?? '');
+          // ✅ Save to SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_id', user['user_id'] ?? '');
+          await prefs.setString('name', user['name'] ?? '');
+          await prefs.setString('email', user['email'] ?? '');
+          await prefs.setString('password', password);
+          await prefs.setBool('verification', user['verification'] ?? '');
+          await prefs.setString('created_at', user['created_at'] ?? '');
+          await prefs.setString('pin', user['pin'] ?? '');
+          await prefs.setString('login_time', user['login_time'] ?? '');
 
-        // Save all access permissions (optional)
-        await prefs.setString('access', jsonEncode(access));
+          // Save all access permissions (optional)
+          await prefs.setString('access', jsonEncode(access));
 
-        print('loginwork access ${jsonEncode(access)}');
+          print('loginwork access ${jsonEncode(access)}');
 
-        // ✅ Navigate based on verification status
-        if (user['verification'] == false) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VerificationScreen(userId: user['user_id'], email: user['email'], adminEmail: ""),
-            ),
-          );
+          // ✅ Navigate based on verification status
+          if (user['verification'] == false) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VerificationScreen(userId: user['user_id'], email: user['email'], adminEmail: ""),
+              ),
+            );
+          } else {
+            // Navigate directly to home screen - PIN verification will be shown there
+            Navigator.pushReplacement(
+              context, 
+              MaterialPageRoute(builder: (context) => SidebarLayout())
+            );
+          }
         } else {
-          // Navigate directly to home screen - PIN verification will be shown there
-          Navigator.pushReplacement(
-            context, 
-            MaterialPageRoute(builder: (context) => SidebarLayout())
+          // Handle error response (status code 200 but status != 'success')
+          print('loginwork status error ${jsonResponse?['message'] ?? 'Unknown error'}');
+          
+          final errorMessage = jsonResponse?['message'] ?? 
+                              jsonResponse?['error'] ?? 
+                              'Login failed. Please check your email and password.';
+          
+          showDialog(
+            context: context,
+            builder:
+                (_) => AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  title: const Text("Login Failed"),
+                  content: Text(errorMessage),
+                  actions: [
+                    TextButton(
+                      child: const Text("OK", style: TextStyle(color: Colors.black)),
+                      onPressed: () => Navigator.of(context).pop()
+                    ),
+                  ],
+                ),
           );
         }
       } else {
-        print('loginwork status error ${jsonResponse['message']} ');
-
-        showDialog(
-          context: context,
-          builder:
-              (_) => AlertDialog(
-                title: const Text("Login Failed"),
-                content: Text(jsonResponse['message']),
-                actions: [TextButton(child: const Text("OK"), onPressed: () => Navigator.of(context).pop())],
-              ),
-        );
-        ;
+        // Handle non-200 status codes but try to extract error message from body
+        final errorMessage = jsonResponse?['message'] ?? 
+                            jsonResponse?['error'] ?? 
+                            'Server error: ${response.statusCode}';
+        
+        print('loginwork error ${response.statusCode}: $errorMessage');
+        showError(context, errorMessage);
       }
-    } else {
-      showError(context, 'Server error: ${response.statusCode}');
+    } catch (e) {
+      hideLoadingDialog(context);
+      print('loginwork exception: $e');
+      showError(context, 'Network error: ${e.toString()}');
     }
   }
 

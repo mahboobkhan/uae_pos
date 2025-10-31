@@ -35,6 +35,7 @@ import '../dialogs/custom_fields.dart';
 import '../dialogs/profile_dialog.dart';
 import '../utils/utils.dart';
 import 'dashboard/Dashboard.dart';
+import 'links/links_screen.dart';
 
 class SidebarLayout extends StatefulWidget {
   final NavItem? initialItem;
@@ -251,14 +252,14 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                                           child: Row(
                                             children: [
-                                              Icon(item.icon, color: isSelected ? Colors.red : Colors.black, size: 18),
+                                              Icon(item.icon, color: isSelected ? AppColors.redColor : Colors.black, size: 18),
                                               if (isExpanded) ...[
                                                 const SizedBox(width: 20),
                                                 Expanded(
                                                   child: Text(
                                                     item.title,
                                                     style: TextStyle(
-                                                      color: isSelected ? Colors.red : Colors.black,
+                                                      color: isSelected ? AppColors.redColor : Colors.black,
                                                       fontSize: 12,
                                                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                                     ),
@@ -272,7 +273,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                   ),
                                                 // Show lock only if locked
                                                 if (item.isLocked == true)
-                                                  const Icon(Icons.lock, size: 16, color: Colors.red),
+                                                  const Icon(Icons.lock, size: 16, color: AppColors.redColor),
                                               ],
                                             ],
                                           ),
@@ -304,7 +305,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                         submenu,
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          color: submenuSelected ? Colors.red : Colors.black,
+                                                          color: submenuSelected ? AppColors.redColor : Colors.black,
                                                           fontWeight:
                                                               submenuSelected ? FontWeight.bold : FontWeight.normal,
                                                         ),
@@ -314,7 +315,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                                                     // Lock icon aligned to far right
                                                     // Lock icon for submenu
                                                     if (isSubmenuLocked)
-                                                      const Icon(Icons.lock, size: 16, color: Colors.red),
+                                                      const Icon(Icons.lock, size: 16, color: AppColors.redColor),
                                                   ],
                                                 ),
                                               ),
@@ -335,7 +336,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                       height: 40,
                       iconSize: 25,
                       defaultColor: Colors.green,
-                      hoverColor: Colors.red,
+                      hoverColor: AppColors.redColor,
                       onTap: () {
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LogScreen()));
                       },
@@ -397,6 +398,8 @@ class _SidebarLayoutState extends State<SidebarLayout> {
         return const Center(child: Text('Notifications Screen'));
       case NavItem.files:
         return const Center(child: PreferencesScreen());
+      case NavItem.links:
+        return const Center(child:  LinksScreen());
       case NavItem.settings:
         return const Center(child: Text('Settings Screen'));
     }
@@ -473,12 +476,14 @@ class _SidebarLayoutState extends State<SidebarLayout> {
         }
         break;
       case NavItem.files:
-        switch (submenu) {
+     /*   switch (submenu) {
           case 'Download':
-            return const Center(child: Text('Files > Download'));
+            return const Center(child: LinksScreen());
           case 'Upload':
             return const Center(child: Text('Files > Upload'));
-        }
+        }*/
+        break;
+      case NavItem.links:
         break;
       case NavItem.settings:
         switch (submenu) {
@@ -497,7 +502,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
   /// Show PIN verification dialog on home screen
   Future<void> _showPinVerificationDialog() async {
     final TextEditingController verificationController = TextEditingController();
-    
+
     // Get the saved PIN from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final savedPin = prefs.getString('pin') ?? '1234'; // Default fallback
@@ -562,7 +567,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text("Invalid PIN. Please try again."),
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                             duration: Duration(seconds: 2),
                           ),
                         );
@@ -588,7 +593,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.redColor,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 10,
@@ -613,7 +618,7 @@ class _SidebarLayoutState extends State<SidebarLayout> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Invalid PIN. Please try again."),
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppColors.redColor,
                       duration: Duration(seconds: 2),
                     ),
                   );

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../providers/banking_payment_method_provider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../dialogs/custom_dialoges.dart';
 import '../../../dialogs/custom_fields.dart';
 import '../../../../utils/pin_verification_util.dart';
@@ -90,7 +91,7 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
         bankAddress.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please fill in all required fields'), backgroundColor: Colors.red));
+      ).showSnackBar(const SnackBar(content: Text('Please fill in all required fields'), backgroundColor: AppColors.redColor));
       return;
     }
 
@@ -163,16 +164,16 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                 children: [
                   Text(
                     isEditing ? 'Edit Payment Method' : 'Add Payment Method',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                   ),
                   Spacer(),
                   Text(
                     DateFormat('dd-MM-yyyy').format(DateTime.now()),
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 14),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.redColor, fontSize: 14),
                   ),
                   const SizedBox(width: 12),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.red),
+                    icon: const Icon(Icons.close, color: AppColors.redColor),
                     onPressed: () async {
                       // final shouldClose = await showDialog<bool>(
                       //   context: context,
@@ -189,7 +190,7 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                       //           ),
                       //           TextButton(
                       //             onPressed: () => Navigator.of(context).pop(true),
-                      //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                      //             child: const Text("Close", style: TextStyle(color: AppColors.redColor)),
                       //           ),
                       //         ],
                       //       ),
@@ -228,16 +229,16 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                       margin: EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
-                        border: Border.all(color: Colors.red),
+                        border: Border.all(color: AppColors.redColor),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.error, color: Colors.red),
+                          Icon(Icons.error, color: AppColors.redColor),
                           SizedBox(width: 8),
-                          Expanded(child: Text(provider.errorMessage!, style: TextStyle(color: Colors.red))),
+                          Expanded(child: Text(provider.errorMessage!, style: TextStyle(color: AppColors.redColor))),
                           IconButton(
-                            icon: Icon(Icons.close, color: Colors.red),
+                            icon: Icon(Icons.close, color: AppColors.redColor),
                             onPressed: () {
                               provider.clearMessages();
                             },
@@ -344,7 +345,7 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                          icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                           // Smaller icon
                           padding: EdgeInsets.zero,
                           // Remove default padding
@@ -448,7 +449,7 @@ class _AddPaymentMethodDialogState extends State<AddPaymentMethodDialog> {
                                                   ),
                                             ),
                                             IconButton(
-                                              icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                                              icon: const Icon(Icons.delete, size: 18, color: AppColors.redColor),
                                               padding: EdgeInsets.zero,
                                               onPressed: () {
                                                 setState(() {

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../providers/expense_provider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_dialoges.dart';
@@ -79,7 +80,7 @@ class _DialogueFixedOfficeExpenseState extends State<DialogueFixedOfficeExpense>
                 });
                 Navigator.pop(context);
               },
-              child: const Text("OK", style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -108,11 +109,11 @@ class _DialogueFixedOfficeExpenseState extends State<DialogueFixedOfficeExpense>
                     children: [
                       const Text(
                         "Fixed Office Expense",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                       ),
                       const Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
+                        icon: const Icon(Icons.close, color: AppColors.redColor),
                         onPressed: () async {
                           // final shouldClose = await showDialog<bool>(
                           //   context: context,
@@ -140,7 +141,7 @@ class _DialogueFixedOfficeExpenseState extends State<DialogueFixedOfficeExpense>
                           //                 () => Navigator.of(context).pop(true),
                           //             child: const Text(
                           //               "Close",
-                          //               style: TextStyle(color: Colors.red),
+                          //               style: TextStyle(color: AppColors.redColor),
                           //             ),
                           //           ),
                           //         ],
@@ -179,7 +180,7 @@ class _DialogueFixedOfficeExpenseState extends State<DialogueFixedOfficeExpense>
                   if (provider.state == RequestState.loading) const LinearProgressIndicator(),
 
                   if (provider.state == RequestState.error)
-                    Text(provider.errorMessage ?? "Something went wrong", style: const TextStyle(color: Colors.red)),
+                    Text(provider.errorMessage ?? "Something went wrong", style: const TextStyle(color: AppColors.redColor)),
 
                   if (provider.state == RequestState.success)
                     Text(provider.response?.message ?? "Expense Created!", style: const TextStyle(color: Colors.green)),
@@ -189,7 +190,7 @@ class _DialogueFixedOfficeExpenseState extends State<DialogueFixedOfficeExpense>
                   // Action Buttons
                   Row(
                     children: [
-                      CustomButton(text: "Stop", backgroundColor: Colors.red, onPressed: () {}),
+                      CustomButton(text: "Stop", backgroundColor: AppColors.redColor, onPressed: () {}),
                       const SizedBox(width: 10),
                       CustomButton(text: "Editing", backgroundColor: Colors.blue, onPressed: () {}),
                       const SizedBox(width: 10),
@@ -269,7 +270,7 @@ class _DialogueFixedOfficeExpenseState extends State<DialogueFixedOfficeExpense>
               labelText: "Date and Time",
               labelStyle: TextStyle(fontSize: 16, color: Colors.grey),
               border: OutlineInputBorder(),
-              suffixIcon: Icon(Icons.calendar_month_outlined, color: Colors.red, size: 22),
+              suffixIcon: Icon(Icons.calendar_month_outlined, color: AppColors.redColor, size: 22),
             ),
           ),
         ),
@@ -289,7 +290,7 @@ Widget _buildTextField(String label, TextEditingController controller, {double w
         labelText: label,
         border: const OutlineInputBorder(),
         enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: AppColors.redColor)),
       ),
     ),
   );

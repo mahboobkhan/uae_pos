@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/create_employee_type_provider.dart';
 import '../../providers/designation_delete_provider.dart';
+import '../../utils/app_colors.dart';
 
 class EmployeeTypeScreen extends StatefulWidget {
   const EmployeeTypeScreen({super.key});
@@ -109,7 +110,7 @@ class _EmployeeTypeScreenState extends State<EmployeeTypeScreen> {
                     provider.errorMessage != null)
                   Text(
                     provider.errorMessage!,
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: AppColors.redColor),
                   ),
                 if (provider.state == RequestState.success)
                   const Text(

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/signup_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart';
 
@@ -137,7 +138,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                             child: Text(
                               'Request For Forgot Password',
                               style: TextStyle(
-                                color: Colors.red,
+                                color: AppColors.redColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 25,
                               ),
@@ -258,7 +259,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor: AppColors.redColor,
                             ),
                             onPressed: () async {
                               final gmail = _gmailController.text.trim();
@@ -274,15 +275,14 @@ class _ForgotScreenState extends State<ForgotScreen> {
                               }
                               showLoadingDialog(context);
 
-                              final error = await provider.verifyUser(
+                              final result = await provider.verifyUser(
                                 userId: widget.userId,
                                 pinUser: _gmailController.text.trim(),
                                 pinAdmin: _adminGmailController.text.trim(),
                               );
+                              hideLoadingDialog(context);
 
-                              if (error == null) {
-                                showLoadingDialog(context);
-                                hideLoadingDialog(context);
+                              if (result != null && result['status'] == 'success') {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -293,7 +293,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                                   ),
                                 );
                               } else {
-                                showError(context, error);
+                                showError(context, result?['message'] ?? 'Verification failed');
                               }
                             },
                             child: const FittedBox(

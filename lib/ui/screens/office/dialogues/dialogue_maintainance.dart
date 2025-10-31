@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../providers/expense_provider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../../utils/request_state.dart';
 import '../../../dialogs/calender.dart';
 import '../../../dialogs/custom_dialoges.dart';
@@ -81,7 +82,7 @@ class _DialogueMaintainanceOfficeExpenseState
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK", style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -113,12 +114,12 @@ class _DialogueMaintainanceOfficeExpenseState
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                          color: AppColors.redColor,
                         ),
                       ),
                       Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
+                        icon: const Icon(Icons.close, color: AppColors.redColor),
                         onPressed: () async {
                           final shouldClose = await showDialog<bool>(
                             context: context,
@@ -146,7 +147,7 @@ class _DialogueMaintainanceOfficeExpenseState
                                           () => Navigator.of(context).pop(true),
                                       child: const Text(
                                         "Close",
-                                        style: TextStyle(color: Colors.red),
+                                        style: TextStyle(color: AppColors.redColor),
                                       ),
                                     ),
                                   ],
@@ -205,7 +206,7 @@ class _DialogueMaintainanceOfficeExpenseState
                    if (provider.state == RequestState.error)
                      Text(
                        provider.errorMessage ?? "Something went wrong",
-                       style: const TextStyle(color: Colors.red),
+                       style: const TextStyle(color: AppColors.redColor),
                      ),
 
                    if (provider.state == RequestState.success)
@@ -221,7 +222,7 @@ class _DialogueMaintainanceOfficeExpenseState
                      children: [
                        CustomButton(
                          text: "Stop",
-                         backgroundColor: Colors.red,
+                         backgroundColor: AppColors.redColor,
                          onPressed: () {},
                        ),
                        const SizedBox(width: 10),
@@ -315,7 +316,7 @@ class _DialogueMaintainanceOfficeExpenseState
             border: OutlineInputBorder(),
             suffixIcon: Icon(
               Icons.calendar_month_outlined,
-              color: Colors.red,
+              color: AppColors.redColor,
               size: 22,
             ),
           ),
@@ -347,7 +348,7 @@ Widget _buildTextField(
           borderSide: BorderSide(color: Colors.grey),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.red),
+          borderSide: BorderSide(color: AppColors.redColor),
         ),
       ),
     ),

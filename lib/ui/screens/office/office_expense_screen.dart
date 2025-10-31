@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/expense_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/request_state.dart' show RequestState;
 import '../../dialogs/custom_dialoges.dart';
 import '../../dialogs/tags_class.dart';
@@ -146,7 +147,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                     icon: const Icon(Icons.refresh),
                     label: const Text("Refresh"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppColors.redColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -181,7 +182,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.red,
+                                color: AppColors.redColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -229,7 +230,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.red,
+                                color: AppColors.redColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -277,7 +278,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.red,
+                                color: AppColors.redColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -325,7 +326,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.red,
+                                color: AppColors.redColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -373,7 +374,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.red,
+                                color: AppColors.redColor,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -780,7 +781,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
           onPressed: onEdit ?? () {},
         ),
         /*IconButton(
-          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+          icon: const Icon(Icons.delete, size: 20, color: AppColors.redColor),
           tooltip: 'Delete',
           onPressed: onDelete ?? () {},
         ),*/
@@ -789,7 +790,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
             'assets/icons/img_3.png',
             width: 20,
             height: 20,
-            color: Colors.red,
+            color: AppColors.redColor,
           ),
           tooltip: 'Draft',
           onPressed: onDraft ?? () {},
@@ -807,7 +808,7 @@ class _OfficeExpenseScreenState extends State<OfficeExpenseScreen> {
         child: Text(
           text,
           style: const TextStyle(
-            color: Colors.red,
+            color: AppColors.redColor,
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),

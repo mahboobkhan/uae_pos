@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'dart:html' as html; // for web
 import '../../../providers/client_profile_provider.dart';
 import '../../../providers/documents_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/pin_verification_util.dart';
 import '../../dialogs/calender.dart';
 import '../../dialogs/custom_dialoges.dart';
@@ -128,7 +129,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK", style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -146,7 +147,7 @@ class CompanyProfileState extends State<CompanyProfile> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Storage permission is required to select files'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.redColor,
             ),
           );
           return;
@@ -205,7 +206,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red, duration: const Duration(seconds: 4)),
+        SnackBar(content: Text(errorMessage), backgroundColor: AppColors.redColor, duration: const Duration(seconds: 4)),
       );
     }
   }
@@ -321,7 +322,7 @@ class CompanyProfileState extends State<CompanyProfile> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.redColor,
               content: Text(documentsProvider.errorMessage ?? 'Failed to upload document'),
               action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
             ),
@@ -332,7 +333,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
             content: Text('Upload failed: ${e.toString()}'),
             action: SnackBarAction(label: 'Retry', textColor: Colors.white, onPressed: () => _uploadDocument()),
           ),
@@ -402,7 +403,7 @@ class CompanyProfileState extends State<CompanyProfile> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
           content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
         ),
       );
@@ -465,7 +466,7 @@ class CompanyProfileState extends State<CompanyProfile> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Unable to access file picker. Please check app permissions or restart the app.'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.redColor,
           duration: const Duration(seconds: 5),
         ),
       );
@@ -559,7 +560,7 @@ class CompanyProfileState extends State<CompanyProfile> {
               ),
               IconButton(
                 onPressed: () => _deleteDocument(documentRefId),
-                icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                icon: const Icon(Icons.delete, color: AppColors.redColor, size: 20),
                 tooltip: 'Delete Document',
               ),
             ],
@@ -705,7 +706,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                     children: [
                       const Text(
                         'Establishment Profile',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
@@ -728,11 +729,11 @@ class CompanyProfileState extends State<CompanyProfile> {
                     children: [
                       Text(
                         _createdDateController.text,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 14),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.redColor, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
+                        icon: const Icon(Icons.close, color: AppColors.redColor),
                         onPressed: () async {
                           // final shouldClose = await showDialog<bool>(
                           //   context: context,
@@ -761,7 +762,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                           //                 () => Navigator.of(context).pop(true),
                           //             child: const Text(
                           //               "Close",
-                          //               style: TextStyle(color: Colors.red),
+                          //               style: TextStyle(color: AppColors.redColor),
                           //             ),
                           //           ),
                           //         ],
@@ -897,7 +898,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   children: [
                     const Text(
                       'Document Upload',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                     ),
                     const SizedBox(height: 10),
                     Wrap(
@@ -986,7 +987,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                                               selectedFileBytes = null;
                                             });
                                           },
-                                          icon: const Icon(Icons.close, color: Colors.red),
+                                          icon: const Icon(Icons.close, color: AppColors.redColor),
                                           tooltip: 'Cancel Upload',
                                         ),
                                       ),
@@ -1028,7 +1029,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                   children: [
                     const Text(
                       'Attached Documents',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -1284,7 +1285,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                       } else {
                         ScaffoldMessenger.of(
                           context,
-                        ).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text(provider.errorMessage!)));
+                        ).showSnackBar(SnackBar(backgroundColor: AppColors.redColor, content: Text(provider.errorMessage!)));
                       }
                     },
                   ),
@@ -1324,7 +1325,7 @@ class CompanyProfileState extends State<CompanyProfile> {
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK", style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -1429,7 +1430,7 @@ void showInstituteManagementDialog(BuildContext context) {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                        icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                         // Smaller icon
                         padding: EdgeInsets.zero,
                         // Remove default padding
@@ -1533,7 +1534,7 @@ void showInstituteManagementDialog(BuildContext context) {
                                                 ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                                            icon: const Icon(Icons.delete, size: 18, color: AppColors.redColor),
                                             padding: EdgeInsets.zero,
                                             onPressed: () {
                                               setState(() {

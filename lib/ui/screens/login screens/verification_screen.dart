@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:abc_consultant/providers/signup_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart';
 import 'log_screen.dart';
@@ -122,7 +123,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         Text(
                           'Verification Required',
                           style: TextStyle(
-                            color: Colors.red,
+                            color: AppColors.redColor,
                             fontWeight: FontWeight.bold,
                             fontSize: 25,
                           ),
@@ -212,46 +213,36 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             minimumSize: const Size(150, 48),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4)),
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppColors.redColor,
                           ),
                           onPressed: () async {
-
-                            {
-
-                              // Step 2: Verify the user using entered PINs
-                              final verifyError = await provider.verifyUser(
-                                userId: widget.userId,
-                                pinUser: _gmailController.text.trim(),
-                                pinAdmin: _adminGmailController.text.trim(),
-                              );
-
-                              if (verifyError == null) {
-                                // Verified successfully
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => LogScreen()),
-                                );
-                              } else {
-                                showError(context, verifyError);
-                              }
-                            };
                             showLoadingDialog(context);
 
-                            final error = await provider.verifyUser(
+                            final result = await provider.verifyUser(
                               userId: widget.userId,
-                              pinUser:_gmailController.text.trim(),
+                              pinUser: _gmailController.text.trim(),
                               pinAdmin: _adminGmailController.text.trim(),
                             );
                             hideLoadingDialog(context);
 
-                            if (error == null) {
-                              // Verified successfully
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => LogScreen()),
-                              );
+                            if (result != null) {
+                              if (result['status'] == 'success') {
+                                // Show success dialog
+                                showSuccess(context, result['message'] ?? 'User verified successfully');
+                                // Navigate to login screen after a short delay
+                                await Future.delayed(const Duration(milliseconds: 1500));
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => LogScreen()),
+                                  );
+                                }
+                              } else {
+                                // Show error dialog
+                                showError(context, result['message'] ?? 'Verification failed');
+                              }
                             } else {
-                              showError(context, error);
+                              showError(context, 'Verification failed');
                             }
                           },
                           child: const Text(

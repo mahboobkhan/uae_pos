@@ -12,6 +12,7 @@ import '../../../../providers/employee_payments_provider.dart';
 import '../../../../providers/banking_payment_method_provider.dart';
 import '../../../../providers/documents_provider.dart';
 import '../../../../employee/EmployeeProvider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../dialogs/custom_fields.dart';
 
 class DialogEmployeType extends StatefulWidget {
@@ -153,11 +154,11 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                     children: [
                       Text(
                         widget.isEditMode ? "Edit Employee Payment" : "Employee Payment Management",
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.redColor),
                       ),
                       const Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red, size: 28),
+                        icon: const Icon(Icons.close, color: AppColors.redColor, size: 28),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ],
@@ -177,7 +178,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                       children: [
                         Text(
                           widget.isEditMode ? "Payment Type (Read Only)" : "Select Payment Type",
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -202,9 +203,9 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? Colors.red : Colors.white,
+                                      color: isSelected ? AppColors.redColor : Colors.white,
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: isSelected ? Colors.red : Colors.grey, width: 1.5),
+                                      border: Border.all(color: isSelected ? AppColors.redColor : Colors.grey, width: 1.5),
                                     ),
                                     child: Text(
                                       capitalizeFirstLetter(type),
@@ -247,11 +248,11 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                         children: [
                           Row(
                             children: [
-                              Icon(_getPaymentTypeIcon(selectedEmployeeType!), color: Colors.red, size: 20),
+                              Icon(_getPaymentTypeIcon(selectedEmployeeType!), color: AppColors.redColor, size: 20),
                               const SizedBox(width: 8),
                               Text(
                                 capitalizeFirstLetter(selectedEmployeeType!),
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.redColor),
                               ),
                             ],
                           ),
@@ -348,7 +349,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                   children: [
                                     const Text(
                                       'Document Upload',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                                     ),
                                     const SizedBox(height: 10),
                                     
@@ -459,7 +460,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                                 ),
                                                 IconButton(
                                                   onPressed: () => _removeSelectedFile(),
-                                                  icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                                                  icon: const Icon(Icons.close, color: AppColors.redColor, size: 20),
                                                   tooltip: 'Remove File',
                                                 ),
                                               ],
@@ -522,7 +523,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                   children: [
                                     const Text(
                                       'Attached Documents',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                                     ),
                                     const SizedBox(height: 10),
                                     Container(
@@ -601,7 +602,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                   children: [
                                     const Text(
                                       'Document Upload',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                                     ),
                                     const SizedBox(height: 10),
                                     
@@ -712,7 +713,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                                 ),
                                                 IconButton(
                                                   onPressed: () => _removeSelectedFile(),
-                                                  icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                                                  icon: const Icon(Icons.close, color: AppColors.redColor, size: 20),
                                                   tooltip: 'Remove File',
                                                 ),
                                               ],
@@ -775,7 +776,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                   children: [
                                     const Text(
                                       'Attached Documents',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                                     ),
                                     const SizedBox(height: 10),
                                     Container(
@@ -854,7 +855,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                   children: [
                                     const Text(
                                       'Document Upload',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                                     ),
                                     const SizedBox(height: 10),
                                     
@@ -965,7 +966,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                                 ),
                                                 IconButton(
                                                   onPressed: () => _removeSelectedFile(),
-                                                  icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                                                  icon: const Icon(Icons.close, color: AppColors.redColor, size: 20),
                                                   tooltip: 'Remove File',
                                                 ),
                                               ],
@@ -1028,7 +1029,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                   children: [
                                     const Text(
                                       'Attached Documents',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                                     ),
                                     const SizedBox(height: 10),
                                     Container(
@@ -1097,10 +1098,10 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.error, color: Colors.red, size: 20),
+                                  const Icon(Icons.error, color: AppColors.redColor, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(provider.errorMessage!, style: const TextStyle(color: Colors.red)),
+                                    child: Text(provider.errorMessage!, style: const TextStyle(color: AppColors.redColor)),
                                   ),
                                 ],
                               ),
@@ -1213,7 +1214,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
           labelText: label,
           border: const OutlineInputBorder(),
           enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: AppColors.redColor)),
         ),
       ),
     );
@@ -1363,7 +1364,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
     } catch (e) {
       print('🔍 Debug: File picker error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: AppColors.redColor),
       );
     }
   }
@@ -1443,7 +1444,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
             content: Text('Failed to attach document: ${e.toString()}'),
           ),
         );
@@ -1483,10 +1484,10 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                   children: [
                     Text(
                       'Document Preview',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.redColor),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.red),
+                      icon: const Icon(Icons.close, color: AppColors.redColor),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -1570,7 +1571,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close', style: TextStyle(color: Colors.red)),
+                      child: const Text('Close', style: TextStyle(color: AppColors.redColor)),
                     ),
                   ],
                 ),
@@ -1735,7 +1736,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                 ),
               IconButton(
                 onPressed: () => _deleteDocument(documentRefId),
-                icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                icon: const Icon(Icons.delete, color: AppColors.redColor, size: 20),
                 tooltip: 'Remove Document',
               ),
             ],
@@ -1784,7 +1785,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
             content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
           ),
         );
@@ -1804,7 +1805,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
             labelText: "Date and Time",
             labelStyle: TextStyle(color: Colors.grey),
             border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-            suffixIcon: Icon(Icons.calendar_month, color: Colors.red),
+            suffixIcon: Icon(Icons.calendar_month, color: AppColors.redColor),
           ),
           child: Text(
             DateFormat("dd-MM-yyyy – hh:mm a").format(selectedDateTime),
@@ -1826,7 +1827,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
             labelText: "Month/Year",
             labelStyle: TextStyle(color: Colors.grey),
             border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-            suffixIcon: Icon(Icons.calendar_month, color: Colors.red),
+            suffixIcon: Icon(Icons.calendar_month, color: AppColors.redColor),
           ),
           child: Text(
             _monthYearController.text.isEmpty
@@ -1870,7 +1871,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                     "${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}";
                 Navigator.pop(context); // close dialog
               },
-              child: const Text("OK", style: TextStyle(color: Colors.red)),
+              child: const Text("OK", style: TextStyle(color: AppColors.redColor)),
             ),
           ],
         );
@@ -1899,7 +1900,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
               backgroundColor: Colors.white,
               title: const Text(
                 "Select Month & Year",
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style: TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold),
               ),
               content: SizedBox(
                 width: 500,
@@ -1928,11 +1929,11 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.calendar_month_outlined, color: Colors.red, size: 20),
+                                  Icon(Icons.calendar_month_outlined, color: AppColors.redColor, size: 20),
                                   SizedBox(width: 8),
                                   Text(
                                     "Year",
-                                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                                 ],
                               ),
@@ -1954,7 +1955,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                       decoration: BoxDecoration(
-                                        color: isSelected ? Colors.red : Colors.transparent,
+                                        color: isSelected ? AppColors.redColor : Colors.transparent,
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
@@ -1997,11 +1998,11 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.calendar_view_month, color: Colors.red, size: 20),
+                                  Icon(Icons.calendar_view_month, color: AppColors.redColor, size: 20),
                                   SizedBox(width: 8),
                                   Text(
                                     "Month",
-                                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                                 ],
                               ),
@@ -2039,10 +2040,10 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                                     child: Container(
                                       margin: const EdgeInsets.all(2),
                                       decoration: BoxDecoration(
-                                        color: isSelected ? Colors.red : Colors.transparent,
+                                        color: isSelected ? AppColors.redColor : Colors.transparent,
                                         borderRadius: BorderRadius.circular(4),
                                         border: Border.all(
-                                          color: isSelected ? Colors.red : Colors.grey.shade300,
+                                          color: isSelected ? AppColors.redColor : Colors.grey.shade300,
                                           width: 1,
                                         ),
                                       ),
@@ -2080,7 +2081,7 @@ class _DialogEmployeTypeState extends State<DialogEmployeType> {
                     });
                     Navigator.pop(context);
                   },
-                  child: const Text("OK", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  child: const Text("OK", style: TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold)),
                 ),
               ],
             );

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../employee/EmployeeProvider.dart';
 import '../../../employee/employee_models.dart';
 import '../../../providers/signup_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/custom_dialoges.dart';
 import 'employee_dialoges/employe_profile.dart';
 
@@ -327,7 +328,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     height: 40,
     alignment: Alignment.centerLeft,
     padding: const EdgeInsets.only(left: 8.0),
-    child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
+    child: Text(text, style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12)),
   );
 
   Widget _buildCell2(String text1, String text2, {bool copyable = false, bool centerText2 = false}) => Padding(
@@ -385,7 +386,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       child: Row(
         children: [
           SvgPicture.asset('assets/icons/dirham_symble.svg', height: 12, width: 12),
-          Text(' $price', style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold)),
+          Text(' $price', style: TextStyle(fontSize: 12, color: AppColors.redColor, fontWeight: FontWeight.bold)),
           const Spacer(),
           if (showPlus)
             Container(

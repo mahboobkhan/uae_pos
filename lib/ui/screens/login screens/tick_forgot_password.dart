@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../utils/app_colors.dart';
+
 class TickForgotPassword extends StatefulWidget {
   const TickForgotPassword({super.key});
 
@@ -38,7 +40,7 @@ class _TickForgotPasswordState extends State<TickForgotPassword> {
                       Text(
                         "Request For Forgot Password",
                         style: TextStyle(
-                          color: Colors.red,
+                          color: AppColors.redColor,
                           fontSize: width * 0.02,
                           fontWeight: FontWeight.bold,
                         ),
@@ -65,7 +67,7 @@ class _TickForgotPasswordState extends State<TickForgotPassword> {
                       Text(
                         "CHECK MAIL BOX GET LINK AND RESET\nPASSWORD",
                         style: TextStyle(
-                          color: Colors.red,
+                          color: AppColors.redColor,
                           fontWeight: FontWeight.bold,
                           fontSize: width * 0.01,
                         ),
@@ -103,7 +105,7 @@ class _TickForgotPasswordState extends State<TickForgotPassword> {
                           onPressed: () {
                             //Resent Code Logic
                           },
-                          color: Colors.red,
+                          color: AppColors.redColor,
                           child: Text(
                             "Resent",
                             style: TextStyle(color: Colors.white),

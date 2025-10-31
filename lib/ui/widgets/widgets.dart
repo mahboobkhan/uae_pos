@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/app_colors.dart';
+
 Widget buildCenteredTextContainer({
   required String title,
   required String subtitle,
-  Color backgroundColor = Colors.red,
+  Color backgroundColor = AppColors.redColor,
 }) {
   return Container(
     height: 120,

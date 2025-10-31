@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/expense_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/request_state.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_dialoges.dart';
@@ -390,7 +391,7 @@ class _FixedOfficeExpenseState extends State<FixedOfficeExpense> {
         padding: const EdgeInsets.only(left: 4.0),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          style: const TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ),

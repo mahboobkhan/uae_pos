@@ -13,6 +13,7 @@ import '../../../../providers/banking_payments_provider.dart';
 import '../../../../providers/documents_provider.dart';
 import '../../../../providers/project_stage_provider.dart';
 import '../../../../providers/projects_provider.dart';
+import '../../../../utils/app_colors.dart';
 import '../../../dialogs/custom_fields.dart';
 
 class DialogueBankTransaction extends StatefulWidget {
@@ -190,7 +191,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       children: [
                         Text(
                           widget.isEditMode ? "Edit Banking Payment" : "Client Transactions",
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.redColor),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -203,11 +204,11 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       children: [
                         Text(
                           _formattedDate(),
-                          style: const TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 14, color: AppColors.redColor, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 10),
                         IconButton(
-                          icon: const Icon(Icons.close, color: Colors.red),
+                          icon: const Icon(Icons.close, color: AppColors.redColor),
                           onPressed: () async {
                             // final shouldClose = await showDialog<bool>(
                             //   context: context,
@@ -224,7 +225,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                             //           ),
                             //           TextButton(
                             //             onPressed: () => Navigator.of(context).pop(true),
-                            //             child: const Text("Close", style: TextStyle(color: Colors.red)),
+                            //             child: const Text("Close", style: TextStyle(color: AppColors.redColor)),
                             //           ),
                             //         ],
                             //       ),
@@ -521,7 +522,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       children: [
                         const Text(
                           'Document Upload',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                         ),
                         const SizedBox(height: 10),
 
@@ -634,7 +635,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                                     ),
                                     IconButton(
                                       onPressed: () => _removeSelectedFile(),
-                                      icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                                      icon: const Icon(Icons.close, color: AppColors.redColor, size: 20),
                                       tooltip: 'Remove File',
                                     ),
                                   ],
@@ -700,7 +701,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       children: [
                         const Text(
                           'Attached Documents',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.redColor),
                         ),
                         const SizedBox(height: 10),
                         Container(
@@ -1100,7 +1101,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       print('🔍 Debug: File picker error: $e');
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: Colors.red));
+      ).showSnackBar(SnackBar(content: Text('Error picking file: ${e.toString()}'), backgroundColor: AppColors.redColor));
     }
   }
 
@@ -1178,7 +1179,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text('Failed to attach document: ${e.toString()}')),
+          SnackBar(backgroundColor: AppColors.redColor, content: Text('Failed to attach document: ${e.toString()}')),
         );
       }
     } finally {
@@ -1217,10 +1218,10 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       children: [
                         Text(
                           'Document Preview',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.redColor),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, color: Colors.red),
+                          icon: const Icon(Icons.close, color: AppColors.redColor),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ],
@@ -1294,7 +1295,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                       children: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Close', style: TextStyle(color: Colors.red)),
+                          child: const Text('Close', style: TextStyle(color: AppColors.redColor)),
                         ),
                       ],
                     ),
@@ -1450,7 +1451,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
                 ),
               IconButton(
                 onPressed: () => _deleteDocument(documentRefId),
-                icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                icon: const Icon(Icons.delete, color: AppColors.redColor, size: 20),
                 tooltip: 'Remove Document',
               ),
             ],
@@ -1497,7 +1498,7 @@ class _DialogueBankTransactionState extends State<DialogueBankTransaction> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.redColor,
             content: Text(documentsProvider.errorMessage ?? 'Failed to delete document'),
           ),
         );

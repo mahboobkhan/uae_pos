@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/desigination_provider.dart';
+import '../utils/app_colors.dart';
 import '../utils/request_state.dart';
 
 class DesignationScreen extends StatefulWidget {
@@ -95,7 +96,7 @@ class _DesignationScreenState extends State<DesignationScreen> {
       case RequestState.error:
         return Text(
           "❌ ${provider.errorMessage}",
-          style: const TextStyle(color: Colors.red),
+          style: const TextStyle(color: AppColors.redColor),
         );
       case RequestState.idle:
       default:

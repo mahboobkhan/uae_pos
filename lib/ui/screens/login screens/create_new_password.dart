@@ -3,6 +3,7 @@ import 'package:abc_consultant/ui/screens/login%20screens/log_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../utils/app_colors.dart';
 import '../../../widgets/loading_dialog.dart';
 import '../../dialogs/custom_fields.dart' show CustomTextField;
 
@@ -47,7 +48,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                           child: Text(
                             'Create New Password',
                             style: TextStyle(
-                              color: Colors.red,
+                              color: AppColors.redColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 25,
                             ),
@@ -118,7 +119,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   minimumSize: const Size(150, 48),
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: AppColors.redColor,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(4),
                                   ),

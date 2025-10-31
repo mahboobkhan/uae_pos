@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../employee/employee_models.dart';
 import '../../providers/short_services_provider.dart';
 import '../../providers/short_service_category_provider.dart';
+import '../../utils/app_colors.dart';
 import 'custom_fields.dart';
 
 
@@ -79,7 +80,7 @@ void showShortServicesPopup(BuildContext context) {
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: AppColors.redColor,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
                             vertical: 10,
@@ -106,7 +107,7 @@ void showShortServicesPopup(BuildContext context) {
                 right: 0,
                 top: 0,
                 child: IconButton(
-                  icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                  icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
@@ -449,7 +450,7 @@ void showServicesProjectPopup(BuildContext context) {
                                                 ),
                                               ),
                                               IconButton(
-                                                icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                                                icon: const Icon(Icons.delete, size: 18, color: AppColors.redColor),
                                                 padding: EdgeInsets.zero,
                                                 constraints: const BoxConstraints(),
                                                 onPressed: () {
@@ -529,7 +530,7 @@ void showServicesProjectPopup(BuildContext context) {
                                   const SizedBox(width: 12),
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: AppColors.redColor,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 24,
                                         vertical: 10,
@@ -567,7 +568,7 @@ void showServicesProjectPopup(BuildContext context) {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             const SnackBar(
                                               content: Text('User not logged in'),
-                                              backgroundColor: Colors.red,
+                                              backgroundColor: AppColors.redColor,
                                             ),
                                           );
                                           return;
@@ -598,7 +599,7 @@ void showServicesProjectPopup(BuildContext context) {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
                                               content: Text(provider.errorMessage!),
-                                              backgroundColor: Colors.red,
+                                              backgroundColor: AppColors.redColor,
                                             ),
                                           );
                                         }
@@ -606,7 +607,7 @@ void showServicesProjectPopup(BuildContext context) {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
                                             content: Text('Error: $e'),
-                                            backgroundColor: Colors.red,
+                                            backgroundColor: AppColors.redColor,
                                           ),
                                         );
                                       }
@@ -627,7 +628,7 @@ void showServicesProjectPopup(BuildContext context) {
                         right: 0,
                         top: 0,
                         child: IconButton(
-                          icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                          icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ),
@@ -680,7 +681,7 @@ void showServiceCategoryManagementDialog(BuildContext context) {
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.close, size: 25, color: Colors.red),
+                            icon: const Icon(Icons.close, size: 25, color: AppColors.redColor),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             onPressed: () => Navigator.pop(context),
@@ -733,7 +734,7 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
                   labelStyle: TextStyle(fontSize: 14, color: Colors.grey),
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 1),
+                    borderSide: BorderSide(color: AppColors.redColor, width: 1),
                   ),
                   isDense: true,
                 ),
@@ -749,7 +750,7 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
                   labelStyle: TextStyle(fontSize: 14, color: Colors.grey),
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 1),
+                    borderSide: BorderSide(color: AppColors.redColor, width: 1),
                   ),
                   isDense: true,
                 ),
@@ -765,7 +766,7 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
             labelStyle: TextStyle(fontSize: 14, color: Colors.grey),
             border: OutlineInputBorder(),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red, width: 1),
+              borderSide: BorderSide(color: AppColors.redColor, width: 1),
             ),
             isDense: true,
           ),
@@ -791,7 +792,7 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('User not logged in'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppColors.redColor,
                     ),
                   );
                   return;
@@ -818,7 +819,7 @@ Widget _buildAddCategoryForm(BuildContext context, ShortServiceCategoryProvider 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(categoryProvider.errorMessage!),
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppColors.redColor,
                     ),
                   );
                 }
@@ -864,11 +865,11 @@ Widget _buildCategoriesList(BuildContext context, ShortServiceCategoryProvider c
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 48, color: Colors.red),
+          Icon(Icons.error_outline, size: 48, color: AppColors.redColor),
           const SizedBox(height: 16),
           Text(
             categoryProvider.errorMessage!,
-            style: const TextStyle(color: Colors.red),
+            style: const TextStyle(color: AppColors.redColor),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -917,7 +918,7 @@ Widget _buildCategoriesList(BuildContext context, ShortServiceCategoryProvider c
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: (category['status'] == 'active') ? Colors.green : Colors.red,
+              color: (category['status'] == 'active') ? Colors.green : AppColors.redColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -976,7 +977,7 @@ void showInstituteManagementDialog(BuildContext context) {
                         icon: const Icon(
                           Icons.close,
                           size: 25,
-                          color: Colors.red,
+                          color: AppColors.redColor,
                         ),
                         // Smaller icon
                         padding: EdgeInsets.zero,
@@ -1104,7 +1105,7 @@ void showInstituteManagementDialog(BuildContext context) {
                                             icon: const Icon(
                                               Icons.delete,
                                               size: 18,
-                                              color: Colors.red,
+                                              color: AppColors.redColor,
                                             ),
                                             padding: EdgeInsets.zero,
                                             onPressed: () {
@@ -1237,7 +1238,7 @@ void showInstituteManagementDialog1(BuildContext context) {
                         icon: const Icon(
                           Icons.close,
                           size: 25,
-                          color: Colors.red,
+                          color: AppColors.redColor,
                         ),
                         // Smaller icon
                         padding: EdgeInsets.zero,
@@ -1365,7 +1366,7 @@ void showInstituteManagementDialog1(BuildContext context) {
                                             icon: const Icon(
                                               Icons.delete,
                                               size: 18,
-                                              color: Colors.red,
+                                              color: AppColors.redColor,
                                             ),
                                             padding: EdgeInsets.zero,
                                             onPressed: () {

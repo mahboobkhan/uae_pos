@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/update_ban_account_provider.dart';
+import '../utils/app_colors.dart';
 import '../utils/request_state.dart';
 
 class UpdateUserBankAccountScreen extends StatefulWidget {
@@ -105,7 +106,7 @@ class _UpdateUserBankAccountScreenState
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
                         provider.errorMessage ?? "An error occurred",
-                        style: const TextStyle(color: Colors.red),
+                        style: const TextStyle(color: AppColors.redColor),
                       ),
                     ),
                   if (provider.state == RequestState.success)

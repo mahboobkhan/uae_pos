@@ -6,6 +6,7 @@ enum NavItem {
   banking,
   expenses,
   files,
+  links,
   notifications,
   settings,
 }

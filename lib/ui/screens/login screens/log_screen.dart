@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../providers/signup_provider.dart';
+import '../../../utils/app_colors.dart';
 import '../../dialogs/custom_fields.dart';
 
 class LogScreen extends StatefulWidget {
@@ -71,7 +72,7 @@ class _LogScreenState extends State<LogScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: 30),
-                        Text('Login', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 25)),
+                        Text('Login', style: TextStyle(color: AppColors.redColor, fontWeight: FontWeight.bold, fontSize: 25)),
                         SizedBox(height: 8),
                         Text(
                           'Sign in to continue',
@@ -104,7 +105,7 @@ class _LogScreenState extends State<LogScreen> {
                                           await prefs.setString('email', _emailController.text.trim());
                                         }
                                       },
-                                      activeColor: Colors.red,
+                                      activeColor: AppColors.redColor,
                                       checkColor: Colors.white,
                                     ),
                                     const Text('Remember me'),
@@ -157,7 +158,7 @@ class _LogScreenState extends State<LogScreen> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   minimumSize: Size(150, 48),
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: AppColors.redColor,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                                 ),
                                 child: Text(
