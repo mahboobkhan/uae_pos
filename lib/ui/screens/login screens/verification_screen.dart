@@ -216,43 +216,33 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             backgroundColor: AppColors.redColor,
                           ),
                           onPressed: () async {
-
-                            {
-
-                              // Step 2: Verify the user using entered PINs
-                              final verifyError = await provider.verifyUser(
-                                userId: widget.userId,
-                                pinUser: _gmailController.text.trim(),
-                                pinAdmin: _adminGmailController.text.trim(),
-                              );
-
-                              if (verifyError == null) {
-                                // Verified successfully
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => LogScreen()),
-                                );
-                              } else {
-                                showError(context, verifyError);
-                              }
-                            };
                             showLoadingDialog(context);
 
-                            final error = await provider.verifyUser(
+                            final result = await provider.verifyUser(
                               userId: widget.userId,
-                              pinUser:_gmailController.text.trim(),
+                              pinUser: _gmailController.text.trim(),
                               pinAdmin: _adminGmailController.text.trim(),
                             );
                             hideLoadingDialog(context);
 
-                            if (error == null) {
-                              // Verified successfully
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => LogScreen()),
-                              );
+                            if (result != null) {
+                              if (result['status'] == 'success') {
+                                // Show success dialog
+                                showSuccess(context, result['message'] ?? 'User verified successfully');
+                                // Navigate to login screen after a short delay
+                                await Future.delayed(const Duration(milliseconds: 1500));
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => LogScreen()),
+                                  );
+                                }
+                              } else {
+                                // Show error dialog
+                                showError(context, result['message'] ?? 'Verification failed');
+                              }
                             } else {
-                              showError(context, error);
+                              showError(context, 'Verification failed');
                             }
                           },
                           child: const Text(

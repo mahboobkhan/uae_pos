@@ -275,15 +275,14 @@ class _ForgotScreenState extends State<ForgotScreen> {
                               }
                               showLoadingDialog(context);
 
-                              final error = await provider.verifyUser(
+                              final result = await provider.verifyUser(
                                 userId: widget.userId,
                                 pinUser: _gmailController.text.trim(),
                                 pinAdmin: _adminGmailController.text.trim(),
                               );
+                              hideLoadingDialog(context);
 
-                              if (error == null) {
-                                showLoadingDialog(context);
-                                hideLoadingDialog(context);
+                              if (result != null && result['status'] == 'success') {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -294,7 +293,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                                   ),
                                 );
                               } else {
-                                showError(context, error);
+                                showError(context, result?['message'] ?? 'Verification failed');
                               }
                             },
                             child: const FittedBox(

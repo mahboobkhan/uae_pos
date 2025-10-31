@@ -232,7 +232,7 @@ class SignupProvider with ChangeNotifier {
   }
 
   //////////
-  Future<String?> verifyUser({required String userId, required String pinUser, required String pinAdmin}) async {
+  Future<Map<String, dynamic>?> verifyUser({required String userId, required String pinUser, required String pinAdmin}) async {
     print("Sending for : $userId");
     final url = Uri.parse('https://abcwebservices.com/api/login/verify_user.php');
     final headers = {'Content-Type': 'application/json'};
@@ -255,14 +255,23 @@ class SignupProvider with ChangeNotifier {
       notifyListeners();
 
       if (response.statusCode == 200 && jsonResponse['status'] == 'success') {
-        return null; // Verification success
+        return {
+          'status': 'success',
+          'message': jsonResponse['message'] ?? 'User verified successfully'
+        };
       } else {
-        return jsonResponse['message'] ?? "Verification failed";
+        return {
+          'status': 'error',
+          'message': jsonResponse['message'] ?? "Verification failed"
+        };
       }
     } catch (e) {
       isLoading = false;
       notifyListeners();
-      return "Network error: $e";
+      return {
+        'status': 'error',
+        'message': "Network error: $e"
+      };
     }
   }
 
