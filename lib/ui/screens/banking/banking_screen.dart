@@ -2,18 +2,14 @@ import 'package:abc_consultant/ui/dialogs/custom_dialoges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-import '../../../providers/banking_payments_provider.dart';
 import '../../../providers/banking_payment_method_provider.dart';
-import '../../../providers/projects_provider.dart';
-import '../../dialogs/custom_fields.dart';
+import '../../../providers/banking_payments_provider.dart';
 import '../../dialogs/date_picker.dart';
-import '../office/dialogues/dialogue_fixed_office_expense.dart';
 import 'banking_dialoges/client_transaction.dart';
 import 'banking_dialoges/employe_type_dialog.dart';
-import 'banking_dialoges/office_expance_dialog.dart';
 import 'banking_dialoges/unified_office_expense_dialog.dart';
 
 class BankingScreen extends StatefulWidget {
@@ -458,7 +454,9 @@ class _BankingScreenState extends State<BankingScreen> {
                                               ),
                                               _buildCell(payment['type']?.toString().toUpperCase() ?? 'N/A'),
                                               _buildCell(payment['client_ref']?.toString() ?? 'N/A', copyable: true),
-                                              _buildPriceWithAdd(bankingProvider.formatAmount(payment['paid_amount']) ?? 'N/A'),
+                                              _buildPriceWithAdd(
+                                                bankingProvider.formatAmount(payment['paid_amount']) ?? 'N/A',
+                                              ),
                                               _buildCell(
                                                 payment['status']?.toString().toUpperCase() ?? 'N/A',
                                                 copyable: false,
@@ -635,6 +633,7 @@ class _BankingScreenState extends State<BankingScreen> {
       ],
     );
   }
+
   Widget _buildPriceWithAdd(String price, {bool showPlus = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -654,6 +653,7 @@ class _BankingScreenState extends State<BankingScreen> {
       ),
     );
   }
+
   /// Apply filters to banking payments
   void _applyFilters() {
     final bankingProvider = context.read<BankingPaymentsProvider>();

@@ -175,12 +175,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                         boxShadow:
                             _isHovering
                                 ? [
-                                  BoxShadow(
-                                    color: Colors.blue,
-                                    blurRadius: 3,
-                                    spreadRadius: 0.1,
-                                    offset: Offset(0, 1),
-                                  ),
+                                  BoxShadow(color: Colors.blue, blurRadius: 3, spreadRadius: 0.1, offset: Offset(0, 1)),
                                 ]
                                 : [],
                       ),
@@ -385,9 +380,9 @@ class _ProjectScreenState extends State<ProjectScreen> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Expanded(
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Container(
                         child:
                             projectsProvider.isLoading
