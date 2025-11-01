@@ -492,9 +492,8 @@ class _FinanceScreenState extends State<FinanceScreen> {
   void _applyFilters() {
     final bankingProvider = context.read<BankingPaymentsProvider>();
 
-    String? statusFilter;
     String? paymentTypeFilter;
-    String? typeFilter;
+    String? typeFilter = 'project';
     String? startDateFilter;
     String? endDateFilter;
 
@@ -503,34 +502,51 @@ class _FinanceScreenState extends State<FinanceScreen> {
     }
 
     if (selectedDateRange != null && selectedDateRange != 'All') {
-      final now = DateTime.now();
-      switch (selectedDateRange) {
-        case 'Today':
-          startDateFilter = DateFormat('yyyy-MM-dd').format(now);
-          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
-          break;
-        case 'Yesterday':
-          final yesterday = now.subtract(const Duration(days: 1));
-          startDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
-          endDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
-          break;
-        case 'Last 7 Days':
-          final weekAgo = now.subtract(const Duration(days: 7));
-          startDateFilter = DateFormat('yyyy-MM-dd').format(weekAgo);
-          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
-          break;
-        case 'Last 30 Days':
-          final monthAgo = now.subtract(const Duration(days: 30));
-          startDateFilter = DateFormat('yyyy-MM-dd').format(monthAgo);
-          endDateFilter = DateFormat('yyyy-MM-dd').format(now);
-          break;
+      // Check if it's a custom range (contains ' - ')
+      if (selectedDateRange!.contains(' - ')) {
+        // Parse the custom date range string
+        try {
+          final parts = selectedDateRange!.split(' - ');
+          if (parts.length == 2) {
+            final start = DateFormat('dd/MM/yyyy').parse(parts[0].trim());
+            final end = DateFormat('dd/MM/yyyy').parse(parts[1].trim());
+            startDateFilter = DateFormat('yyyy-MM-dd').format(start);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(end);
+          }
+        } catch (e) {
+          // If parsing fails, skip date filters
+        }
+      } else {
+        // Predefined date range
+        final now = DateTime.now();
+        switch (selectedDateRange) {
+          case 'Today':
+            startDateFilter = DateFormat('yyyy-MM-dd').format(now);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+            break;
+          case 'Yesterday':
+            final yesterday = now.subtract(const Duration(days: 1));
+            startDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(yesterday);
+            break;
+          case 'Last 7 Days':
+            final weekAgo = now.subtract(const Duration(days: 7));
+            startDateFilter = DateFormat('yyyy-MM-dd').format(weekAgo);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+            break;
+          case 'Last 30 Days':
+            final monthAgo = now.subtract(const Duration(days: 30));
+            startDateFilter = DateFormat('yyyy-MM-dd').format(monthAgo);
+            endDateFilter = DateFormat('yyyy-MM-dd').format(now);
+            break;
+        }
       }
     }
 
     bankingProvider.setFilters(
-      type: typeFilter ?? 'project',
+      type: typeFilter,
       paymentType: paymentTypeFilter,
-      status: statusFilter,
+      status: null,
       dateFrom: startDateFilter,
       dateTo: endDateFilter,
     );
@@ -542,10 +558,17 @@ class _FinanceScreenState extends State<FinanceScreen> {
   void _applyCustomDateRange(DateTime startDate, DateTime endDate) {
     final bankingProvider = context.read<BankingPaymentsProvider>();
 
+    // Preserve payment type filter if set
+    String? paymentTypeFilter;
+    if (selectedPaymentType != null && selectedPaymentType != 'All') {
+      paymentTypeFilter = selectedPaymentType!.toLowerCase();
+    }
+
     bankingProvider.setFilters(
       dateFrom: DateFormat('yyyy-MM-dd').format(startDate),
       dateTo: DateFormat('yyyy-MM-dd').format(endDate),
       type: 'project',
+      paymentType: paymentTypeFilter, // Preserve payment type filter
     );
 
     bankingProvider.getAllBankingPayments();
