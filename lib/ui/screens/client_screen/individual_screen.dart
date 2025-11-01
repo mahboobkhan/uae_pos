@@ -247,6 +247,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                   _applyFilters();
                                 },
                               ),
+/*
                               CustomDropdown(
                                 selectedValue: selectedCategory2,
                                 hintText: "Payment Status",
@@ -255,6 +256,7 @@ class _IndividualScreenState extends State<IndividualScreen> {
                                   setState(() => selectedCategory2 = newValue!);
                                 },
                               ),
+*/
                               CustomDropdown(
                                 selectedValue: selectedCategory3,
                                 hintText: "Dates",

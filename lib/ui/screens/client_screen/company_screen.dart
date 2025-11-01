@@ -258,6 +258,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                   _applyFilters();
                                 },
                               ),
+/*
                               CustomDropdown(
                                 selectedValue: selectedCategory2,
                                 hintText: "Payment Status",
@@ -266,6 +267,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                   setState(() => selectedCategory2 = newValue!);
                                 },
                               ),
+*/
                               CustomDropdown(
                                 selectedValue: selectedCategory3,
                                 hintText: "Dates",
