@@ -26,6 +26,8 @@ class ProjectScreen extends StatefulWidget {
 class _ProjectScreenState extends State<ProjectScreen> {
   final ScrollController _verticalController = ScrollController();
   final ScrollController _horizontalController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -40,6 +42,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
   void dispose() {
     _verticalController.dispose();
     _horizontalController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -87,6 +90,8 @@ class _ProjectScreenState extends State<ProjectScreen> {
       selectedCategory = null;
       selectedCategory1 = null;
       selectedCategory3 = null;
+      _searchQuery = '';
+      _searchController.clear();
     });
     provider.clearFilters();
     provider.getCombinedProjectsAndShortServices();
@@ -235,6 +240,52 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                       }
                                     },
                                     icon: const Icon(Icons.calendar_month, size: 18),
+                                  ),
+                                  // Search bar
+                                  const SizedBox(width: 8),
+                                  SizedBox(
+                                    width: 200,
+                                    height: 41,
+                                    child: TextField(
+                                      controller: _searchController,
+                                      decoration: InputDecoration(
+                                        hintText: "Paste your ref_id here",
+                                        hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                          borderSide: const BorderSide(color: Colors.grey),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                          borderSide: const BorderSide(color: Colors.grey),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                          borderSide: const BorderSide(color: Colors.red, width: 1),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                        prefixIcon: const Icon(Icons.search, size: 18, color: Colors.grey),
+                                        suffixIcon: _searchQuery.isNotEmpty
+                                            ? IconButton(
+                                                icon: const Icon(Icons.clear, size: 18),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _searchController.clear();
+                                                    _searchQuery = '';
+                                                  });
+                                                },
+                                              )
+                                            : null,
+                                      ),
+                                      style: const TextStyle(fontSize: 14),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _searchQuery = value;
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),
@@ -428,19 +479,47 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                                   _buildHeader("More Actions"),
                                                 ],
                                               ),
-                                              if (projectsProvider.combinedData.isEmpty)
-                                                TableRow(
-                                                  children: [
-                                                    Container(
-                                                      height: 50,
-                                                      child: Center(child: Text("No data available")),
+                                              ...() {
+                                                final filteredData = getFilteredData(projectsProvider.combinedData);
+                                                if (projectsProvider.combinedData.isEmpty) {
+                                                  return [
+                                                    TableRow(
+                                                      children: [
+                                                        Container(
+                                                          height: 50,
+                                                          child: Center(child: Text("No data available")),
+                                                        ),
+                                                        for (int i = 1; i < 11; i++) Container(height: 50),
+                                                      ],
                                                     ),
-                                                    for (int i = 1; i < 11; i++) Container(height: 50),
-                                                  ],
-                                                )
-                                              else
-                                                for (int i = 0; i < projectsProvider.combinedData.length; i++)
-                                                  _buildDataRow(projectsProvider.combinedData[i], i),
+                                                  ];
+                                                } else if (_searchQuery.isNotEmpty && filteredData.isEmpty) {
+                                                  return [
+                                                    TableRow(
+                                                      children: [
+                                                        Container(
+                                                          height: 50,
+                                                          child: Center(
+                                                            child: Text(
+                                                              "No reference ID found",
+                                                              style: TextStyle(
+                                                                fontSize: 14,
+                                                                color: Colors.grey[600],
+                                                                fontStyle: FontStyle.italic,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        for (int i = 1; i < 11; i++) Container(height: 50),
+                                                      ],
+                                                    ),
+                                                  ];
+                                                } else {
+                                                  return filteredData.asMap().entries.map((entry) {
+                                                    return _buildDataRow(entry.value, entry.key);
+                                                  }).toList();
+                                                }
+                                              }(),
                                             ],
                                           ),
                                         ),
@@ -661,6 +740,27 @@ class _ProjectScreenState extends State<ProjectScreen> {
     final double remaining = totalAmount - paidAmount;
 
     return remaining.toStringAsFixed(2);
+  }
+
+  List<Map<String, dynamic>> getFilteredData(List<Map<String, dynamic>> data) {
+    if (_searchQuery.isEmpty || _searchQuery.trim().isEmpty) return data;
+    
+    final query = _searchQuery.toLowerCase().trim();
+    return data.where((item) {
+      // Only search in Ref ID
+      String? refId;
+      
+      // Check if it's a project by looking for project_ref_id or type field
+      if (item['type'] == 'project' || (item['project_ref_id'] != null && item['ref_id'] == null)) {
+        refId = item['project_ref_id']?.toString().toLowerCase();
+      } else {
+        // Short service or default to ref_id
+        refId = item['ref_id']?.toString().toLowerCase();
+      }
+      
+      if (refId == null || refId.isEmpty) return false;
+      return refId.contains(query);
+    }).toList();
   }
 
   TableRow _buildDataRow(Map<String, dynamic> item, int index) {
