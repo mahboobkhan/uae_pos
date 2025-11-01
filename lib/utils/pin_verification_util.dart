@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'app_colors.dart';
+
 class PinVerificationUtil {
   /// Show PIN verification dialog before allowing any edit action
   static Future<bool> showPinVerificationDialog(
@@ -102,7 +104,7 @@ class PinVerificationUtil {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Invalid PIN. Please try again."),
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppColors.redColor,
                       duration: Duration(seconds: 2),
                     ),
                   );

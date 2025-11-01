@@ -492,7 +492,6 @@ class _EmployeesRoleScreenState extends State<EmployeesRoleScreen> {
                         itemBuilder: (_, i) {
                           final item = sidebarItemsAccess[i];
                           final parentOn = moduleState[item.accessKey] ?? false;
-
                           return ExpansionTile(
                             title: Row(
                               children: [
